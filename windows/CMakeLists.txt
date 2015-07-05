@@ -19,14 +19,15 @@
 
 cmake_minimum_required(VERSION 2.8)
 
-set(project_name gt)
+project(gt C CXX)
+
 set(project_version v0.1)
 set(source_dir ../src)
 
 set(WITH_PROFILING FALSE) # Enable this for math functions profiling
 set(WITH_MEMORY_PROFILING FALSE) # Enable this for memory profiling
 
-project(${project_name} C CXX)
+
 
 file(GLOB source_files ${source_dir}/*.cpp)
 
@@ -65,9 +66,9 @@ include_directories(${Boost_INCLUDE_DIR})
 include_directories(${OPENGL_INCLUDE_DIRS})
 include_directories(${FBX_INCLUDE_DIR})
 
-add_executable(${project_name} ${source_files})
+add_executable(${PROJECT_NAME} ${source_files})
 target_link_libraries(
-	${project_name} 
+	${PROJECT_NAME} 
 	windowscodecs.lib 
 	${Boost_LIBRARIES} 
 	${OPENGL_LIBRARIES} 
@@ -78,3 +79,15 @@ target_link_libraries(
 # add_definitions(-Wall)
 # add_definitions(-Werror)
 # add_definitions(-msse3)
+
+if (MSYS)
+	message(STATUS "We're on msys")
+elseif (UNIX)
+	message(STATUS "We're on unix")
+elseif (CYGWIN)
+	message(STATUS "We're on cygwin")
+elseif (MINGW)
+	message(STATUS "We're on mingw")
+else ()
+	message(STATUS "No idea what we're on")
+endif (MSYS)

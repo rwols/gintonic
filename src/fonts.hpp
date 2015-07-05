@@ -4,6 +4,10 @@
 #include "opengl.hpp"
 #include "object.hpp"
 
+#ifdef BOOST_MSVC
+#include <Dwrite.h>
+#endif
+
 namespace gintonic {
 
 	class font : public object<font, boost::filesystem::path>
@@ -24,8 +28,8 @@ namespace gintonic {
 		void init_class();
 
 		#ifdef BOOST_MSVC
-		IDWriteFactory* pDWriteFactory_;
-		IDWriteTextFormat* pTextFormat_;
+		IDWriteFactory* m_factory;
+		IDWriteTextFormat* m_text_format;
 		#endif
 	};
 
