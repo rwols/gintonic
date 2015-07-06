@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
 			const auto light_attenuation = gintonic::vec3f(0.1f, 0.3f, 0.6f);
 			const auto diffuse_factor = 0.8f;
 
-			const auto color = gintonic::vec4f(1.0f, 0.0f, 0.0f, 1.0f);
+			// const auto color = gintonic::vec4f(1.0f, 0.0f, 0.0f, 1.0f);
 
 			const GLint texture_unit = 0;
 			tex.get().bind(texture_unit);

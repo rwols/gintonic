@@ -78,7 +78,8 @@ target_link_libraries(
 	${JPEG_LIBRARIES} 
 	${PNG_LIBRARIES} 
 	${FBX_LIBRARIES} 
-	${CMAKE_THREAD_LIBS_INIT})
+	${CMAKE_THREAD_LIBS_INIT}
+	-ldl)
 add_definitions(-std=c++11)
 add_definitions(-Wall)
 add_definitions(-Werror)
