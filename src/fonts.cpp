@@ -77,8 +77,18 @@ namespace gintonic {
 		{
 			throw std::runtime_error("Could not open font.");
 		}
+<<<<<<< HEAD
 		auto g = face->glyph;
 		FT_Set_Pixel_Sizes(face, 0, 48);
+=======
+		#endif
+
+		#ifdef BOOST_MSVC
+		// ...
+		#elif defined(__linux__)
+		FT_Set_Pixel_Sizes(m_face, 0, 48);
+		#endif
+>>>>>>> cf6459f5f5ca7e8673947cdbbc2c66f3a60aa85c
 
 		glActiveTexture(GL_TEXTURE0);
 		glGenTextures(1, &m_tex);
@@ -140,6 +150,11 @@ namespace gintonic {
 
 	void font::draw(const std::string& text, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
+
+		#ifdef BOOST_MSVC
+		std::cout << "User attempts to draw the text:\n";
+		std::cout << '\t' << text << "\n\n";
+		#elif defined(__linux__)
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_tex);
 		glBindVertexArray(m_vao);
@@ -170,6 +185,7 @@ namespace gintonic {
 			coords[n++] = opengl::vertex_text2d<GLfloat>(x2,     -y2 - h, m_char_info[i].tx,                                                (GLfloat)(m_char_info[i].bh / m_atlas_height));
 			coords[n++] = opengl::vertex_text2d<GLfloat>(x2 + w, -y2 - h, m_char_info[i].tx + (GLfloat)(m_char_info[i].bw / m_atlas_width), (GLfloat)(m_char_info[i].bh / m_atlas_height));
 		}
+<<<<<<< HEAD
 
 		gtBufferData(GL_ARRAY_BUFFER, coords, GL_DYNAMIC_DRAW);
 		glDrawArrays(GL_TRIANGLES, 0, n);
@@ -205,6 +221,9 @@ namespace gintonic {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+=======
+		#endif
+>>>>>>> cf6459f5f5ca7e8673947cdbbc2c66f3a60aa85c
 	}
 
 } // namespace gintonic
