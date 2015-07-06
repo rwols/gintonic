@@ -71,7 +71,7 @@ namespace gintonic {
 		#endif
 
 		#ifdef BOOST_MSVC
-		std::cout << "User is trying to set font size to " << pixels << " pixels.\n";
+		// ...
 		#elif defined(__linux__)
 		FT_Set_Pixel_Sizes(m_face, 0, 48);
 		#endif
@@ -108,6 +108,11 @@ namespace gintonic {
 
 	void font::draw(const std::string& text, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
+
+		#ifdef BOOST_MSVC
+		std::cout << "User attempts to draw the text:\n";
+		std::cout << '\t' << text << "\n\n";
+		#elif defined(__linux__)
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_tex);
 		glBindVertexArray(m_vao);
@@ -142,6 +147,7 @@ namespace gintonic {
 			position[0] += (g->advance.x >> 6) * scale[0];
 			position[1] += (g->advance.y >> 6) * scale[1];
 		}
+		#endif
 	}
 
 } // namespace gintonic
