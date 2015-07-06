@@ -79,6 +79,7 @@ int main(int argc, char* argv[])
 			title.append(PROJECT_VERSION);
 			renderer::init(title.c_str(), default_camera, true, 800, 640);
 			texture2d::init();
+			gintonic::font::init();
 		}
 
 		std::cout << renderer::name() << '\n';
@@ -94,8 +95,10 @@ int main(int argc, char* argv[])
 		//
 		gintonic::opengl::unit_cube_PUN the_shape;
 		auto program = shader::flyweight("../s/point_diffuse.vs", "", "../s/point_diffuse.fs");
+		auto textshader = shader::flyweight("../s/flat_text_uniform_color.vs", "", "../s/flat_text_uniform_color.fs");
 		auto tex = texture2d::flyweight("../resources/sample.jpg");
 		auto font = gintonic::font::flyweight("../resources/SCRIPTIN.ttf");
+		// font.get().set_size(48);
 
 		const auto loc_diffuse = program.get().get_uniform_location("material.diffuse_color");
 		const auto loc_diffuse_factor = program.get().get_uniform_location("material.diffuse_factor");
@@ -107,9 +110,10 @@ int main(int argc, char* argv[])
 		const auto loc_matrix_vm = program.get().get_uniform_location("matrix_VM");
 		const auto loc_matrix_n = program.get().get_uniform_location("matrix_N");
 
+		// const auto loc_text_color = textshader.get().get_uniform_location("color");
+		// const auto loc_text_tex = textshader.get().get_uniform_location("tex");
+
 		glEnable(GL_CULL_FACE);
-		glEnable(GL_DEPTH_TEST);
-		glDepthMask(GL_TRUE);
 
 		//
 		// start main loop
@@ -151,7 +155,7 @@ int main(int argc, char* argv[])
 			//
 			// drawing code goes here
 			//
-			glClearColor(0.0, 0.0, 0.0, 1.0);
+			glClearColor(1,1,1,1);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 			renderer::set_model_matrix(
@@ -177,6 +181,9 @@ int main(int argc, char* argv[])
 			const GLint texture_unit = 0;
 			tex.get().bind(texture_unit);
 			
+			glDisable(GL_BLEND);
+			glEnable(GL_DEPTH_TEST);
+			glDepthMask(GL_TRUE);
 			program.get().activate();
 			program.get().set_uniform(loc_diffuse, texture_unit);
 			program.get().set_uniform(loc_diffuse_factor, diffuse_factor);
@@ -189,6 +196,18 @@ int main(int argc, char* argv[])
 			program.get().set_uniform(loc_light_attenuation, light_attenuation);
 
 			the_shape.draw();
+
+			glDisable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			textshader.get().activate();
+			// program.get().set_uniform(loc_text_color, gintonic::vec4f(1,1,1,1));
+			// program.get().set_uniform(loc_text_tex, 0);
+			const gintonic::vec2f text_scale(2.0f / (GLfloat)renderer::width(), 2.0f / (GLfloat)renderer::height());
+			const gintonic::vec2f text_position(-1 + 8 * text_scale[0], 1 - 50 * text_scale[1]);
+			// -1 + 8 * sx,   1 - 50 * sy, 
+			const std::string text("The quick brown fox jumps over the lazy dog.");
+			font.get().draw(text, text_position, text_scale);
 
 			renderer::update();
 		}

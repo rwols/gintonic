@@ -52,6 +52,7 @@ set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
+find_package(Freetype REQUIRED)
 
 INCLUDE(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)
@@ -65,6 +66,7 @@ include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${JPEG_INCLUDE_DIR})
 include_directories(${PNG_INCLUDE_DIRS})
+include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${OPENGL_INCLUDE_DIRS})
 include_directories(${FBX_INCLUDE_DIR})
 
@@ -77,10 +79,11 @@ target_link_libraries(
 	${SDL2_LIBRARIES} 
 	${JPEG_LIBRARIES} 
 	${PNG_LIBRARIES} 
+	${FREETYPE_LIBRARIES} 
 	${FBX_LIBRARIES} 
 	${CMAKE_THREAD_LIBS_INIT}
 	-ldl)
 add_definitions(-std=c++11)
 add_definitions(-Wall)
-add_definitions(-Werror)
+# add_definitions(-Werror)
 add_definitions(-msse3)
