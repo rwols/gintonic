@@ -773,15 +773,51 @@ template <typename T> struct vertex_PCUsg
 	}
 };
 
-// std::ostream& operator << (std::ostream&, const vertex_P&);
-// std::ostream& operator << (std::ostream&, const vertex_PC&);
-// std::ostream& operator << (std::ostream&, const vertex_PU&);
-// std::ostream& operator << (std::ostream&, const vertex_PCU&);
-// std::ostream& operator << (std::ostream&, const vertex_PUN&);
-// std::ostream& operator << (std::ostream&, const vertex_PCUN&);
-// std::ostream& operator << (std::ostream&, const vertex_PUNTB&);
-// std::ostream& operator << (std::ostream&, const vertex_PCUNTB&);
-// std::ostream& operator << (std::ostream&, const vertex_PCUsg&);
+/**
+ * Text vertex structure
+ */
+template <typename T> struct vertex_text2d
+{
+	typedef T float_type;
+	T pos_and_texcoord[4]; //!< Position.
+	vertex_text2d() {}
+	vertex_text2d(const T px, const T py, const T pz, const T pw)
+	{
+		pos_and_texcoord[0] = px;
+		pos_and_texcoord[1] = py;
+		pos_and_texcoord[2] = pz;
+		pos_and_texcoord[3] = pw;
+	}
+	vertex_text2d(const vec4f& p)
+	{
+		pos_and_texcoord[0] = p[0];
+		pos_and_texcoord[1] = p[1];
+		pos_and_texcoord[2] = p[2];
+		pos_and_texcoord[3] = p[3];
+	}
+	vertex_text2d(const vec2f& pos, const vec2f& texcoord)
+	{
+		pos_and_texcoord[0] = pos[0];
+		pos_and_texcoord[1] = pos[1];
+		pos_and_texcoord[2] = texcoord[0];
+		pos_and_texcoord[3] = texcoord[1];
+	}
+	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_text2d), (const GLvoid*)offsetof(vertex_text2d, pos_and_texcoord));
+		glEnableVertexAttribArray(0);
+
+	}
+	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		glDisableVertexAttribArray(0);
+	}
+	inline static const char* default_extension() BOOST_NOEXCEPT_OR_NOTHROW { return "text2d"; }
+	template <class Archive> void serialize(Archive& archive, const unsigned int version)
+	{
+		archive & pos_and_texcoord;
+	}
+};
 
 template <class T>
 std::ostream& operator << (std::ostream& os, const vertex_P<T>& v)
@@ -865,6 +901,15 @@ std::ostream& operator << (std::ostream& os, const vertex_PCUsg<T>& v)
 		<< v.uv[0] << ", " << v.uv[1] << "], ["
 		<< v.shift << "], ["
 		<< v.gamma << ']';
+	return os;
+}
+
+template <class T>
+std::ostream& operator << (std::ostream& os, const vertex_text2d<T>& v)
+{
+	os << '[' << v.pos_and_texcoord[0] << ", " << v.pos_and_texcoord[1]
+		<< ", " << v.pos_and_texcoord[2] << ", " << v.pos_and_texcoord[3]
+		<< ']';
 	return os;
 }
 

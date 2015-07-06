@@ -40,7 +40,21 @@ namespace gintonic {
 		IDWriteFactory* m_factory;
 		IDWriteTextFormat* m_text_format;
 		#elif defined (__linux__)
-		FT_Face m_face;
+
+		struct character_info
+		{
+			GLfloat ax; // advance x
+			GLfloat ay; // advance y
+			GLfloat bw; // bitmap width
+			GLfloat bh; // bitmap height
+			GLfloat bl; // bitmap left
+			GLfloat bt; // bitmap top
+			GLfloat tx; // x offset of glyph in texture coordinates
+			GLfloat ty; // y offset of glyph in texture coordinates
+		} m_char_info[128];
+
+		int m_atlas_width, m_atlas_height;
+
 		#endif
 
 		GLuint m_tex;

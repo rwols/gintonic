@@ -110,11 +110,10 @@ int main(int argc, char* argv[])
 		const auto loc_matrix_vm = program.get().get_uniform_location("matrix_VM");
 		const auto loc_matrix_n = program.get().get_uniform_location("matrix_N");
 
-		// const auto loc_text_color = textshader.get().get_uniform_location("color");
-		// const auto loc_text_tex = textshader.get().get_uniform_location("tex");
+		const auto loc_text_color = textshader.get().get_uniform_location("color");
+		const auto loc_text_tex = textshader.get().get_uniform_location("tex");
 
 		glEnable(GL_CULL_FACE);
-
 		//
 		// start main loop
 		//
@@ -155,7 +154,7 @@ int main(int argc, char* argv[])
 			//
 			// drawing code goes here
 			//
-			glClearColor(1,1,1,1);
+			glClearColor(0,0,0,1);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 			renderer::set_model_matrix(
@@ -181,6 +180,7 @@ int main(int argc, char* argv[])
 			const GLint texture_unit = 0;
 			tex.get().bind(texture_unit);
 			
+			
 			glDisable(GL_BLEND);
 			glEnable(GL_DEPTH_TEST);
 			glDepthMask(GL_TRUE);
@@ -195,18 +195,31 @@ int main(int argc, char* argv[])
 			program.get().set_uniform(loc_light_intensity, light_intensity);
 			program.get().set_uniform(loc_light_attenuation, light_attenuation);
 
+			glFrontFace(GL_CCW);
 			the_shape.draw();
 
+			textshader.get().activate();
+			program.get().set_uniform(loc_text_color, gintonic::vec4f(1,0,0,1));
+			program.get().set_uniform(loc_text_tex, 0);
+			const gintonic::vec2f text_scale(2.0f / (GLfloat)renderer::width(), 2.0f / (GLfloat)renderer::height());
+			gintonic::vec2f text_position(-1 + 8 * text_scale[0], 1 - 50 * text_scale[1]);
+			// -1 + 8 * sx,   1 - 50 * sy, 
+			std::string text("Elapsed time: ");
+			text.append(std::to_string(get_elapsed_seconds()));
+			text.append(" seconds");
+
+			glFrontFace(GL_CCW);
 			glDisable(GL_DEPTH_TEST);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			textshader.get().activate();
-			// program.get().set_uniform(loc_text_color, gintonic::vec4f(1,1,1,1));
-			// program.get().set_uniform(loc_text_tex, 0);
-			const gintonic::vec2f text_scale(2.0f / (GLfloat)renderer::width(), 2.0f / (GLfloat)renderer::height());
-			const gintonic::vec2f text_position(-1 + 8 * text_scale[0], 1 - 50 * text_scale[1]);
-			// -1 + 8 * sx,   1 - 50 * sy, 
-			const std::string text("The quick brown fox jumps over the lazy dog.");
+			font.get().draw(text, text_position, text_scale);
+
+			text.clear();
+			text.append("Frames per second: ");
+			text.append(std::to_string( 1.0f / get_dt<float>()));
+
+			text_position[0] -= 1;
+
 			font.get().draw(text, text_position, text_scale);
 
 			renderer::update();
