@@ -47,7 +47,7 @@ find_package(Boost
 	REQUIRED)
 
 find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
+# find_package(GLEW REQUIRED)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
 find_package(JPEG REQUIRED)
@@ -60,7 +60,7 @@ set(FBX_ROOT "/usr/local")
 set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
 set(FBX_LIBRARIES "${FBX_ROOT}/lib/gcc4/x64/release/libfbxsdk.so")
 
-include_directories(${GLEW_INCLUDE_DIRS})
+# include_directories(${GLEW_INCLUDE_DIRS})
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${JPEG_INCLUDE_DIR})
@@ -73,7 +73,7 @@ target_link_libraries(
 	${project_name} 
 	${Boost_LIBRARIES} 
 	${OPENGL_LIBRARIES} 
-	${GLEW_LIBRARIES} 
+	# ${GLEW_LIBRARIES} 
 	${SDL2_LIBRARIES} 
 	${JPEG_LIBRARIES} 
 	${PNG_LIBRARIES} 
