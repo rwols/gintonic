@@ -21,14 +21,14 @@ cmake_minimum_required(VERSION 2.8)
 
 set(project_name gt)
 set(project_version v0.1)
-set(source_dir src)
+set(source_dir "../src")
 
 set(WITH_PROFILING false) # Enable this for math functions profiling
 set(WITH_MEMORY_PROFILING false) # Enable this for memory profiling
 
 project(${project_name})
 
-file(GLOB source_files ${source_dir}/*.cpp)
+file(GLOB source_files "${source_dir}/*.cpp")
 
 configure_file(config.hpp.in config.hpp)
 include_directories(${CMAKE_BINARY_DIR})
