@@ -3,6 +3,9 @@
 
 #include "opengl.hpp"
 #include "object.hpp"
+#include <iosfwd>
+#include <boost/iostreams/categories.hpp>
+#include <boost/iostreams/stream.hpp>
 
 #ifdef BOOST_MSVC
 #include <Dwrite.h>
@@ -13,18 +16,24 @@
 
 namespace gintonic {
 
-	class font : public object<font, boost::filesystem::path>
+	class font : public object<font, std::pair<boost::filesystem::path, int>>
 	{
 	public:
-		void draw(const std::string& text, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW;
-		virtual ~font();
 
-		static void init();
-
-		// void set_size(const int pixels);
+		typedef char char_type;
 
 		struct error : virtual exception {};
 		struct font_not_found : virtual error {};
+
+		static void init();
+		virtual ~font();
+		font(const font&) = delete;
+		font& operator = (const font&) = delete;
+
+		void draw(const char* text, const std::size_t length, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW;
+		void draw(const std::string& text, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW;
+		void draw(const char* text, const std::size_t length, vec2f position) const BOOST_NOEXCEPT_OR_NOTHROW;
+		void draw(const std::string& text, vec2f position) const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	private:
 
@@ -32,6 +41,9 @@ namespace gintonic {
 
 		font(const key_type&);
 		font(key_type&&);
+		font(font&&);
+		font& operator = (font&&);
+
 		void init_class();
 
 		static void release();
@@ -43,17 +55,16 @@ namespace gintonic {
 
 		struct character_info
 		{
-			GLfloat ax; // advance x
-			GLfloat ay; // advance y
-			GLfloat bw; // bitmap width
-			GLfloat bh; // bitmap height
-			GLfloat bl; // bitmap left
-			GLfloat bt; // bitmap top
+			int16_t ax; // advance x
+			int16_t ay; // advance y
+			int16_t bw; // bitmap width
+			int16_t bh; // bitmap height
+			int16_t bl; // bitmap left
+			int16_t bt; // bitmap top
 			GLfloat tx; // x offset of glyph in texture coordinates
-			GLfloat ty; // y offset of glyph in texture coordinates
-		} m_char_info[128];
+		} m_c[96];
 
-		int m_atlas_width, m_atlas_height;
+		GLsizei m_atlas_width, m_atlas_height;
 
 		#endif
 
@@ -61,6 +72,29 @@ namespace gintonic {
 		opengl::vertex_array_object m_vao;
 		opengl::buffer_object m_vbo;
 	};
+
+	namespace detail
+	{
+		class fontstream
+		{
+		public:
+
+			typedef char char_type;
+			typedef boost::iostreams::sink_tag category;
+
+			fontstream(const font::flyweight& f);
+			fontstream(font::flyweight&& f);
+
+			font::flyweight underlying_font;
+
+			vec2f scale;
+			vec2f position;
+
+			std::streamsize write(const char* text, const std::streamsize length) const BOOST_NOEXCEPT_OR_NOTHROW;
+		};
+	} // namespace detail
+
+	typedef boost::iostreams::stream<detail::fontstream> fontstream;
 
 } // namespace gintonic
 

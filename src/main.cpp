@@ -48,6 +48,7 @@ template <typename FloatType> inline FloatType get_dt() BOOST_NOEXCEPT_OR_NOTHRO
 
 int main(int argc, char* argv[])
 {
+	std::cerr << "sizeof(gintonic::font) == " << sizeof(gintonic::font) << '\n';
 	try
 	{
 		using gintonic::renderer;
@@ -77,8 +78,8 @@ int main(int argc, char* argv[])
 			std::string title(PROJECT_NAME);
 			title.append(" version ");
 			title.append(PROJECT_VERSION);
-			renderer::init(title.c_str(), default_camera, true, 800, 640);
-			texture2d::init();
+			gintonic::renderer::init(title.c_str(), default_camera, true, 800, 640);
+			gintonic::opengl::texture2d::init();
 			gintonic::font::init();
 		}
 
@@ -97,8 +98,9 @@ int main(int argc, char* argv[])
 		auto program = shader::flyweight("../s/point_diffuse.vs", "", "../s/point_diffuse.fs");
 		auto textshader = shader::flyweight("../s/flat_text_uniform_color.vs", "", "../s/flat_text_uniform_color.fs");
 		auto tex = texture2d::flyweight("../resources/sample.jpg");
-		auto font = gintonic::font::flyweight("../resources/SCRIPTIN.ttf");
-		// font.get().set_size(48);
+		auto font_scriptin48 = gintonic::font::flyweight("../resources/SCRIPTIN.ttf", 48);
+		auto font_inconsolata20 = gintonic::font::flyweight("../resources/Inconsolata-Regular.ttf", 20);
+		gintonic::fontstream stream;
 
 		const auto loc_diffuse = program.get().get_uniform_location("material.diffuse_color");
 		const auto loc_diffuse_factor = program.get().get_uniform_location("material.diffuse_factor");
@@ -113,10 +115,10 @@ int main(int argc, char* argv[])
 		const auto loc_text_color = textshader.get().get_uniform_location("color");
 		const auto loc_text_tex = textshader.get().get_uniform_location("tex");
 
-		glEnable(GL_CULL_FACE);
 		//
 		// start main loop
 		//
+		glClearColor(0,0,0,1);
 		while (!renderer::should_close())
 		{
 			//
@@ -154,7 +156,6 @@ int main(int argc, char* argv[])
 			//
 			// drawing code goes here
 			//
-			glClearColor(0,0,0,1);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 			renderer::set_model_matrix(
@@ -175,15 +176,8 @@ int main(int argc, char* argv[])
 			const auto light_attenuation = gintonic::vec3f(0.1f, 0.3f, 0.6f);
 			const auto diffuse_factor = 0.8f;
 
-			// const auto color = gintonic::vec4f(1.0f, 0.0f, 0.0f, 1.0f);
-
 			const GLint texture_unit = 0;
 			tex.get().bind(texture_unit);
-			
-			
-			glDisable(GL_BLEND);
-			glEnable(GL_DEPTH_TEST);
-			glDepthMask(GL_TRUE);
 			program.get().activate();
 			program.get().set_uniform(loc_diffuse, texture_unit);
 			program.get().set_uniform(loc_diffuse_factor, diffuse_factor);
@@ -195,32 +189,34 @@ int main(int argc, char* argv[])
 			program.get().set_uniform(loc_light_intensity, light_intensity);
 			program.get().set_uniform(loc_light_attenuation, light_attenuation);
 
+			glDisable(GL_BLEND);
+			glEnable(GL_DEPTH_TEST);
+			glDepthMask(GL_TRUE);
+			glEnable(GL_CULL_FACE);
 			glFrontFace(GL_CCW);
 			the_shape.draw();
-
+			
 			textshader.get().activate();
-			program.get().set_uniform(loc_text_color, gintonic::vec4f(1,0,0,1));
-			program.get().set_uniform(loc_text_tex, 0);
-			const gintonic::vec2f text_scale(2.0f / (GLfloat)renderer::width(), 2.0f / (GLfloat)renderer::height());
-			gintonic::vec2f text_position(-1 + 8 * text_scale[0], 1 - 50 * text_scale[1]);
-			// -1 + 8 * sx,   1 - 50 * sy, 
-			std::string text("Elapsed time: ");
-			text.append(std::to_string(get_elapsed_seconds()));
-			text.append(" seconds");
+			textshader.get().set_uniform(loc_text_color, gintonic::vec4f(1,1,1,1));
+			textshader.get().set_uniform(loc_text_tex, 0);
 
-			glFrontFace(GL_CCW);
+			glDisable(GL_CULL_FACE);
 			glDisable(GL_DEPTH_TEST);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			font.get().draw(text, text_position, text_scale);
 
-			text.clear();
-			text.append("Frames per second: ");
-			text.append(std::to_string( 1.0f / get_dt<float>()));
+			stream.open(font_inconsolata20);
+			stream << "Elapsed time: " << std::fixed << std::setprecision(4) << get_elapsed_seconds() << " seconds\n";
+			stream << "Frames per second: " << std::fixed << std::setprecision(4) << 1.0f / get_dt<float>();
+			stream << std::endl;
+			stream.close();
 
-			text_position[0] -= 1;
-
-			font.get().draw(text, text_position, text_scale);
+			textshader.get().set_uniform(loc_text_color, gintonic::vec4f(2.0f * std::sin(get_elapsed_seconds()) - 1.0f, 0.5f, 0.4f, 1.0f));
+			
+			stream.open(font_scriptin48);
+			stream->position[1] -= 1.0f;
+			stream << "Curabitur aliquet quam id dui posuere blandit.\nCras ultricies ligula sed magna dictum porta.\nNulla quis lorem ut libero malesuada feugiat.\nVivamus suscipit tortor eget felis porttitor volutpat.\nNulla porttitor accumsan tincidunt.\nDonec rutrum congue leo eget malesuada.\nCurabitur aliquet quam id dui posuere blandit.\nVivamus magna justo, lacinia eget consectetur sed, convallis at tellus.\nVestibulum ac diam sit amet quam vehicula elementum sed sit amet dui.\nMauris blandit aliquet elit, eget tincidunt nibh pulvinar a." << std::flush;
+			stream.close();
 
 			renderer::update();
 		}
