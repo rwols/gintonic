@@ -1,20 +1,12 @@
 #include "fonts.hpp"
 #include "vertices.hpp"
 #include "renderer.hpp"
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 namespace {
 
-	#ifdef BOOST_MSVC
-
-	#elif defined(__linux__)
-
 	FT_Library s_ft_library;
-
-	#else
-
-	#error "Implement me!"
-
-	#endif
 
 } // namespace
 
@@ -22,32 +14,16 @@ namespace gintonic {
 
 	void font::init()
 	{
-		#ifdef BOOST_MSVC
-
-		#elif defined(__linux__)
-
 		if (FT_Init_FreeType(&s_ft_library)) 
 		{
 			throw std::runtime_error("Could not initialize font library.");
 		}
-
-		#else
-
-		#error "Implement me!"
-
-		#endif
-
 		std::atexit(font::release);
 	}
 
 	void font::release()
 	{
-
-		#ifdef BOOST_MSVC
-
-		#elif defined(__linux__)
 		FT_Done_FreeType(s_ft_library);
-		#endif
 	}
 
 	font::font(const key_type& filename_and_size) : object<font, key_type>(filename_and_size)
@@ -88,20 +64,17 @@ namespace gintonic {
 
 	void font::init_class()
 	{
-		#ifdef BOOST_MSVC
-		std::cout << "User tried to initialize font " << key().first << '\n';
-		#elif defined (__linux__)
-
 		FT_Face face;
 		GLint ox = 0;
 		m_atlas_width = 0;
 		m_atlas_height = 0;
+		const auto filename = key().first.string();
 
 		if (key().second <= 0)
 		{
 			throw std::runtime_error("Cannot have a font size <= 0.");
 		}
-		if (FT_New_Face(s_ft_library, key().first.c_str(), 0, &face))
+		if (FT_New_Face(s_ft_library, filename.c_str(), 0, &face))
 		{
 			throw std::runtime_error("Could not open font.");
 		}
@@ -149,8 +122,6 @@ namespace gintonic {
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		FT_Done_Face(face);
-
-		#endif
 	}
 
 	font::~font()
@@ -158,20 +129,8 @@ namespace gintonic {
 		glDeleteTextures(1, &m_tex);
 	}
 
-	// void font::set_size(const int pixels)
-	// {
-
-	// }
-
 	void font::draw(const char* text, const std::size_t length, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		#ifdef BOOST_MSVC
-
-		std::cout << "User attempts to draw the text:\n";
-		std::cout << '\t' << text << "\n\n";
-
-		#elif defined(__linux__)
-
 		using vert = opengl::vertex_text2d<GLfloat>;
 
 		GLsizei n = 0;
@@ -221,8 +180,6 @@ namespace gintonic {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
-
-		#endif
 	}
 
 	void font::draw(const std::string& text, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW

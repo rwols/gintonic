@@ -1970,7 +1970,7 @@ template <class T> struct camera_transform
 		BOOST_CONSTEXPR T l2Pi = T(2.0 * M_PI);
 		horizontal_angle += horizontal;
 		vertical_angle += vertical;
-		horizontal_angle = std::fmod(horizontal_angle, l2Pi);
+		horizontal_angle = std::remainder(horizontal_angle, l2Pi);
 		if (vertical_angle < -lPi2) vertical_angle = -lPi2;
 		else if (vertical_angle > lPi2) vertical_angle = lPi2;
 		direction = vec<T,3>(cos(vertical_angle) * sin(horizontal_angle), sin(vertical_angle), cos(vertical_angle) * cos(horizontal_angle));

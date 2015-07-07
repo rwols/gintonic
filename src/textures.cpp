@@ -1,6 +1,7 @@
 #include "textures.hpp"
 #ifdef BOOST_MSVC
 	#include <wincodec.h>
+	#pragma comment(lib, "windowscodecs.lib")
 #else
 	#include <png.h> // The PNG library.
 	#include <jpeglib.h> // The JPEG library.

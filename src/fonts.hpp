@@ -7,13 +7,6 @@
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
 
-#ifdef BOOST_MSVC
-#include <Dwrite.h>
-#elif defined(__linux__)
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#endif
-
 namespace gintonic {
 
 	class font : public object<font, std::pair<boost::filesystem::path, int>>
@@ -48,11 +41,6 @@ namespace gintonic {
 
 		static void release();
 
-		#ifdef BOOST_MSVC
-		IDWriteFactory* m_factory;
-		IDWriteTextFormat* m_text_format;
-		#elif defined (__linux__)
-
 		struct character_info
 		{
 			int16_t ax; // advance x
@@ -65,9 +53,7 @@ namespace gintonic {
 		} m_c[96];
 
 		GLsizei m_atlas_width, m_atlas_height;
-
-		#endif
-
+		
 		GLuint m_tex;
 		opengl::vertex_array_object m_vao;
 		opengl::buffer_object m_vbo;

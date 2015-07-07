@@ -61,19 +61,23 @@ find_package(SDL2 REQUIRED)
 # Set FBX_DIR in your environment to point to the FBX SDK root folder.
 find_package(FBX REQUIRED)
 
+# Set FREETYPE_DIR
+find_package(Freetype REQUIRED)
+
 include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${OPENGL_INCLUDE_DIRS})
+include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${FBX_INCLUDE_DIR})
 
 add_executable(${PROJECT_NAME} ${source_files})
 target_link_libraries(
 	${PROJECT_NAME} 
-	windowscodecs.lib 
 	${Boost_LIBRARIES} 
 	${OPENGL_LIBRARIES} 
 	${SDL2_LIBRARY} 
 	${FBX_LIBRARY_DEBUG} 
+	${FREETYPE_LIBRARIES} 
 	${CMAKE_THREAD_LIBS_INIT})
 # add_definitions(-std=c++11)
 # add_definitions(-Wall)
