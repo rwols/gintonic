@@ -5,5 +5,7 @@
 #define PROJECT_NAME "${project_name}"
 #define PROJECT_VERSION "${project_version}"
 
-#cmakedefine GT_WITH_PROFILING
+#cmakedefine WITH_PROFILING
 #cmakedefine WITH_MEMORY_PROFILING
+#cmakedefine HIDE_CONSOLE
+#cmakedefine REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE

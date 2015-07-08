@@ -57,11 +57,17 @@ template <typename T> struct vertex_P
 		position[1]  = static_cast<float_type>(pMesh->GetControlPointAt(i)[1]);
 		position[2]  = static_cast<float_type>(pMesh->GetControlPointAt(i)[2]);
 	}
+	vertex_P(const vec3<T>& p, const vec4<T>& c, const vec2<T>& u, const vec3<T>& n, const vec3<T>& t, const vec3<T>& b)
+	{
+		position[0] = static_cast<float_type>(p[0]);
+		position[1] = static_cast<float_type>(p[1]);
+		position[2] = static_cast<float_type>(p[2]);
+	}
 	vertex_P(const FbxVector4& p, const FbxColor& c, const FbxVector2& u, const FbxVector4& n, const FbxVector4& t, const FbxVector4& b)
 	{
-		position[0] = p[0];
-		position[1] = p[1];
-		position[2] = p[2];
+		position[0] = static_cast<float_type>(p[0]);
+		position[1] = static_cast<float_type>(p[1]);
+		position[2] = static_cast<float_type>(p[2]);
 	}
 
 
@@ -74,7 +80,7 @@ template <typename T> struct vertex_P
 	{
 		glDisableVertexAttribArray(0);
 	}
-	inline static const char* default_extension() BOOST_NOEXCEPT_OR_NOTHROW { return "vp"; }
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vp"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
 	{
 		archive & position;
@@ -130,10 +136,16 @@ template <typename T> struct vertex_PC
 		color[1] = fbx_color[1];
 		color[2] = fbx_color[2];
 		color[3] = fbx_color[3];
-		// color[0]    = static_cast<float_type>(pMesh->GetLayer(0)->GetVertexColors()->GetDirectArray()[i][0]);
-		// color[1]    = static_cast<float_type>(pMesh->GetLayer(0)->GetVertexColors()->GetDirectArray()[i][1]);
-		// color[2]    = static_cast<float_type>(pMesh->GetLayer(0)->GetVertexColors()->GetDirectArray()[i][2]);
-		// color[3]    = static_cast<float_type>(pMesh->GetLayer(0)->GetVertexColors()->GetDirectArray()[i][3]);
+	}
+	vertex_PC(const vec3<T>& p, const vec4<T>& c, const vec2<T>& u, const vec3<T>& n, const vec3<T>& t, const vec3<T>& b)
+	{
+		position[0] = static_cast<float_type>(p[0]);
+		position[1] = static_cast<float_type>(p[1]);
+		position[2] = static_cast<float_type>(p[2]);
+		color[0] = static_cast<float_type>(c[0]);
+		color[1] = static_cast<float_type>(c[1]);
+		color[2] = static_cast<float_type>(c[2]);
+		color[3] = static_cast<float_type>(c[3]);
 	}
 	vertex_PC(const FbxVector4& p, const FbxColor& c, const FbxVector2& u, const FbxVector4& n, const FbxVector4& t, const FbxVector4& b)
 	{
@@ -159,7 +171,7 @@ template <typename T> struct vertex_PC
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 	}
-	inline static const char* default_extension() BOOST_NOEXCEPT_OR_NOTHROW { return "vpc"; }
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpc"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
 	{
 		archive & position;
@@ -203,6 +215,14 @@ template <typename T> struct vertex_PU
 		uv[0]       = static_cast<float_type>(pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[i][0]);
 		uv[1]       = static_cast<float_type>(pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[i][1]);
 	}
+	vertex_PU(const vec3<T>& p, const vec4<T>& c, const vec2<T>& u, const vec3<T>& n, const vec3<T>& t, const vec3<T>& b)
+	{
+		position[0] = static_cast<float_type>(p[0]);
+		position[1] = static_cast<float_type>(p[1]);
+		position[2] = static_cast<float_type>(p[2]);
+		uv[0] = static_cast<float_type>(u[0]);
+		uv[1] = static_cast<float_type>(u[1]);
+	}
 	vertex_PU(const FbxVector4& p, const FbxColor& c, const FbxVector2& u, const FbxVector4& n, const FbxVector4& t, const FbxVector4& b)
 	{
 		position[0] = static_cast<float_type>(p[0]);
@@ -224,11 +244,75 @@ template <typename T> struct vertex_PU
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 	}
-	inline static const char* default_extension() BOOST_NOEXCEPT_OR_NOTHROW { return "vpu"; }
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpu"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
 	{
 		archive & position;
 		archive & uv;
+	}
+};
+
+template <typename T> struct vertex_PN
+{
+	typedef T float_type;
+	T position[3]; //!< Position.
+	T normal[3]; //!< Normal.
+	vertex_PN() {}
+	vertex_PN(const T px, const T py, const T pz,
+		const T nx, const T ny, const T nz)
+	{
+		position[0] = px; position[1] = py; position[2] = pz;
+		normal[0] = nx; normal[1] = ny; normal[2] = nz;
+	}
+	vertex_PN(const vec3f& p, const vec3f& n)
+	{
+		position[0] = p[0]; position[1] = p[1]; position[2] = p[2];
+		normal[0] = n[0]; normal[1] = n[1]; normal[2] = n[2];
+	}
+	vertex_PN(FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer)
+	{
+		position[0]  = static_cast<float_type>(pMesh->GetControlPointAt(i)[0]);
+		position[1]  = static_cast<float_type>(pMesh->GetControlPointAt(i)[1]);
+		position[2]  = static_cast<float_type>(pMesh->GetControlPointAt(i)[2]);
+		normal[0]   = static_cast<float_type>(pMesh->GetLayer(0)->GetNormals()->GetDirectArray()[i][0]);
+		normal[1]   = static_cast<float_type>(pMesh->GetLayer(0)->GetNormals()->GetDirectArray()[i][1]);
+		normal[2]   = static_cast<float_type>(pMesh->GetLayer(0)->GetNormals()->GetDirectArray()[i][2]);
+	}
+	vertex_PN(const vec3<T>& p, const vec4<T>& c, const vec2<T>& u, const vec3<T>& n, const vec3<T>& t, const vec3<T>& b)
+	{
+		position[0] = static_cast<float_type>(p[0]);
+		position[1] = static_cast<float_type>(p[1]);
+		position[2] = static_cast<float_type>(p[2]);
+		normal[0] = static_cast<float_type>(n[0]);
+		normal[1] = static_cast<float_type>(n[1]);
+		normal[2] = static_cast<float_type>(n[2]);
+	}
+	vertex_PN(const FbxVector4& p, const FbxColor& c, const FbxVector2& u, const FbxVector4& n, const FbxVector4& t, const FbxVector4& b)
+	{
+		position[0] = static_cast<float_type>(p[0]);
+		position[1] = static_cast<float_type>(p[1]);
+		position[2] = static_cast<float_type>(p[2]);
+		normal[0] = static_cast<float_type>(n[0]);
+		normal[1] = static_cast<float_type>(n[1]);
+		normal[2] = static_cast<float_type>(n[2]);
+	}
+	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PN), (const GLvoid*)offsetof(vertex_PN, position));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PN), (const GLvoid*)offsetof(vertex_PN, normal));
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+	}
+	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+	}
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".pn"; }
+	template <class Archive> void serialize(Archive& archive, const unsigned int version)
+	{
+		archive & position;
+		archive & normal;
 	}
 };
 
@@ -275,6 +359,18 @@ template <typename T> struct vertex_PCU
 		uv[0]       = static_cast<float_type>(pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[i][0]);
 		uv[1]       = static_cast<float_type>(pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[i][1]);
 	}
+	vertex_PCU(const vec3<T>& p, const vec4<T>& c, const vec2<T>& u, const vec3<T>& n, const vec3<T>& t, const vec3<T>& b)
+	{
+		position[0] = static_cast<float_type>(p[0]);
+		position[1] = static_cast<float_type>(p[1]);
+		position[2] = static_cast<float_type>(p[2]);
+		color[0] = static_cast<float_type>(c[0]);
+		color[1] = static_cast<float_type>(c[1]);
+		color[2] = static_cast<float_type>(c[2]);
+		color[3] = static_cast<float_type>(c[3]);
+		uv[0] = static_cast<float_type>(u[0]);
+		uv[1] = static_cast<float_type>(u[1]);
+	}
 	vertex_PCU(const FbxVector4& p, const FbxColor& c, const FbxVector2& u, const FbxVector4& n, const FbxVector4& t, const FbxVector4& b)
 	{
 		position[0] = static_cast<float_type>(p[0]);
@@ -303,7 +399,7 @@ template <typename T> struct vertex_PCU
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
 	}
-	inline static const char* default_extension() BOOST_NOEXCEPT_OR_NOTHROW { return "vpcu"; }
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpcu"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
 	{
 		archive & position;
@@ -362,6 +458,21 @@ template <typename T> struct vertex_PCUN
 		normal[1]   = static_cast<float_type>(pMesh->GetLayer(0)->GetNormals()->GetDirectArray()[i][1]);
 		normal[2]   = static_cast<float_type>(pMesh->GetLayer(0)->GetNormals()->GetDirectArray()[i][2]);
 	}
+	vertex_PCUN(const vec3<T>& p, const vec4<T>& c, const vec2<T>& u, const vec3<T>& n, const vec3<T>& t, const vec3<T>& b)
+	{
+		position[0] = static_cast<float_type>(p[0]);
+		position[1] = static_cast<float_type>(p[1]);
+		position[2] = static_cast<float_type>(p[2]);
+		color[0] = static_cast<float_type>(c[0]);
+		color[1] = static_cast<float_type>(c[1]);
+		color[2] = static_cast<float_type>(c[2]);
+		color[3] = static_cast<float_type>(c[3]);
+		uv[0] = static_cast<float_type>(u[0]);
+		uv[1] = static_cast<float_type>(u[1]);
+		normal[0] = static_cast<float_type>(n[0]);
+		normal[1] = static_cast<float_type>(n[1]);
+		normal[2] = static_cast<float_type>(n[2]);
+	}
 	vertex_PCUN(const FbxVector4& p, const FbxColor& c, const FbxVector2& u, const FbxVector4& n, const FbxVector4& t, const FbxVector4& b)
 	{
 		position[0] = static_cast<float_type>(p[0]);
@@ -395,7 +506,7 @@ template <typename T> struct vertex_PCUN
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(3);
 	}
-	inline static const char* default_extension() BOOST_NOEXCEPT_OR_NOTHROW { return "vpcun"; }
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpcun"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
 	{
 		archive & position;
@@ -447,6 +558,17 @@ template <typename T> struct vertex_PUN
 		normal[1]   = static_cast<float_type>(pMesh->GetLayer(0)->GetNormals()->GetDirectArray()[i][1]);
 		normal[2]   = static_cast<float_type>(pMesh->GetLayer(0)->GetNormals()->GetDirectArray()[i][2]);
 	}
+	vertex_PUN(const vec3<T>& p, const vec4<T>& c, const vec2<T>& u, const vec3<T>& n, const vec3<T>& t, const vec3<T>& b)
+	{
+		position[0] = static_cast<float_type>(p[0]);
+		position[1] = static_cast<float_type>(p[1]);
+		position[2] = static_cast<float_type>(p[2]);
+		uv[0] = static_cast<float_type>(u[0]);
+		uv[1] = static_cast<float_type>(u[1]);
+		normal[0] = static_cast<float_type>(n[0]);
+		normal[1] = static_cast<float_type>(n[1]);
+		normal[2] = static_cast<float_type>(n[2]);
+	}
 	vertex_PUN(const FbxVector4& p, const FbxColor& c, const FbxVector2& u, const FbxVector4& n, const FbxVector4& t, const FbxVector4& b)
 	{
 		position[0] = static_cast<float_type>(p[0]);
@@ -473,7 +595,7 @@ template <typename T> struct vertex_PUN
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
 	}
-	inline static const char* default_extension() BOOST_NOEXCEPT_OR_NOTHROW { return "vpun"; }
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpun"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
 	{
 		archive & position;
@@ -547,6 +669,27 @@ template <typename T> struct vertex_PCUNTB
 		bitangent[1] = static_cast<float_type>(pMesh->GetLayer(0)->GetBinormals()->GetDirectArray()[i][1]);
 		bitangent[2] = static_cast<float_type>(pMesh->GetLayer(0)->GetBinormals()->GetDirectArray()[i][2]);
 	}
+	vertex_PCUNTB(const vec3<T>& p, const vec4<T>& c, const vec2<T>& u, const vec3<T>& n, const vec3<T>& t, const vec3<T>& b)
+	{
+		position[0] = static_cast<float_type>(p[0]);
+		position[1] = static_cast<float_type>(p[1]);
+		position[2] = static_cast<float_type>(p[2]);
+		color[0] = static_cast<float_type>(c[0]);
+		color[1] = static_cast<float_type>(c[1]);
+		color[2] = static_cast<float_type>(c[2]);
+		color[3] = static_cast<float_type>(c[3]);
+		uv[0] = static_cast<float_type>(u[0]);
+		uv[1] = static_cast<float_type>(u[1]);
+		normal[0] = static_cast<float_type>(n[0]);
+		normal[1] = static_cast<float_type>(n[1]);
+		normal[2] = static_cast<float_type>(n[2]);
+		tangent[0] = static_cast<float_type>(t[0]);
+		tangent[1] = static_cast<float_type>(t[1]);
+		tangent[2] = static_cast<float_type>(t[2]);
+		bitangent[0] = static_cast<float_type>(b[0]);
+		bitangent[1] = static_cast<float_type>(b[1]);
+		bitangent[2] = static_cast<float_type>(b[2]);
+	}
 	vertex_PCUNTB(const FbxVector4& p, const FbxColor& c, const FbxVector2& u, const FbxVector4& n, const FbxVector4& t, const FbxVector4& b)
 	{
 		position[0] = static_cast<float_type>(p[0]);
@@ -592,7 +735,7 @@ template <typename T> struct vertex_PCUNTB
 		glDisableVertexAttribArray(4);
 		glDisableVertexAttribArray(5);
 	}
-	inline static const char* default_extension() BOOST_NOEXCEPT_OR_NOTHROW { return "vpcuntb"; }
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpcuntb"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
 	{
 		archive & position;
@@ -660,6 +803,23 @@ template <typename T> struct vertex_PUNTB
 		bitangent[1] = static_cast<float_type>(pMesh->GetLayer(0)->GetBinormals()->GetDirectArray()[i][1]);
 		bitangent[2] = static_cast<float_type>(pMesh->GetLayer(0)->GetBinormals()->GetDirectArray()[i][2]);
 	}
+	vertex_PUNTB(const vec3<T>& p, const vec4<T>& c, const vec2<T>& u, const vec3<T>& n, const vec3<T>& t, const vec3<T>& b)
+	{
+		position[0] = static_cast<float_type>(p[0]);
+		position[1] = static_cast<float_type>(p[1]);
+		position[2] = static_cast<float_type>(p[2]);
+		uv[0] = static_cast<float_type>(u[0]);
+		uv[1] = static_cast<float_type>(u[1]);
+		normal[0] = static_cast<float_type>(n[0]);
+		normal[1] = static_cast<float_type>(n[1]);
+		normal[2] = static_cast<float_type>(n[2]);
+		tangent[0] = static_cast<float_type>(t[0]);
+		tangent[1] = static_cast<float_type>(t[1]);
+		tangent[2] = static_cast<float_type>(t[2]);
+		bitangent[0] = static_cast<float_type>(b[0]);
+		bitangent[1] = static_cast<float_type>(b[1]);
+		bitangent[2] = static_cast<float_type>(b[2]);
+	}
 	vertex_PUNTB(const FbxVector4& p, const FbxColor& c, const FbxVector2& u, const FbxVector4& n, const FbxVector4& t, const FbxVector4& b)
 	{
 		position[0] = static_cast<float_type>(p[0]);
@@ -698,7 +858,7 @@ template <typename T> struct vertex_PUNTB
 		glDisableVertexAttribArray(3);
 		glDisableVertexAttribArray(4);
 	}
-	inline static const char* default_extension() BOOST_NOEXCEPT_OR_NOTHROW { return "vpuntb"; }
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpuntb"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
 	{
 		archive & position;
@@ -762,7 +922,7 @@ template <typename T> struct vertex_PCUsg
 		glDisableVertexAttribArray(3);
 		glDisableVertexAttribArray(4);
 	}
-	inline static const char* default_extension() BOOST_NOEXCEPT_OR_NOTHROW { return "vpcusg"; }
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpcusg"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
 	{
 		archive & position;
@@ -812,7 +972,7 @@ template <typename T> struct vertex_text2d
 	{
 		glDisableVertexAttribArray(0);
 	}
-	inline static const char* default_extension() BOOST_NOEXCEPT_OR_NOTHROW { return "text2d"; }
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".text2d"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
 	{
 		archive & pos_and_texcoord;

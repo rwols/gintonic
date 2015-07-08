@@ -6,6 +6,9 @@
 #include "basic_shapes.hpp"
 #include "textures.hpp"
 #include "fonts.hpp"
+#include "timers.hpp"
+#include "mesh.hpp"
+#include "vertices.hpp"
 
 #define APP_NAME "Hello world!"
 
@@ -30,25 +33,87 @@ void window_focus_handler()
 	gintonic::renderer::set_freeform_cursor(true);
 }
 
-inline float get_elapsed_seconds()
+std::chrono::milliseconds g_timer_duration(1000);
+const char* g_text_to_render = "Hello World! How's it hanging?";
+const std::size_t g_text_to_render_size = std::strlen(g_text_to_render);
+const char* g_text_to_render_end = g_text_to_render;
+
+void increment_counter(gintonic::timer* t)
+{
+	g_text_to_render_end++;
+	if (g_text_to_render_end - g_text_to_render == g_text_to_render_size + 1)
+	{
+		g_text_to_render_end = g_text_to_render;
+		g_timer_duration /= 2;
+		t->reset(g_timer_duration);
+	}
+}
+
+template <typename FloatType> inline FloatType get_time()
 {
 	using gintonic::renderer;
 	using std::chrono::duration_cast;
-	using std::chrono::microseconds;
-	return static_cast<float>(duration_cast<microseconds>(renderer::elapsed_time()).count()) / 1e6;
+	using std::chrono::nanoseconds;
+	return static_cast<FloatType>(duration_cast<nanoseconds>(renderer::elapsed_time()).count()) / FloatType(1e9);
 }
 
 template <typename FloatType> inline FloatType get_dt() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	using gintonic::renderer;
 	using std::chrono::duration_cast;
-	using std::chrono::microseconds;
-	return static_cast<FloatType>(duration_cast<microseconds>(renderer::delta_time()).count()) / FloatType(1e6);
+	using std::chrono::nanoseconds;
+	return static_cast<FloatType>(duration_cast<nanoseconds>(renderer::delta_time()).count()) / FloatType(1e9);
 }
+
+struct point_diffuse_shader
+{
+	gintonic::opengl::shader::flyweight program;
+};
+
+struct mesh_shader
+{
+	gintonic::opengl::shader::flyweight program;
+	GLuint matrix_PVM;
+	GLuint matrix_VM;
+	GLuint matrix_N;
+	GLuint light_intensity;
+	GLuint light_position;
+	GLuint light_attenuation;
+	GLuint color;
+	mesh_shader()
+	{
+		program = gintonic::opengl::shader::flyweight("../s/pn.vs", "", "../s/pn.fs");
+		matrix_PVM = program.get().get_uniform_location("matrix_PVM");
+		matrix_VM = program.get().get_uniform_location("matrix_VM");
+		matrix_N = program.get().get_uniform_location("matrix_N");
+		light_position = program.get().get_uniform_location("light.position");
+		light_intensity = program.get().get_uniform_location("light.intensity");
+		light_attenuation = program.get().get_uniform_location("light.attenuation");
+		color = program.get().get_uniform_location("color");
+	}
+};
+
+struct text_shader
+{
+	gintonic::opengl::shader::flyweight program;
+	
+};
 
 int main(int argc, char* argv[])
 {
-	std::cerr << "sizeof(gintonic::font) == " << sizeof(gintonic::font) << '\n';
+
+	#if defined(HIDE_CONSOLE) && defined(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE)
+	std::filebuf coutfileredirect;
+	std::filebuf cerrfileredirect;
+	std::filebuf clogfileredirect;
+	coutfileredirect.open("cout.txt", std::ios::out | std::ios::app);
+	cerrfileredirect.open("cerr.txt", std::ios::out | std::ios::app);
+	clogfileredirect.open("clog.txt", std::ios::out | std::ios::app);
+	std::cout.rdbuf(&coutfileredirect);
+	std::cerr.rdbuf(&cerrfileredirect);
+	std::clog.rdbuf(&clogfileredirect);
+	#endif
+
 	try
 	{
 		using gintonic::renderer;
@@ -94,13 +159,34 @@ int main(int argc, char* argv[])
 		//
 		// initialize things to render
 		//
+		typedef gintonic::mesh<gintonic::opengl::vertex_PN<GLfloat>> mesh_type;
 		gintonic::opengl::unit_cube_PUN the_shape;
+		const auto the_mesh = mesh_type::flyweight("../resources/Suzanne.pn");
+		auto meshshader = shader::flyweight("../s/pn.vs", "", "../s/pn.fs");
 		auto program = shader::flyweight("../s/point_diffuse.vs", "", "../s/point_diffuse.fs");
 		auto textshader = shader::flyweight("../s/flat_text_uniform_color.vs", "", "../s/flat_text_uniform_color.fs");
 		auto tex = texture2d::flyweight("../resources/sample.jpg");
 		auto font_scriptin48 = gintonic::font::flyweight("../resources/SCRIPTIN.ttf", 48);
 		auto font_inconsolata20 = gintonic::font::flyweight("../resources/Inconsolata-Regular.ttf", 20);
 		gintonic::fontstream stream;
+
+		std::ostringstream textlog;
+
+		// try
+		// {
+		// 	if (boost::filesystem::exists("../resources/Suzanne.pn")) break;
+		// 	typedef gintonic::mesh<gintonic::opengl::vertex_PN<GLfloat>> mesh_type;
+		// 	textlog << "Attempting to process Suzanne.obj...\n";
+		// 	const boost::filesystem::path mesh_filename = mesh_type::process("../resources/Suzanne.obj");
+		// 	textlog << "Success! Location: " << mesh_filename << '\n';
+		// 	textlog << "Attempting to load the mesh...\n";
+		// 	const auto the_mesh = mesh_type::flyweight(mesh_filename);
+		// 	textlog << "Success!\n";
+		// }
+		// catch (const std::exception& e)
+		// {
+		// 	textlog << "Failed: " << e.what() << '\n';
+		// }
 
 		const auto loc_diffuse = program.get().get_uniform_location("material.diffuse_color");
 		const auto loc_diffuse_factor = program.get().get_uniform_location("material.diffuse_factor");
@@ -119,8 +205,20 @@ int main(int argc, char* argv[])
 		// start main loop
 		//
 		glClearColor(0,0,0,1);
+
+		double curtime, dt;
+
+		{
+			gintonic::timer* alooptimer = new gintonic::loop_timer(g_timer_duration);
+			alooptimer->action.connect(increment_counter);
+			gintonic::timer::add(alooptimer);
+		}
+
 		while (!renderer::should_close())
 		{
+			curtime = get_time<double>();
+			dt = get_dt<double>();
+			gintonic::timer::update_all(renderer::delta_time());
 			//
 			// process events
 			//
@@ -163,7 +261,7 @@ int main(int argc, char* argv[])
 					gintonic::euler_xyz<GLfloat>(
 						0.0f,
 						0.0f,
-						get_elapsed_seconds()
+						curtime
 					)
 				).to_rotation_matrix()
 			);
@@ -206,16 +304,21 @@ int main(int argc, char* argv[])
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 			stream.open(font_inconsolata20);
-			stream << "Elapsed time: " << std::fixed << std::setprecision(4) << get_elapsed_seconds() << " seconds\n";
-			stream << "Frames per second: " << std::fixed << std::setprecision(4) << 1.0f / get_dt<float>();
+			stream << "Elapsed time: " << std::fixed << std::setprecision(4) << curtime << " seconds\n";
+			stream << "Frames per second: " << std::fixed << std::setprecision(4) << 1.0f / dt << '\n';
+			stream << textlog.str();
 			stream << std::endl;
 			stream.close();
 
-			textshader.get().set_uniform(loc_text_color, gintonic::vec4f(2.0f * std::sin(get_elapsed_seconds()) - 1.0f, 0.5f, 0.4f, 1.0f));
+			textshader.get().set_uniform(loc_text_color, gintonic::vec4f(1.0f, 0.5f, 0.4f, 1.0f));
 			
 			stream.open(font_scriptin48);
 			stream->position[1] -= 1.0f;
-			stream << "Curabitur aliquet quam id dui posuere blandit.\nCras ultricies ligula sed magna dictum porta.\nNulla quis lorem ut libero malesuada feugiat.\nVivamus suscipit tortor eget felis porttitor volutpat.\nNulla porttitor accumsan tincidunt.\nDonec rutrum congue leo eget malesuada.\nCurabitur aliquet quam id dui posuere blandit.\nVivamus magna justo, lacinia eget consectetur sed, convallis at tellus.\nVestibulum ac diam sit amet quam vehicula elementum sed sit amet dui.\nMauris blandit aliquet elit, eget tincidunt nibh pulvinar a." << std::flush;
+			{
+				const std::string text_to_render(g_text_to_render, g_text_to_render_end);
+				stream << text_to_render;
+			}
+			stream << std::endl;
 			stream.close();
 
 			renderer::update();
@@ -223,7 +326,6 @@ int main(int argc, char* argv[])
 
 		return EXIT_SUCCESS;
 	}
-
 	//
 	// error handling
 	//
@@ -305,5 +407,12 @@ int main(int argc, char* argv[])
 	{
 		std::cerr << boost::diagnostic_information(e, true) << '\n';
 	}
+
+	#if defined(HIDE_CONSOLE) && defined(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE)
+	coutfileredirect.close();
+	cerrfileredirect.close();
+	clogfileredirect.close();
+	#endif
+
 	return EXIT_FAILURE;
 }

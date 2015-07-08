@@ -3,9 +3,10 @@
 
 #include "filesystem.hpp"
 #include "flyweights.hpp"
+#include <boost/serialization/access.hpp>
 
-namespace gintonic {
-
+namespace gintonic 
+{
 	template <class Derived, class KeyType> class object
 	{
 	public:
@@ -57,6 +58,7 @@ namespace gintonic {
 		static std::size_t number_in_use() BOOST_NOEXCEPT_OR_NOTHROW { return s_num_objects; }
 		#endif
 	private:
+		friend class boost::serialization::access;
 		template <class Archive> void serialize(Archive& ar, object& o, const unsigned int version)
 		{
 			ar & o.m_key;

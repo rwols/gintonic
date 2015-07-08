@@ -24,10 +24,10 @@ project(gt C CXX)
 set(project_version v0.1)
 set(source_dir ../src)
 
-set(WITH_PROFILING FALSE) # Enable this for math functions profiling
-set(WITH_MEMORY_PROFILING FALSE) # Enable this for memory profiling
-
-
+option(WITH_PROFILING "Profile various math functions. " OFF)
+option(WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
+option(HIDE_CONSOLE "Hide the console on Windows." OFF)
+option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output streams to files." OFF)
 
 file(GLOB source_files ${source_dir}/*.cpp)
 
@@ -57,11 +57,17 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 
 # Set SDL in your enviroment to point to the SDL2 folder.
 find_package(SDL2 REQUIRED)
+mark_as_advanced(SDL2MAIN_LIBRARY)
+mark_as_advanced(SDL2_INCLUDE_DIR)
+mark_as_advanced(SDL2_LIBRARY)
 
 # Set FBX_DIR in your environment to point to the FBX SDK root folder.
 find_package(FBX REQUIRED)
+mark_as_advanced(FBX_INCLUDE_DIR)
+mark_as_advanced(FBX_LIBRARY)
+mark_as_advanced(FBX_LIBRARY_DEBUG)
 
-# Set FREETYPE_DIR
+# Set FREETYPE_DIR in your environment to point to the Freetype root folder.
 find_package(Freetype REQUIRED)
 
 include_directories(${SDL2_INCLUDE_DIR})
@@ -69,6 +75,10 @@ include_directories(${Boost_INCLUDE_DIR})
 include_directories(${OPENGL_INCLUDE_DIRS})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${FBX_INCLUDE_DIR})
+
+if (HIDE_CONSOLE)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+endif ()
 
 add_executable(${PROJECT_NAME} ${source_files})
 target_link_libraries(
@@ -84,14 +94,5 @@ target_link_libraries(
 # add_definitions(-Werror)
 # add_definitions(-msse3)
 
-if (MSYS)
-	message(STATUS "We're on msys")
-elseif (UNIX)
-	message(STATUS "We're on unix")
-elseif (CYGWIN)
-	message(STATUS "We're on cygwin")
-elseif (MINGW)
-	message(STATUS "We're on mingw")
-else ()
-	message(STATUS "No idea what we're on")
-endif (MSYS)
+mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
+mark_as_advanced(CMAKE_INSTALL_PREFIX)
