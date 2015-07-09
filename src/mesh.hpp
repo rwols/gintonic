@@ -73,7 +73,7 @@ namespace gintonic
 		{
 			glBindVertexArray(m_vao);
 			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-			glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_SHORT, nullptr);
+			glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_SHORT, 0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
 		}
@@ -94,6 +94,21 @@ namespace gintonic
 
 	private:
 
+		mesh(const key_type& name, const std::vector<vertex_type>& vertices, const std::vector<GLushort> indices)
+		: object<mesh, key_type>(name)
+		{
+			m_count = static_cast<GLsizei>(indices.size());
+			m_num_vertices = static_cast<GLsizei>(vertices.size());
+			glBindVertexArray(m_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+			vertex_type::EnableVertexAttribArray();
+			gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_READ);
+			gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_READ);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+		}
+
 		void set_data(const std::vector<vertex_type>& vertices, const std::vector<GLushort>& indices)
 		{
 			glBindVertexArray(m_vao);
@@ -107,24 +122,23 @@ namespace gintonic
 
 		mesh(const key_type& k) : object<mesh, key_type>(k)
 		{
+			glBindVertexArray(m_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+			vertex_type::EnableVertexAttribArray();
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
 			init_class();
 		}
 		mesh(key_type&& k) : object<mesh, key_type>(std::move(k))
 		{
-			init_class();
-		}
-
-		mesh(const key_type& name, const std::vector<vertex_type>& vertices, const std::vector<GLushort> indices)
-		: object<mesh, key_type>(name)
-		{
-			m_count = static_cast<GLsizei>(indices.size());
 			glBindVertexArray(m_vao);
 			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-			gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_READ);
-			gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_READ);
+			vertex_type::EnableVertexAttribArray();
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
+			init_class();
 		}
 
 		friend boost::flyweights::detail::optimized_key_value<key_type, mesh, key_extractor>;
@@ -133,11 +147,10 @@ namespace gintonic
 			std::vector<vertex_type>& vertices, std::vector<GLushort>& indices)
 		{
 			std::vector<vec3f> positions, normals;
+			std::map<GLushort,GLushort> positions_to_normals;
 			std::ifstream input(p.c_str());
-		
-			if (!input) throw std::runtime_error("mesh::process_obj: not a valid file.");
-		
 			std::string line, mesh_name("untitled");
+			int obj_type = -1;
 			while (std::getline(input, line))
 			{
 				if (line.size() <= 2) continue;
@@ -161,17 +174,29 @@ namespace gintonic
 				}
 				else if (line.substr(0, 2) == "f ")
 				{
-					std::istringstream ss(line.substr(2));
-					GLushort a,b,c;
-					ss >> a;
-					ss >> b;
-					ss >> c;
-					a--;
-					b--;
-					c--;
-					indices.push_back(a);
-					indices.push_back(b);
-					indices.push_back(c);
+					const auto toks = retrieve_indices_from_line<GLushort>(line.substr(2));
+
+					// put map: position index -> normal index here
+
+					if (toks.size() == 3)
+					{
+						obj_type = 0;
+						indices.insert(indices.end(), toks.begin(), toks.end());
+					}
+					else if (toks.size() == 6)
+					{
+						obj_type = 1;
+						positions_to_normals[toks[0]] = toks[1];
+						positions_to_normals[toks[2]] = toks[3];
+						positions_to_normals[toks[4]] = toks[5];
+						indices.push_back(toks[0]);
+						indices.push_back(toks[2]);
+						indices.push_back(toks[4]);
+					}
+					else if (toks.size() == 9)
+					{
+						obj_type = 2;
+					}
 				}
 				else if (line.substr(0, 2) == "o ")
 				{
@@ -179,27 +204,47 @@ namespace gintonic
 				}
 			}
 
-			if (positions.size() != normals.size())
-			{
-				throw std::runtime_error("mesh::process_obj: positions.size() != normals.size()");
-			}
-		
 			vertices.resize(positions.size());
 		
 			const vec4f dummycolor(1,0,0,1);
+			const vec3f dummynormal(0,1,0);
 			const vec3f dummytangent(1,0,0);
 			const vec3f dummybinormal(0,0,1);
 			const vec2f dummyUV(0,0);
 
-			for (std::size_t index = 0; index < positions.size(); ++index)
+			if (obj_type == 0)
 			{
-				vertices[index] = vertex_type(positions[index], dummycolor, dummyUV, normals[index], dummytangent, dummybinormal);
+				std::cout << "positions\n";
+				for (std::size_t index = 0; index < positions.size(); ++index)
+				{
+					vertices[index] = vertex_type(positions[index], dummycolor, dummyUV, dummynormal, dummytangent, dummybinormal);
+				}	
+			}
+			else if (obj_type == 1)
+			{
+				std::cout << "positions and normals\n";
+				for (std::size_t index = 0; index < positions.size(); ++index)
+				{
+					vertices[index] = vertex_type(positions[index], dummycolor, dummyUV, normals[positions_to_normals[index]], dummytangent, dummybinormal);
+				}	
+			}
+			else if (obj_type == 2)
+			{
+				std::cout << "positions, UVs and normals\n";
+				throw std::runtime_error("not yet implemented (obj_type == 2)");
 			}
 		
 			p = "..";
 			p /= "resources";
 			mesh_name.append(vertex_type::extension());
 			p /= mesh_name;
+
+			std::ofstream output(p.c_str(), std::ios::binary);
+			{
+				eos::portable_oarchive oa(output);
+				oa & vertices;
+				oa & indices;
+			}
 		}
 
 		static void process_fbx(const boost::filesystem::path& p, 
@@ -207,8 +252,6 @@ namespace gintonic
 		{
 			throw std::runtime_error("mesh::process_fbx: not yet implemented.");
 		}
-		
-
 
 		void init_class()
 		{
@@ -221,7 +264,6 @@ namespace gintonic
 			std::ifstream input(key().c_str(), std::ios::binary);
 			if (!input)
 			{
-			
 				throw std::runtime_error("mesh::init_class: could not open file.");
 			}
 		
@@ -237,38 +279,22 @@ namespace gintonic
 			set_data(vertices, indices);
 		}
 
-		// template <class Archive> void save(Archive& ar, const unsigned int version) const
-		// {
-		// 	std::vector<vertex_type> vertices;
-		// 	std::vector<GLushort> indices;
-		// 	retrieve_data(vertices, indices);
-		// 	ar & vertices;
-		// 	ar & indices;
-		// }
-
-		// template <class Archive> void load(Archive& ar, const unsigned int version)
-		// {
-		// 	std::vector<vertex_type> vertices;
-		// 	std::vector<GLushort> indices;
-
-		// 	ar & vertices;
-		// 	ar & indices;
-		// 	m_count = static_cast<GLsizei>(indices.size());
-
-		// 	glBindVertexArray(m_vao);
-		// 	glBindBuffer(m_vbo);
-		// 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
-		// 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
-		// 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-		// 	glBindVertexArray(0);
-		// }
-
-		// BOOST_SERIALIZATION_SPLIT_MEMBER();
+		template <class ResultType> static std::vector<ResultType> retrieve_indices_from_line(const std::string& line)
+		{
+			boost::tokenizer<> tok(line);
+			std::vector<ResultType> result;
+			std::transform(tok.begin(), tok.end(), std::back_inserter(result), [](const std::string& str)
+			{
+				return boost::lexical_cast<ResultType>(str) - 1;
+			});
+			return result;
+		}
 
 		opengl::vertex_array_object m_vao;
 		opengl::buffer_object m_vbo;
 		opengl::buffer_object m_ibo;
 		GLsizei m_count = 0;
+		GLsizei m_num_vertices = 0;
 	};
 } // namespace gintonic
 

@@ -33,5 +33,5 @@ void main()
     	+ light.attenuation.z * light_dist * light_dist;
     float lambertian = (1.0f / attenuation) * max(dot(light_dir, v_normal), 0.0f);
 
-	final_color = lambertian * attenuation * vec4(light.intensity, 1.0f) * diffuse;
+	final_color = vec4(0.05f, 0.05f, 0.05f, 0.0f) + lambertian * attenuation * vec4(light.intensity, 1.0f) * diffuse;
 }

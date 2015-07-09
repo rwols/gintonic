@@ -4,15 +4,10 @@
 
 #version 330 core
 
-uniform struct Material
-{
-	sampler2D diffuse_color;
-	float diffuse_factor;
-} material;
-
+uniform vec3 color;
 out vec4 final_color;
 
 void main()
 {
-	final_color = material.diffuse_color;
+	final_color = vec4(color, 1.0f);
 }

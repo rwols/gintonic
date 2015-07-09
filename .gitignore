@@ -87,6 +87,8 @@ dlldata.c
 *.svclog
 *.scc
 
+!resources/*.obj
+
 # Chutzpah Test files
 _Chutzpah*
 

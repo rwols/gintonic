@@ -239,15 +239,20 @@ int main(int argc, char* argv[])
 		text_shader the_text_shader;
 		std::ostringstream textlog;
 		typedef gintonic::mesh<gintonic::opengl::vertex_PN<GLfloat>> mesh_type;
-		const auto mesh_filename = mesh_type::process("../resources/Suzanne.obj");
-		textlog << "Mesh filename: " << mesh_filename << '\n';
+
+		boost::filesystem::path mesh_filename;
+		if (argc < 2) mesh_filename = "../resources/Suzanne.obj";
+		else mesh_filename = argv[1];
+
+		textlog << "Mesh: " << mesh_filename << '\n';
+		mesh_filename = mesh_type::process(mesh_filename);
+		textlog << "Mesh after processing: " << mesh_filename << '\n';
 		gintonic::opengl::unit_cube_PUN the_shape;
-		const mesh_type::flyweight the_mesh = mesh_type::flyweight(mesh_filename);
+		const mesh_type::flyweight the_mesh(mesh_filename);
 		auto tex = texture2d::flyweight("../resources/sample.jpg");
 		auto font_scriptin48 = gintonic::font::flyweight("../resources/SCRIPTIN.ttf", 48);
 		auto font_inconsolata20 = gintonic::font::flyweight("../resources/Inconsolata-Regular.ttf", 20);
 		gintonic::fontstream stream;
-		
 
 		//
 		// start main loop
@@ -305,35 +310,17 @@ int main(int argc, char* argv[])
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 			renderer::set_model_matrix(
-				gintonic::quatf(
-					gintonic::euler_xyz<GLfloat>(
-						0.0f,
-						0.0f,
-						curtime
-					)
-				).to_rotation_matrix()
+				// angle-axis constructor
+				gintonic::mat4f(static_cast<float>(curtime / 2.0), gintonic::vec3f(0,1,0))
 			);
 
 			using gintonic::normalize;
 			using gintonic::vec3f;
-			const auto temp = renderer::camera().matrix_V() * gintonic::vec4f(0.0f, 3.0f, 0.0f, 1.0f);
+			const auto temp = renderer::camera().matrix_V() * gintonic::vec4f(1.0f, 3.0f, 1.0f, 1.0f);
 			const gintonic::vec3f light_position{temp[0], temp[1], temp[2]};
 			const auto light_intensity = gintonic::vec3f(1.0f, 0.5f, 0.5f);
 			const auto light_attenuation = gintonic::vec3f(0.1f, 0.3f, 0.6f);
 			const auto diffuse_factor = 0.8f;
-
-			const GLint texture_unit = 0;
-			tex.get().bind(texture_unit);
-
-			the_point_diffuse_shader.program.get().activate();
-			the_point_diffuse_shader.set_uniforms(renderer::matrix_PVM(), 
-				renderer::matrix_VM(), 
-				renderer::matrix_N(), 
-				light_position, 
-				light_intensity, 
-				light_attenuation, 
-				texture_unit,
-				diffuse_factor);
 
 			// program.get().set_uniform(loc_diffuse, texture_unit);
 			// program.get().set_uniform(loc_diffuse_factor, diffuse_factor);
@@ -350,7 +337,29 @@ int main(int argc, char* argv[])
 			glDepthMask(GL_TRUE);
 			glEnable(GL_CULL_FACE);
 			glFrontFace(GL_CCW);
-			the_shape.draw();
+
+			// const GLint texture_unit = 0;
+			// tex.get().bind(texture_unit);
+			// the_point_diffuse_shader.program.get().activate();
+			// the_point_diffuse_shader.set_uniforms(renderer::matrix_PVM(), 
+			// 	renderer::matrix_VM(), 
+			// 	renderer::matrix_N(), 
+			// 	light_position, 
+			// 	light_intensity, 
+			// 	light_attenuation, 
+			// 	texture_unit,
+			// 	diffuse_factor);
+			// the_shape.draw();
+
+			the_mesh_shader.program.get().activate();
+			the_mesh_shader.set_uniforms(renderer::matrix_PVM(), 
+				renderer::matrix_VM(),
+				renderer::matrix_N(),
+				light_position,
+				light_intensity,
+				light_attenuation,
+				gintonic::vec3f(1,0,0));
+			the_mesh.get().draw();
 
 			the_text_shader.program.get().activate();
 			the_text_shader.set_uniforms(gintonic::vec3f(1,1,1), 0);
