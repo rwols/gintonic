@@ -20,7 +20,7 @@ namespace gintonic
 			// do nothing
 		}
 	}
-	void timer::reset(const duration_type& time_left)
+	void timer::reset(const duration_type& time_left) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		m_time_left = time_left;
 		m_expired = false;

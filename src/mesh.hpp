@@ -5,8 +5,8 @@
 #include "object.hpp"
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
+#include "portable_oarchive.hpp"
+#include "portable_iarchive.hpp"
 
 namespace gintonic
 {
@@ -18,6 +18,9 @@ namespace gintonic
 
 		typedef VertexType vertex_type;
 		typedef typename vertex_type::float_type float_type;
+		typedef typename object<mesh, boost::filesystem::path>::key_type key_type;
+		typedef typename object<mesh, key_type>::key_extractor key_extractor;
+		using object<mesh, key_type>::key;
 
 		mesh() = delete;
 		mesh(const mesh&) = delete;
@@ -43,20 +46,23 @@ namespace gintonic
 
 		static boost::filesystem::path process(boost::filesystem::path p)
 		{
-			// throw std::runtime_error("mesh::process: not yet implemented.");
+		
 			const auto ext = p.extension();
 			std::vector<vertex_type> vertices;
 			std::vector<GLushort> indices;
+
 			if (ext == ".obj" || ext == ".OBJ") process_obj(p, vertices, indices);
 			else if (ext == ".fbx" || ext == ".FBX") process_fbx(p, vertices, indices);
 			else throw std::runtime_error("mesh::process: Unknown file extension.");
+		
 			std::ofstream output(p.c_str(), std::ios::binary);
+		
 			if (!output)
 			{
 				throw std::runtime_error("mesh::process: Cannot write to file.");
 			}
 			{
-				boost::archive::binary_oarchive oa(output);
+				eos::portable_oarchive oa(output);
 				oa & vertices;
 				oa & indices;
 			}
@@ -128,7 +134,9 @@ namespace gintonic
 		{
 			std::vector<vec3f> positions, normals;
 			std::ifstream input(p.c_str());
+		
 			if (!input) throw std::runtime_error("mesh::process_obj: not a valid file.");
+		
 			std::string line, mesh_name("untitled");
 			while (std::getline(input, line))
 			{
@@ -170,23 +178,24 @@ namespace gintonic
 					mesh_name = line.substr(2);
 				}
 			}
+
 			if (positions.size() != normals.size())
 			{
 				throw std::runtime_error("mesh::process_obj: positions.size() != normals.size()");
 			}
-			
+		
 			vertices.resize(positions.size());
-
+		
 			const vec4f dummycolor(1,0,0,1);
 			const vec3f dummytangent(1,0,0);
 			const vec3f dummybinormal(0,0,1);
 			const vec2f dummyUV(0,0);
 
-
 			for (std::size_t index = 0; index < positions.size(); ++index)
 			{
 				vertices[index] = vertex_type(positions[index], dummycolor, dummyUV, normals[index], dummytangent, dummybinormal);
 			}
+		
 			p = "..";
 			p /= "resources";
 			mesh_name.append(vertex_type::extension());
@@ -205,20 +214,26 @@ namespace gintonic
 		{
 			if (key().extension() != vertex_type::extension())
 			{
+			
 				throw std::runtime_error("mesh::init_class: vertex type mismatch.");
 			}
+		
 			std::ifstream input(key().c_str(), std::ios::binary);
 			if (!input)
 			{
+			
 				throw std::runtime_error("mesh::init_class: could not open file.");
 			}
+		
 			std::vector<vertex_type> vertices;
 			std::vector<GLushort> indices;
 			{
-				boost::archive::binary_iarchive ia(input);
+			
+				eos::portable_iarchive ia(input);
 				ia & vertices;
 				ia & indices;
 			}
+
 			set_data(vertices, indices);
 		}
 

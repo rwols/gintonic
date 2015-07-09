@@ -376,7 +376,6 @@ void shader::construct()
 		glGetProgramInfoLog(*this, r, nullptr, &infolog[0]);
 		glDeleteProgram(m_handle);
 		m_handle = 0;
-		std::cerr << "Link error: " << infolog << '\n';
 		BOOST_THROW_EXCEPTION(link_error() << shader_errinfo(key()) << link_errinfo(infolog));
 	}
 }

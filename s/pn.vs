@@ -18,7 +18,7 @@ uniform mat3 matrix_N;
 
 void main()
 {
-	gl_Position = matrix_PVM * vec4(in_position, 1);
-	v_position = matrix_VM * vec4(in_position, 1);
+	gl_Position = matrix_PVM * vec4(in_position, 1.0f);
+	v_position = (matrix_VM * vec4(in_position, 1.0f)).xyz;
 	v_normal = matrix_N * in_normal;
 }

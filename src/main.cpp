@@ -41,7 +41,7 @@ const char* g_text_to_render_end = g_text_to_render;
 void increment_counter(gintonic::timer* t)
 {
 	g_text_to_render_end++;
-	if (g_text_to_render_end - g_text_to_render == g_text_to_render_size + 1)
+	if (g_text_to_render_end == g_text_to_render + g_text_to_render_size + 1)
 	{
 		g_text_to_render_end = g_text_to_render;
 		g_timer_duration /= 2;
@@ -68,21 +68,61 @@ template <typename FloatType> inline FloatType get_dt() BOOST_NOEXCEPT_OR_NOTHRO
 struct point_diffuse_shader
 {
 	gintonic::opengl::shader::flyweight program;
+	GLint matrix_PVM;
+	GLint matrix_VM;
+	GLint matrix_N;
+	GLint light_intensity;
+	GLint light_position;
+	GLint light_attenuation;
+	GLint material_diffuse_color;
+	GLint material_diffuse_factor;
+
+	point_diffuse_shader() : program("../s/point_diffuse.vs", "", "../s/point_diffuse.fs")
+	{
+		matrix_PVM = program.get().get_uniform_location("matrix_PVM");
+		matrix_VM = program.get().get_uniform_location("matrix_VM");
+		matrix_N = program.get().get_uniform_location("matrix_N");
+		light_position = program.get().get_uniform_location("light.position");
+		light_intensity = program.get().get_uniform_location("light.intensity");
+		light_attenuation = program.get().get_uniform_location("light.attenuation");
+		material_diffuse_color = program.get().get_uniform_location("material.diffuse_color");
+		material_diffuse_factor = program.get().get_uniform_location("material.diffuse_factor");
+	}
+
+	void set_uniforms(const gintonic::mat4f& matrix_PVM_value, 
+		const gintonic::mat4f& matrix_VM_value, 
+		const gintonic::mat3f& matrix_N_value, 
+		const gintonic::vec3f& light_position_value, 
+		const gintonic::vec3f& light_intensity_value, 
+		const gintonic::vec3f& light_attenuation_value, 
+		const GLint material_diffuse_color_value, 
+		const GLfloat material_diffuse_factor_value) const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		const auto& s = program.get();
+		s.set_uniform(matrix_PVM, matrix_PVM_value);
+		s.set_uniform(matrix_VM, matrix_VM_value);
+		s.set_uniform(matrix_N, matrix_N_value);
+		s.set_uniform(light_position, light_position_value);
+		s.set_uniform(light_intensity, light_intensity_value);
+		s.set_uniform(light_attenuation, light_attenuation_value);
+		s.set_uniform(material_diffuse_color, material_diffuse_color_value);
+		s.set_uniform(material_diffuse_factor, material_diffuse_factor_value);
+	}
 };
 
 struct mesh_shader
 {
 	gintonic::opengl::shader::flyweight program;
-	GLuint matrix_PVM;
-	GLuint matrix_VM;
-	GLuint matrix_N;
-	GLuint light_intensity;
-	GLuint light_position;
-	GLuint light_attenuation;
-	GLuint color;
-	mesh_shader()
+	GLint matrix_PVM;
+	GLint matrix_VM;
+	GLint matrix_N;
+	GLint light_intensity;
+	GLint light_position;
+	GLint light_attenuation;
+	GLint color;
+
+	mesh_shader() : program("../s/pn.vs", "", "../s/pn.fs")
 	{
-		program = gintonic::opengl::shader::flyweight("../s/pn.vs", "", "../s/pn.fs");
 		matrix_PVM = program.get().get_uniform_location("matrix_PVM");
 		matrix_VM = program.get().get_uniform_location("matrix_VM");
 		matrix_N = program.get().get_uniform_location("matrix_N");
@@ -91,12 +131,45 @@ struct mesh_shader
 		light_attenuation = program.get().get_uniform_location("light.attenuation");
 		color = program.get().get_uniform_location("color");
 	}
+
+	void set_uniforms(const gintonic::mat4f& matrix_PVM_value, 
+		const gintonic::mat4f& matrix_VM_value, 
+		const gintonic::mat3f& matrix_N_value, 
+		const gintonic::vec3f& light_position_value, 
+		const gintonic::vec3f& light_intensity_value, 
+		const gintonic::vec3f& light_attenuation_value, 
+		const gintonic::vec3f& color_value) const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		const auto& s = program.get();
+		s.set_uniform(matrix_PVM, matrix_PVM_value);
+		s.set_uniform(matrix_VM, matrix_VM_value);
+		s.set_uniform(matrix_N, matrix_N_value);
+		s.set_uniform(light_position, light_position_value);
+		s.set_uniform(light_intensity, light_intensity_value);
+		s.set_uniform(light_attenuation, light_attenuation_value);
+		s.set_uniform(color, color_value);
+	}
 };
 
 struct text_shader
 {
 	gintonic::opengl::shader::flyweight program;
-	
+	GLint color;
+	GLint tex;
+
+	text_shader() : program("../s/flat_text_uniform_color.vs", "", "../s/flat_text_uniform_color.fs")
+	{
+		color = program.get().get_uniform_location("color");
+		tex = program.get().get_uniform_location("tex");
+	}
+
+	void set_uniforms(const gintonic::vec3f color_value, 
+		const GLint tex_value) const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		const auto& s = program.get();
+		s.set_uniform(color, color_value);
+		s.set_uniform(tex, tex_value);
+	}
 };
 
 int main(int argc, char* argv[])
@@ -113,6 +186,8 @@ int main(int argc, char* argv[])
 	std::cerr.rdbuf(&cerrfileredirect);
 	std::clog.rdbuf(&clogfileredirect);
 	#endif
+
+	DEBUG_PRINT;
 
 	try
 	{
@@ -159,47 +234,20 @@ int main(int argc, char* argv[])
 		//
 		// initialize things to render
 		//
+		mesh_shader the_mesh_shader;
+		point_diffuse_shader the_point_diffuse_shader;
+		text_shader the_text_shader;
+		std::ostringstream textlog;
 		typedef gintonic::mesh<gintonic::opengl::vertex_PN<GLfloat>> mesh_type;
+		const auto mesh_filename = mesh_type::process("../resources/Suzanne.obj");
+		textlog << "Mesh filename: " << mesh_filename << '\n';
 		gintonic::opengl::unit_cube_PUN the_shape;
-		const auto the_mesh = mesh_type::flyweight("../resources/Suzanne.pn");
-		auto meshshader = shader::flyweight("../s/pn.vs", "", "../s/pn.fs");
-		auto program = shader::flyweight("../s/point_diffuse.vs", "", "../s/point_diffuse.fs");
-		auto textshader = shader::flyweight("../s/flat_text_uniform_color.vs", "", "../s/flat_text_uniform_color.fs");
+		const mesh_type::flyweight the_mesh = mesh_type::flyweight(mesh_filename);
 		auto tex = texture2d::flyweight("../resources/sample.jpg");
 		auto font_scriptin48 = gintonic::font::flyweight("../resources/SCRIPTIN.ttf", 48);
 		auto font_inconsolata20 = gintonic::font::flyweight("../resources/Inconsolata-Regular.ttf", 20);
 		gintonic::fontstream stream;
-
-		std::ostringstream textlog;
-
-		// try
-		// {
-		// 	if (boost::filesystem::exists("../resources/Suzanne.pn")) break;
-		// 	typedef gintonic::mesh<gintonic::opengl::vertex_PN<GLfloat>> mesh_type;
-		// 	textlog << "Attempting to process Suzanne.obj...\n";
-		// 	const boost::filesystem::path mesh_filename = mesh_type::process("../resources/Suzanne.obj");
-		// 	textlog << "Success! Location: " << mesh_filename << '\n';
-		// 	textlog << "Attempting to load the mesh...\n";
-		// 	const auto the_mesh = mesh_type::flyweight(mesh_filename);
-		// 	textlog << "Success!\n";
-		// }
-		// catch (const std::exception& e)
-		// {
-		// 	textlog << "Failed: " << e.what() << '\n';
-		// }
-
-		const auto loc_diffuse = program.get().get_uniform_location("material.diffuse_color");
-		const auto loc_diffuse_factor = program.get().get_uniform_location("material.diffuse_factor");
-		const auto loc_light_position = program.get().get_uniform_location("light.position");
-		const auto loc_light_intensity = program.get().get_uniform_location("light.intensity");
-		const auto loc_light_attenuation = program.get().get_uniform_location("light.attenuation");
-		const auto loc_matrix_pvm = program.get().get_uniform_location("matrix_PVM");
-		// const auto loc_color = program.get().get_uniform_location("color");
-		const auto loc_matrix_vm = program.get().get_uniform_location("matrix_VM");
-		const auto loc_matrix_n = program.get().get_uniform_location("matrix_N");
-
-		const auto loc_text_color = textshader.get().get_uniform_location("color");
-		const auto loc_text_tex = textshader.get().get_uniform_location("tex");
+		
 
 		//
 		// start main loop
@@ -276,16 +324,26 @@ int main(int argc, char* argv[])
 
 			const GLint texture_unit = 0;
 			tex.get().bind(texture_unit);
-			program.get().activate();
-			program.get().set_uniform(loc_diffuse, texture_unit);
-			program.get().set_uniform(loc_diffuse_factor, diffuse_factor);
-			// program.get().set_uniform(loc_color, color);
-			program.get().set_uniform(loc_matrix_pvm, renderer::matrix_PVM());
-			program.get().set_uniform(loc_matrix_vm, renderer::matrix_VM());
-			program.get().set_uniform(loc_matrix_n, renderer::matrix_N());
-			program.get().set_uniform(loc_light_position, light_position);
-			program.get().set_uniform(loc_light_intensity, light_intensity);
-			program.get().set_uniform(loc_light_attenuation, light_attenuation);
+
+			the_point_diffuse_shader.program.get().activate();
+			the_point_diffuse_shader.set_uniforms(renderer::matrix_PVM(), 
+				renderer::matrix_VM(), 
+				renderer::matrix_N(), 
+				light_position, 
+				light_intensity, 
+				light_attenuation, 
+				texture_unit,
+				diffuse_factor);
+
+			// program.get().set_uniform(loc_diffuse, texture_unit);
+			// program.get().set_uniform(loc_diffuse_factor, diffuse_factor);
+			// // program.get().set_uniform(loc_color, color);
+			// program.get().set_uniform(loc_matrix_pvm, renderer::matrix_PVM());
+			// program.get().set_uniform(loc_matrix_vm, renderer::matrix_VM());
+			// program.get().set_uniform(loc_matrix_n, renderer::matrix_N());
+			// program.get().set_uniform(loc_light_position, light_position);
+			// program.get().set_uniform(loc_light_intensity, light_intensity);
+			// program.get().set_uniform(loc_light_attenuation, light_attenuation);
 
 			glDisable(GL_BLEND);
 			glEnable(GL_DEPTH_TEST);
@@ -293,10 +351,9 @@ int main(int argc, char* argv[])
 			glEnable(GL_CULL_FACE);
 			glFrontFace(GL_CCW);
 			the_shape.draw();
-			
-			textshader.get().activate();
-			textshader.get().set_uniform(loc_text_color, gintonic::vec4f(1,1,1,1));
-			textshader.get().set_uniform(loc_text_tex, 0);
+
+			the_text_shader.program.get().activate();
+			the_text_shader.set_uniforms(gintonic::vec3f(1,1,1), 0);
 
 			glDisable(GL_CULL_FACE);
 			glDisable(GL_DEPTH_TEST);
@@ -310,7 +367,7 @@ int main(int argc, char* argv[])
 			stream << std::endl;
 			stream.close();
 
-			textshader.get().set_uniform(loc_text_color, gintonic::vec4f(1.0f, 0.5f, 0.4f, 1.0f));
+			the_text_shader.program.get().set_uniform(the_text_shader.color, gintonic::vec3f(1.0f, 0.5f, 0.3f));
 			
 			stream.open(font_scriptin48);
 			stream->position[1] -= 1.0f;
