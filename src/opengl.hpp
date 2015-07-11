@@ -592,6 +592,35 @@ private:
 	GLuint m_handles[Size];
 };
 
+class framebuffer
+{
+public:
+	inline framebuffer()
+	{
+		glGenFramebuffers(1, &m_handle);
+	}
+	inline ~framebuffer()
+	{
+		glDeleteFramebuffers(1, &m_handle);
+	}
+	framebuffer(framebuffer&) = delete;
+	framebuffer& operator = (framebuffer&) = delete;
+	inline framebuffer(framebuffer&& other) : m_handle(other.m_handle)
+	{
+		other.m_handle = 0;
+	}
+	framebuffer& operator = (framebuffer&& other)
+	{
+		this->~framebuffer();
+		m_handle = other.m_handle;
+		other.m_handle = 0;
+		return *this;
+	}
+	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW { return m_handle; }
+private:
+	GLuint m_handle;
+};
+
 template <GLenum Target, GLenum Access> class map_buffer
 {
 public:

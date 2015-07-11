@@ -69,6 +69,27 @@ namespace gintonic
 		#endif
 	};
 
+	template <class KeyType> class polymorphic_object
+	{
+	public:
+		typedef KeyType key_type;
+		inline virtual ~polymorphic_object() BOOST_NOEXCEPT_OR_NOTHROW {}
+		inline polymorphic_object(const polymorphic_object&) = delete;
+		inline polymorphic_object& operator = (const polymorphic_object&) = delete;
+		inline polymorphic_object(polymorphic_object&& other) : m_key(std::move(other.m_key)) {}
+		inline polymorphic_object& operator = (polymorphic_object&& other)
+		{
+			m_key = std::move(other.m_key);
+			return *this;
+		}
+		inline const key_type& key() const BOOST_NOEXCEPT_OR_NOTHROW { return m_key; }
+	protected:
+		polymorphic_object(const KeyType& key) : m_key(key) {}
+		polymorphic_object(key_type&& key) : m_key(std::move(key)) {}
+	private:
+		key_type m_key;
+	};
+
 	#ifdef WITH_MEMORY_PROFILING
 	template <class Derived, class KeyType> std::size_t object<Derived, KeyType>::s_num_objects = 0;
 	#endif

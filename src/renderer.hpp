@@ -42,7 +42,8 @@ namespace gintonic
 			set_cursor_position(s_width / 2, s_height / 2);
 		}
 		inline static void vsync(const bool b) { SDL_GL_SetSwapInterval(b? 1 : 0); }
-		inline static void show() BOOST_NOEXCEPT_OR_NOTHROW{ SDL_ShowWindow(s_window); }
+		inline static void show() BOOST_NOEXCEPT_OR_NOTHROW { SDL_ShowWindow(s_window); }
+		inline static void hide() BOOST_NOEXCEPT_OR_NOTHROW { SDL_HideWindow(s_window); }
 		inline static void close() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			s_should_close = true;
@@ -115,6 +116,18 @@ namespace gintonic
 		static const char* name();
 		static const char* version();
 
+		enum class TEXTURE_TYPE : char
+		{
+			position,
+			diffuse,
+			normal,
+			texcoord,
+			num_textures
+		};
+
+		static void bind_for_writing();
+		static void bind_for_reading();
+
 	private:
 
 		static void update_matrix_VM();
@@ -152,6 +165,10 @@ namespace gintonic
 		static mat4f s_matrix_VM;
 		static mat4f s_matrix_PVM;
 		static mat3f s_matrix_N;
+
+		GLuint s_fbo;
+		GLuint s_textures[TEXTURE_TYPE::num_textures];
+		GLuint s_depth_texture;
 
 		static const camera_transform<float>* s_camera;
 	};

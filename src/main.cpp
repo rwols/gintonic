@@ -9,6 +9,7 @@
 #include "timers.hpp"
 #include "mesh.hpp"
 #include "vertices.hpp"
+#include <boost/program_options.hpp>
 
 #define APP_NAME "Hello world!"
 
@@ -121,7 +122,7 @@ struct mesh_shader
 	GLint light_attenuation;
 	GLint color;
 
-	mesh_shader() : program("../s/pn.vs", "", "../s/pn.fs")
+	mesh_shader() : program("../s/pn_point.vs", "", "../s/pn_point.fs")
 	{
 		matrix_PVM = program.get().get_uniform_location("matrix_PVM");
 		matrix_VM = program.get().get_uniform_location("matrix_VM");
@@ -172,9 +173,10 @@ struct text_shader
 	}
 };
 
+boost::filesystem::path g_model_path;
+
 int main(int argc, char* argv[])
 {
-
 	#if defined(HIDE_CONSOLE) && defined(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE)
 	std::filebuf coutfileredirect;
 	std::filebuf cerrfileredirect;
@@ -187,7 +189,68 @@ int main(int argc, char* argv[])
 	std::clog.rdbuf(&clogfileredirect);
 	#endif
 
-	DEBUG_PRINT;
+	try
+	{
+		boost::program_options::options_description desc("Allowed options");
+		desc.add_options()
+			("help", "Produce this help message.")
+			("validate-model,m", boost::program_options::value<std::string>(), "Validate a .obj or .fbx model.")
+			("process-model,p", boost::program_options::value<std::string>(), "Process a .obj or .fbx model.")
+			("view-model,v", boost::program_options::value<std::string>(), "View a single model in native format.")
+		;
+
+		boost::program_options::variables_map vm;
+		boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+		boost::program_options::notify(vm);
+
+		if (vm.count("help")) {
+		    std::cout << desc << '\n';
+		    return EXIT_FAILURE;
+		}
+		else if (vm.count("validate-model"))
+		{
+			const boost::filesystem::path model_path = vm["validate-model"].as<std::string>();
+			gintonic::camera_transform<float> default_camera;
+			gintonic::renderer::init("dummy", default_camera, false, 800, 640);
+			gintonic::renderer::focus_context();
+			gintonic::renderer::hide();
+			const auto success = gintonic::mesh::validate(std::cout, model_path);
+			return success? EXIT_SUCCESS : EXIT_FAILURE;
+		}
+		else if (vm.count("process-model"))
+		{
+			const boost::filesystem::path model_path = vm["process-model"].as<std::string>();
+			gintonic::camera_transform<float> default_camera;
+			gintonic::renderer::init("dummy", default_camera, false, 800, 640);
+			gintonic::renderer::focus_context();
+			gintonic::renderer::hide();
+			try
+			{
+				const auto new_model = gintonic::mesh::process(model_path);
+				std::cout << "Native model format saved to: " << new_model << '\n';
+			}
+			catch (const std::exception& e)
+			{
+				std::cerr << e.what() << '\n';
+				return EXIT_FAILURE;
+			}
+			return EXIT_SUCCESS;
+		}
+		else if (vm.count("view-model"))
+		{
+			g_model_path = vm["view-model"].as<std::string>();
+		}
+		else
+		{
+			std::cout << desc << '\n';
+			return EXIT_FAILURE;
+		}
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		return EXIT_FAILURE;
+	}
 
 	try
 	{
@@ -208,7 +271,7 @@ int main(int argc, char* argv[])
 		//
 		// set up view matrix parameters
 		//
-		default_camera.position = {0, 0, 4};
+		default_camera.position = {0, 0, 20};
 		default_camera.add_horizontal_and_vertical_angles(static_cast<float>(M_PI), 0.0f);
 
 		//
@@ -228,6 +291,7 @@ int main(int argc, char* argv[])
 
 		renderer::about_to_close.connect(about_to_close_handler);
 
+		renderer::show();
 		renderer::focus_context();
 		renderer::set_freeform_cursor(true);
 
@@ -238,17 +302,10 @@ int main(int argc, char* argv[])
 		point_diffuse_shader the_point_diffuse_shader;
 		text_shader the_text_shader;
 		std::ostringstream textlog;
-		typedef gintonic::mesh<gintonic::opengl::vertex_PN<GLfloat>> mesh_type;
 
-		boost::filesystem::path mesh_filename;
-		if (argc < 2) mesh_filename = "../resources/Suzanne.obj";
-		else mesh_filename = argv[1];
-
-		textlog << "Mesh: " << mesh_filename << '\n';
-		mesh_filename = mesh_type::process(mesh_filename);
-		textlog << "Mesh after processing: " << mesh_filename << '\n';
+		textlog << "Mesh: " << g_model_path << '\n';
 		gintonic::opengl::unit_cube_PUN the_shape;
-		const mesh_type::flyweight the_mesh(mesh_filename);
+		const gintonic::mesh::flyweight the_mesh(g_model_path);
 		auto tex = texture2d::flyweight("../resources/sample.jpg");
 		auto font_scriptin48 = gintonic::font::flyweight("../resources/SCRIPTIN.ttf", 48);
 		auto font_inconsolata20 = gintonic::font::flyweight("../resources/Inconsolata-Regular.ttf", 20);
@@ -309,17 +366,16 @@ int main(int argc, char* argv[])
 			//
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
-			renderer::set_model_matrix(
-				// angle-axis constructor
-				gintonic::mat4f(static_cast<float>(curtime / 2.0), gintonic::vec3f(0,1,0))
-			);
+
 
 			using gintonic::normalize;
 			using gintonic::vec3f;
-			const auto temp = renderer::camera().matrix_V() * gintonic::vec4f(1.0f, 3.0f, 1.0f, 1.0f);
-			const gintonic::vec3f light_position{temp[0], temp[1], temp[2]};
-			const auto light_intensity = gintonic::vec3f(1.0f, 0.5f, 0.5f);
-			const auto light_attenuation = gintonic::vec3f(0.1f, 0.3f, 0.6f);
+			const auto light_position_world = gintonic::vec3f(10,20,3);
+			const auto temp = renderer::camera().matrix_V() * gintonic::vec4f(light_position_world[0], 
+				light_position_world[1], light_position_world[2], 1.0f);
+			const gintonic::vec3f light_position_view(temp[0], temp[1], temp[2]);
+			const auto light_intensity = gintonic::vec3f(1,1,1);
+			const auto light_attenuation = gintonic::vec3f(1,1,1);
 			const auto diffuse_factor = 0.8f;
 
 			// program.get().set_uniform(loc_diffuse, texture_unit);
@@ -338,27 +394,44 @@ int main(int argc, char* argv[])
 			glEnable(GL_CULL_FACE);
 			glFrontFace(GL_CCW);
 
-			// const GLint texture_unit = 0;
-			// tex.get().bind(texture_unit);
-			// the_point_diffuse_shader.program.get().activate();
-			// the_point_diffuse_shader.set_uniforms(renderer::matrix_PVM(), 
-			// 	renderer::matrix_VM(), 
-			// 	renderer::matrix_N(), 
-			// 	light_position, 
-			// 	light_intensity, 
-			// 	light_attenuation, 
-			// 	texture_unit,
-			// 	diffuse_factor);
-			// the_shape.draw();
+			renderer::set_model_matrix
+			(
+				// translation constructor
+				gintonic::mat4f(light_position_world)
+			);
+
+			const GLint texture_unit = 0;
+			tex.get().bind(texture_unit);
+			the_point_diffuse_shader.program.get().activate();
+			the_point_diffuse_shader.set_uniforms
+			(
+				renderer::matrix_PVM(), 
+				renderer::matrix_VM(), 
+				renderer::matrix_N(), 
+				light_position_view, 
+				light_intensity, 
+				light_attenuation, 
+				texture_unit,
+				diffuse_factor
+			);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			the_shape.draw();
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+			renderer::set_model_matrix
+			(
+				// angle-axis constructor
+				gintonic::mat4f(static_cast<float>(curtime / 2.0), gintonic::vec3f(0,1,0))
+			);
 
 			the_mesh_shader.program.get().activate();
 			the_mesh_shader.set_uniforms(renderer::matrix_PVM(), 
 				renderer::matrix_VM(),
 				renderer::matrix_N(),
-				light_position,
+				light_position_view,
 				light_intensity,
 				light_attenuation,
-				gintonic::vec3f(1,0,0));
+				light_intensity);
 			the_mesh.get().draw();
 
 			the_text_shader.program.get().activate();
