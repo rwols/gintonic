@@ -3,7 +3,6 @@
 //
 
 #include "opengl.hpp"
-#include "file_handle.hpp"
 #ifdef _MSC_VER
 	#include <intrin.h>
 #else

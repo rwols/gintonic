@@ -116,13 +116,13 @@ namespace gintonic
 		static const char* name();
 		static const char* version();
 
-		enum class TEXTURE_TYPE : char
+		enum TEXTURETYPE
 		{
-			position,
-			diffuse,
-			normal,
-			texcoord,
-			num_textures
+			TEXTURETYPE_position = 0,
+			TEXTURETYPE_diffuse,
+			TEXTURETYPE_normal,
+			TEXTURETYPE_texcoord,
+			TEXTURETYPE_count
 		};
 
 		static void bind_for_writing();
@@ -166,9 +166,9 @@ namespace gintonic
 		static mat4f s_matrix_PVM;
 		static mat3f s_matrix_N;
 
-		GLuint s_fbo;
-		GLuint s_textures[TEXTURE_TYPE::num_textures];
-		GLuint s_depth_texture;
+		static GLuint s_fbo;
+		static GLuint s_textures[TEXTURETYPE_count];
+		static GLuint s_depth_texture;
 
 		static const camera_transform<float>* s_camera;
 	};

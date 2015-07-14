@@ -188,7 +188,6 @@ int main(int argc, char* argv[])
 	std::cerr.rdbuf(&cerrfileredirect);
 	std::clog.rdbuf(&clogfileredirect);
 	#endif
-
 	try
 	{
 		boost::program_options::options_description desc("Allowed options");
@@ -397,7 +396,7 @@ int main(int argc, char* argv[])
 			renderer::set_model_matrix
 			(
 				// translation constructor
-				gintonic::mat4f(light_position_world)
+				gintonic::mat4f(1.0f)
 			);
 
 			const GLint texture_unit = 0;
@@ -446,6 +445,9 @@ int main(int argc, char* argv[])
 			stream << "Elapsed time: " << std::fixed << std::setprecision(4) << curtime << " seconds\n";
 			stream << "Frames per second: " << std::fixed << std::setprecision(4) << 1.0f / dt << '\n';
 			stream << textlog.str();
+			stream << "Camera position: " << renderer::camera().position << '\n';
+			stream << "Camera up:       " << renderer::camera().up << '\n';
+			stream << "Camera right:    " << renderer::camera().right <<'\n';
 			stream << std::endl;
 			stream.close();
 

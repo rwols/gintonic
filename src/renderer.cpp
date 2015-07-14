@@ -39,6 +39,10 @@ namespace gintonic {
 	mat4f renderer::s_matrix_PVM = mat4f();
 	mat3f renderer::s_matrix_N = mat3f();
 
+	GLuint renderer::s_fbo;
+	GLuint renderer::s_textures[renderer::TEXTURETYPE_count];
+	GLuint renderer::s_depth_texture;
+
 	const camera_transform<float>* renderer::s_camera = nullptr;
 
 	boost::signals2::signal<void(wchar_t)> renderer::char_typed;

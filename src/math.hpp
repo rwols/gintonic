@@ -372,6 +372,21 @@ template <class T> struct vec<T,2> : public ::std::array<T,2>
 
 	BOOST_CONSTEXPR vec(const T x, const T y) : ::std::array<T,2>({{x,y}}) {} // Don't ask......
 
+	// inline vec(std::initializer_list<T> l) : std::array<T,2>(l) {}
+
+	// inline vec(const FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW
+	// {
+	// 	(*this)[0] = static_cast<T>(v[0]);
+	// 	(*this)[1] = static_cast<T>(v[1]);
+	// }
+
+	// inline vec& operator=(const FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW
+	// {
+	// 	(*this)[0] = static_cast<T>(v[0]);
+	// 	(*this)[1] = static_cast<T>(v[1]);
+	// 	return *this;
+	// }
+
 	inline operator FbxVector2() const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		return FbxVector2((*this)[0], (*this)[1]);
@@ -451,6 +466,14 @@ template <class T> struct vec<T,3> : public ::std::array<T,3>
 	//template <class InputIt> vec(InputIt first) { ::std::copy(first, ::std::advance(first, N), this->begin()); }
 	template <class InputIt> vec(InputIt first, InputIt last) { ::std::copy(first, last, this->begin()); }
 
+	// inline vec(std::initializer_list<T> l) : std::array<T,3>(l) {}
+
+	// inline vec& operator = (std::initializer_list<T> l)
+	// {
+	// 	std::copy(l.begin(), l.end(), this->begin());
+	// 	return *this;
+	// }
+
 	vec(const FbxDouble3& fbx_vector)
 	: ::std::array<T,3>
 	({{
@@ -461,6 +484,22 @@ template <class T> struct vec<T,3> : public ::std::array<T,3>
 	{
 
 	}
+
+
+	// inline vec(const FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
+	// {
+	// 	(*this)[0] = static_cast<T>(v[0]);
+	// 	(*this)[1] = static_cast<T>(v[1]);
+	// 	(*this)[2] = static_cast<T>(v[2]);
+	// }
+
+	// inline vec& operator = (const FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
+	// {
+	// 	(*this)[0] = static_cast<T>(v[0]);
+	// 	(*this)[1] = static_cast<T>(v[1]);
+	// 	(*this)[2] = static_cast<T>(v[2]);
+	// 	return *this;
+	// }
 
 	template <class S>
 	inline vec& operator += (const vec<S,3>& v)

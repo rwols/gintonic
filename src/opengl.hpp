@@ -18,7 +18,6 @@
 #include <cassert>
 
 #include "math.hpp"
-#include "file_handle.hpp"
 #include "exception.hpp"
 #include "object.hpp"
 #include "tuple.hpp"

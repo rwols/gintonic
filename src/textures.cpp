@@ -6,6 +6,7 @@
 	#include <png.h> // The PNG library.
 	#include <jpeglib.h> // The JPEG library.
 #endif
+#include <fstream>
 #include <boost/filesystem.hpp>
 #include "exception.hpp"
 

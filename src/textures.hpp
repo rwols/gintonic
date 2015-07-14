@@ -409,25 +409,25 @@ public:
 
 
 
-namespace boost {
-	namespace serialization {
-		template <class Archive>
-		inline void save_construct_data(Archive & ar, const gintonic::opengl::texture2d* t, const unsigned int version)
-		{
-			// save data required to construct instance
-			ar & t->key();
-		}
-		template <class Archive>
-		inline void load_construct_data(Archive& ar, gintonic::opengl::texture2d* t, const unsigned int version)
-		{
-			// retrieve data from archive required to construct new instance
-			boost::filesystem::path the_key;
-			ar & the_key;
-			// invoke inplace constructor to initialize instance of A
-			::new(t)gintonic::opengl::texture2d(std::move(the_key));
-		}
-	}
-}
+// namespace boost {
+// 	namespace serialization {
+// 		template <class Archive>
+// 		inline void save_construct_data(Archive & ar, const gintonic::opengl::texture2d* t, const unsigned int version)
+// 		{
+// 			// save data required to construct instance
+// 			ar & t->key();
+// 		}
+// 		template <class Archive>
+// 		inline void load_construct_data(Archive& ar, gintonic::opengl::texture2d* t, const unsigned int version)
+// 		{
+// 			// retrieve data from archive required to construct new instance
+// 			boost::filesystem::path the_key;
+// 			ar & the_key;
+// 			// invoke inplace constructor to initialize instance of A
+// 			::new(t)gintonic::opengl::texture2d(std::move(the_key));
+// 		}
+// 	}
+// }
 
 BOOST_CLASS_VERSION(gintonic::opengl::texture2d, 1)
 

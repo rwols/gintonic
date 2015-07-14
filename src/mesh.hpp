@@ -1,6 +1,7 @@
 #ifndef gintonic_mesh_hpp
 #define gintonic_mesh_hpp
 
+#include <fstream>
 #include "opengl.hpp"
 #include "object.hpp"
 #include "vertices.hpp"
@@ -16,6 +17,9 @@ namespace gintonic
 
 	public:
 
+		struct error : virtual exception {};
+		struct unknown_vertex_format : virtual error {};
+
 		// typedef VertexType vertex_type;
 		// typedef typename vertex_type::float_type float_type;
 		// typedef typename object<mesh, boost::filesystem::path>::key_type key_type;
@@ -24,25 +28,10 @@ namespace gintonic
 
 		mesh() = delete;
 		mesh(const mesh&) = delete;
-		mesh(mesh&& other)
-		: object<mesh, key_type>(std::move(other))
-		, m_vao(std::move(other.m_vao))
-		, m_vbo(std::move(other.m_vbo))
-		, m_ibo(std::move(other.m_ibo))
-		, m_count(std::move(other.m_count))
-		{
-			// do nothing
-		}
+		mesh(mesh&& other);
 
 		mesh& operator = (const mesh&) = delete;
-		mesh& operator = (mesh&& other)
-		{
-			object<mesh, key_type>::operator=(std::move(other));
-			m_vao = std::move(other.m_vao);
-			m_vbo = std::move(other.m_vbo);
-			m_count = std::move(other.m_count);
-			return *this;
-		}
+		mesh& operator = (mesh&& other);
 
 		static boost::filesystem::path process(boost::filesystem::path p)
 		{
@@ -54,6 +43,9 @@ namespace gintonic
 		
 			return p;
 		}
+
+		static key_type process(FbxMesh*, FbxManager*);
+		static bool validate(std::ostream&, FbxMesh*, FbxManager*);
 
 		static bool validate(std::ostream& log, const boost::filesystem::path& filename)
 		{
@@ -177,14 +169,7 @@ namespace gintonic
 			return false;
 		}
 
-		void draw() const BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			glBindVertexArray(m_vao);
-			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-			glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glBindVertexArray(0);
-		}
+		void draw() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 		template <class UniversalVertexType>
 		void retrieve_data(std::vector<UniversalVertexType>& vertices, std::vector<GLuint>& indices) const
@@ -218,10 +203,7 @@ namespace gintonic
 			m_type = UniversalVertexType::extension();
 		}
 
-		const char* type() const BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return m_type;
-		}
+		const char* type() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 		// template <class VertexType>
 		// static void register_vertex()
@@ -232,14 +214,8 @@ namespace gintonic
 
 	private:
 
-		mesh(const key_type& k) : object<mesh, key_type>(k)
-		{
-			init_class();
-		}
-		mesh(key_type&& k) : object<mesh, key_type>(std::move(k))
-		{
-			init_class();
-		}
+		mesh(const key_type& k);
+		mesh(key_type&& k);
 
 		friend boost::flyweights::detail::optimized_key_value<key_type, mesh, key_extractor>;
 
@@ -394,92 +370,93 @@ namespace gintonic
 			throw std::runtime_error("mesh::process_fbx: not yet implemented.");
 		}
 
-		void init_class()
-		{
-			std::ifstream input(key().c_str(), std::ios::binary);
-			if (!input)
-			{
-				throw std::runtime_error("mesh::init_class: could not open file.");
-			}
-			const auto ext = key().extension();
-			std::vector<GLuint> indices;
-			if (ext == opengl::vertex_P<GLfloat>::extension())
-			{
-				std::vector<opengl::vertex_P<GLfloat>> vertices;
-				eos::portable_iarchive ia(input);
-				ia & vertices;
-				ia & indices;
-				set_data(vertices, indices);
-			}
-			else if (ext == opengl::vertex_PC<GLfloat>::extension())
-			{
-				std::vector<opengl::vertex_PC<GLfloat>> vertices;
-				eos::portable_iarchive ia(input);
-				ia & vertices;
-				ia & indices;
-				set_data(vertices, indices);
-			}
-			else if (ext == opengl::vertex_PU<GLfloat>::extension())
-			{
-				std::vector<opengl::vertex_PU<GLfloat>> vertices;
-				eos::portable_iarchive ia(input);
-				ia & vertices;
-				ia & indices;
-				set_data(vertices, indices);
-			}
-			else if (ext == opengl::vertex_PN<GLfloat>::extension())
-			{
-				std::vector<opengl::vertex_PN<GLfloat>> vertices;
-				eos::portable_iarchive ia(input);
-				ia & vertices;
-				ia & indices;
-				set_data(vertices, indices);
-			}
-			else if (ext == opengl::vertex_PUN<GLfloat>::extension())
-			{
-				std::vector<opengl::vertex_PUN<GLfloat>> vertices;
-				eos::portable_iarchive ia(input);
-				ia & vertices;
-				ia & indices;
-				set_data(vertices, indices);
-			}
-			else if (ext == opengl::vertex_PCU<GLfloat>::extension())
-			{
-				std::vector<opengl::vertex_PCU<GLfloat>> vertices;
-				eos::portable_iarchive ia(input);
-				ia & vertices;
-				ia & indices;
-				set_data(vertices, indices);
-			}
-			else if (ext == opengl::vertex_PUNTB<GLfloat>::extension())
-			{
-				std::vector<opengl::vertex_PUNTB<GLfloat>> vertices;
-				eos::portable_iarchive ia(input);
-				ia & vertices;
-				ia & indices;
-				set_data(vertices, indices);
-			}
-			else if (ext == opengl::vertex_PCUNTB<GLfloat>::extension())
-			{
-				std::vector<opengl::vertex_PCUNTB<GLfloat>> vertices;
-				eos::portable_iarchive ia(input);
-				ia & vertices;
-				ia & indices;
-				set_data(vertices, indices);
-			}
-			else if (ext == opengl::vertex_PCUN<GLfloat>::extension())
-			{
-				std::vector<opengl::vertex_PCUN<GLfloat>> vertices;
-				eos::portable_iarchive ia(input);
-				ia & vertices;
-				ia & indices;
-				set_data(vertices, indices);
-			}
-			else
-			{
-				throw std::runtime_error("mesh::init_class: unknown vertex format");
-			}
-		}
+		void construct();
+		// void construct()
+		// {
+		// 	std::ifstream input(key().c_str(), std::ios::binary);
+		// 	if (!input)
+		// 	{
+		// 		throw std::runtime_error("mesh::construct: could not open file.");
+		// 	}
+		// 	const auto ext = key().extension();
+		// 	std::vector<GLuint> indices;
+		// 	if (ext == opengl::vertex_P<GLfloat>::extension())
+		// 	{
+		// 		std::vector<opengl::vertex_P<GLfloat>> vertices;
+		// 		eos::portable_iarchive ia(input);
+		// 		ia & vertices;
+		// 		ia & indices;
+		// 		set_data(vertices, indices);
+		// 	}
+		// 	else if (ext == opengl::vertex_PC<GLfloat>::extension())
+		// 	{
+		// 		std::vector<opengl::vertex_PC<GLfloat>> vertices;
+		// 		eos::portable_iarchive ia(input);
+		// 		ia & vertices;
+		// 		ia & indices;
+		// 		set_data(vertices, indices);
+		// 	}
+		// 	else if (ext == opengl::vertex_PU<GLfloat>::extension())
+		// 	{
+		// 		std::vector<opengl::vertex_PU<GLfloat>> vertices;
+		// 		eos::portable_iarchive ia(input);
+		// 		ia & vertices;
+		// 		ia & indices;
+		// 		set_data(vertices, indices);
+		// 	}
+		// 	else if (ext == opengl::vertex_PN<GLfloat>::extension())
+		// 	{
+		// 		std::vector<opengl::vertex_PN<GLfloat>> vertices;
+		// 		eos::portable_iarchive ia(input);
+		// 		ia & vertices;
+		// 		ia & indices;
+		// 		set_data(vertices, indices);
+		// 	}
+		// 	else if (ext == opengl::vertex_PUN<GLfloat>::extension())
+		// 	{
+		// 		std::vector<opengl::vertex_PUN<GLfloat>> vertices;
+		// 		eos::portable_iarchive ia(input);
+		// 		ia & vertices;
+		// 		ia & indices;
+		// 		set_data(vertices, indices);
+		// 	}
+		// 	else if (ext == opengl::vertex_PCU<GLfloat>::extension())
+		// 	{
+		// 		std::vector<opengl::vertex_PCU<GLfloat>> vertices;
+		// 		eos::portable_iarchive ia(input);
+		// 		ia & vertices;
+		// 		ia & indices;
+		// 		set_data(vertices, indices);
+		// 	}
+		// 	else if (ext == opengl::vertex_PUNTB<GLfloat>::extension())
+		// 	{
+		// 		std::vector<opengl::vertex_PUNTB<GLfloat>> vertices;
+		// 		eos::portable_iarchive ia(input);
+		// 		ia & vertices;
+		// 		ia & indices;
+		// 		set_data(vertices, indices);
+		// 	}
+		// 	else if (ext == opengl::vertex_PCUNTB<GLfloat>::extension())
+		// 	{
+		// 		std::vector<opengl::vertex_PCUNTB<GLfloat>> vertices;
+		// 		eos::portable_iarchive ia(input);
+		// 		ia & vertices;
+		// 		ia & indices;
+		// 		set_data(vertices, indices);
+		// 	}
+		// 	else if (ext == opengl::vertex_PCUN<GLfloat>::extension())
+		// 	{
+		// 		std::vector<opengl::vertex_PCUN<GLfloat>> vertices;
+		// 		eos::portable_iarchive ia(input);
+		// 		ia & vertices;
+		// 		ia & indices;
+		// 		set_data(vertices, indices);
+		// 	}
+		// 	else
+		// 	{
+		// 		throw std::runtime_error("mesh::construct: unknown vertex format");
+		// 	}
+		// }
 
 		template <class ResultType> static std::vector<ResultType> 
 		retrieve_indices_from_line(const std::size_t num_indices, const std::string& line)
@@ -504,6 +481,18 @@ namespace gintonic
 			});
 			return result;
 		}
+
+		friend boost::serialization::access;
+		template <class Archive> void save(Archive& ar, const unsigned int version) const
+		{
+			ar & boost::serialization::base_object<object<mesh, key_type>>(*this);
+		}
+		template <class Archive> void load(Archive& ar, const unsigned int version)
+		{
+			ar & boost::serialization::base_object<object<mesh, key_type>>(*this);
+			construct();
+		}
+		BOOST_SERIALIZATION_SPLIT_MEMBER();
 
 		opengl::vertex_array_object m_vao;
 		opengl::buffer_object m_vbo;
