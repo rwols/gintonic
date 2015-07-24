@@ -1,11 +1,16 @@
 #ifndef textures_hpp
 #define textures_hpp
 
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/split_member.hpp>
-#include "opengl.hpp"
-#include "object.hpp"
+// #include <boost/serialization/string.hpp>
+// #include <boost/serialization/version.hpp>
+// #include <boost/serialization/split_member.hpp>
+// #include <boost/serialization/base_object.hpp>
+#include "glad.hpp"
+#include "exception.hpp"
+#include "filesystem.hpp"
+#include <vector>
+#include <list>
+#include <mutex>
 
 namespace gintonic {
 namespace opengl {
@@ -208,94 +213,17 @@ struct texture_parameters
 	texture_parameters();
 };
 
-/*!
-\brief Abstraction for 2D OpenGL textures.
-
-You cannot directly instantiate this class. You need to use the factory mechanism.
-That is, you request a texture2d with texture2d::request with the path to a filename.
-This method returns an abstraction of a pointer. That is, it returns a texture2d::pointer.
-The size of a texture2d::pointer really is the same size as a pointer, so do not worry about
-size constraints. The reason to use this strategy is so that multiple handles to the same texture
-use the same data underneath. This prevents unneccesary data duplication on the GPU.
-
-The texture2d::pointer takes care of reference counting.
-When the pointer gets destroyed by its destructor, the reference count of the texture
-is decremented. When the reference count reaches zero, the texture is deleted from the GPU.
-
-What follows is an example on how to obtain and instantiate a new texture2d.
-
-\code
-using namespace gintonic::opengl;
-try
+class texture2d : public std::enable_shared_from_this<texture2d>
 {
-	texture2d::pointer tex = texture2d::request("path/to/texture.png");
-	std::cout << "Texture width: " << tex->width();
-	std::cout << "Texture height: " << tex->height();
-
-	// ...
-
-	tex->bind(GL_TEXTURE0);
-	// Drawing ...
-
-}
-catch (const std::exception& e)
-{
-	std::cerr << "Could not fetch texture: " << e.what() << '\n';
-}
-\endcode
-*/
-class texture2d : public object<texture2d, boost::filesystem::path>
-{
-private:
-
-	friend boost::flyweights::detail::optimized_key_value<key_type, texture2d, key_extractor>;
-
-	void class_init();
-	void init(const GLsizei width, const GLsizei height, const GLenum format, const GLenum type, const std::vector<char>& data);
-	void init_tga_image(GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	#ifdef BOOST_MSVC
-	void init_wic_image(GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	#elif defined APPLE
-	void init_png_image(GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	void init_jpeg_image(GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	#elif defined __linux__
-	void init_png_image(GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	void init_jpeg_image(GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	#else
-	#error Platform not supported.
-	#endif
-	GLuint m_buffer;
-
-	texture2d(const key_type& image_filename);
-	texture2d(key_type&& image_filename);
-
-	friend class boost::serialization::access;
-	template <class Archive> void save(Archive& ar, const unsigned int version) const
-	{
-		ar & boost::serialization::base_object<object<texture2d, key_type>>(*this);
-	}
-	template <class Archive> void load(Archive& ar, const unsigned int version)
-	{
-		ar & boost::serialization::base_object<object<texture2d, key_type>>(*this);
-		init();
-	}
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
-
-	static void release();
-
 public:
 
-	/*!
-	\brief The destructor.
-	*/
-	virtual ~texture2d() BOOST_NOEXCEPT_OR_NOTHROW;
+	texture2d(boost::filesystem::path filename);
+	virtual ~texture2d();
 
 	static void init();
 
 	texture2d(const texture2d&) = delete;
 	texture2d& operator = (const texture2d&) = delete;
-
 	texture2d(texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW;
 	texture2d& operator = (texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -317,118 +245,39 @@ public:
 	typedef boost::error_info<struct tag_wic_errorcode, HRESULT> errinfo_wic;
 	#endif
 
-	/*!
-	\brief Static member to define the texture parameters when a new
-	texture is constructed.
-
-	I chose this over passing a texture_parameter
-	structure to the constructor every time a new texture is constructed
-	because I feel that in practise the texture parameters are set at the
-	start of the program and then kept that way until the end.
-	*/
 	static texture_parameters parameter;
-	
 
-
-	/*!
-	\brief Bind this texture2d.
-
-	Effectively calls glBindTexture and glActiveTexture.
-
-	**Warning.** The active_texture_unit argument is not one of
-	* `GL_TEXTURE0`
-	* `GL_TEXTURE1`
-	* `GL_TEXTURE2`
-	* Etcetera,
-
-	but rather a number corresponding to the texture unit.
-
-	\param [in] active_texture_unit The texture unit to set for this texture.
-	*/
 	void bind(const GLint active_texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-
-	/*!
-	\brief The width of the texture.
-
-	This method calls the OpenGL API, so if you need this information
-	often it is recommended to store it in memory somewhere.
-
-	\param [in] level The mipmap level. The default is 0 (the original size).
-	\return The width of this texture at the specified mipmap level.
-	*/
 	GLint width(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
-
-	/*!
-	\brief The height of the texture.
-
-	This method calls the OpenGL API, so if you need this information
-	often it is recommended to store it in memory somewhere.
-
-	\param [in] level The mipmap level. The default is 0 (the original size).
-	\return The height of this texture at the specified mipmap level.
-	*/
 	GLint height(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
-
-	/*!
-	\brief The depth of the texture.
-
-	This method calls the OpenGL API, so if you need this information
-	often it is recommended to store it in memory somewhere.
-
-	For 2D textures, this will always be 1.
-
-	\param [in] level The mipmap level. The default is 0 (the original size).
-	\return The depth of this texture at the specified mipmap level.
-	*/
 	GLint depth(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
-
-	/*!
-	\brief Obtain the internal format of this texture at the specified mipmap level.
-	\param[in] level The mipmap level. The default is 0.
-	\return The internal format of this texture at the specified mipmap level.
-	*/
 	GLint internal_format(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
-
-	/*!
-	\brief Returns `GL_TRUE` if the texture is stored in a compressed format, otherwise returns `GL_FALSE`.
-	\param [in] level The mipmap level. The default is 0.
-	\return Returns `GL_TRUE` if the texture is stored in a compressed format, otherwise returns `GL_FALSE`.
-	*/
 	bool is_compressed(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
 	GLint format(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
 	GLint compressed_size(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
-	// GLint buffer_offset() const BOOST_NOEXCEPT_OR_NOTHROW;
-	// GLint buffer_size() const BOOST_NOEXCEPT_OR_NOTHROW;
-
-	// Cast the unique ID that this texture2d handles to a plain GLuint, if needed.
 	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW { return m_buffer; }
+
+private:
+
+	void init(const GLsizei width, const GLsizei height, const GLenum format, const GLenum type, const std::vector<char>& data);
+	void init_tga_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	#ifdef BOOST_MSVC
+	void init_wic_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	#elif defined APPLE
+	void init_png_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	void init_jpeg_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	#elif defined __linux__
+	void init_png_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	void init_jpeg_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	#else
+	#error Platform not supported.
+	#endif
+	GLuint m_buffer;
+
+	static void release_static();
 };
 
 } // end of namespace opengl
 } // end of namespace gintonic
-
-
-
-// namespace boost {
-// 	namespace serialization {
-// 		template <class Archive>
-// 		inline void save_construct_data(Archive & ar, const gintonic::opengl::texture2d* t, const unsigned int version)
-// 		{
-// 			// save data required to construct instance
-// 			ar & t->key();
-// 		}
-// 		template <class Archive>
-// 		inline void load_construct_data(Archive& ar, gintonic::opengl::texture2d* t, const unsigned int version)
-// 		{
-// 			// retrieve data from archive required to construct new instance
-// 			boost::filesystem::path the_key;
-// 			ar & the_key;
-// 			// invoke inplace constructor to initialize instance of A
-// 			::new(t)gintonic::opengl::texture2d(std::move(the_key));
-// 		}
-// 	}
-// }
-
-BOOST_CLASS_VERSION(gintonic::opengl::texture2d, 1)
 
 #endif

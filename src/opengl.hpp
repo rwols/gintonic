@@ -5,8 +5,8 @@
 \brief Classes and functions dealing with the OpenGL API.
 */
 
-#ifndef opengl_hpp
-#define opengl_hpp
+#ifndef gintonic_opengl_hpp
+#define gintonic_opengl_hpp
 
 #include <string>
 #include <vector>
@@ -21,6 +21,10 @@
 #include "exception.hpp"
 #include "object.hpp"
 #include "tuple.hpp"
+#include "filesystem.hpp"
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/vector.hpp>
 
 #ifdef __clang__
 	#pragma clang diagnostic push
@@ -100,12 +104,22 @@ This function is equivalent to calling
 glBufferData(target, v.size() * sizeof(T), v.data(), usage);
 \endcode
 */
-template <class T> inline void gtBufferData(const GLenum target,
-	const std::vector<T>& v,
-	const GLenum usage)
+
+template <class ContiguousArrayContainer>
+inline void gtBufferData(const GLenum target, 
+	const ContiguousArrayContainer& v, const GLenum usage)
 {
-	glBufferData(target, v.size() * sizeof(T), v.data(), usage);
+	glBufferData(target, v.size() 
+		* sizeof(typename ContiguousArrayContainer::value_type), 
+		reinterpret_cast<const GLvoid*>(v.data()), usage);
 }
+
+// template <class T, class AllocT> 
+// inline void gtBufferData(const GLenum target, const std::vector<T, AllocT>& v,
+// 	const GLenum usage)
+// {
+// 	glBufferData(target, v.size() * sizeof(T), v.data(), usage);
+// }
 
 /*!
 \brief Convenience function to upload an std::vector to a part of an OpenGL buffer object.
@@ -125,15 +139,19 @@ This function is equivalent to calling
 glBufferSubData(target, sizeof(T) * element_offset, sizeof(T) * num_elements, v.data());
 \endcode
 */
-template <class T> inline void gtBufferSubData(const GLenum target,
+template <class T, class Alloc> inline void gtBufferSubData(const GLenum target,
 	const std::size_t element_offset,
 	const std::size_t num_elements,
-	const std::vector<T>& v)
+	const std::vector<T, Alloc>& v)
 {
 	glBufferSubData(target, sizeof(T) * element_offset, sizeof(T) * num_elements, v.data());
 }
 
 namespace gintonic {
+
+class material;
+class light;
+
 namespace opengl {
 
 /*!
@@ -220,127 +238,151 @@ struct cpu_features
 	friend std::ostream& operator << (std::ostream& os, const cpu_features& feat);
 };
 
-class base
-{
-public:
-	base(base&&) = delete;
-	base(const base&) = delete;
-	base& operator = (const base&) = delete;
-	base& operator = (base&&) = delete;
-	virtual ~base() {}
-	operator GLuint() const { return mHandle; }
-protected:
-	base(const GLuint handle) : mHandle(handle) {}
-	GLuint mHandle;
-private:
-
-};
-
-/*!
-\brief Handle to a generic OpenGL buffer object.
-
-On construction, this class will generate an OpenGL buffer object. On destruction, it will
-destroy the OpenGL buffer object that it holds. You can simply cast this class to a GLuint
-to obtain the underlying buffer. This means that you can use it in OpenGL function calls. For
-instance,
-\code
-opengl::buffer_object buf;
-glBindBuffer(GL_ARRAY_BUFFER, buf);
-\endcode
-
-You **must not** call glDeleteBuffers on this object, or your program will crash.
-
-The size
-of this class is the size of a GLuint, and all methods are inlined (mostly just one line of code),
-so there is no reason not to use this class.
-
-As with all ``handle-like'' classes in this framework, a buffer_object is not copy-constructible
-and not copy-assignable. However, a buffer_object is move-constructible and move-assignable.
-
-\sa buffer_object_array
-\sa vertex_array_object
-\sa vertex_array_object_array
-*/
 class buffer_object
 {
+private:
+	GLuint m_handle;
 public:
-
-	/*!
-	\brief Constructs a buffer_object.
-
-	Equivalent to
-	\code
-	GLuint buffer_object;
-	glGenBuffers(1, &buffer_object);
-	\endcode
-	*/
-	inline buffer_object()
+	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_handle;
+	}
+	inline buffer_object() : m_handle(0)
 	{
 		glGenBuffers(1, &m_handle);
+		if (!m_handle) throw std::bad_alloc();
 	}
-
-	/*!
-	\brief Destructor.
-
-	Equivalent to
-	\code
-	glDeleteBuffers(1, &buffer_object);
-	\endcode
-	*/
-	inline ~buffer_object() BOOST_NOEXCEPT_OR_NOTHROW
+	buffer_object(const GLenum target, const GLsizei size, 
+		const GLvoid* data, const GLenum usage) : m_handle(0)
+	{
+		glGenBuffers(1, &m_handle);
+		if (!m_handle) throw std::bad_alloc();
+		glBindBuffer(target, m_handle);
+		glBufferData(target, size, data, usage);
+		glBindBuffer(target, 0);
+	}
+	template <class ContiguousArrayContainer> 
+	buffer_object(const GLenum target, const ContiguousArrayContainer& data, 
+		const GLenum usage) : m_handle(0)
+	{
+		glGenBuffers(1, &m_handle);
+		if (!m_handle) throw std::bad_alloc();
+		glBindBuffer(target, m_handle);
+		gtBufferData(target, data, usage);
+		glBindBuffer(target, 0);
+	}
+	buffer_object(const buffer_object& other) : m_handle(0)
+	{
+		glGenBuffers(1, &m_handle);
+		if (!m_handle) throw std::bad_alloc();
+		GLint size;
+		GLint usage;
+		glBindBuffer(GL_COPY_READ_BUFFER, other.m_handle);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, m_handle);
+		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
+		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_USAGE, &usage);
+		glBufferData(GL_COPY_WRITE_BUFFER, static_cast<GLsizei>(size), 
+			nullptr, static_cast<GLenum>(usage));
+		glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 
+			0, 0, size);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+		glBindBuffer(GL_COPY_READ_BUFFER, 0);
+	}
+	inline buffer_object(buffer_object&& other) BOOST_NOEXCEPT_OR_NOTHROW 
+	: m_handle(other.m_handle)
+	{
+		other.m_handle = 0;
+	}
+	buffer_object& operator=(const buffer_object& other)
+	{
+		GLint size;
+		GLint usage;
+		glBindBuffer(GL_COPY_READ_BUFFER, other.m_handle);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, m_handle);
+		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
+		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_USAGE, &usage);
+		glBufferData(GL_COPY_WRITE_BUFFER, static_cast<GLsizei>(size), 
+			nullptr, static_cast<GLenum>(usage));
+		glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 
+			0, 0, size);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+		glBindBuffer(GL_COPY_READ_BUFFER, 0);
+		return *this;
+	}
+	buffer_object& operator=(buffer_object&& other) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		glDeleteBuffers(1, &m_handle);
-	}
-
-	buffer_object(const buffer_object&) = delete;
-
-	/*!
-	\brief Move-constructor.
-	\param [in,out] other The other buffer_object.
-
-	After this call, the other buffer_object is in a void state, so do not use
-	it anymore.
-	*/
-	inline buffer_object(buffer_object&& other) : m_handle(other.m_handle) { other.m_handle = 0; }
-	
-	buffer_object& operator = (const buffer_object&) = delete;
-
-	/*!
-	\brief Move-assignment operator.
-	\param [in,out] other The other buffer_object.
-
-	After this call, the other buffer_object is in a void state, so do not use
-	it anymore.
-	*/
-	inline buffer_object& operator = (buffer_object&& other)
-	{
 		m_handle = other.m_handle;
 		other.m_handle = 0;
 		return *this;
 	}
-
-	/*!
-	\brief A buffer_object is castable to a GLuint.
-	*/
-	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW { return m_handle; }
+	inline ~buffer_object() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		glDeleteBuffers(1, &m_handle);
+	}
+	void swap(buffer_object& other)
+	{
+		std::swap(m_handle, other.m_handle);
+	}
 private:
-	GLuint m_handle;
+	friend boost::serialization::access;
+	template <class Archive> void save(Archive& ar, const unsigned /*version*/) const
+	{
+		GLint size;
+		GLint usage;
+		glBindBuffer(GL_COPY_READ_BUFFER, m_handle);
+		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &size);
+		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_USAGE, &usage);
+		std::vector<char> data(size);
+		glGetBufferSubData(GL_COPY_READ_BUFFER, 0, size, (GLvoid*)data.data());
+		ar & data & usage;
+	}
+	template <class Archive> void load(Archive& ar, const unsigned /*version*/)
+	{
+		GLint usage;
+		std::vector<char> data;
+		ar & data & usage;
+		glBindBuffer(GL_COPY_WRITE_BUFFER, m_handle);
+		gtBufferData(GL_COPY_WRITE_BUFFER, data, static_cast<GLenum>(usage));
+	}
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
-/*!
-\brief A compile-time size array of buffer_object's.
+class texture_object
+{
+private:
+	GLuint m_handle;
+public:
+	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_handle;
+	}
+	inline texture_object() : m_handle(0)
+	{
+		glGenTextures(1, &m_handle);
+		if (!m_handle) throw std::bad_alloc();
+	}
+	texture_object(const texture_object& other) = delete;
+	inline texture_object(texture_object&& other) BOOST_NOEXCEPT_OR_NOTHROW 
+	: m_handle(other.m_handle)
+	{
+		other.m_handle = 0;
+	}
+	texture_object& operator=(const texture_object& other) = delete;
+	texture_object& operator=(texture_object&& other)
+	BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		glDeleteTextures(1, &m_handle);
+		m_handle = other.m_handle;
+		other.m_handle = 0;
+		return *this;
+	}
+	inline ~texture_object() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		glDeleteTextures(1, &m_handle);
+	}
+};
 
-If you need more than one buffer_object and you know
-at compile time how many you need, then using this class
-improves performance a little bit. This class is templated
-on the number of buffers that you need.
-
-\tparam Size The number of buffer_object's to create.
-
-\sa buffer_object
-\sa vertex_array_object
-\sa vertex_array_object_array
-*/
 template <GLuint Size> class buffer_object_array
 {
 public:
@@ -417,44 +459,20 @@ private:
 	GLuint m_handles[Size];
 };
 
-/*!
-\brief Encapsulates a handle to an OpenGL vertex array object.
-
-This class is *almost* the same as a buffer_object. The difference
-is in the constructor and destructor. Where a buffer_object uses
-glGenBuffers and glDeleteBuffers, a vertex_array_object uses
-glGenVertexArrays and glDeleteVertexArrays.
-
-\sa buffer_object
-\sa buffer_object_array
-\sa vertex_array_object_array
-*/
 class vertex_array_object
 {
+private:
+	GLuint m_handle;
 public:
-
-	/*!
-	\brief Constructs a vertex_array_object.
-
-	Equivalent to
-	\code
-	GLuint vertex_array_object;
-	glGenVertexArrays(1, &vertex_array_object);
-	\endcode
-	*/
-	inline vertex_array_object()
+	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_handle;
+	}
+	inline vertex_array_object() : m_handle(0)
 	{
 		glGenVertexArrays(1, &m_handle);
 	}
 
-	/*!
-	\brief Destructor.
-
-	Equivalent to
-	\code
-	glDeleteVertexArrays(1, &vertex_array_object);
-	\endcode
-	*/
 	inline ~vertex_array_object() BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		glDeleteVertexArrays(1, &m_handle);
@@ -462,41 +480,95 @@ public:
 
 	vertex_array_object(const vertex_array_object&) = delete;
 
-	/*!
-	\brief Move-constructor.
-	\param [in,out] other The other vertex_array_object.
-
-	After this call, the other vertex_array_object is in a void state, so do not use
-	it anymore.
-	*/
 	inline vertex_array_object(vertex_array_object&& other)
+		BOOST_NOEXCEPT_OR_NOTHROW
 	: m_handle(other.m_handle)
 	{
 		other.m_handle = 0;
 	}
 
 	vertex_array_object& operator = (const vertex_array_object&) = delete;
-
-	/*!
-	\brief Move-assignment operator.
-	\param [in,out] other The other vertex_array_object.
-
-	After this call, the other vertex_array_object is in a void state, so do not use
-	it anymore.
-	*/
+	
 	inline vertex_array_object& operator = (vertex_array_object&& other)
+		BOOST_NOEXCEPT_OR_NOTHROW
 	{
+		glDeleteVertexArrays(1, &m_handle);
 		m_handle = other.m_handle;
 		other.m_handle = 0;
 		return *this;
 	}
 
-	/*!
-	\brief A vertex_array_object is castable to a GLuint.
-	*/
-	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW { return m_handle; }
-private:
-	GLuint m_handle;
+	template <class VertexType>
+	void setup(const GLuint array_buffer) const 
+		BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		glBindVertexArray(m_handle);
+		glBindBuffer(GL_ARRAY_BUFFER, array_buffer);
+		VertexType::enable_attributes();
+		// glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// glBindVertexArray(0);
+	}
+
+	template <class VertexType>
+	void setup(const GLuint array_buffer, 
+		const GLuint element_array_buffer) const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		glBindVertexArray(m_handle);
+		glBindBuffer(GL_ARRAY_BUFFER, array_buffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_array_buffer);
+		VertexType::enable_attributes();
+		// glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// glBindVertexArray(0);
+	}
+
+	template <class ContiguousArrayContainer>
+	void setup(const GLuint array_buffer, 
+		const ContiguousArrayContainer& vertices, const GLenum usage) const
+	{
+		glBindVertexArray(m_handle);
+		glBindBuffer(GL_ARRAY_BUFFER, array_buffer);
+		ContiguousArrayContainer::value_type::enable_attributes();
+		gtBufferData(GL_ARRAY_BUFFER, vertices, usage);
+		// glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// glBindVertexArray(0);
+	}
+
+	template <class ContiguousVerticesContainer,
+		class ContiguousIndicesContainer>
+	void setup(const GLuint array_buffer,
+		const GLuint element_array_buffer,
+		const ContiguousVerticesContainer& vertices,
+		const ContiguousIndicesContainer& indices, 
+		const GLenum usage) const
+	{
+		glBindVertexArray(m_handle);
+		glBindBuffer(GL_ARRAY_BUFFER, array_buffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_array_buffer);
+		ContiguousVerticesContainer::value_type::enable_attributes();
+		gtBufferData(GL_ARRAY_BUFFER, vertices, usage);
+		gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, usage);
+		// glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// glBindVertexArray(0);
+	}
+
+	template <class ContiguousVerticesContainer,
+		class ContiguousIndicesContainer>
+	void setup(const GLuint array_buffer,
+		const GLuint element_array_buffer,
+		const ContiguousVerticesContainer& vertices,
+		const ContiguousIndicesContainer& indices, 
+		const GLenum vertices_usage,
+		const GLenum indices_usage) const
+	{
+		glBindVertexArray(m_handle);
+		glBindBuffer(GL_ARRAY_BUFFER, array_buffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_array_buffer);
+		ContiguousVerticesContainer::value_type::enable_attributes();
+		gtBufferData(GL_ARRAY_BUFFER, vertices, vertices_usage);
+		gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, indices_usage);
+		// glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// glBindVertexArray(0);
+	}
 };
 
 /*!
@@ -636,6 +708,438 @@ public:
 	inline operator void*() const BOOST_NOEXCEPT_OR_NOTHROW { return m_data; }
 private:
 	void* m_data;
+};
+
+template
+<
+	GLenum Target,
+	GLenum Usage,
+	GLenum Mode,
+	class T, 
+	class Alloc = std::allocator<T>
+> class lazy_vector
+{
+private:
+	buffer_object m_vbo;
+	std::vector<T, Alloc> m_cache;
+	bool m_dirty;
+	GLsizei m_count = 0;
+	GLsizei m_buffer_size = 0;
+public:
+	typedef typename std::vector<T, Alloc>::value_type value_type;
+	typedef typename std::vector<T, Alloc>::allocator_type allocator_type;
+	typedef GLsizei size_type;
+	typedef GLint difference_type;
+	typedef typename std::vector<T, Alloc>::reference reference;
+	typedef typename std::vector<T, Alloc>::const_reference const_reference;
+	typedef typename std::vector<T, Alloc>::pointer pointer;
+	typedef typename std::vector<T, Alloc>::const_pointer const_pointer;
+	typedef typename std::vector<T, Alloc>::iterator iterator;
+	typedef typename std::vector<T, Alloc>::const_iterator const_iterator;
+	typedef typename std::vector<T, Alloc>::reverse_iterator reverse_iterator;
+	typedef typename std::vector<T, Alloc>::const_reverse_iterator const_reverse_iterator;
+
+	lazy_vector() = default;
+	explicit lazy_vector(const size_type count, const T& value, const Alloc& alloc = Alloc())
+	: m_cache(count, value, alloc)
+	, m_dirty(true)
+	{
+
+	}
+	explicit lazy_vector(const Alloc& alloc)
+	: m_cache(alloc)
+	, m_dirty(false)
+	{
+
+	}
+	explicit lazy_vector(const size_type count)
+	: m_cache(count)
+	, m_dirty(true)
+	{
+
+	}
+	template <class InputIt> lazy_vector(InputIt first, InputIt last, const Alloc& alloc = Alloc())
+	: m_cache(first, last, alloc)
+	, m_dirty(true)
+	{
+
+	}
+	lazy_vector(const lazy_vector& other) = default;
+	lazy_vector(const lazy_vector& other, const Alloc& alloc)
+	: m_vbo(other.m_vbo)
+	, m_cache(other.m_cache, alloc)
+	, m_dirty(other.m_dirty)
+	, m_count(other.m_count)
+	, m_buffer_size(other.m_buffer_size)
+	{
+
+	}
+	lazy_vector(lazy_vector&& other)
+	: m_vbo(std::move(other.m_vbo))
+	, m_cache(std::move(other.m_cache))
+	, m_dirty(other.m_dirty)
+	, m_count(other.m_count)
+	, m_buffer_size(other.m_buffer_size)
+	{
+
+	}
+	lazy_vector(lazy_vector&& other, const Alloc& alloc)
+	: m_vbo(std::move(other.m_vbo))
+	, m_cache(std::move(other.m_cache), alloc)
+	, m_dirty(other.m_dirty)
+	, m_count(other.m_count)
+	, m_buffer_size(other.m_buffer_size)
+	{
+
+	}
+	lazy_vector(std::initializer_list<T> init, const Alloc& alloc)
+	: m_cache(init, alloc)
+	, m_dirty(true)
+	{
+
+	}
+
+	~lazy_vector() = default;
+
+	lazy_vector& operator=(lazy_vector&) = default;
+	lazy_vector& operator=(lazy_vector&& other)
+	{
+		m_vbo = std::move(other.m_vbo);
+		m_cache = std::move(other.m_cache);
+		m_dirty = other.m_dirty;
+		return *this;
+	}
+	lazy_vector& operator=(std::initializer_list<T> ilist)
+	{
+		m_cache = ilist;
+		m_dirty = true;
+		return *this;
+	}
+
+	void assign(const size_type count, const T& value)
+	{
+		m_cache.assign(count, value);
+		m_dirty = true;
+	}
+
+	template <class InputIt>
+	void assign(InputIt first, InputIt last)
+	{
+		m_cache.assign(first, last);
+		m_dirty = true;
+	}
+
+	void assign(std::initializer_list<T> ilist)
+	{
+		m_cache.assign(ilist);
+		m_dirty = true;
+	}
+
+	inline allocator_type get_allocator() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.get_allocator();
+	}
+
+	inline reference at(const size_type pos)
+	{
+		m_dirty = true;
+		return m_cache.at(pos);
+	}
+
+	inline const_reference at(const size_type pos) const
+	{
+		return m_cache.at(pos);
+	}
+
+	inline reference operator[](const size_type pos)
+	{
+		m_dirty = true;
+		return m_cache[pos];
+	}
+
+	inline const_reference operator[](const size_type pos) const
+	{
+		m_dirty = true;
+		return m_cache[pos];
+	}
+
+	inline reference front()
+	{
+		m_dirty = true;
+		return m_cache.front();
+	}
+
+	inline const_reference front() const
+	{
+		return m_cache.front();
+	}
+
+	inline reference back()
+	{
+		m_dirty = true;
+		return m_cache.back();
+	}
+
+	inline const_reference back() const
+	{
+		return m_cache.back();
+	}
+
+	inline T* data() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		m_dirty = true;
+		return m_cache.data();
+	}
+
+	inline const T* data() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.data();
+	}
+
+	inline iterator begin() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		m_dirty = true;
+		return m_cache.begin();
+	}
+
+	inline const_iterator begin() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.begin();
+	}
+
+	inline const_iterator cbegin() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.cbegin();
+	}
+
+	inline iterator end() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		m_dirty = true;
+		return m_cache.end();
+	}
+
+	inline const_iterator end() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.end();
+	}
+
+	inline const_iterator cend() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache,cend();
+	}
+
+	inline reverse_iterator rbegin() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		m_dirty = true;
+		return m_cache.rbegin();
+	}
+
+	inline const_reverse_iterator rbegin() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.rbegin();
+	}
+
+	inline const_reverse_iterator crbegin() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.crbegin();
+	}
+
+	inline reverse_iterator rend() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		m_dirty = true;
+		return m_cache.rend();
+	}
+
+	inline const_reverse_iterator rend() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.rend();
+	}
+
+	inline const_reverse_iterator crend() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.crend();
+	}
+
+	inline bool empty() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.empty();
+	}
+
+	inline size_type size() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.size();
+	}
+
+	inline size_type max_size() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return std::numeric_limits<GLsizei>::max();
+	}
+
+	inline void reserve(const size_type new_cap)
+	{
+		m_cache.reserve(new_cap);
+	}
+
+	inline size_type capacity() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_cache.capacity();
+	}
+
+	inline void shrink_to_fit()
+	{
+		m_cache.shrink_to_fit();
+	}
+
+	inline void clear()
+	{
+		m_dirty = true;
+		m_cache.clear();
+	}
+
+	inline iterator insert(const_iterator pos, const T& value)
+	{
+		m_dirty = true;
+		return m_cache.insert(pos, value);
+	}
+
+	inline iterator insert(const_iterator pos, T&& value)
+	{
+		m_dirty = true;
+		return m_cache.insert(pos, std::move(value));
+	}
+
+	inline iterator insert(const_iterator pos, const size_type count, const T& value)
+	{
+		m_dirty = true;
+		return m_cache.insert(pos, count, value);
+	}
+
+	template <class InputIt>
+	inline iterator insert(const_iterator pos, InputIt first, InputIt last)
+	{
+		m_dirty = true;
+		return m_cache.insert(pos, first, last);
+	}
+
+	inline iterator insert(const_iterator pos, std::initializer_list<T> ilist)
+	{
+		m_dirty = true;
+		return m_cache.insert(pos, ilist);
+	}
+
+	template <class... Args> inline iterator emplace(const_iterator pos, Args&&... args)
+	{
+		m_dirty = true;
+		return m_cache.emplace(pos, std::forward<Args>(args)...);
+	}
+
+	inline iterator erase(const_iterator pos)
+	{
+		m_dirty = true;
+		return m_cache.erase(pos);
+	}
+
+	inline iterator erase(const_iterator first, const_iterator last)
+	{
+		m_dirty = true;
+		return m_cache.erase(first, last);
+	}
+
+	inline void push_back(const T& value)
+	{
+		m_dirty = true;
+		m_cache.push_back(value);
+	}
+
+	inline void push_back(T&& value)
+	{
+		m_dirty = true;
+		m_cache.push_back(std::move(value));
+	}
+
+	template <class... Args> inline void emplace_back(Args&&... args)
+	{
+		m_dirty = true;
+		m_cache.emplace_back(std::forward<Args>(args)...);
+	}
+
+	inline void pop_back()
+	{
+		m_dirty = true;
+		m_cache.pop_back();
+	}
+
+	inline void resize(const size_type count)
+	{
+		m_dirty = true;
+		m_cache.resize(count);
+	}
+
+	inline void resize(const size_type count, const value_type& value)
+	{
+		m_dirty = true;
+		m_cache.resize(count, value);
+	}
+
+	template <GLenum OtherTarget, GLenum OtherMode, GLenum OtherUsage>
+	void swap(lazy_vector<OtherTarget, OtherMode, OtherUsage, T, Alloc>& other)
+	{
+		m_vbo.swap(other.m_vbo);
+		m_cache.swap(other.m_cache);
+		std::swap(m_dirty, other.m_dirty);
+		std::swap(m_count, other.m_count);
+		std::swap(m_buffer_size, other.m_buffer_size);
+	}
+
+	void synchronize()
+	{
+		if (m_dirty)
+		{
+			glBindBuffer(Target, m_vbo);
+			if (m_cache.size() <= m_buffer_size)
+			{
+				gtBufferSubData(Target, 0, m_cache.size(), m_cache);
+			}
+			else
+			{
+				gtBufferData(Target, m_cache, Usage);
+				m_buffer_size = m_cache.size();
+			}
+			m_count = m_cache.size();
+			m_dirty = false;
+		}
+	}
+
+	void draw()
+	{
+		if (m_dirty)
+		{
+			glBindBuffer(Target, m_vbo);
+			if (m_cache.size() <= m_buffer_size)
+			{
+				gtBufferSubData(Target, 0, m_cache.size(), m_cache);
+			}
+			else
+			{
+				gtBufferData(Target, m_cache, Usage);
+				m_buffer_size = m_cache.size();
+			}
+			m_count = m_cache.size();
+			m_dirty = false;
+		}
+		glDrawArrays(Mode, 0, m_count);
+	}
+
+	inline void draw() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		glDrawArrays(Mode, 0, m_count);
+	}
+
+	inline void draw_unsynchronized() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		draw();
+	}
+
 };
 
 /*!
@@ -795,8 +1299,7 @@ public:
 			error_msg.resize(r);
 			glGetShaderInfoLog(*this, r, nullptr, &error_msg[0]);
 			glDeleteShader(*this);
-			std::cerr << error_msg << '\n';
-			BOOST_THROW_EXCEPTION(error() << errinfo(error_msg) << pathinfo(p));
+			throw exception(std::move(error_msg));
 		}
 	}
 
@@ -813,8 +1316,7 @@ public:
 			error_msg.resize(r);
 			glGetShaderInfoLog(*this, r, nullptr, &error_msg[0]);
 			glDeleteShader(*this);
-			std::cerr << error_msg << '\n';
-			BOOST_THROW_EXCEPTION( error() << errinfo(error_msg) );
+			throw exception(std::move(error_msg));
 		}
 	}
 	virtual ~basic_shader() BOOST_NOEXCEPT_OR_NOTHROW { glDeleteShader(m_handle); }
@@ -828,12 +1330,11 @@ typedef basic_shader<GL_VERTEX_SHADER>   vertex_shader;
 typedef basic_shader<GL_FRAGMENT_SHADER> fragment_shader;
 typedef basic_shader<GL_GEOMETRY_SHADER> geometry_shader;
 
-class shader : public object<shader, std::tuple<boost::filesystem::path, boost::filesystem::path, boost::filesystem::path>>
+class shader 
+//: public object<shader, std::tuple<boost::filesystem::path, boost::filesystem::path, boost::filesystem::path>>
+: public std::enable_shared_from_this<shader>
 {
 public:
-
-	//static void init(const boost::filesystem::path& path_to_list_of_shaders);
-	//inline static void release() BOOST_NOEXCEPT_OR_NOTHROW { /* does nothing */ };
 
 	struct error : public exception {};
 	struct link_error : public error {};
@@ -841,10 +1342,10 @@ public:
 	struct attribute_not_found : public error {};
 	struct not_present : public error {};
 
-	typedef boost::error_info<struct tag_link_errinfo, std::string> link_errinfo;
-	typedef boost::error_info<struct tag_uniform_errinfo, const char*> uniform_errinfo;
-	typedef boost::error_info<struct tag_attribute_errinfo, const char*> attribute_errinfo;
-	typedef boost::error_info<struct tag_shader_errinfo, key_type> shader_errinfo;
+	// typedef boost::error_info<struct tag_link_errinfo, std::string> link_errinfo;
+	// typedef boost::error_info<struct tag_uniform_errinfo, const char*> uniform_errinfo;
+	// typedef boost::error_info<struct tag_attribute_errinfo, const char*> attribute_errinfo;
+	// typedef boost::error_info<struct tag_shader_errinfo, key_type> shader_errinfo;
 
 	struct uniform
 	{
@@ -860,29 +1361,46 @@ public:
 
 	typedef uniform attribute;
 
-private:
+	// virtual void bind_matrices() const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+	// virtual void bind_material(std::shared_ptr<const material>) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+	// virtual void bind_light(std::shared_ptr<const light>) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
 
-	GLuint m_handle;
-	static std::map<key_type, std::vector<boost::filesystem::path>> s_shader_map;
-	friend boost::flyweights::detail::optimized_key_value<key_type, shader, key_extractor>;
-	shader(const key_type& key);
-	shader(key_type&& key);
-	void construct();
-
-public:
-
-	shader() = delete;
-	shader(const shader&) = delete;
-	shader(shader&&);
-	shader& operator = (const shader&) = delete;
-	shader& operator = (shader&&);
 	virtual ~shader() BOOST_NOEXCEPT_OR_NOTHROW;
 
-	void activate() const BOOST_NOEXCEPT_OR_NOTHROW;
-	static void deactivate() BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
 
-	GLint get_uniform_location(const GLchar* uniform_name_in_source_code) const;
-	GLint get_attrib_location(const GLchar* attribute_name_in_source_code) const;
+	shader(
+		boost::filesystem::path vertex_shader_file,
+		boost::filesystem::path fragment_shader_file);
+
+	shader(
+		boost::filesystem::path vertex_shader_file, 
+		boost::filesystem::path geometry_shader_file, 
+		boost::filesystem::path fragment_shader_file);
+
+private:
+
+	shader();
+
+	GLuint m_handle;
+	// static std::map<key_type, std::vector<boost::filesystem::path>> s_shader_map;
+	// friend boost::flyweights::detail::optimized_key_value<key_type, shader, key_extractor>;
+	
+	// shader(const key_type& key);
+	// shader(key_type&& key);
+	// virtual void construct_from_key() final;
+	
+	// friend class boost::serialization::access;
+	// template <class Archive> void serialize(Archive& ar, const unsigned int /*version*/)
+	// {
+	// 	ar & boost::serialization::base_object<object<shader, key_type>>(*this);
+	// }
+
+protected:
+	GLint get_uniform_location(const GLchar* name) const;
+	bool get_uniform_location(const GLchar* name, GLint& location) const BOOST_NOEXCEPT_OR_NOTHROW;
+	GLint get_attrib_location(const GLchar* name) const;
+	bool get_attrib_location(const GLchar* name, GLint& location) const BOOST_NOEXCEPT_OR_NOTHROW;
 	GLint num_active_attributes() const BOOST_NOEXCEPT_OR_NOTHROW;
 	GLint num_active_uniforms() const BOOST_NOEXCEPT_OR_NOTHROW;
 	uniform get_uniform(const GLint index) const;
@@ -1016,11 +1534,49 @@ public:
 		glUniform1iv(location, Size, values.data());
 	}
 
+public:
+	
+	shader(const shader&) = delete;
+	shader(shader&&);
+	shader& operator = (const shader&) = delete;
+	shader& operator = (shader&&);
+	// virtual ~shader() BOOST_NOEXCEPT_OR_NOTHROW;
+
+	void activate() const BOOST_NOEXCEPT_OR_NOTHROW;
+	static void deactivate() BOOST_NOEXCEPT_OR_NOTHROW;
+
 	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW { return m_handle; }
 	inline void operator()() const BOOST_NOEXCEPT_OR_NOTHROW { activate(); }
 };
 
 } // end of namespace opengl
 } // end of namespace gintonic
+
+// namespace std {
+
+// template<>
+// void swap(gintonic::opengl::buffer_object& lhs, gintonic::opengl::buffer_object& rhs) BOOST_NOEXCEPT_OR_NOTHROW
+// {
+// 	lhs.swap(rhs);
+// }
+
+// template
+// <
+// 	GLenum TargetLHS,
+// 	GLenum TargetRHS,
+// 	GLenum ModeLHS,
+// 	GLenum ModeRHS,
+// 	GLenum UsageLHS,
+// 	GLenum UsageRHS,
+// 	class T,
+// 	class Alloc
+// >
+// void swap(gintonic::opengl::lazy_vector<TargetLHS, ModeLHS, UsageLHS, T, Alloc>& lhs,
+// 	gintonic::opengl::lazy_vector<TargetRHS, ModeRHS, UsageRHS, T, Alloc>& rhs) BOOST_NOEXCEPT_OR_NOTHROW
+// {
+// 	lhs.swap(rhs);
+// }
+
+// } // namespace std
 
 #endif

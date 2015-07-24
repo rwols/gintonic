@@ -56,7 +56,7 @@ namespace gintonic
 	}
 
 	one_shot_timer::one_shot_timer(const duration_type& time_left) : timer(time_left) {}
-	one_shot_timer::~one_shot_timer() {}
+	one_shot_timer::~one_shot_timer() BOOST_NOEXCEPT_OR_NOTHROW {}
 	void one_shot_timer::update(const duration_type& dt) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		if (!m_expired)
@@ -71,7 +71,7 @@ namespace gintonic
 	}
 
 	loop_timer::loop_timer(const duration_type& time_left) : timer(time_left), m_original_duration(time_left) {}
-	loop_timer::~loop_timer() {}
+	loop_timer::~loop_timer() BOOST_NOEXCEPT_OR_NOTHROW {}
 	void loop_timer::update(const duration_type& dt) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		m_time_left -= dt;

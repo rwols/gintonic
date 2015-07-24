@@ -63,7 +63,7 @@ void glDebugPrintBuffers(const GLint expected_vao, const GLint expected_vbo, con
 namespace gintonic {
 namespace opengl {
 
-	std::map<shader::key_type, std::vector<boost::filesystem::path>> shader::s_shader_map = std::map<shader::key_type, std::vector<boost::filesystem::path>>();
+// std::map<shader::key_type, std::vector<boost::filesystem::path>> shader::s_shader_map = std::map<shader::key_type, std::vector<boost::filesystem::path>>();
 
 void driverVersion(int& major, int& minor)
 {
@@ -293,91 +293,145 @@ source_code::~source_code()
 	delete [] m_string;
 }
 
-//void shader::init(const boost::filesystem::path& path_to_list_of_shaders)
-//{
-//	if (boost::filesystem::is_regular_file(path_to_list_of_shaders) == false)
-//	{
-//		throw std::runtime_error("Not a regular file.");
-//	}
-//	std::ifstream input(path_to_list_of_shaders.c_str());
-//	if (!input)
-//	{
-//		throw std::runtime_error("Could not open file.");
-//	}
-//	if (!s_shader_map.empty()) s_shader_map.clear();
-//	std::string line;
-//	while (std::getline(input, line))
-//	{
-//		const boost::tokenizer<> tokens(line);
-//		const std::string name(*tokens.begin());
-//		const std::vector<boost::filesystem::path> paths(std::next(tokens.begin()), tokens.end());
-//		const auto r = s_shader_map.emplace(name, paths);
-//		std::cerr << "Name: " << name << '\n';
-//		for (const auto& p : paths) std::cerr << '\t' << p << '\n';
-//		if (false == (2 <= r.first->second.size() && r.first->second.size() <= 3))
-//		{
-//			throw std::runtime_error("Not a valid format.");
-//		}
-//	}
-//}
-
-shader::shader(const key_type& key) : object<shader, key_type>(key), m_handle(glCreateProgram())
+shader::shader() : m_handle(0)
 {
-	construct();
+	/* Empty on purpose */
 }
 
-shader::shader(key_type&& key) : object<shader, key_type>(std::move(key)), m_handle(glCreateProgram())
+shader::shader(
+	boost::filesystem::path path_vertex, 
+	boost::filesystem::path path_fragment)
+	: m_handle(glCreateProgram())
 {
-	construct();
-}
-
-void shader::construct()
-{
-	const auto& path_vertex = std::get<0>(key());
-	const auto& path_geometry = std::get<1>(key());
-	const auto& path_fragment = std::get<2>(key());
+	if (!m_handle) throw std::bad_alloc();
 
 	GLint r;
 
-	if (path_geometry == "")
-	{
-		// vertex shader and fragment shader
-		basic_shader<GL_VERTEX_SHADER> vertexshader(path_vertex);
-		basic_shader<GL_FRAGMENT_SHADER> fragmentshader(path_fragment);
-		glAttachShader(*this, vertexshader);
-		glAttachShader(*this, fragmentshader);
-		glLinkProgram(*this);
-		glGetProgramiv(*this, GL_LINK_STATUS, &r);
-		glDetachShader(*this, vertexshader);
-		glDetachShader(*this, fragmentshader);
-	}
-	else
-	{
-		// vertex shader, geometry shader and fragment shader
-		basic_shader<GL_VERTEX_SHADER> vertexshader(path_vertex);
-		basic_shader<GL_GEOMETRY_SHADER> geometryshader(path_geometry);
-		basic_shader<GL_FRAGMENT_SHADER> fragmentshader(path_fragment);
-		glAttachShader(*this, vertexshader);
-		glAttachShader(*this, geometryshader);
-		glAttachShader(*this, fragmentshader);
-		glLinkProgram(*this);
-		glGetProgramiv(*this, GL_LINK_STATUS, &r);
-		glDetachShader(*this, vertexshader);
-		glDetachShader(*this, geometryshader);
-		glDetachShader(*this, fragmentshader);
-	}
+	basic_shader<GL_VERTEX_SHADER> vertexshader(path_vertex);
+	basic_shader<GL_FRAGMENT_SHADER> fragmentshader(path_fragment);
+
+	glAttachShader(*this, vertexshader);
+	glAttachShader(*this, fragmentshader);
+
+	glLinkProgram(*this);
+	glGetProgramiv(*this, GL_LINK_STATUS, &r);
 	
+	glDetachShader(*this, vertexshader);
+	glDetachShader(*this, fragmentshader);
+
 	if (r == GL_FALSE)
 	{
-		std::string infolog;
+		std::basic_string<GLchar> infolog;
 		glGetProgramiv(*this, GL_INFO_LOG_LENGTH, &r);
 		infolog.resize(r);
 		glGetProgramInfoLog(*this, r, nullptr, &infolog[0]);
 		glDeleteProgram(m_handle);
 		m_handle = 0;
-		BOOST_THROW_EXCEPTION(link_error() << shader_errinfo(key()) << link_errinfo(infolog));
+		throw exception(std::move(infolog));
 	}
 }
+
+shader::shader(
+	boost::filesystem::path path_vertex, 
+	boost::filesystem::path path_geometry, 
+	boost::filesystem::path path_fragment)
+	: m_handle(glCreateProgram())
+{
+	if (!m_handle) throw std::bad_alloc();
+
+	GLint r;
+
+	basic_shader<GL_VERTEX_SHADER> vertexshader(path_vertex);
+	basic_shader<GL_GEOMETRY_SHADER> geometryshader(path_geometry);
+	basic_shader<GL_FRAGMENT_SHADER> fragmentshader(path_fragment);
+
+	glAttachShader(*this, vertexshader);
+	glAttachShader(*this, geometryshader);
+	glAttachShader(*this, fragmentshader);
+
+	glLinkProgram(*this);
+	glGetProgramiv(*this, GL_LINK_STATUS, &r);
+
+	glDetachShader(*this, vertexshader);
+	glDetachShader(*this, geometryshader);
+	glDetachShader(*this, fragmentshader);
+
+	if (r == GL_FALSE)
+	{
+		std::basic_string<GLchar> infolog;
+		glGetProgramiv(*this, GL_INFO_LOG_LENGTH, &r);
+		infolog.resize(r);
+		glGetProgramInfoLog(*this, r, nullptr, &infolog[0]);
+		glDeleteProgram(m_handle);
+		m_handle = 0;
+		throw exception(std::move(infolog));
+	}
+}
+
+// shader::shader(const key_type& key) : object<shader, key_type>(key), m_handle(0)
+// {
+// 	construct_from_key();
+// }
+
+// shader::shader(key_type&& key) : object<shader, key_type>(std::move(key)), m_handle(0)
+// {
+// 	construct_from_key();
+// }
+
+// void shader::construct_from_key()
+// {
+// 	const auto& path_vertex = std::get<0>(key());
+// 	const auto& path_geometry = std::get<1>(key());
+// 	const auto& path_fragment = std::get<2>(key());
+
+// 	if (path_vertex == "" && path_geometry == "" && path_fragment == "") return;
+
+// 	std::cout << path_vertex << ' ' << path_geometry << ' ' << path_fragment << '\n';
+
+// 	m_handle = glCreateProgram();
+// 	if (!m_handle) throw std::bad_alloc();
+
+// 	GLint r;
+
+// 	if (path_geometry == "")
+// 	{
+// 		// vertex shader and fragment shader
+// 		basic_shader<GL_VERTEX_SHADER> vertexshader(path_vertex);
+// 		basic_shader<GL_FRAGMENT_SHADER> fragmentshader(path_fragment);
+// 		glAttachShader(*this, vertexshader);
+// 		glAttachShader(*this, fragmentshader);
+// 		glLinkProgram(*this);
+// 		glGetProgramiv(*this, GL_LINK_STATUS, &r);
+// 		glDetachShader(*this, vertexshader);
+// 		glDetachShader(*this, fragmentshader);
+// 	}
+// 	else
+// 	{
+// 		// vertex shader, geometry shader and fragment shader
+// 		basic_shader<GL_VERTEX_SHADER> vertexshader(path_vertex);
+// 		basic_shader<GL_GEOMETRY_SHADER> geometryshader(path_geometry);
+// 		basic_shader<GL_FRAGMENT_SHADER> fragmentshader(path_fragment);
+// 		glAttachShader(*this, vertexshader);
+// 		glAttachShader(*this, geometryshader);
+// 		glAttachShader(*this, fragmentshader);
+// 		glLinkProgram(*this);
+// 		glGetProgramiv(*this, GL_LINK_STATUS, &r);
+// 		glDetachShader(*this, vertexshader);
+// 		glDetachShader(*this, geometryshader);
+// 		glDetachShader(*this, fragmentshader);
+// 	}
+	
+// 	if (r == GL_FALSE)
+// 	{
+// 		std::string infolog;
+// 		glGetProgramiv(*this, GL_INFO_LOG_LENGTH, &r);
+// 		infolog.resize(r);
+// 		glGetProgramInfoLog(*this, r, nullptr, &infolog[0]);
+// 		glDeleteProgram(m_handle);
+// 		m_handle = 0;
+// 		BOOST_THROW_EXCEPTION(link_error() << shader_errinfo(key()) << link_errinfo(infolog));
+// 	}
+// }
 
 GLint shader::num_active_attributes() const BOOST_NOEXCEPT_OR_NOTHROW
 {
@@ -415,7 +469,7 @@ shader::attribute shader::get_attribute(const GLint location) const
 	return result;
 }
 
-shader::shader(shader&& other) : object<shader, key_type>(std::move(other)), m_handle(other.m_handle)
+shader::shader(shader&& other) : m_handle(other.m_handle)
 {
 	other.m_handle = 0;
 }
@@ -423,7 +477,6 @@ shader::shader(shader&& other) : object<shader, key_type>(std::move(other)), m_h
 shader& shader::operator = (shader&& other)
 {
 	this->~shader();
-	object<shader, key_type>::operator=(std::move(other));
 	m_handle = other.m_handle;
 	other.m_handle = 0;
 	return *this;
@@ -434,12 +487,12 @@ shader::~shader() BOOST_NOEXCEPT_OR_NOTHROW { glDeleteProgram(*this); }
 void shader::activate() const BOOST_NOEXCEPT_OR_NOTHROW { glUseProgram(m_handle); }
 void shader::deactivate() BOOST_NOEXCEPT_OR_NOTHROW { glUseProgram(0); }
 
-GLint shader::get_uniform_location(const char* name) const
+GLint shader::get_uniform_location(const GLchar* name) const
 {
 	const auto r = glGetUniformLocation(*this, name);
 	if (r == -1)
 	{
-		BOOST_THROW_EXCEPTION(uniform_not_found() << shader_errinfo(key()) << uniform_errinfo(name));
+		throw std::runtime_error("shader::get_uniform_location: uniform not present.");
 	}
 	else
 	{
@@ -447,17 +500,29 @@ GLint shader::get_uniform_location(const char* name) const
 	}
 }
 
-GLint shader::get_attrib_location(const char* name) const
+bool shader::get_uniform_location(const GLchar* name, GLint& location) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	location = glGetUniformLocation(*this, name);
+	return location == -1 ? false : true;
+}
+
+GLint shader::get_attrib_location(const GLchar* name) const
 {
 	const auto r = glGetAttribLocation(*this, name);
 	if (r == -1)
 	{
-		BOOST_THROW_EXCEPTION(attribute_not_found() << shader_errinfo(key()) << attribute_errinfo(name));
+		throw std::runtime_error("shader::get_attrib_location: attrib not found.");
 	}
 	else
 	{
 		return r;
 	}
+}
+
+bool shader::get_attrib_location(const GLchar* name, GLint& location) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	location = glGetAttribLocation(*this, name);
+	return location == -1 ? false : true;
 }
 
 void shader::set_uniform(const char* uniformName, const GLfloat value) const

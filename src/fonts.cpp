@@ -28,12 +28,12 @@ namespace gintonic {
 
 	font::font(const key_type& filename_and_size) : object<font, key_type>(filename_and_size)
 	{
-		init_class();
+		construct_from_key();
 	}
 
 	font::font(key_type&& filename_and_size) : object<font, key_type>(std::move(filename_and_size))
 	{
-		init_class();
+		construct_from_key();
 	}
 
 	font::font(font&& other) 
@@ -62,15 +62,15 @@ namespace gintonic {
 		return *this;
 	}
 
-	void font::init_class()
+	void font::construct_from_key()
 	{
 		FT_Face face;
 		GLint ox = 0;
 		m_atlas_width = 0;
 		m_atlas_height = 0;
-		const auto filename = key().first.string();
+		const auto filename = std::get<0>(key()).string();
 
-		if (key().second <= 0)
+		if (std::get<1>(key()) <= 0)
 		{
 			throw std::runtime_error("Cannot have a font size <= 0.");
 		}
@@ -80,7 +80,7 @@ namespace gintonic {
 		}
 		
 		const auto g = face->glyph;
-		FT_Set_Pixel_Sizes(face, 0, key().second);
+		FT_Set_Pixel_Sizes(face, 0, std::get<1>(key()));
 
 		glActiveTexture(GL_TEXTURE0);
 		glGenTextures(1, &m_tex);
@@ -92,7 +92,7 @@ namespace gintonic {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindVertexArray(m_vao);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		opengl::vertex_text2d<GLfloat>::EnableVertexAttribArray();
+		opengl::vertex_text2d<GLfloat>::enable_attributes();
 
 		for (int i = 32; i < 128; ++i)
 		{
@@ -146,7 +146,7 @@ namespace gintonic {
 			if (text[j] == '\n')
 			{
 				position[0] = original_x_position;
-				position[1] -= static_cast<GLfloat>(key().second * scale[1]);
+				position[1] -= static_cast<GLfloat>(std::get<1>(key()) * scale[1]);
 				continue;
 			}
 
@@ -206,14 +206,14 @@ namespace gintonic {
 			scale[0] = 2.0f / static_cast<GLfloat>(renderer::width());
 			scale[1] = 2.0f / static_cast<GLfloat>(renderer::height());
 			position[0] = -1.0f;
-			position[1] = 1.0f - scale[1] * static_cast<GLfloat>(underlying_font.get().key().second);
+			position[1] = 1.0f - scale[1] * static_cast<GLfloat>(std::get<1>(underlying_font.get_key()));
 		}
 		fontstream::fontstream(font::flyweight&& f) : underlying_font(std::move(f))
 		{
 			scale[0] = 2.0f / static_cast<GLfloat>(renderer::width());
 			scale[1] = 2.0f / static_cast<GLfloat>(renderer::height());
 			position[0] = -1.0f;
-			position[1] = 1.0f - scale[1] * static_cast<GLfloat>(underlying_font.get().key().second);	
+			position[1] = 1.0f - scale[1] * static_cast<GLfloat>(std::get<1>(underlying_font.get_key()));	
 		}
 
 		std::streamsize fontstream::write(const char* text, const std::streamsize length) const BOOST_NOEXCEPT_OR_NOTHROW

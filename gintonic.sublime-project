@@ -1,0 +1,39 @@
+{
+	"folders":
+	[
+		{
+			"path": "resources",
+			"name": "Resources"
+		},
+		{
+			"path": "s",
+			"name": "Shaders"
+		},
+		{
+			"path": "src",
+			"name": "Sources"
+		},
+		{
+			"path": "ubuntu",
+			"name": "CMake Ubuntu"
+		},
+		{
+			"path": "windows",
+			"name": "CMake Windows"
+		}
+	],
+	"settings":
+	{
+		"tab_size": 4
+	},
+	"build_systems":
+	[
+		{
+			"name": "${project_name}",
+			"working_dir": "${project_path}/build",
+			"shell_cmd": "cmake --build .",
+			"file_regex": "^(/.[^:]*):(\\d+):(\\d+): error: (.*)$",
+			"selector": "source.c++"
+		}
+	]
+}

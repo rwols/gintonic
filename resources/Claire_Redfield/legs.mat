@@ -1,0 +1,14 @@
+MadeOf Wood
+
+PhongEnvironment
+{
+	DiffuseMap C:/Users/Luis/Desktop/characters/claireredfield/models/claireredfieldleg_d.tga
+	NormalMap C:/Users/Luis/Desktop/characters/claireredfield/models/claireredfieldleg_n.tga
+	SpecularMap C:/Users/Luis/Desktop/characters/claireredfield/models/claireredfieldleg_s.tga
+	UseSpecular
+	SpecularExponent 37.7624
+	SpecularColor 1 1 1
+	SpecularIntensity 0.661932
+	Fresnel 0.361998
+}
+

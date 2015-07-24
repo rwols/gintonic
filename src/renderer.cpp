@@ -40,10 +40,17 @@ namespace gintonic {
 	mat3f renderer::s_matrix_N = mat3f();
 
 	GLuint renderer::s_fbo;
-	GLuint renderer::s_textures[renderer::TEXTURETYPE_count];
+	GLuint renderer::s_textures[renderer::GBUFFER_COUNT];
 	GLuint renderer::s_depth_texture;
 
 	const camera_transform<float>* renderer::s_camera = nullptr;
+
+	geometry_null_shader* renderer::s_geometry_null_shader = nullptr;
+	gp_c_shader* renderer::s_gp_c_shader = nullptr;
+	gp_cd_shader* renderer::s_gp_cd_shader = nullptr;
+	geometry_pass_shader* renderer::s_geometry_pass_shader = nullptr;
+	directional_light_pass_shader* renderer::s_directional_light_pass_shader = nullptr;
+	text_shader* renderer::s_text_shader = nullptr;
 
 	boost::signals2::signal<void(wchar_t)> renderer::char_typed;
 	boost::signals2::signal<void(double, double)> renderer::mouse_scrolled;
@@ -110,24 +117,161 @@ namespace gintonic {
 		#ifdef BOOST_MSVC
 		CoInitialize(nullptr); // initialize COM
 		#endif
+
+		//
+		// Initialize framebuffers
+		//
+		glGenFramebuffers(1, &s_fbo); 
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
+		glGenTextures(GBUFFER_COUNT, s_textures);
+		glGenTextures(1, &s_depth_texture);
+		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = { GL_RGB32F, GL_RGBA, GL_RGB32F, GL_RG32F };
+		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = { GL_RGB, GL_RGBA, GL_RGB, GL_RG };
+		for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
+		{
+			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexImage2D(GL_TEXTURE_2D, 0, tex_internal[i], s_width, s_height, 0, tex_format[i], GL_FLOAT, nullptr);
+			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, s_textures[i], 0);
+		}
+		glBindTexture(GL_TEXTURE_2D, s_depth_texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, s_width, s_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_depth_texture, 0);
+		const GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 }; 
+		glDrawBuffers(4, DrawBuffers);
+		const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
+		{
+			throw exception("Frame buffer status was not complete: " + std::to_string(framebuffer_status));
+		}
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+		//
+		// Initialize shaders
+		//
+		try
+		{
+			s_geometry_null_shader = new geometry_null_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load geometry null shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_c_shader = new gp_c_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_c_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_cd_shader = new gp_cd_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_cd_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_geometry_pass_shader = new geometry_pass_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load geometry shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_directional_light_pass_shader = new directional_light_pass_shader();	
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load directional light pass shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_text_shader = new text_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load text shader: ");
+			e.prepend(name());
+			throw;
+		}
 	}
 
 	void renderer::resize(const int width, const int height)
 	{
+		//
+		// resize viewport
+		//
 		s_width = width;
 		s_height = height;
 		s_aspect_ratio = (float)s_width / (float)s_height;
 		glViewport(0, 0, s_width, s_height);
+
+		//
+		// resize framebuffers
+		//
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
+		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = { GL_RGB32F, GL_RGBA, GL_RGB32F, GL_RG32F };
+		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = { GL_RGB, GL_RGBA, GL_RGB, GL_RG };
+		for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
+		{
+			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexImage2D(GL_TEXTURE_2D, 0, tex_internal[i], s_width, s_height, 0, tex_format[i], GL_FLOAT, nullptr);
+			// glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, s_textures[i], 0);
+		}
+		glBindTexture(GL_TEXTURE_2D, s_depth_texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, s_width, s_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+		// glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_depth_texture, 0);
+		// GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 }; 
+		// glDrawBuffers(4, DrawBuffers);
+		GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
+		{
+			throw exception("Frame buffer status was not complete: " + std::to_string(framebuffer_status));
+		}
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	}
 
 	void renderer::release()
 	{
-		if (s_key_prev_state)
-		{
-			delete [] s_key_prev_state;
-			s_key_prev_state = nullptr;
-		}
-		if (s_context)
+		// if (s_directional_light_pass_shader)
+		// {
+		// 	delete s_directional_light_pass_shader;
+		// 	s_directional_light_pass_shader = nullptr;
+		// }
+		// if (s_geometry_pass_shader)
+		// {
+		// 	delete s_geometry_pass_shader;
+		// 	s_geometry_pass_shader = nullptr;
+		// }
+		// if (s_geometry_null_shader)
+		// {
+		// 	delete s_geometry_null_shader;
+		// 	s_geometry_null_shader = nullptr;
+		// }
+		// if (s_key_prev_state)
+		// {
+		// 	delete [] s_key_prev_state;
+		// 	s_key_prev_state = nullptr;
+		// }
+		if (s_context) // deletes shaders, textures, framebuffers, etc.
 		{
 			SDL_GL_DeleteContext(s_context);
 			s_context = nullptr;
@@ -185,6 +329,36 @@ namespace gintonic {
 				break;
 			}
 		}
+	}
+
+	void renderer::bind_for_writing()
+	{
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
+		// glDepthMask(GL_TRUE);
+		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// glEnable(GL_DEPTH_TEST);
+		// glDisable(GL_BLEND);
+	}
+
+	void renderer::bind_for_reading()
+	{
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
+		// for (unsigned int i = 0; i < GBUFFER_COUNT; ++i) 
+		// {
+		// 	glActiveTexture(GL_TEXTURE0 + i);
+		// 	glBindTexture(GL_TEXTURE_2D, s_textures[i]);
+		// }
+		// glDepthMask(GL_FALSE);
+		// glDisable(GL_DEPTH_TEST);
+		// glEnable(GL_BLEND);
+		// glBlendEquation(GL_FUNC_ADD);
+		// glBlendFunc(GL_ONE, GL_ONE);
+		// glClear(GL_COLOR_BUFFER_BIT);
+	}
+
+	void renderer::set_read_buffer(const enum GBUFFER type)
+	{
+		glReadBuffer(GL_COLOR_ATTACHMENT0 + type);
 	}
 
 	void renderer::update_matrix_VM()

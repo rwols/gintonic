@@ -5,7 +5,7 @@
 #include <chrono>
 #include <boost/circular_buffer.hpp>
 #include <boost/signals2.hpp>
-#include "opengl.hpp"
+#include "shaders.hpp"
 
 namespace gintonic 
 {
@@ -116,17 +116,48 @@ namespace gintonic
 		static const char* name();
 		static const char* version();
 
-		enum TEXTURETYPE
+		enum GBUFFER
 		{
-			TEXTURETYPE_position = 0,
-			TEXTURETYPE_diffuse,
-			TEXTURETYPE_normal,
-			TEXTURETYPE_texcoord,
-			TEXTURETYPE_count
+			GBUFFER_POSITION = 0,
+			GBUFFER_DIFFUSE,
+			GBUFFER_NORMAL,
+			GBUFFER_TEXCOORD,
+			GBUFFER_COUNT
 		};
 
 		static void bind_for_writing();
 		static void bind_for_reading();
+		static void set_read_buffer(const enum GBUFFER type);
+
+		inline static geometry_null_shader* get_geometry_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return s_geometry_null_shader;
+		}
+
+		inline static gp_c_shader* get_gp_c_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return s_gp_c_shader;
+		}
+
+		inline static const gp_cd_shader& get_gp_cd_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_cd_shader;
+		}
+
+		inline static geometry_pass_shader* get_geometry_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return s_geometry_pass_shader;
+		}
+
+		inline static directional_light_pass_shader* get_directional_light_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return s_directional_light_pass_shader;
+		}
+
+		inline static text_shader* get_text_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return s_text_shader;
+		}
 
 	private:
 
@@ -167,10 +198,17 @@ namespace gintonic
 		static mat3f s_matrix_N;
 
 		static GLuint s_fbo;
-		static GLuint s_textures[TEXTURETYPE_count];
+		static GLuint s_textures[GBUFFER_COUNT];
 		static GLuint s_depth_texture;
 
 		static const camera_transform<float>* s_camera;
+
+		static geometry_null_shader* s_geometry_null_shader;
+		static gp_c_shader* s_gp_c_shader;
+		static gp_cd_shader* s_gp_cd_shader;
+		static geometry_pass_shader* s_geometry_pass_shader;
+		static directional_light_pass_shader* s_directional_light_pass_shader;
+		static text_shader* s_text_shader;
 	};
 } // namespace gintonic
 

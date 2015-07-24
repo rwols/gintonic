@@ -28,20 +28,7 @@ a draw call to OpenGL.
 class basic_shape
 {
 public:
-
-	/*!
-	\brief Constructs a basic_shape.
-	*/
-	basic_shape();
-
-	/*!
-	\brief Destroys a basic_shape.
-	*/
-	virtual ~basic_shape();
-
-	/*!
-	\brief Draw a basic_shape.
-	*/
+	virtual ~basic_shape() = default;
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW = 0;
 };
 
@@ -58,20 +45,19 @@ smaller, just set an appropriate model matrix in your pipeline.
 class unit_quad_P : public basic_shape
 {
 public:
-
-	/*!
-	\brief Contructs a unit_quad_P.
-	*/
 	unit_quad_P();
+	virtual ~unit_quad_P() = default;
+	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+private:
+	vertex_array_object m_vao;
+	buffer_object m_vbo;
+};
 
-	/*!
-	\brief Destroys a unit_quad_P.
-	*/
-	virtual ~unit_quad_P();
-
-	/*!
-	\brief Draws a unit_quad_P.
-	*/
+class unit_quad_PN : public basic_shape
+{
+public:
+	unit_quad_PN();
+	virtual ~unit_quad_PN() = default;
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
 private:
 	vertex_array_object m_vao;

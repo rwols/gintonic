@@ -3,13 +3,14 @@
 
 #include "opengl.hpp"
 #include "object.hpp"
+#include "tuple.hpp"
 #include <iosfwd>
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
 
 namespace gintonic {
 
-	class font : public object<font, std::pair<boost::filesystem::path, int>>
+	class font : public object<font, std::tuple<boost::filesystem::path, int>>
 	{
 	public:
 
@@ -28,16 +29,18 @@ namespace gintonic {
 		void draw(const char* text, const std::size_t length, vec2f position) const BOOST_NOEXCEPT_OR_NOTHROW;
 		void draw(const std::string& text, vec2f position) const BOOST_NOEXCEPT_OR_NOTHROW;
 
-	private:
-
-		friend boost::flyweights::detail::optimized_key_value<key_type, font, key_extractor>;
-
-		font(const key_type&);
-		font(key_type&&);
 		font(font&&);
 		font& operator = (font&&);
 
-		void init_class();
+	private:
+
+		font(const key_type&);
+		font(key_type&&);
+
+		friend boost::flyweights::detail::optimized_key_value<key_type, font, key_extractor>;
+		friend boost::serialization::access;
+
+		virtual void construct_from_key() final;
 
 		static void release();
 

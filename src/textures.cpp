@@ -7,12 +7,10 @@
 	#include <jpeglib.h> // The JPEG library.
 #endif
 #include <fstream>
-#include <boost/filesystem.hpp>
-#include "exception.hpp"
+#include "opengl.hpp"
 
 namespace gintonic {
 namespace opengl {
-
 
 namespace
 {
@@ -83,7 +81,15 @@ namespace
 
 	IWICImagingFactory* s_wic_factory = nullptr;
 
-	#else
+	#elif defined(APPLE)
+
+	void png_read_data(png_structp png, png_bytep data, png_size_t length)
+	{
+		png_voidp a = png_get_io_ptr(png);
+		((::std::istream*)a)->read((char*)data, length);
+	}
+
+	#elif defined __linux__
 
 	void png_read_data(png_structp png, png_bytep data, png_size_t length)
 	{
@@ -119,6 +125,20 @@ texture_parameters::texture_parameters()
 texture_parameters texture2d::parameter = texture_parameters();
 // texture2d texture2d::nil = texture2d();
 
+texture2d::texture2d(texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW
+: m_buffer(other.m_buffer)
+{
+	other.m_buffer = 0;
+}
+
+texture2d& texture2d::operator = (texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	glDeleteTextures(1, &m_buffer);
+	m_buffer = other.m_buffer;
+	other.m_buffer = 0;
+	return *this;
+}
+
 void texture2d::init()
 {
 	
@@ -139,11 +159,11 @@ void texture2d::init()
 			BOOST_THROW_EXCEPTION(wic_initialization_error());
 		}
 		#endif
-		std::atexit(texture2d::release);
+		std::atexit(texture2d::release_static);
 	}
 }
 
-void texture2d::release()
+void texture2d::release_static()
 {
 	#ifdef BOOST_MSVC
 	if (s_wic_factory)
@@ -154,71 +174,57 @@ void texture2d::release()
 	#endif
 }
 
-texture2d::~texture2d() BOOST_NOEXCEPT_OR_NOTHROW { glDeleteTextures(1, &m_buffer); }
-
-void texture2d::class_init()
+texture2d::~texture2d()
 {
-	if (key().empty())
-	{
-		BOOST_THROW_EXCEPTION(empty_filename_error());
-	}
-	else if (boost::filesystem::is_regular_file(key()) == false)
-	{
-		BOOST_THROW_EXCEPTION(not_a_regular_file_error() << errinfo_path(key()));
-	}
+	glDeleteTextures(1, &m_buffer);	
+}
 
+texture2d::texture2d(boost::filesystem::path filename)
+{
 	GLsizei width;
 	GLsizei height;
 	GLenum format;
 	GLenum type;
 	std::vector<char> data;
-	const auto ext = key().extension();
+	const auto ext = filename.extension();
 
 	#ifdef BOOST_MSVC
-	if (ext == ".tga") init_tga_image(width, height, format, type, data);
-	else init_wic_image(width, height, format, type, data);
+
+		if (ext == ".tga" || ext == ".TGA")
+		{
+			init_tga_image(filename, width, height, format, type, data);
+		}
+		else
+		{
+			init_wic_image(width, height, format, type, data);
+		}
+		else
+		{
+			throw exception(filename.c_str() + std::string(": Unknown file extension."));
+		}
+
 	#else
-	if (ext == ".tga") init_tga_image(width, height, format, type, data);
-	else if (ext == ".png") init_png_image(width, height, format, type, data);
-	else if (ext == ".jpg" || ext == ".jpeg") init_jpeg_image(width, height, format, type, data);
-	else
-	{
-		BOOST_THROW_EXCEPTION
-		(
-			file_extension_error() << errinfo_path(key())
-		);
-	}
+
+		if (ext == ".tga" || ext == ".TGA")
+		{
+			init_tga_image(filename, width, height, format, type, data);
+		}
+		else if (ext == ".png" || ext == ".PNG")
+		{
+			init_png_image(filename, width, height, format, type, data);
+		}
+		else if (ext == ".jpg" || ext == ".jpeg" || ext == ".JPG" || ext == ".JPEG")
+		{
+			init_jpeg_image(filename, width, height, format, type, data);
+		}
+		else
+		{
+			throw exception(filename.c_str() + std::string(": Unknown file extension."));
+		}
+
 	#endif
 
 	init(width, height, format, type, data);
-}
-
-texture2d::texture2d(const key_type& image_filename)
-	: object<texture2d, key_type>(image_filename)
-{
-	class_init();
-}
-
-texture2d::texture2d(key_type&& image_filename)
-	: object<texture2d, key_type>(std::move(image_filename))
-{
-	class_init();
-}
-
-texture2d::texture2d(texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW
-	: object<texture2d, key_type>(std::move(other))
-, m_buffer(other.m_buffer)
-{
-	other.m_buffer = 0;
-}
-
-texture2d& texture2d::operator = (texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	this->~texture2d();
-	object<texture2d, key_type>::operator=(std::move(other));
-	m_buffer = other.m_buffer;
-	other.m_buffer = 0;
-	return *this;
 }
 
 void texture2d::bind(const GLint active_texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -264,10 +270,15 @@ GLint texture2d::compressed_size(const GLint level) const BOOST_NOEXCEPT_OR_NOTH
 	return r;
 }
 
-void texture2d::init(const GLsizei width, const GLsizei height, const GLenum format, const GLenum type, const std::vector<char>& data)
+void texture2d::init(
+	const GLsizei width, 
+	const GLsizei height, 
+	const GLenum format, 
+	const GLenum type, 
+	const std::vector<char>& data)
 {
 	glGenTextures(1, &m_buffer);
-	if (m_buffer == 0) BOOST_THROW_EXCEPTION(handle_error());
+	if (m_buffer == 0) throw std::bad_alloc();
 	glBindTexture(GL_TEXTURE_2D, m_buffer);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, type, (const GLvoid*)data.data());
 	glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now!!!
@@ -293,9 +304,15 @@ void texture2d::init(const GLsizei width, const GLsizei height, const GLenum for
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void texture2d::init_tga_image(GLsizei& m_width, GLsizei& m_height, GLenum& m_format, GLenum& m_type, std::vector<char>& m_data)
+void texture2d::init_tga_image(
+	const boost::filesystem::path& filename, 
+	GLsizei& m_width, 
+	GLsizei& m_height, 
+	GLenum& m_format, 
+	GLenum& m_type, 
+	std::vector<char>& m_data)
 {
-	std::ifstream lInput(key().c_str());
+	std::ifstream lInput(filename.c_str());
 	uint8_t depth;
 	uint16_t width, height;
 	lInput.seekg(12, std::ios::beg);
@@ -309,7 +326,7 @@ void texture2d::init_tga_image(GLsizei& m_width, GLsizei& m_height, GLenum& m_fo
 	{
 		case 24: m_format = GL_BGR; break;
 		case 32: m_format = GL_BGRA; break;
-		default: BOOST_THROW_EXCEPTION(unknown_tga_format_error() << errinfo_path(key()));
+		default: throw exception(filename.c_str() + std::string(": Unknown TGA format."));
 	}
 	const std::size_t size = (depth / 8) * m_width * m_height;
 	m_data.resize(size);
@@ -318,13 +335,18 @@ void texture2d::init_tga_image(GLsizei& m_width, GLsizei& m_height, GLenum& m_fo
 }
 
 #ifdef BOOST_MSVC
-void texture2d::init_wic_image(GLsizei& m_width, GLsizei& m_height, 
-	GLenum& m_format, GLenum& m_type, std::vector<char>& m_data)
+void texture2d::init_wic_image(
+	const boost::filesystem::path& filename, 
+	GLsizei& m_width, 
+	GLsizei& m_height, 
+	GLenum& m_format, 
+	GLenum& m_type, 
+	std::vector<char>& m_data)
 {
 	IWICBitmapDecoder* decoder = nullptr;
 	IWICBitmapFrameDecode* frame = nullptr;
 	WICPixelFormatGUID pixelformat;
-	auto filename = key().wstring();
+	auto wfilename = filename.wstring();
 	UINT width, height, bpp, size, stride;
 	HRESULT hr;
 
@@ -336,7 +358,7 @@ void texture2d::init_wic_image(GLsizei& m_width, GLsizei& m_height,
 	}
 
 	hr = s_wic_factory->CreateDecoderFromFilename(
-		filename.c_str(),                // Image to be decoded
+		wfilename.c_str(),                // Image to be decoded
 		nullptr,                         // Do not prefer a particular vendor
 		GENERIC_READ,                    // Desired read access to the file
 		WICDecodeMetadataCacheOnDemand,  // Cache metadata when needed
@@ -402,37 +424,44 @@ void texture2d::init_wic_image(GLsizei& m_width, GLsizei& m_height,
 wic_error_label:
 	if (frame) frame->Release();
 	if (decoder) decoder->Release();
-	BOOST_THROW_EXCEPTION(wic_error() << errinfo_path(key()) << errinfo_wic(hr));
+	std::stringstream ss;
+	ss << filename.c_str() << ": Error (code " << hr << ')';
+	throw exception(ss.str());
 }
 
-#elif defined APPLE
-void texture2d::init_png_image(GLsizei& m_width, GLsizei& m_height, 
-	GLenum& m_format, GLenum& m_type, std::vector<char>& m_data)
+#elif defined(APPLE)
+void texture2d::init_png_image(
+	const boost::filesystem::path& filename,
+	GLsizei& m_width, 
+	GLsizei& m_height, 
+	GLenum& m_format, 
+	GLenum& m_type, 
+	std::vector<char>& m_data)
 {
-	input_file_handle lHandle(m_filename, std::ios::binary);
+	input_file_handle lHandle(filename, std::ios::binary);
 	std::ifstream& lInput = lHandle.get_stream();
 	png_bytep* lRows = nullptr;
 	png_byte lSignature[8];
 	lInput.read((char*)lSignature, 8);
 	if (png_sig_cmp(lSignature, 0, 8) != 0)
 	{
-		BOOST_THROW_EXCEPTION(png_invalid_signature_error() << boost::errinfo_file_name(m_filename));
+		throw exception(filename.c_str() + std::string(": Invalid PNG signature."));
 	}
 	png_structp lPng = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!lPng)
 	{
-		BOOST_THROW_EXCEPTION(png_ran_out_of_memory_error() << boost::errinfo_file_name(m_filename));
+		throw std::bad_alloc();
 	}
 	png_infop lInfo = png_create_info_struct(lPng);
 	if (!lInfo)
 	{
-		BOOST_THROW_EXCEPTION(png_ran_out_of_memory_error() << boost::errinfo_file_name(m_filename));
+		throw std::bad_alloc();
 	}
 	if (setjmp(png_jmpbuf(lPng)))
 	{
 		png_destroy_read_struct(&lPng, &lInfo, nullptr);
 		delete [] lRows;
-		BOOST_THROW_EXCEPTION(png_read_error() << boost::errinfo_file_name(m_filename));
+		throw exception(filename.c_str() + std::string(": PNG read error."));
 	}
 	png_set_read_fn(lPng, (png_voidp)&lInput, png_read_data);
 	png_set_sig_bytes(lPng, 8);
@@ -458,7 +487,7 @@ void texture2d::init_png_image(GLsizei& m_width, GLsizei& m_height,
 		case PNG_COLOR_TYPE_RGBA: m_format = GL_RGBA; break;
 		default:
 			png_destroy_read_struct(&lPng, &lInfo, nullptr);
-			BOOST_THROW_EXCEPTION(png_unknown_color_format_error() << boost::errinfo_file_name(m_filename));
+			throw exception(filename.c_str() + std::string(": Unknown PNG color format."));
 	}
 	if (png_get_valid(lPng, lInfo, PNG_INFO_tRNS))
 	{
@@ -469,7 +498,7 @@ void texture2d::init_png_image(GLsizei& m_width, GLsizei& m_height,
 	if (lRows == nullptr)
 	{
 		png_destroy_read_struct(&lPng, &lInfo, nullptr);
-		BOOST_THROW_EXCEPTION(png_ran_out_of_memory_error() << boost::errinfo_file_name(m_filename));
+		throw std::bad_alloc();
 	}
 	const std::size_t size = m_width * m_height * (lBitdepth / 8) * lChannels;
 	m_data.resize(size);
@@ -487,12 +516,96 @@ void texture2d::init_png_image(GLsizei& m_width, GLsizei& m_height,
 
 #elif defined __linux__
 
-void texture2d::init_png_image(GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data)
+void texture2d::init_png_image(
+	const boost::filesystem::path& filename,
+	GLsizei& width, 
+	GLsizei& height, 
+	GLenum& format, 
+	GLenum& type, 
+	std::vector<char>& data)
 {
-	std::cerr << "texture2d::init_png_image\n";
+	std::ifstream lInput(filename.c_str(), std::ios::binary);
+	png_bytep* lRows = nullptr;
+	png_byte lSignature[8];
+	lInput.read((char*)lSignature, 8);
+	if (png_sig_cmp(lSignature, 0, 8) != 0)
+	{
+		throw exception(filename.c_str() + std::string(": Invalid PNG signature."));
+	}
+	png_structp lPng = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+	if (!lPng)
+	{
+		throw std::bad_alloc();
+	}
+	png_infop lInfo = png_create_info_struct(lPng);
+	if (!lInfo)
+	{
+		throw std::bad_alloc();
+	}
+	if (setjmp(png_jmpbuf(lPng)))
+	{
+		png_destroy_read_struct(&lPng, &lInfo, nullptr);
+		delete [] lRows;
+		throw exception(filename.c_str() + std::string(": PNG read error."));
+	}
+	png_set_read_fn(lPng, (png_voidp)&lInput, png_read_data);
+	png_set_sig_bytes(lPng, 8);
+	png_read_info(lPng, lInfo);
+	width                 = png_get_image_width(lPng, lInfo);
+	height                = png_get_image_height(lPng, lInfo);
+	png_uint_32 lBitdepth = png_get_bit_depth(lPng, lInfo);
+	png_uint_32 lChannels = png_get_channels(lPng, lInfo);
+	switch (png_get_color_type(lPng, lInfo))
+	{
+		case PNG_COLOR_TYPE_PALETTE:
+			png_set_palette_to_rgb(lPng);
+			lChannels = 3;
+			format = GL_RGB;
+			break;
+		case PNG_COLOR_TYPE_GRAY:
+			if (lBitdepth < 8) png_set_expand_gray_1_2_4_to_8(lPng);
+			lBitdepth = 8;
+			format = GL_RED;
+			break;
+		case PNG_COLOR_TYPE_GRAY_ALPHA: format = GL_RG; break;
+		case PNG_COLOR_TYPE_RGB: format = GL_RGB; break;
+		case PNG_COLOR_TYPE_RGBA: format = GL_RGBA; break;
+		default:
+			png_destroy_read_struct(&lPng, &lInfo, nullptr);
+			throw exception(filename.c_str() + std::string(": Unknown PNG color format."));
+	}
+	if (png_get_valid(lPng, lInfo, PNG_INFO_tRNS))
+	{
+		png_set_tRNS_to_alpha(lPng);
+		++lChannels;
+	}
+	lRows = new png_bytep[height];
+	if (lRows == nullptr)
+	{
+		png_destroy_read_struct(&lPng, &lInfo, nullptr);
+		throw std::bad_alloc();
+	}
+	const std::size_t size = width * height * (lBitdepth / 8) * lChannels;
+	data.resize(size);
+	const unsigned int lStride = width * (lBitdepth / 8) * lChannels;
+	for (int i = 0; i < height; ++i)
+	{
+		const png_uint_32 q = (height - i - 1) * lStride;
+		lRows[i] = reinterpret_cast<png_bytep>(data.data()) + q;
+	}
+	png_read_image(lPng, lRows);
+	delete [] lRows;
+	png_destroy_read_struct(&lPng, &lInfo, nullptr);
+	type = GL_UNSIGNED_BYTE;
 }
 
-void texture2d::init_jpeg_image(GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data)
+void texture2d::init_jpeg_image(
+	const boost::filesystem::path& filename,
+	GLsizei& width,
+	GLsizei& height, 
+	GLenum& format, 
+	GLenum& type, 
+	std::vector<char>& data)
 {
 	unsigned long data_size;     // length of the file
 	int channels;               //  3 =>RGB   4 =>RGBA
@@ -500,7 +613,7 @@ void texture2d::init_jpeg_image(GLsizei& width, GLsizei& height, GLenum& format,
 	struct jpeg_decompress_struct info; //for our jpeg info
 	struct jpeg_error_mgr err;          //the error handler
 
-	FILE* file = fopen(key().c_str(), "rb");  //open the file
+	FILE* file = fopen(filename.c_str(), "rb");  //open the file
 
 	info.err = jpeg_std_error(& err);     
 	jpeg_create_decompress(& info);   //fills info structure
@@ -508,7 +621,7 @@ void texture2d::init_jpeg_image(GLsizei& width, GLsizei& height, GLenum& format,
 	//if the jpeg file doesn't load
 	if (!file)
 	{
-		BOOST_THROW_EXCEPTION(jpeg_read_error() << errinfo_path(key()));
+		throw exception(filename.c_str() + std::string(": JPEG read error."));
 	}
 
 	jpeg_stdio_src(&info, file);    
@@ -551,17 +664,6 @@ void texture2d::init_jpeg_image(GLsizei& width, GLsizei& height, GLenum& format,
 
 	type = GL_UNSIGNED_BYTE;
 }
-
-
-
-
-
-
-
-/*
- * Sample routine for JPEG decompression.  We assume that the source file name
- * is passed in.  We want to return 1 on success, 0 on error.
- */
 
 #else
 #error Platform not supported.

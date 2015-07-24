@@ -1,0 +1,17 @@
+MadeOf Wood
+NoCull
+
+PhongEnvironment
+{
+	BlendMode AlphaPreMult
+	AlphaToCoverage
+	DiffuseMap C:/Users/Luis/Desktop/characters/claireredfield/models/claireredfieldhair_d.tga
+	NormalMap C:/Users/Luis/Desktop/characters/claireredfield/models/claireredfieldhair_n.tga
+	SpecularMap C:/Users/Luis/Desktop/characters/claireredfield/models/claireredfieldhair_s.tga
+	UseSpecular
+	SpecularExponent 10.3832
+	SpecularColor 1 1 1
+	SpecularIntensity 0.367109
+	Fresnel 0.289832
+}
+

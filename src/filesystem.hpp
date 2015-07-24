@@ -2,6 +2,7 @@
 #define filesystem_hpp
 
 #include <boost/filesystem.hpp>
+#include <boost/serialization/split_free.hpp>
 
 namespace gintonic {
 

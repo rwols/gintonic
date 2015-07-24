@@ -2,24 +2,31 @@
 // geometry_pass.vs
 //
 
-#version 330 core
+#version 330
 
-layout(location = 0) in vec3 model_position;
-layout(location = 1) in vec2 model_uv_;
-layout(location = 2) in vec3 model_normal;
+#define GINTONIC_VERTEX_LAYOUT_POSITION 0
+#define GINTONIC_VERTEX_LAYOUT_TEXCOORD 1
+#define GINTONIC_VERTEX_LAYOUT_NORMAL 2
+#define GINTONIC_VERTEX_LAYOUT_TANGENT 3
+#define GINTONIC_VERTEX_LAYOUT_BITANGENT 4
+#define GINTONIC_VERTEX_LAYOUT_COLOR 5
 
-uniform mat4 matrix_model_to_hom;
-uniform mat4 matrix_model_to_view;
-uniform mat3 matrix_normal_view;
+layout(location = GINTONIC_VERTEX_LAYOUT_POSITION) in vec3 in_position;
+layout(location = GINTONIC_VERTEX_LAYOUT_TEXCOORD) in vec2 in_texcoord;
+layout(location = GINTONIC_VERTEX_LAYOUT_NORMAL) in vec3 in_normal;
 
-out vec3 view_position; // the view-space position vector
-out vec2 model_uv; // the model-space UV coordinates
-out vec3 view_normal; // the view-space normal vector
+uniform mat4 matrix_PVM;
+uniform mat4 matrix_VM;
+uniform mat3 matrix_N;
+
+out vec3 v_position; // the view-space position vector
+out vec2 v_texcoord; // the model-space UV coordinates
+out vec3 v_normal; // the view-space normal vector
 
 void main()
 {
-	gl_Position   = matrix_model_to_hom * vec4(model_position, 1.0f);
-	view_position = (matrix_model_to_view * vec4(model_position, 1.0f)).xyz;
-	model_uv      = model_uv_;
-	view_normal   = matrix_normal_view * model_normal;
+	gl_Position = matrix_PVM * vec4(in_position, 1.0f);
+	v_position  = (matrix_VM * vec4(in_position, 1.0f)).xyz;
+	v_texcoord  = in_texcoord;
+	v_normal    = matrix_N * in_normal;
 }

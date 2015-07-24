@@ -24,6 +24,13 @@
 	#pragma clang diagnostic ignored "-Wunused-parameter"
 #endif
 
+#define GINTONIC_VERTEX_LAYOUT_POSITION 0
+#define GINTONIC_VERTEX_LAYOUT_TEXCOORD 1
+#define GINTONIC_VERTEX_LAYOUT_NORMAL 2
+#define GINTONIC_VERTEX_LAYOUT_TANGENT 3
+#define GINTONIC_VERTEX_LAYOUT_BITANGENT 4
+#define GINTONIC_VERTEX_LAYOUT_COLOR 5
+
 namespace gintonic {
 namespace opengl {
 
@@ -71,14 +78,14 @@ template <typename T> struct vertex_P
 	}
 
 
-	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_P), (const GLvoid*)offsetof(vertex_P, position));
-		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_P), (const GLvoid*)offsetof(vertex_P, position));
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	}
-	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	}
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vp"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
@@ -159,17 +166,17 @@ template <typename T> struct vertex_PC
 	}
 
 
-	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PC), (const GLvoid*)offsetof(vertex_PC, position));
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PC), (const GLvoid*)offsetof(vertex_PC, color));
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PC), (const GLvoid*)offsetof(vertex_PC, position));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PC), (const GLvoid*)offsetof(vertex_PC, color));
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
 	}
-	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
 	}
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpc"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
@@ -232,17 +239,17 @@ template <typename T> struct vertex_PU
 		uv[1] = static_cast<float_type>(u[1]);
 	}
 
-	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PU), (const GLvoid*)offsetof(vertex_PU, position));
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PU), (const GLvoid*)offsetof(vertex_PU, uv));
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PU), (const GLvoid*)offsetof(vertex_PU, position));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PU), (const GLvoid*)offsetof(vertex_PU, uv));
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
 	}
-	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
 	}
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpu"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
@@ -296,17 +303,17 @@ template <typename T> struct vertex_PN
 		normal[1] = static_cast<float_type>(n[1]);
 		normal[2] = static_cast<float_type>(n[2]);
 	}
-	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PN), (const GLvoid*)offsetof(vertex_PN, position));
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PN), (const GLvoid*)offsetof(vertex_PN, normal));
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PN), (const GLvoid*)offsetof(vertex_PN, position));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PN), (const GLvoid*)offsetof(vertex_PN, normal));
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
 	}
-	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
 	}
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".pn"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
@@ -384,20 +391,20 @@ template <typename T> struct vertex_PCU
 		uv[1] = static_cast<float_type>(u[1]);
 	}
 
-	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCU), (const GLvoid*)offsetof(vertex_PCU, position));
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PCU), (const GLvoid*)offsetof(vertex_PCU, color));
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PCU), (const GLvoid*)offsetof(vertex_PCU, uv));
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCU), (const GLvoid*)offsetof(vertex_PCU, position));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PCU), (const GLvoid*)offsetof(vertex_PCU, color));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PCU), (const GLvoid*)offsetof(vertex_PCU, uv));
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
 	}
-	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(2);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
 	}
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpcu"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
@@ -488,23 +495,23 @@ template <typename T> struct vertex_PCUN
 		normal[1] = static_cast<float_type>(n[1]);
 		normal[2] = static_cast<float_type>(n[2]);
 	}
-	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUN), (const GLvoid*)offsetof(vertex_PCUN, position));
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUN), (const GLvoid*)offsetof(vertex_PCUN, color));
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUN), (const GLvoid*)offsetof(vertex_PCUN, uv));
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUN), (const GLvoid*)offsetof(vertex_PCUN, normal));
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUN), (const GLvoid*)offsetof(vertex_PCUN, position));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUN), (const GLvoid*)offsetof(vertex_PCUN, color));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUN), (const GLvoid*)offsetof(vertex_PCUN, uv));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUN), (const GLvoid*)offsetof(vertex_PCUN, normal));
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
 	}
-	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(2);
-		glDisableVertexAttribArray(3);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
 	}
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpcun"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
@@ -580,20 +587,20 @@ template <typename T> struct vertex_PUN
 		normal[1] = static_cast<float_type>(n[1]);
 		normal[2] = static_cast<float_type>(n[2]);
 	}
-	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUN), (const GLvoid*)offsetof(vertex_PUN, position));
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PUN), (const GLvoid*)offsetof(vertex_PUN, uv));
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUN), (const GLvoid*)offsetof(vertex_PUN, normal));
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUN), (const GLvoid*)offsetof(vertex_PUN, position));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PUN), (const GLvoid*)offsetof(vertex_PUN, uv));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUN), (const GLvoid*)offsetof(vertex_PUN, normal));
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
 	}
-	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(2);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
 	}
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpun"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
@@ -711,29 +718,29 @@ template <typename T> struct vertex_PCUNTB
 		bitangent[1] = static_cast<float_type>(b[1]);
 		bitangent[2] = static_cast<float_type>(b[2]);
 	}
-	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, position));
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, color));
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, uv));
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, normal));
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, tangent));
-		glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, bitangent));
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		glEnableVertexAttribArray(3);
-		glEnableVertexAttribArray(4);
-		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, position));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, color));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, uv));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, normal));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_TANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, tangent));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_BITANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, bitangent));
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TANGENT);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_BITANGENT);
 	}
-	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(2);
-		glDisableVertexAttribArray(3);
-		glDisableVertexAttribArray(4);
-		glDisableVertexAttribArray(5);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TANGENT);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_BITANGENT);
 	}
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpcuntb"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
@@ -837,26 +844,26 @@ template <typename T> struct vertex_PUNTB
 		bitangent[1] = static_cast<float_type>(b[1]);
 		bitangent[2] = static_cast<float_type>(b[2]);
 	}
-	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, position));
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, uv));
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, normal));
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, tangent));
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, bitangent));
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		glEnableVertexAttribArray(3);
-		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, position));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, uv));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, normal));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_TANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, tangent));
+		glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_BITANGENT, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, bitangent));
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TANGENT);
+		glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_BITANGENT);
 	}
-	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(2);
-		glDisableVertexAttribArray(3);
-		glDisableVertexAttribArray(4);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TANGENT);
+		glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_BITANGENT);
 	}
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpuntb"; }
 	template <class Archive> void serialize(Archive& archive, const unsigned int version)
@@ -901,7 +908,7 @@ template <typename T> struct vertex_PCUsg
 		shift = shift_value;
 		gamma = gamma_value;
 	}
-	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUsg), (const GLvoid*)offsetof(vertex_PCUsg, position));
 		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUsg), (const GLvoid*)offsetof(vertex_PCUsg, color));
@@ -914,7 +921,7 @@ template <typename T> struct vertex_PCUsg
 		glEnableVertexAttribArray(3);
 		glEnableVertexAttribArray(4);
 	}
-	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
@@ -962,13 +969,13 @@ template <typename T> struct vertex_text2d
 		pos_and_texcoord[2] = texcoord[0];
 		pos_and_texcoord[3] = texcoord[1];
 	}
-	static void EnableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_text2d), (const GLvoid*)offsetof(vertex_text2d, pos_and_texcoord));
 		glEnableVertexAttribArray(0);
 
 	}
-	static void DisableVertexAttribArray() BOOST_NOEXCEPT_OR_NOTHROW
+	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		glDisableVertexAttribArray(0);
 	}
@@ -1075,12 +1082,12 @@ std::ostream& operator << (std::ostream& os, const vertex_text2d<T>& v)
 
 /*! \private */
 template <typename T>
-class has_EnableVertexAttribArray_method
+class has_enable_attributes_method
 {
 	typedef char one;
 	typedef long two;
 
-	template <typename C> static one test(decltype(&C::EnableVertexAttribArray));
+	template <typename C> static one test(decltype(&C::enable_attributes));
 	template <typename C> static two test(...);
 
 public:

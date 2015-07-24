@@ -756,22 +756,15 @@ template <class T, ::std::size_t N> inline vec<T,N> reflect(const vec<T,N>& u, c
 template <class T, ::std::size_t N>
 ::std::ostream& operator << (::std::ostream& os, const vec<T,N>& v)
 {
-	os << '[' << v[0];
-	for (::std::size_t i = 1; i < N; ++i) os << ',' << v[i];
-	os << ']';
+	for (std::size_t i = 0; i < N - 1; ++i) os << v[i] << ' ';
+	os << v[N-1];
 	return os;
 }
 
 template <class T, ::std::size_t N>
 ::std::istream& operator >> (::std::istream& is, vec<T,N>& v)
 {
-	char garbage;
-	is >> garbage;
-	for (::std::size_t i = 0; i < N; ++i)
-	{
-		is >> v[i];
-		is >> garbage;
-	}
+	for (std::size_t i = 0; i < N; ++i) is >> v[i];
 	return is;
 }
 
@@ -1337,7 +1330,7 @@ template <class T> struct mat<T,4> : ::std::array<vec<T,4>,4>
 	mat(const mat<T,3>& rotation_matrix)
 	{
 		std::copy(rotation_matrix[0].begin(), rotation_matrix[0].end(), this->operator[](0).begin());
-		std::copy(rotation_matrix[1].bxegin(), rotation_matrix[1].end(), this->operator[](1).begin());
+		std::copy(rotation_matrix[1].begin(), rotation_matrix[1].end(), this->operator[](1).begin());
 		std::copy(rotation_matrix[2].begin(), rotation_matrix[2].end(), this->operator[](2).begin());
 		#define m(i,j) (*this)(i,j)
 		m(3,0) = 0;
@@ -1555,6 +1548,17 @@ template <class T> struct quat
 		return *this = *this * q;
 	}
 
+	quat conjugate() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return quat(w, -x, -y, -z);
+	}
+
+	vec<T,3> apply_to(const vec<T,3>& v) const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		const auto temp = (*this) * quat(0, v[0], v[1], v[2]) * conjugate();
+		return vec<T,3>(temp.x, temp.y, temp.z);
+	}
+
 	mat<T,4> to_rotation_matrix() const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		const T n = norm2(*this);
@@ -1606,6 +1610,11 @@ template <class T> struct quat
 		const T cos_beta_y = y / sin_alpha_over_2;
 		const T cos_beta_z = z / sin_alpha_over_2;
 		return axis_angle<T>(vec<T, 3>(cos_beta_x, cos_beta_y, cos_beta_z), T(2) * alpha_over_2);
+	}
+
+	vec<T,3> direction() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return apply_to(vec<T,3>(0,0,-1));
 	}
 };
 

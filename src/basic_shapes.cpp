@@ -10,12 +10,6 @@
 namespace gintonic {
 namespace opengl {
 
-basic_shape::basic_shape()
-{
-	// intentionally nothing
-}
-basic_shape::~basic_shape() {}
-
 unit_quad_P::unit_quad_P() : basic_shape()
 {
 	#ifdef BOOST_MSVC
@@ -33,15 +27,40 @@ unit_quad_P::unit_quad_P() : basic_shape()
 	};
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_P<GLfloat>::EnableVertexAttribArray();
+	vertex_P<GLfloat>::enable_attributes();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P<GLfloat>) * num_vertices, quad, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
-unit_quad_P::~unit_quad_P() {}
-
 void unit_quad_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+unit_quad_PN::unit_quad_PN()
+{
+	const vertex_PN<GLfloat> quad[4] =
+	{
+		// --positions-----|---normals--------
+		{-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f},
+		{ 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f},
+		{ 1.0f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f}
+	};
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	vertex_PN<GLfloat>::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PN<GLfloat>) * 4, quad, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void unit_quad_PN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -85,7 +104,7 @@ const vec3f& color_bottomleft, const vec3f& color_bottomright)
 	quad[0].color[3] = 1.0f;
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_PC<GLfloat>::EnableVertexAttribArray();
+	vertex_PC<GLfloat>::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, quad, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -119,7 +138,7 @@ unit_quad_PU::unit_quad_PU()
 	};
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_PU<GLfloat>::EnableVertexAttribArray();
+	vertex_PU<GLfloat>::enable_attributes();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PU<GLfloat>) * num_vertices, quad, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -156,7 +175,7 @@ unit_cube_P::unit_cube_P() : basic_shape()
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_P<GLfloat>::EnableVertexAttribArray();
+	vertex_P<GLfloat>::enable_attributes();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P<GLfloat>) * NUM_CUBE_VERTICES, cube_vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * NUM_CUBE_INDICES, cube_indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -236,7 +255,7 @@ unit_cube_PU::unit_cube_PU() : basic_shape()
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_PU<GLfloat>::EnableVertexAttribArray();
+	vertex_PU<GLfloat>::enable_attributes();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PU<GLfloat>) * 24, cube_vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -322,7 +341,7 @@ unit_cube_PUN::unit_cube_PUN()
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_PUN<GLfloat>::EnableVertexAttribArray();
+	vertex_PUN<GLfloat>::enable_attributes();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PUN<GLfloat>) * 24, cube_vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -376,7 +395,7 @@ unit_sphere_P::unit_sphere_P(const unsigned short stacks, const unsigned short s
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_P<GLfloat>::EnableVertexAttribArray();
+	vertex_P<GLfloat>::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 }
@@ -432,7 +451,7 @@ unit_sphere_PU::unit_sphere_PU(const unsigned short stacks, const unsigned short
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_PU<GLfloat>::EnableVertexAttribArray();
+	vertex_PU<GLfloat>::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 }
@@ -495,7 +514,7 @@ unit_cone_P::unit_cone_P(const GLsizei divs) : basic_shape(), divisions(divs+2)
 	}
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertices);
-	vertex_P<GLfloat>::EnableVertexAttribArray();
+	vertex_P<GLfloat>::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -553,7 +572,7 @@ unit_cylinder_P::unit_cylinder_P(const GLsizei divs) : basic_shape(), divisions(
 	}
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertices);
-	vertex_P<GLfloat>::EnableVertexAttribArray();
+	vertex_P<GLfloat>::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
