@@ -14,7 +14,7 @@
 #define GINTONIC_VERTEX_LAYOUT_COLOR 5
 
 layout(location = GINTONIC_VERTEX_LAYOUT_POSITION) in vec3 in_position;
-layout(location = GINTONIC_VERTEX_LAYOUT_TEXCOORD) in vec3 in_texcoord;
+layout(location = GINTONIC_VERTEX_LAYOUT_TEXCOORD) in vec2 in_texcoord;
 layout(location = GINTONIC_VERTEX_LAYOUT_NORMAL)   in vec3 in_normal;
 
 uniform mat4 matrix_PVM;

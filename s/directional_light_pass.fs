@@ -41,7 +41,7 @@ void main()
 
 	float lambertian = max(dot(light_dir, normal), 0.0f);
 
-	float diffuse_factor = gbuffer.diffuse.a;
+	float diffuse_factor = diffuse.a;
 	float ambient_factor = 1.0f - diffuse_factor;
 
 	final_color = diffuse_factor * lambertian * light.intensity * diffuse.rgb + ambient_factor * diffuse.rgb;

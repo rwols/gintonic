@@ -124,7 +124,7 @@ gp_cd_shader::gp_cd_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: gp_cd_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: gp_c_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
 	loc_diffuse = get_uniform_location("material.diffuse");
 }
