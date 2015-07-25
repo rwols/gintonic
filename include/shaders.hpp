@@ -96,6 +96,29 @@ private:
 	GLuint loc_diffuse;
 };
 
+class gp_cdn_shader : public matrix_PVM_shader
+{
+public:
+public:
+	gp_cdn_shader();
+	virtual ~gp_cdn_shader() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	void set_color(const vec4f& color) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_cdn_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_cdn_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_color;
+	GLuint loc_diffuse;
+	GLuint loc_normal;
+};
+
 class geometry_pass_shader : public matrix_PVM_VM_N_shader
 {
 public:
@@ -108,6 +131,26 @@ private:
 	GLuint loc_diffuse_color;
 	GLuint loc_diffuse;
 	GLuint loc_diffuse_factor;
+};
+
+class lp_null_shader : public opengl::shader
+{
+public:
+	lp_null_shader();
+	virtual ~lp_null_shader() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	void set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	lp_null_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	lp_null_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_viewport_size;
+	GLuint loc_gbuffer_diffuse;
 };
 
 class light_pass_shader : public matrix_PVM_shader

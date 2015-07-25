@@ -19,7 +19,10 @@ layout (location = GBUFFER_NORMAL) out vec3 out_normal;
 
 void main()
 {
-	out_position  = v_position;
-	out_diffuse   = vec4(1.0f, 0.0f, 0.0f, 0.8f); // pure red?
-	out_normal    = normalize(v_normal);
+	out_position = v_position;
+
+	// pure red, full ambient color, no diffuse contribution whatsoever.
+	out_diffuse = vec4(1.0f, 0.0f, 0.0f, 0.0f);
+	
+	out_normal = normalize(v_normal);
 }

@@ -1,0 +1,24 @@
+#ifndef gintonic_hpp
+#define gintonic_hpp
+
+#include "actors.hpp"
+#include "materials.hpp"
+#include "renderer.hpp"
+#include "mesh.hpp"
+#include "opengl.hpp"
+#include "shaders.hpp"
+#include "fonts.hpp"
+#include "basic_shapes.hpp"
+#include "textures.hpp"
+#include "vertices.hpp"
+#include "lights.hpp"
+
+namespace gintonic {
+
+camera_transform<float>& get_default_camera() BOOST_NOEXCEPT_OR_NOTHROW;
+
+void init_all(const char* window_title);
+
+} // namespace gintonic
+
+#endif

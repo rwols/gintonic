@@ -646,10 +646,10 @@ template <class T> struct BOOST_ALIGNMENT(16) vec<T,4> : public ::std::array<T,4
 		return r;
 	}
 
-	friend class boost::serialization::access;
-    template <class Archive> void serialize(Archive& ar, const unsigned int version)
+	// friend class boost::serialization::access;
+    template <class Archive> void serialize(Archive& ar, const unsigned /*int version*/)
     {
-        ar & *this;
+        ar & this->operator[](0) & this->operator[](1) & this->operator[](2) & this->operator[](3);
     }
 
 	static const vec<T,4> NaN;

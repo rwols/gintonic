@@ -14,8 +14,11 @@
 #include "materials.hpp"
 #include "lights.hpp"
 #include <boost/program_options.hpp>
+#include "portable_iarchive.hpp"
+#include "portable_oarchive.hpp"
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <fstream>
 
 #define APP_NAME "Hello world!"
 
@@ -83,6 +86,181 @@ template <class FloatType> FloatType get_dt() BOOST_NOEXCEPT_OR_NOTHROW
 	return duration_cast<nanoseconds>(renderer::delta_time()).count() / FloatType(1e9);
 }
 
+template <class T> T get_from_input(const char* msg)
+{
+	T result;
+	std::cout << msg;
+	std::cin >> result;
+	return result;
+}
+
+bool continue_if_file_exists(const boost::filesystem::path& p)
+{
+	if (boost::filesystem::is_regular_file(p))
+	{
+		char answer;
+		std::cout << "The file " << p << " already exists. Overwrite? (y/n) ";
+		std::cin >> answer;
+		if (answer == 'y') return true;
+		else if (answer == 'n') return false;
+		else
+		{
+			do
+			{
+				std::cout << "Type 'y' or 'n': ";
+				std::cin >> answer;	
+			}
+			while (answer != 'n' && answer != 'y');
+			if (answer == 'y') return true;
+			else if (answer == 'n') return false;
+		}
+	}
+	else return true;
+}
+
+void materials_menu_new()
+{
+	boost::filesystem::path filename("../resources");
+	std::string material_name;
+	gintonic::vec4f color;
+	gintonic::material* ptr = nullptr;
+
+	std::set<std::string> mat_names{"material", "material_c", "material_cd", "material_cdn"};
+	std::cout << "What kind of new material?\n"
+		<< "\tnull (a material that paints an ugly red color)\n"
+		<< "\tc (simple color material)\n"
+		<< "\tcd (color & diffuse)\n"
+		<< "\tcdn (color, diffuse & normal map)\n";
+	std::cout << "Type the kind of material, or type 'r' to return.\n>> ";
+	std::cin >> material_name;
+	if (material_name == "null")
+	{
+		material_name = get_from_input<std::string>("Enter a name for the material.\n>> ");
+		filename /= (material_name + gintonic::material::extension());
+		if (!continue_if_file_exists(filename)) return;
+		ptr = new gintonic::material();
+		std::ofstream output(filename.c_str(), std::ios::binary);
+		boost::archive::text_oarchive oa(output);
+		oa & ptr;
+	}
+	else if (material_name == "c")
+	{
+		color = get_from_input<gintonic::vec4f>("Color:\n>> ");
+		std::cerr << "COLOR: " << color << '\n';
+		material_name = get_from_input<std::string>("Enter a name for the material.\n>> ");
+		filename /= (material_name + gintonic::material::extension());
+		if (!continue_if_file_exists(filename)) return;
+		ptr = new gintonic::material_c(color);
+		std::ofstream output(filename.c_str(), std::ios::binary);
+		boost::archive::text_oarchive oa(output);
+		oa & ptr;
+	}
+	else if (material_name == "cd")
+	{
+		return;
+	}
+	else if (material_name == "cdn")
+	{
+		return;
+	}
+	else if (material_name == "r")
+	{
+		return;
+	}
+	else
+	{
+		std::cout << "Could not parse input.\n";
+		return;
+	}
+	std::cout << "Material was saved to " << filename << '\n';
+	if (ptr) delete ptr;
+}
+
+void materials_menu_list()
+{
+	std::set<std::string> mat_exts;
+	mat_exts.emplace(gintonic::material::extension());
+	using namespace boost::filesystem;
+	int num(0);
+	for (directory_iterator itr("../resources"); itr != directory_iterator(); ++itr)
+	{
+		const auto ext = itr->path().extension();
+		if (mat_exts.count(ext.c_str()))
+		{
+			++num;
+			std::cout << itr->path().filename().stem() << '\n';
+		}
+	}
+	if (!num)
+	{
+		std::cout << "No materials! Create a new one with 'n'\n";
+	}
+}
+
+void materials_menu_edit()
+{
+	std::string material_name;
+	std::cout << "Enter which material you want to edit:\n>> ";
+	std::cin >> material_name;
+	boost::filesystem::path filename("../resources");
+	filename /= material_name;
+	gintonic::material* ptr = nullptr;
+	if (boost::filesystem::is_regular_file(filename))
+	{
+		std::ifstream input(filename.c_str(), std::ios::binary);
+		boost::archive::text_iarchive ia(input);
+		ia & ptr;
+		if (dynamic_cast<gintonic::material_cdn*>(ptr))
+		{
+			auto mat = reinterpret_cast<gintonic::material_cdn*>(ptr);
+			std::cout << "material_cdn\n";
+		}
+		else if (dynamic_cast<gintonic::material_cd*>(ptr))
+		{
+			auto mat = reinterpret_cast<gintonic::material_cd*>(ptr);
+			std::cout << "material_cd\n";
+		}
+		else if (dynamic_cast<gintonic::material_c*>(ptr))
+		{
+			auto mat = reinterpret_cast<gintonic::material_c*>(ptr);
+			std::cout << "material_c\n";
+		}
+		else
+		{
+			std::cout << "This is a null material. There's nothing to edit.\n";
+		}
+	}
+	else
+	{
+		std::cout << "This is not a material! Hint: You can list the materials with 'l'\n";
+	}
+	if (ptr) delete ptr;
+}
+
+void materials_menu()
+{
+	std::cout << "##############\n";
+	std::cout << "MATERIALS MENU\n";
+	std::cout << "##############\n\n";
+	bool quit = false;
+	char input;
+	while (!quit)
+	{
+
+		std::cout << "Options: [n]ew material | [l]ist materials | [e]dit material | [q]uit\n";
+		std::cout << ">> ";
+		std::cin >> input;
+		switch (input)
+		{
+			case 'n': materials_menu_new(); break;
+			case 'l': materials_menu_list(); break;
+			case 'e': materials_menu_edit(); break;
+			case 'q': quit = true; break;
+			default: std::cout << "Unknown command.\n";
+		}
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	#if defined(HIDE_CONSOLE) && defined(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE)
@@ -103,6 +281,7 @@ int main(int argc, char* argv[])
 		// ("validate-model,m", boost::program_options::value<std::string>(), "Validate a .obj or .fbx model.")
 		// ("process-model,p", boost::program_options::value<std::string>(), "Process a .obj or .fbx model.")
 		("view-model,v", boost::program_options::value<std::string>(), "View a single model in native format.")
+		("materials", "Create and edit materials.")
 	;
 
 	boost::program_options::variables_map vm;
@@ -113,6 +292,16 @@ int main(int argc, char* argv[])
 	{
 		std::cout << desc << '\n';
 		return EXIT_FAILURE;
+	}
+	else if (vm.count("materials"))
+	{
+		try { materials_menu(); }
+		catch (const std::exception& e)
+		{
+			std::cerr << "Fatal error: " << e.what() << '\n';
+			return EXIT_FAILURE;
+		}
+		return EXIT_SUCCESS;
 	}
 
 	gintonic::actor* an_actor = nullptr;
@@ -164,7 +353,7 @@ int main(int argc, char* argv[])
 	}
 
 	gintonic::opengl::unit_cube_PUN the_shape;
-	gintonic::color_material the_material;
+	gintonic::material_c the_material;
 
 	auto font_inconsolata20 = gintonic::font::flyweight("../resources/Inconsolata-Regular.ttf", 20);
 	gintonic::fontstream stream;
@@ -212,12 +401,12 @@ int main(int argc, char* argv[])
 		mousedelta[1] = -gintonic::deg_to_rad(mousedelta[1]) / 4.0f;
 		default_camera.add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
 
-		glEnable(GL_CULL_FACE);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
+		// glEnable(GL_CULL_FACE);
+		// glEnable(GL_DEPTH_TEST);
+		// glEnable(GL_BLEND);
 
 		gintonic::renderer::bind_for_writing();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (an_actor) gintonic::renderer::set_model_matrix(an_actor->transform.get_matrix());
 		else gintonic::renderer::set_model_matrix(1);
@@ -252,20 +441,22 @@ int main(int argc, char* argv[])
 
 		if (an_actor) an_actor->draw_lights();
 
-		const GLsizei halfwidth = (GLsizei)(gintonic::renderer::width() / 2.0f);
-		const GLsizei halfheight = (GLsizei)(gintonic::renderer::height() / 2.0f);
+		gintonic::renderer::blit_drawbuffers_to_screen();
 
-		gintonic::renderer::set_read_buffer(gintonic::renderer::GBUFFER_POSITION);
-		glBlitFramebuffer(0, 0, gintonic::renderer::width(), gintonic::renderer::height(), 0, 0, halfwidth, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		// const GLsizei halfwidth = (GLsizei)(gintonic::renderer::width() / 2.0f);
+		// const GLsizei halfheight = (GLsizei)(gintonic::renderer::height() / 2.0f);
 
-		gintonic::renderer::set_read_buffer(gintonic::renderer::GBUFFER_DIFFUSE);
-		glBlitFramebuffer(0, 0, gintonic::renderer::width(), gintonic::renderer::height(), 0, halfheight, halfwidth, gintonic::renderer::height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		// gintonic::renderer::set_read_buffer(gintonic::renderer::GBUFFER_POSITION);
+		// glBlitFramebuffer(0, 0, gintonic::renderer::width(), gintonic::renderer::height(), 0, 0, halfwidth, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-		gintonic::renderer::set_read_buffer(gintonic::renderer::GBUFFER_NORMAL);
-		glBlitFramebuffer(0, 0, gintonic::renderer::width(), gintonic::renderer::height(), halfwidth, halfheight, gintonic::renderer::width(), gintonic::renderer::height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		// gintonic::renderer::set_read_buffer(gintonic::renderer::GBUFFER_DIFFUSE);
+		// glBlitFramebuffer(0, 0, gintonic::renderer::width(), gintonic::renderer::height(), 0, halfheight, halfwidth, gintonic::renderer::height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-		gintonic::renderer::set_read_buffer(gintonic::renderer::GBUFFER_TEXCOORD);
-		glBlitFramebuffer(0, 0, gintonic::renderer::width(), gintonic::renderer::height(), halfwidth, 0, gintonic::renderer::width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		// gintonic::renderer::set_read_buffer(gintonic::renderer::GBUFFER_NORMAL);
+		// glBlitFramebuffer(0, 0, gintonic::renderer::width(), gintonic::renderer::height(), halfwidth, halfheight, gintonic::renderer::width(), gintonic::renderer::height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+		// gintonic::renderer::set_read_buffer(gintonic::renderer::GBUFFER_TEXCOORD);
+		// glBlitFramebuffer(0, 0, gintonic::renderer::width(), gintonic::renderer::height(), halfwidth, 0, gintonic::renderer::width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 		gintonic::renderer::update();
 	}

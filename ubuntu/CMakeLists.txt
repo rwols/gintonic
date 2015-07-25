@@ -22,6 +22,7 @@ cmake_minimum_required(VERSION 2.8)
 set(project_name gt)
 set(project_version v0.1)
 set(source_dir "../src")
+set(test_dir "../test")
 
 set(WITH_PROFILING false) # Enable this for math functions profiling
 set(WITH_MEMORY_PROFILING false) # Enable this for memory profiling
@@ -47,7 +48,6 @@ find_package(Boost
 	REQUIRED)
 
 find_package(OpenGL REQUIRED)
-# find_package(GLEW REQUIRED)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
 find_package(JPEG REQUIRED)
@@ -57,9 +57,12 @@ find_package(Freetype REQUIRED)
 INCLUDE(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)
 
-set(FBX_ROOT "/usr/local")
-set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
-set(FBX_LIBRARIES "${FBX_ROOT}/lib/gcc4/x64/release/libfbxsdk.so")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
+find_package(FBX REQUIRED)
+
+# set(FBX_ROOT "/usr/local")
+# set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
+# set(FBX_LIBRARIES "${FBX_ROOT}/lib/gcc4/x64/release/libfbxsdk.so")
 
 # include_directories(${GLEW_INCLUDE_DIRS})
 include_directories(${SDL2_INCLUDE_DIRS})

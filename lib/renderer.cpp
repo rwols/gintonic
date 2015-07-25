@@ -1,4 +1,5 @@
 #include "renderer.hpp"
+#include "basic_shapes.hpp"
 #include <iostream>
 
 #ifndef DEBUG_PRINT
@@ -48,9 +49,13 @@ namespace gintonic {
 	geometry_null_shader* renderer::s_geometry_null_shader = nullptr;
 	gp_c_shader* renderer::s_gp_c_shader = nullptr;
 	gp_cd_shader* renderer::s_gp_cd_shader = nullptr;
+	gp_cdn_shader* renderer::s_gp_cdn_shader = nullptr;
 	geometry_pass_shader* renderer::s_geometry_pass_shader = nullptr;
+	lp_null_shader* renderer::s_lp_null_shader = nullptr;
 	directional_light_pass_shader* renderer::s_directional_light_pass_shader = nullptr;
 	text_shader* renderer::s_text_shader = nullptr;
+
+	opengl::unit_quad_P* renderer::s_unit_quad_P = nullptr;
 
 	boost::signals2::signal<void(wchar_t)> renderer::char_typed;
 	boost::signals2::signal<void(double, double)> renderer::mouse_scrolled;
@@ -138,8 +143,8 @@ namespace gintonic {
 		glBindTexture(GL_TEXTURE_2D, s_depth_texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, s_width, s_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_depth_texture, 0);
-		const GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 }; 
-		glDrawBuffers(4, DrawBuffers);
+		BOOST_CONSTEXPR GLenum DrawBuffers[GBUFFER_COUNT] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 }; 
+		glDrawBuffers(GBUFFER_COUNT, DrawBuffers);
 		const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -182,11 +187,31 @@ namespace gintonic {
 		}
 		try
 		{
+			s_gp_cdn_shader = new gp_cdn_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_cdn_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
 			s_geometry_pass_shader = new geometry_pass_shader();
 		}
 		catch (exception& e)
 		{
 			e.prepend(": Failed to load geometry shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_lp_null_shader = new lp_null_shader();	
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load lp_null_shader: ");
 			e.prepend(name());
 			throw;
 		}
@@ -210,6 +235,11 @@ namespace gintonic {
 			e.prepend(name());
 			throw;
 		}
+
+		//
+		// Initialize basic shapes
+		//
+		s_unit_quad_P = new opengl::unit_quad_P();
 	}
 
 	void renderer::resize(const int width, const int height)
@@ -334,31 +364,57 @@ namespace gintonic {
 	void renderer::bind_for_writing()
 	{
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
-		// glDepthMask(GL_TRUE);
-		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		// glEnable(GL_DEPTH_TEST);
-		// glDisable(GL_BLEND);
+		glDepthMask(GL_TRUE);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glEnable(GL_CULL_FACE);
 	}
 
 	void renderer::bind_for_reading()
 	{
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
-		// for (unsigned int i = 0; i < GBUFFER_COUNT; ++i) 
-		// {
-		// 	glActiveTexture(GL_TEXTURE0 + i);
-		// 	glBindTexture(GL_TEXTURE_2D, s_textures[i]);
-		// }
-		// glDepthMask(GL_FALSE);
-		// glDisable(GL_DEPTH_TEST);
-		// glEnable(GL_BLEND);
-		// glBlendEquation(GL_FUNC_ADD);
-		// glBlendFunc(GL_ONE, GL_ONE);
-		// glClear(GL_COLOR_BUFFER_BIT);
+		glDepthMask(GL_FALSE);
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		for (unsigned int i = 0; i < GBUFFER_COUNT; ++i) 
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
+		}
+		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
 	void renderer::set_read_buffer(const enum GBUFFER type)
 	{
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + type);
+	}
+
+	void renderer::blit_drawbuffers_to_screen()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
+		const GLsizei halfwidth = (GLsizei)(width() / 2.0f);
+		const GLsizei halfheight = (GLsizei)(height() / 2.0f);
+		set_read_buffer(GBUFFER_POSITION);
+		glBlitFramebuffer(0, 0, width(), height(), 0, 0, halfwidth, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		set_read_buffer(GBUFFER_DIFFUSE);
+		glBlitFramebuffer(0, 0, width(), height(), 0, halfheight, halfwidth, height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		set_read_buffer(GBUFFER_NORMAL);
+		glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		set_read_buffer(GBUFFER_TEXCOORD);
+		glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	}
+	void renderer::null_light_pass() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		const auto& s = get_lp_null_shader();
+		s.activate();
+		s.set_gbuffer_diffuse(GBUFFER_DIFFUSE);
+		s.set_viewport_size(vec2f(width(), height()));
+		get_unit_quad_P().draw();
 	}
 
 	void renderer::update_matrix_VM()

@@ -492,7 +492,7 @@ GLint shader::get_uniform_location(const GLchar* name) const
 	const auto r = glGetUniformLocation(*this, name);
 	if (r == -1)
 	{
-		throw std::runtime_error("shader::get_uniform_location: uniform not present.");
+		throw exception("Uniform \"" + std::string(name) + "\" not present.");
 	}
 	else
 	{

@@ -9,6 +9,9 @@
 
 namespace gintonic 
 {
+
+	namespace opengl { class unit_quad_P; }
+
 	class renderer
 	{
 	public:
@@ -128,6 +131,8 @@ namespace gintonic
 		static void bind_for_writing();
 		static void bind_for_reading();
 		static void set_read_buffer(const enum GBUFFER type);
+		static void blit_drawbuffers_to_screen();
+		static void null_light_pass() BOOST_NOEXCEPT_OR_NOTHROW;
 
 		inline static geometry_null_shader* get_geometry_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
@@ -144,11 +149,19 @@ namespace gintonic
 			return *s_gp_cd_shader;
 		}
 
+		inline static const gp_cdn_shader& get_gp_cdn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_cdn_shader;
+		}
+
 		inline static geometry_pass_shader* get_geometry_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return s_geometry_pass_shader;
 		}
-
+		inline static lp_null_shader& get_lp_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_lp_null_shader;
+		}
 		inline static directional_light_pass_shader* get_directional_light_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return s_directional_light_pass_shader;
@@ -157,6 +170,11 @@ namespace gintonic
 		inline static text_shader* get_text_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return s_text_shader;
+		}
+
+		inline static const opengl::unit_quad_P& get_unit_quad_P() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_unit_quad_P;
 		}
 
 	private:
@@ -206,9 +224,13 @@ namespace gintonic
 		static geometry_null_shader* s_geometry_null_shader;
 		static gp_c_shader* s_gp_c_shader;
 		static gp_cd_shader* s_gp_cd_shader;
+		static gp_cdn_shader* s_gp_cdn_shader;
 		static geometry_pass_shader* s_geometry_pass_shader;
+		static lp_null_shader* s_lp_null_shader;
 		static directional_light_pass_shader* s_directional_light_pass_shader;
 		static text_shader* s_text_shader;
+
+		static opengl::unit_quad_P* s_unit_quad_P;
 	};
 } // namespace gintonic
 

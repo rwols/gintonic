@@ -10,16 +10,20 @@
 			"name": "Shaders"
 		},
 		{
-			"path": "src",
-			"name": "Sources"
+			"path": "include",
+			"name": "Include"
 		},
 		{
-			"path": "ubuntu",
-			"name": "CMake Ubuntu"
+			"path": "lib",
+			"name": "Library"
 		},
 		{
-			"path": "windows",
-			"name": "CMake Windows"
+			"path": "examples",
+			"name": "Examples"
+		},
+		{
+			"path": "test",
+			"name": "Unit Tests"
 		}
 	],
 	"settings":
@@ -29,7 +33,7 @@
 	"build_systems":
 	[
 		{
-			"name": "${project_name}",
+			"name": "Gintonic",
 			"working_dir": "${project_path}/build",
 			"shell_cmd": "cmake --build .",
 			"file_regex": "^(/.[^:]*):(\\d+):(\\d+): error: (.*)$",

@@ -146,8 +146,8 @@ void static_model_actor::process_mesh(
 			const auto diffuse_color = get_material_color(fbx_mat, FbxSurfaceMaterial::sDiffuse);
 			auto diffuse_factor = get_texture_factor(fbx_mat, FbxSurfaceMaterial::sDiffuseFactor);
 			const vec4f color(diffuse_color[0], diffuse_color[1], diffuse_color[2], diffuse_factor);
-			std::cerr << fbx_mesh->GetNode()->GetName() << ": Constructing color_material.\n";
-			mat = std::make_shared<color_material>(color);
+			std::cerr << fbx_mesh->GetNode()->GetName() << ": Constructing material_c.\n";
+			mat = std::make_shared<material_c>(color);
 		}
 	}
 	else
@@ -157,7 +157,6 @@ void static_model_actor::process_mesh(
 		mat = std::make_shared<material>();
 	}
 	std::shared_ptr<mesh> m = std::make_shared<mesh>(fbx_mesh);
-	mat->serialize(std::cerr);
 	model.emplace_back(t, m, mat);
 }
 

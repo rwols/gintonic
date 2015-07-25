@@ -129,6 +129,50 @@ gp_cd_shader::gp_cd_shader(
 	loc_diffuse = get_uniform_location("material.diffuse");
 }
 
+gp_cdn_shader::gp_cdn_shader()
+: matrix_PVM_shader("../s/gp_cdn.vs", "../s/gp_cdn.fs")
+{
+	loc_color = get_uniform_location("material.color");
+	loc_diffuse = get_uniform_location("material.diffuse");
+	loc_normal = get_uniform_location("material.normal");
+}
+
+void gp_cdn_shader::set_color(const vec4f& color) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_color, color);
+}
+
+void gp_cdn_shader::set_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_diffuse, texture_unit);
+}
+
+void gp_cdn_shader::set_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_normal, texture_unit);
+}
+
+gp_cdn_shader::gp_cdn_shader(
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path fragment_shader)
+: matrix_PVM_shader(std::move(vertex_shader), std::move(fragment_shader))
+{
+	loc_color = get_uniform_location("material.color");
+	loc_diffuse = get_uniform_location("material.diffuse");
+	loc_normal = get_uniform_location("material.normal");
+}
+
+gp_cdn_shader::gp_cdn_shader( 
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path geometry_shader,
+	boost::filesystem::path fragment_shader)
+: matrix_PVM_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+{
+	loc_color = get_uniform_location("material.color");
+	loc_diffuse = get_uniform_location("material.diffuse");
+	loc_normal = get_uniform_location("material.normal");
+}
+
 geometry_pass_shader::geometry_pass_shader()
 : matrix_PVM_VM_N_shader("../s/geometry_pass.vs", "../s/geometry_pass.fs")
 {
@@ -150,6 +194,42 @@ void geometry_pass_shader::set_diffuse(const GLint texture_unit) const BOOST_NOE
 void geometry_pass_shader::set_diffuse_factor(const GLfloat factor) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_diffuse_factor, factor);
+}
+
+lp_null_shader::lp_null_shader()
+: opengl::shader("../s/lp_null.vs", "../s/lp_null.fs")
+{
+	loc_viewport_size = get_uniform_location("viewport_size");
+	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
+}
+
+void lp_null_shader::set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_gbuffer_diffuse, texture_unit);
+}
+
+void lp_null_shader::set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_viewport_size, size);
+}
+
+lp_null_shader::lp_null_shader(
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path fragment_shader)
+: opengl::shader(std::move(vertex_shader), std::move(fragment_shader))
+{
+	loc_viewport_size = get_uniform_location("viewport_size");
+	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
+}
+
+lp_null_shader::lp_null_shader( 
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path geometry_shader,
+	boost::filesystem::path fragment_shader)
+: opengl::shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+{
+	loc_viewport_size = get_uniform_location("viewport_size");
+	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
 }
 
 light_pass_shader::light_pass_shader(
