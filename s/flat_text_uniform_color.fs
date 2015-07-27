@@ -12,5 +12,5 @@ out vec4 final_color;
 
 void main()
 {
-	final_color = vec4(color.r, color.g, color.b, texture2D(tex, texcoord).r);
+	final_color = vec4(color.r, color.g, color.b, texture(tex, texcoord).r);
 }

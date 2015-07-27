@@ -281,7 +281,7 @@ template <class T, ::std::size_t N> struct vec : public ::std::array<T,N>
 	template <class S>
 	inline vec& operator /= (const S s)
 	{
-		return operator*=(inverse(s));
+		return operator*=(S(1) / s);
 	}
 
 	//! Obtain a standard unit axis.
@@ -419,7 +419,7 @@ template <class T> struct vec<T,2> : public ::std::array<T,2>
 	template <class S>
 	inline vec& operator /= (const S s)
 	{
-		return this->operator*=(inverse(s));
+		return this->operator*=((S(1) / s));
 	}
 
 	template <::std::size_t A> static inline vec<T,2> Axis() {
@@ -525,7 +525,7 @@ template <class T> struct vec<T,3> : public ::std::array<T,3>
 	template <class S>
 	inline vec& operator /= (const S s)
 	{
-		return this->operator*=(inverse(s));
+		return this->operator*=((S(1) / s));
 	}
 
 	template <::std::size_t A> static inline vec<T,3> Axis() {
@@ -637,7 +637,7 @@ template <class T> struct BOOST_ALIGNMENT(16) vec<T,4> : public ::std::array<T,4
 	template <class S>
 	inline vec& operator /= (const S s)
 	{
-		return this->operator*=(inverse(s));
+		return this->operator*=((S(1) / s));
 	}
 
 	template <::std::size_t A> static inline vec<T,4> Axis() {
@@ -724,7 +724,7 @@ template <class S, class T, ::std::size_t N> inline vec<T,N> operator * (const S
 
 template <class T, ::std::size_t N> inline vec<T,N> operator / (const vec<T,N>& v, const T s)
 {
-	return v * inverse(s);
+	return v * (T(1) / s);
 }
 
 template <class T, ::std::size_t N> inline T norm2(const vec<T,N>& v) { return dot(v,v); }

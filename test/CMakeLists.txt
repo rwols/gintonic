@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(test)
-file(GLOB src_files "*.cpp")
+project(math)
+add_executable(math math.cpp)
+target_link_gintonic(math)
 
-add_executable(test ${src_files})
-target_link_gintonic(test)
+project(materials)
+add_executable(materials materials.cpp)
+target_link_gintonic(materials)
