@@ -27,10 +27,18 @@ find_package(PNG REQUIRED)
 find_package(Freetype REQUIRED)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 # find_package(FBX REQUIRED)
-set(FBX_ROOT "/usr/local")
-set(FBX_INCLUDE_DIRS "${FBX_ROOT}/include")
-set(FBX_LIBRARY "${FBX_ROOT}/lib/gcc4/x64/release/libfbxsdk.so")
-set(FBX_LIBRARY_DEBUG "${FBX_ROOT}/lib/gcc4/x64/debug/libfbxsdk.so")
+if (APPLE)
+	set(FBX_ROOT "/Applications/Autodesk/FBX\ SDK/2015.1")
+	set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
+	set(FBX_LIBRARY "${FBX_ROOT}/lib/clang/release/libfbxsdk.a")
+	set(FBX_LIBRARY_DEBUG "${FBX_ROOT}/lib/clang/debug/libfbxsdk.a")
+else ()
+	set(FBX_ROOT "/usr/local")
+	set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
+	set(FBX_LIBRARY "${FBX_ROOT}/lib/gcc4/x64/release/libfbxsdk.so")
+	set(FBX_LIBRARY_DEBUG "${FBX_ROOT}/lib/gcc4/x64/debug/libfbxsdk.so")
+endif (APPLE)
+# find_package(FBX REQUIRED)
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIR})
@@ -68,7 +76,7 @@ macro(target_link_gintonic targetname)
 		${JPEG_LIBRARIES} 
 		${PNG_LIBRARIES} 
 		${FREETYPE_LIBRARIES} 
-		${FBX_LIBRARY} 
+		${FBX_LIBRARY_DEBUG} 
 		${CMAKE_THREAD_LIBS_INIT}
 		-ldl
 		gintonic)

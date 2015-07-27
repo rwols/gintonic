@@ -8,6 +8,7 @@
 #include "glad.hpp"
 #include "exception.hpp"
 #include "filesystem.hpp"
+#include <array>
 #include <vector>
 #include <list>
 #include <mutex>
@@ -263,7 +264,7 @@ private:
 	void init_tga_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
 	#ifdef BOOST_MSVC
 	void init_wic_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	#elif defined APPLE
+	#elif defined __APPLE__
 	void init_png_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
 	void init_jpeg_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
 	#elif defined __linux__

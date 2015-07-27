@@ -81,7 +81,7 @@ namespace
 
 	IWICImagingFactory* s_wic_factory = nullptr;
 
-	#elif defined(APPLE)
+	#elif defined(__APPLE__)
 
 	void png_read_data(png_structp png, png_bytep data, png_size_t length)
 	{
@@ -429,17 +429,17 @@ wic_error_label:
 	throw exception(ss.str());
 }
 
-#elif defined(APPLE)
+#elif defined(__APPLE__)
+
 void texture2d::init_png_image(
 	const boost::filesystem::path& filename,
-	GLsizei& m_width, 
-	GLsizei& m_height, 
-	GLenum& m_format, 
-	GLenum& m_type, 
-	std::vector<char>& m_data)
+	GLsizei& width, 
+	GLsizei& height, 
+	GLenum& format, 
+	GLenum& type, 
+	std::vector<char>& data)
 {
-	input_file_handle lHandle(filename, std::ios::binary);
-	std::ifstream& lInput = lHandle.get_stream();
+	std::ifstream lInput(filename.c_str(), std::ios::binary);
 	png_bytep* lRows = nullptr;
 	png_byte lSignature[8];
 	lInput.read((char*)lSignature, 8);
@@ -466,8 +466,8 @@ void texture2d::init_png_image(
 	png_set_read_fn(lPng, (png_voidp)&lInput, png_read_data);
 	png_set_sig_bytes(lPng, 8);
 	png_read_info(lPng, lInfo);
-	m_width               = png_get_image_width(lPng, lInfo);
-	m_height              = png_get_image_height(lPng, lInfo);
+	width                 = png_get_image_width(lPng, lInfo);
+	height                = png_get_image_height(lPng, lInfo);
 	png_uint_32 lBitdepth = png_get_bit_depth(lPng, lInfo);
 	png_uint_32 lChannels = png_get_channels(lPng, lInfo);
 	switch (png_get_color_type(lPng, lInfo))
@@ -475,16 +475,16 @@ void texture2d::init_png_image(
 		case PNG_COLOR_TYPE_PALETTE:
 			png_set_palette_to_rgb(lPng);
 			lChannels = 3;
-			m_format = GL_RGB;
+			format = GL_RGB;
 			break;
 		case PNG_COLOR_TYPE_GRAY:
 			if (lBitdepth < 8) png_set_expand_gray_1_2_4_to_8(lPng);
 			lBitdepth = 8;
-			m_format = GL_RED;
+			format = GL_RED;
 			break;
-		case PNG_COLOR_TYPE_GRAY_ALPHA: m_format = GL_RG; break;
-		case PNG_COLOR_TYPE_RGB: m_format = GL_RGB; break;
-		case PNG_COLOR_TYPE_RGBA: m_format = GL_RGBA; break;
+		case PNG_COLOR_TYPE_GRAY_ALPHA: format = GL_RG; break;
+		case PNG_COLOR_TYPE_RGB: format = GL_RGB; break;
+		case PNG_COLOR_TYPE_RGBA: format = GL_RGBA; break;
 		default:
 			png_destroy_read_struct(&lPng, &lInfo, nullptr);
 			throw exception(filename.c_str() + std::string(": Unknown PNG color format."));
@@ -494,24 +494,90 @@ void texture2d::init_png_image(
 		png_set_tRNS_to_alpha(lPng);
 		++lChannels;
 	}
-	lRows = new png_bytep[m_height];
+	lRows = new png_bytep[height];
 	if (lRows == nullptr)
 	{
 		png_destroy_read_struct(&lPng, &lInfo, nullptr);
 		throw std::bad_alloc();
 	}
-	const std::size_t size = m_width * m_height * (lBitdepth / 8) * lChannels;
-	m_data.resize(size);
-	const unsigned int lStride = m_width * (lBitdepth / 8) * lChannels;
-	for (int i = 0; i < m_height; ++i)
+	const std::size_t size = width * height * (lBitdepth / 8) * lChannels;
+	data.resize(size);
+	const unsigned int lStride = width * (lBitdepth / 8) * lChannels;
+	for (int i = 0; i < height; ++i)
 	{
-		const png_uint_32 q = (m_height - i - 1) * lStride;
-		lRows[i] = reinterpret_cast<png_bytep>(m_data.data()) + q;
+		const png_uint_32 q = (height - i - 1) * lStride;
+		lRows[i] = reinterpret_cast<png_bytep>(data.data()) + q;
 	}
 	png_read_image(lPng, lRows);
 	delete [] lRows;
 	png_destroy_read_struct(&lPng, &lInfo, nullptr);
-	m_type = GL_UNSIGNED_BYTE;
+	type = GL_UNSIGNED_BYTE;
+}
+
+void texture2d::init_jpeg_image(
+	const boost::filesystem::path& filename,
+	GLsizei& width,
+	GLsizei& height, 
+	GLenum& format, 
+	GLenum& type, 
+	std::vector<char>& data)
+{
+	unsigned long data_size;     // length of the file
+	int channels;               //  3 =>RGB   4 =>RGBA
+	unsigned char * rowptr[1];    // pointer to an array
+	struct jpeg_decompress_struct info; //for our jpeg info
+	struct jpeg_error_mgr err;          //the error handler
+
+	FILE* file = fopen(filename.c_str(), "rb");  //open the file
+
+	info.err = jpeg_std_error(& err);     
+	jpeg_create_decompress(& info);   //fills info structure
+
+	//if the jpeg file doesn't load
+	if (!file)
+	{
+		throw exception(filename.c_str() + std::string(": JPEG read error."));
+	}
+
+	jpeg_stdio_src(&info, file);    
+	jpeg_read_header(&info, TRUE); // read jpeg file header
+
+	jpeg_start_decompress(&info);  // decompress the file
+
+	//set width and height
+	width = static_cast<GLsizei>(info.output_width);
+	height = static_cast<GLsizei>(info.output_height);
+	channels = info.num_components;
+	assert((channels == 3) || (channels == 4));
+	switch (channels)
+	{
+		case 3: format = GL_RGB; break;
+		case 4: format = GL_RGBA; break;
+		default: format = GL_RGB; break;
+	}
+
+	data_size = width * height * channels;
+
+	//--------------------------------------------
+	// read scanlines one at a time & put bytes 
+	//    in jdata[] array. Assumes an RGB image
+	//--------------------------------------------
+	data.resize(data_size);
+	while (info.output_scanline < info.output_height) // loop
+	{
+		// Enable jpeg_read_scanlines() to fill our jdata array
+		rowptr[0] = (unsigned char *)&data[0] +  // secret to method
+						channels * info.output_width * info.output_scanline; 
+
+		jpeg_read_scanlines(&info, rowptr, 1);
+	}
+	//---------------------------------------------------
+
+	jpeg_finish_decompress(&info);   //finish decompressing
+
+	fclose(file); //close the file
+
+	type = GL_UNSIGNED_BYTE;
 }
 
 #elif defined __linux__
