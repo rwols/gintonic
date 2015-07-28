@@ -5,7 +5,7 @@
 
 using namespace gintonic;
 
-BOOST_AUTO_TEST_CASE( vec2_test )
+BOOST_AUTO_TEST_CASE( vector2_test )
 {
 	vec2f a(1.0f, 0.0f), b(0.0f, 1.0f);
 	BOOST_CHECK_EQUAL(a - a, vec2f(0.0f, 0.0f));
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE( vec2_test )
 	BOOST_CHECK_CLOSE(dist, 1.41421356237f, 0.0001);
 }
 
-BOOST_AUTO_TEST_CASE( vec3_test )
+BOOST_AUTO_TEST_CASE( vector3_test )
 {
 	vec3f a(1.0f, 0.0f, 0.0f), b(0.0f, 1.0f, 0.0f), c(0.0f, 0.0f, 1.0f);
 	BOOST_CHECK_EQUAL(dot(a,b), 0.0f);
@@ -40,4 +40,31 @@ BOOST_AUTO_TEST_CASE( vec3_test )
 	BOOST_CHECK_EQUAL(a % b, c); // cross product
 	BOOST_CHECK_EQUAL(b % c, a); // cross product
 	BOOST_CHECK_EQUAL(c % a, b); // cross product
+}
+
+BOOST_AUTO_TEST_CASE ( quaternion_test )
+{
+	quatf a = quatf::from_angle_axis(M_PI / 2.0f, vec3f(0.0f, 1.0f, 0.0f));
+	quatf b = quatf::from_angle_axis(M_PI / 2.0f, vec3f(0.0f, 0.0f, -1.0f));
+	auto dir = a.direction();
+	BOOST_CHECK_CLOSE(dir[0], -1.0f, 0.001);
+	BOOST_CHECK_CLOSE(dir[1], 0.0f, 0.001);
+	BOOST_CHECK_CLOSE(dir[2], 0.0f, 0.001);
+
+	// start with the vector [0,0,-1]. rotate it CCW 90 degrees around [0,0,-1]
+	// (so that does nothing), then rotate it CCW 90 degrees around [0,1,0],
+	// which results in the vector [-1,0,0].
+	dir = (a * b).direction();
+	BOOST_CHECK_CLOSE(dir[0], -1.0f, 0.001); // note that quaternion multiplication is not commutative ...
+	BOOST_CHECK_CLOSE(dir[1], 0.0f, 0.001);
+	BOOST_CHECK_CLOSE(dir[2], 0.0f, 0.001);
+
+	// start with the vector [0,0,-1], rotate it CCW 90 degrees around [0,1,0],
+	// which results in the vector [-1,0,0], then rotate it CCW 90 degrees around
+	// [0,0,-1]. This is the same as rotating CW 90 degrees around [0,0,1], which
+	// results in the vector [0,1,0].
+	dir = (b * a).direction();
+	BOOST_CHECK_CLOSE(dir[0], 0.0f, 0.001); // ... as is demonstrated here
+	BOOST_CHECK_CLOSE(dir[1], 1.0f, 0.001);
+	BOOST_CHECK_CLOSE(dir[2], 0.0f, 0.001);
 }

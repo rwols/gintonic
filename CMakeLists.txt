@@ -81,6 +81,19 @@ macro(target_link_gintonic targetname)
 		-ldl
 		gintonic)
 endmacro(target_link_gintonic)
+macro(target_link_no_lib targetname)
+	target_link_libraries(
+		${targetname} 
+		${Boost_LIBRARIES} 
+		${OPENGL_LIBRARIES} 
+		${SDL2_LIBRARY} 
+		${JPEG_LIBRARIES} 
+		${PNG_LIBRARIES} 
+		${FREETYPE_LIBRARIES} 
+		${FBX_LIBRARY_DEBUG} 
+		${CMAKE_THREAD_LIBS_INIT}
+		-ldl)
+endmacro(target_link_no_lib)
 add_subdirectory (lib)
 add_subdirectory (examples)
 add_subdirectory (test)

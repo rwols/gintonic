@@ -10,7 +10,11 @@
 
 namespace gintonic {
 
-	class font : public object<font, std::tuple<boost::filesystem::path, int>>
+	/* Use the flyweight mechanism to obtain a font. Use the fontstream class
+	 * to actually render text.
+	 */
+	class font 
+	: public object<font, std::tuple<boost::filesystem::path, int>>
 	{
 	public:
 
@@ -24,10 +28,30 @@ namespace gintonic {
 		font(const font&) = delete;
 		font& operator = (const font&) = delete;
 
-		void draw(const char* text, const std::size_t length, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW;
-		void draw(const std::string& text, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW;
-		void draw(const char* text, const std::size_t length, vec2f position) const BOOST_NOEXCEPT_OR_NOTHROW;
-		void draw(const std::string& text, vec2f position) const BOOST_NOEXCEPT_OR_NOTHROW;
+		void draw(
+			const char* text,         // The text to draw
+			const std::size_t length, // The length of the text
+			vec2f position,           // The position in clip coordinates
+			const vec2f& scale)       // The scale (both x and y direction)
+		const BOOST_NOEXCEPT_OR_NOTHROW;
+
+		void draw(
+			const std::string& text, // The text to draw
+			vec2f position,          // The position in clip coordinates
+			const vec2f& scale)      // The scale (both x and y direction)
+		const BOOST_NOEXCEPT_OR_NOTHROW;
+
+		void draw(
+			const char* text,         // The text to draw
+			const std::size_t length, // The length of the text
+			vec2f position)           // The position in clip coordinates
+		const BOOST_NOEXCEPT_OR_NOTHROW;
+
+		//
+		void draw(
+			const std::string& text, // The text to draw 
+			vec2f position)          // The position in clip coordinates
+		const BOOST_NOEXCEPT_OR_NOTHROW;
 
 		font(font&&);
 		font& operator = (font&&);
@@ -37,8 +61,12 @@ namespace gintonic {
 		font(const key_type&);
 		font(key_type&&);
 
-		friend boost::flyweights::detail::optimized_key_value<key_type, font, key_extractor>;
-		friend boost::serialization::access;
+		friend boost::flyweights::detail::optimized_key_value
+		<
+			key_type, 
+			font, 
+			key_extractor
+		>;
 
 		virtual void construct_from_key() final;
 
@@ -79,7 +107,11 @@ namespace gintonic {
 			vec2f scale;
 			vec2f position;
 
-			std::streamsize write(const char* text, const std::streamsize length) const BOOST_NOEXCEPT_OR_NOTHROW;
+			std::streamsize write(
+				const char* text, 
+				const std::streamsize length) 
+			const BOOST_NOEXCEPT_OR_NOTHROW;
+
 		};
 	} // namespace detail
 

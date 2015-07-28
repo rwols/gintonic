@@ -123,6 +123,7 @@ namespace gintonic
 		{
 			GBUFFER_POSITION = 0,
 			GBUFFER_DIFFUSE,
+			GBUFFER_SPECULAR,
 			GBUFFER_NORMAL,
 			GBUFFER_TEXCOORD,
 			GBUFFER_COUNT
@@ -149,6 +150,11 @@ namespace gintonic
 			return *s_gp_cd_shader;
 		}
 
+		inline static const gp_cds_shader& get_gp_cds_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_cds_shader;
+		}
+
 		inline static const gp_cdn_shader& get_gp_cdn_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_gp_cdn_shader;
@@ -158,10 +164,22 @@ namespace gintonic
 		{
 			return s_geometry_pass_shader;
 		}
+
 		inline static lp_null_shader& get_lp_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_lp_null_shader;
 		}
+
+		inline static lp_directional_shader& get_lp_directional_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_lp_directional_shader;
+		}
+
+		inline static lp_point_shader& get_lp_point_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_lp_point_shader;
+		}
+
 		inline static directional_light_pass_shader* get_directional_light_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return s_directional_light_pass_shader;
@@ -175,6 +193,11 @@ namespace gintonic
 		inline static const opengl::unit_quad_P& get_unit_quad_P() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_unit_quad_P;
+		}
+
+		inline static const opengl::unit_sphere_P& get_unit_sphere_P() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_unit_sphere_P;
 		}
 
 	private:
@@ -224,13 +247,17 @@ namespace gintonic
 		static geometry_null_shader* s_geometry_null_shader;
 		static gp_c_shader* s_gp_c_shader;
 		static gp_cd_shader* s_gp_cd_shader;
+		static gp_cds_shader* s_gp_cds_shader;
 		static gp_cdn_shader* s_gp_cdn_shader;
 		static geometry_pass_shader* s_geometry_pass_shader;
 		static lp_null_shader* s_lp_null_shader;
+		static lp_directional_shader* s_lp_directional_shader;
+		static lp_point_shader* s_lp_point_shader;
 		static directional_light_pass_shader* s_directional_light_pass_shader;
 		static text_shader* s_text_shader;
 
 		static opengl::unit_quad_P* s_unit_quad_P;
+		static opengl::unit_sphere_P* s_unit_sphere_P;
 	};
 } // namespace gintonic
 

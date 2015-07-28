@@ -2,6 +2,9 @@
 #define gintonic_lights_hpp
 
 #include "math.hpp"
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/base_object.hpp>
 
 namespace gintonic {
 
@@ -10,59 +13,97 @@ class point_light_pass_shader;
 
 class light : std::enable_shared_from_this<light>
 {
-protected:
-	light() = default;
-	light(const vec3f& intensity);
 public:
-	virtual ~light() BOOST_NOEXCEPT_OR_NOTHROW = default;
-	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+
 	vec3f intensity;
+
+	light() = default;
+
+	light(const vec3f& intensity);
+	
+	virtual ~light() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	
+	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+private:
+
+	friend boost::serialization::access;
+
+	template <class Archive> 
+	void serialize(Archive& ar, const unsigned /*version*/)
+	{
+		ar & BOOST_SERIALIZATION_NVP(intensity);
+	}
+
 };
 
 class directional_light : public light
 {
 public:
-	directional_light(
-		std::shared_ptr<directional_light_pass_shader> prog);
+	directional_light() = default;
 	
-	directional_light(
-		std::shared_ptr<directional_light_pass_shader> prog,
-		const vec3f& intensity);
+	directional_light(const vec3f& intensity);
 
 	virtual ~directional_light() BOOST_NOEXCEPT_OR_NOTHROW = default;
+
 	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 private:
-	std::shared_ptr<directional_light_pass_shader> m_program;
+
+	friend boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive& ar, const unsigned /*version*/)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(light);
+	}
 };
 
 class point_light : public light
 {
 public:
 
-	point_light(
-		std::shared_ptr<point_light_pass_shader> prog);
+	point_light() = default;
 
-	point_light(
-		std::shared_ptr<point_light_pass_shader> prog,
-		const vec3f& intensity);
+	point_light(const vec3f& intensity);
 	
-	point_light(
-		std::shared_ptr<point_light_pass_shader> prog,
-		const vec3f& intensity,
-		const vec3f& attenuation);
+	point_light(const vec3f& intensity, const vec3f& attenuation);
 
 	virtual ~point_light() BOOST_NOEXCEPT_OR_NOTHROW = default;
 
 	vec3f attenuation() const BOOST_NOEXCEPT_OR_NOTHROW;
+
 	void set_attenuation(const vec3f&) BOOST_NOEXCEPT_OR_NOTHROW;
+	
 	float cutoff_point() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW;
 
 private:
-	std::shared_ptr<point_light_pass_shader> m_program;
+
 	vec3f m_attenuation;
+
 	float m_cutoff_point;
+
+	friend boost::serialization::access;
+
+	template <class Archive>
+	void save(Archive& ar, const unsigned /*version*/) const
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(light);
+		ar & boost::serialization::make_nvp("attenuation", m_attenuation);
+	}
+
+	template <class Archive>
+	void load(Archive& ar, const unsigned /*version*/)
+	{
+		vec3f att;
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(light);
+		ar & boost::serialization::make_nvp("attenuation", att);
+		set_attenuation(att);
+	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
 } // namespace gintonic

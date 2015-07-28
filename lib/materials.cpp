@@ -5,26 +5,68 @@
 #include "portable_oarchive.hpp"
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+// #include <boost/archive/xml_iarchive.hpp>
+// #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/export.hpp>
+#include <fstream>
 
 namespace gintonic {
 
-void serialize(material* ptr, std::ostream& os)
-{
-	boost::archive::text_oarchive oa(os);
-	oa << ptr;
-}
-
-material* deserialize(std::istream& is)
-{
-	material* ptr;
-	boost::archive::text_iarchive ia(is);
-	ia >> ptr;
-	return ptr;
-}
+/*****************************************************************************
+ * gintonic::material (base class for inheritance)                           *
+ ****************************************************************************/
 
 material::datastructure_type material::s_textures = material::datastructure_type();
 write_lock material::s_textures_lock;
+
+void material::save(std::ostream& output) const
+{
+	eos::portable_oarchive archive(output);
+	const material* tmp = this;
+	archive & boost::serialization::make_nvp("base_ptr", tmp);
+}
+
+void material::save(const boost::filesystem::path& filename) const
+{
+	save(filename.c_str());
+}
+
+void material::save(const std::string& filename) const
+{
+	save(filename.c_str());
+}
+
+void material::save(const char* filename) const
+{
+	std::ofstream output(filename, std::ios::binary);
+	save(output);
+}
+
+material* material::load(std::istream& input)
+{
+	material* ptr = nullptr;
+	eos::portable_iarchive archive(input);
+	archive & boost::serialization::make_nvp("base_ptr", ptr);
+	return ptr;
+}
+
+material* material::load(const boost::filesystem::path& filename)
+{
+	return material::load(filename.c_str());
+}
+
+material* material::load(const std::string& filename)
+{
+	return material::load(filename.c_str());
+}
+
+material* material::load(const char* filename)
+{
+	std::ifstream input(filename, std::ios::binary);
+	return material::load(input);
+}
 
 void material::safe_obtain_texture(const boost::filesystem::path& filename, iter_type& iter)
 {
@@ -81,6 +123,10 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 	s->set_matrix_N(renderer::matrix_N());
 }
 
+/*****************************************************************************
+ * gintonic::material_c (color)                                              *
+ ****************************************************************************/
+
 material_c::material_c(const vec4f& diffuse_color)
 : diffuse_color(diffuse_color)
 {
@@ -133,6 +179,15 @@ void diffuse_material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 	diffuse().bind(0);
 }
 
+/*****************************************************************************
+ * gintonic::material_cd (color, diffuse)                                    *
+ ****************************************************************************/
+
+material_cd::material_cd()
+{
+	safe_set_null_texture(m_diffuse);
+}
+
 const opengl::texture2d& material_cd::diffuse() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	return std::get<2>(*m_diffuse);
@@ -169,9 +224,66 @@ material_cd::~material_cd() BOOST_NOEXCEPT_OR_NOTHROW
 	safe_release_texture(m_diffuse);
 }
 
+/*****************************************************************************
+ * gintonic::material_cds (color, diffuse, specular)                         *
+ ****************************************************************************/
+
+material_cds::material_cds()
+{
+	safe_set_null_texture(m_specular);
+}
+
+const opengl::texture2d& material_cds::specular() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return std::get<2>(*m_specular);
+}
+
+void material_cds::set_specular(const boost::filesystem::path& filename)
+{
+	safe_release_texture(m_specular);
+	safe_obtain_texture(filename, m_specular);
+}
+
+material_cds::material_cds(
+	const vec4f& color,
+	boost::filesystem::path diffuse_filename,
+	boost::filesystem::path specular_filename)
+: material_cd(color, std::move(diffuse_filename))
+{
+	safe_obtain_texture(specular_filename, m_specular);
+}
+
+void material_cds::bind() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	const auto& s = renderer::get_gp_cds_shader();
+	s.activate();
+	s.set_matrix_PVM(renderer::matrix_PVM());
+	s.set_matrix_VM(renderer::matrix_VM());
+	s.set_matrix_N(renderer::matrix_N());
+	s.set_color(diffuse_color);
+	s.set_diffuse(0);
+	s.set_specular(1);
+	diffuse().bind(0);
+	specular().bind(1);
+}
+
+material_cds::~material_cds() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	safe_release_texture(m_specular);
+}
+
+/*****************************************************************************
+ * gintonic::material_cdn (color, diffuse, normal map)                       *
+ ****************************************************************************/
+
 const opengl::texture2d& material_cdn::normal() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	return std::get<2>(*m_normal);
+}
+
+material_cdn::material_cdn()
+{
+	safe_set_null_texture(m_normal);
 }
 
 void material_cdn::set_normal(const boost::filesystem::path& filename)
@@ -184,7 +296,7 @@ material_cdn::material_cdn(
 	const vec4f& color,
 	boost::filesystem::path diffuse_filename,
 	boost::filesystem::path normal_filename)
-: material_cd(color, diffuse_filename)
+: material_cd(color, std::move(diffuse_filename))
 {
 	safe_obtain_texture(normal_filename, m_normal);
 }
@@ -348,7 +460,8 @@ specular_diffuse_material::~specular_diffuse_material() BOOST_NOEXCEPT_OR_NOTHRO
 
 } // namespace gintonic
 
-BOOST_CLASS_EXPORT_GUID(gintonic::material, "gintonic::material")
-BOOST_CLASS_EXPORT_GUID(gintonic::material_c, "gintonic::material_c")
-BOOST_CLASS_EXPORT_GUID(gintonic::material_cd, "gintonic::material_cd")
-BOOST_CLASS_EXPORT_GUID(gintonic::material_cdn, "gintonic::material_cdn")
+// BOOST_CLASS_EXPORT(gintonic::material)
+BOOST_CLASS_EXPORT(gintonic::material_c)
+BOOST_CLASS_EXPORT(gintonic::material_cd)
+BOOST_CLASS_EXPORT(gintonic::material_cds)
+BOOST_CLASS_EXPORT(gintonic::material_cdn)

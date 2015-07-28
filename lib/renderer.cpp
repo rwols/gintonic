@@ -49,9 +49,12 @@ namespace gintonic {
 	geometry_null_shader* renderer::s_geometry_null_shader = nullptr;
 	gp_c_shader* renderer::s_gp_c_shader = nullptr;
 	gp_cd_shader* renderer::s_gp_cd_shader = nullptr;
+	gp_cds_shader* renderer::s_gp_cds_shader = nullptr;
 	gp_cdn_shader* renderer::s_gp_cdn_shader = nullptr;
 	geometry_pass_shader* renderer::s_geometry_pass_shader = nullptr;
 	lp_null_shader* renderer::s_lp_null_shader = nullptr;
+	lp_directional_shader* renderer::s_lp_directional_shader = nullptr;
+	lp_point_shader* renderer::s_lp_point_shader = nullptr;
 	directional_light_pass_shader* renderer::s_directional_light_pass_shader = nullptr;
 	text_shader* renderer::s_text_shader = nullptr;
 
@@ -130,8 +133,22 @@ namespace gintonic {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		glGenTextures(GBUFFER_COUNT, s_textures);
 		glGenTextures(1, &s_depth_texture);
-		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = { GL_RGB32F, GL_RGBA, GL_RGB32F, GL_RG32F };
-		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = { GL_RGB, GL_RGBA, GL_RGB, GL_RG };
+		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = 
+		{
+			GL_RGB32F, // GBUFFER_POSITION, we need floats here
+			GL_RGBA,   // GBUFFER_DIFFUSE,  8 bits per channel are okay
+			GL_RGBA,   // GBUFFER_SPECULAR, 8 bits per channel are okay
+			GL_RGB32F, // GBUFFER_NORMAL,   we need floats here
+			GL_RG32F   // GBUFFER_TEXCOORD, we need floats here
+		};
+		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = 
+		{
+			GL_RGB,  // GBUFFER_POSITION, 3 channels
+			GL_RGBA, // GBUFFER_DIFFUSE,  4 channels (alpha channel is ambient intensity)
+			GL_RGBA, // GBUFFER_SPECULAR, 4 channels (alpha channel is reserved)
+			GL_RGB,  // GBUFFER_NORMAL,   3 channels
+			GL_RG    // GBUFFER_TEXCOORD, 2 channels
+		};
 		for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
 		{
 			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
@@ -187,7 +204,17 @@ namespace gintonic {
 		}
 		try
 		{
-			s_gp_cdn_shader = new gp_cdn_shader();
+			s_gp_cds_shader = new gp_cds_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_cds_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_cds_shader = new gp_cds_shader();
 		}
 		catch (exception& e)
 		{
@@ -217,6 +244,26 @@ namespace gintonic {
 		}
 		try
 		{
+			s_lp_directional_shader = new lp_directional_shader();	
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load lp_directional_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_lp_point_shader = new lp_point_shader();	
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load lp_point_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
 			s_directional_light_pass_shader = new directional_light_pass_shader();	
 		}
 		catch (exception& e)
@@ -240,6 +287,7 @@ namespace gintonic {
 		// Initialize basic shapes
 		//
 		s_unit_quad_P = new opengl::unit_quad_P();
+		s_unit_sphere_P = new opengl::unit_sphere_P(64, 64);
 	}
 
 	void renderer::resize(const int width, const int height)
@@ -256,21 +304,31 @@ namespace gintonic {
 		// resize framebuffers
 		//
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
-		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = { GL_RGB32F, GL_RGBA, GL_RGB32F, GL_RG32F };
-		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = { GL_RGB, GL_RGBA, GL_RGB, GL_RG };
+		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = 
+		{
+			GL_RGB32F, // GBUFFER_POSITION, we need floats here
+			GL_RGBA,   // GBUFFER_DIFFUSE,  8 bits per channel are okay
+			GL_RGBA,   // GBUFFER_SPECULAR, 8 bits per channel are okay
+			GL_RGB32F, // GBUFFER_NORMAL,   we need floats here
+			GL_RG32F   // GBUFFER_TEXCOORD, we need floats here
+		};
+		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = 
+		{
+			GL_RGB,  // GBUFFER_POSITION, 3 channels
+			GL_RGBA, // GBUFFER_DIFFUSE,  4 channels (alpha channel is ambient intensity)
+			GL_RGBA, // GBUFFER_SPECULAR, 4 channels (alpha channel is reserved)
+			GL_RGB,  // GBUFFER_NORMAL,   3 channels
+			GL_RG    // GBUFFER_TEXCOORD, 2 channels
+		};
 		for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
 		{
 			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexImage2D(GL_TEXTURE_2D, 0, tex_internal[i], s_width, s_height, 0, tex_format[i], GL_FLOAT, nullptr);
-			// glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, s_textures[i], 0);
 		}
 		glBindTexture(GL_TEXTURE_2D, s_depth_texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, s_width, s_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-		// glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_depth_texture, 0);
-		// GLenum DrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 }; 
-		// glDrawBuffers(4, DrawBuffers);
 		GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -405,8 +463,9 @@ namespace gintonic {
 		glBlitFramebuffer(0, 0, width(), height(), 0, halfheight, halfwidth, height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		set_read_buffer(GBUFFER_NORMAL);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-		set_read_buffer(GBUFFER_TEXCOORD);
+		set_read_buffer(GBUFFER_SPECULAR);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		// we dont draw the texture coordinates, they're boring
 	}
 	void renderer::null_light_pass() BOOST_NOEXCEPT_OR_NOTHROW
 	{

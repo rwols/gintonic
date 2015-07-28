@@ -28,3 +28,7 @@ target_link_gintonic(textured_cube)
 project(textured_cube_with_mod_color)
 add_executable(textured_cube_with_mod_color textured_cube_with_mod_color.cpp)
 target_link_gintonic(textured_cube_with_mod_color)
+
+project(serialize_materials)
+add_executable(serialize_materials serialize_materials.cpp)
+target_link_gintonic(serialize_materials)

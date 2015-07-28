@@ -96,9 +96,26 @@ private:
 	GLuint loc_diffuse;
 };
 
-class gp_cdn_shader : public matrix_PVM_shader
+class gp_cds_shader : public gp_cd_shader
 {
 public:
+	gp_cds_shader();
+	virtual ~gp_cds_shader() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	virtual void set_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_cds_shader(
+		boost::filesystem::path vertex_shader,
+		boost::filesystem::path fragment_shader);
+	gp_cds_shader(
+		boost::filesystem::path vertex_shader,
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_specular;
+};
+
+class gp_cdn_shader : public matrix_PVM_shader
+{
 public:
 	gp_cdn_shader();
 	virtual ~gp_cdn_shader() BOOST_NOEXCEPT_OR_NOTHROW = default;
@@ -151,6 +168,64 @@ protected:
 private:
 	GLuint loc_viewport_size;
 	GLuint loc_gbuffer_diffuse;
+};
+
+class lp_directional_shader : public lp_null_shader
+{
+public:
+	lp_directional_shader();
+	virtual ~lp_directional_shader() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_light_intensity(const vec3f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_light_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	lp_directional_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	lp_directional_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_gbuffer_position;
+	GLuint loc_gbuffer_specular;
+	GLuint loc_gbuffer_normal;
+	GLUINT loc_light_intensity;
+	GLuint loc_light_direction;
+};
+
+class lp_point_shader : public matrix_PVM_shader
+{
+public:
+	lp_point_shader();
+	vritual ~lp_point_shader() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	void set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_light_intensity(const vec3f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_light_position(const vec3f& position) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_light_attenuation(const vec3f& attenuation) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	lp_point_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	lp_point_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_viewport_size;
+	GLuint loc_gbuffer_position;
+	GLuint loc_gbuffer_diffuse;
+	GLuint loc_gbuffer_specular;
+	GLuint loc_gbuffer_normal;
+	GLuint loc_light_intensity;
+	GLuint loc_light_position;
+	GLuint loc_light_attenuation;
 };
 
 class light_pass_shader : public matrix_PVM_shader

@@ -1,14 +1,17 @@
 //
 // gp_null.fs
 //
+// Geometry Pass: Does nothing but show a pure red color
+//
 
 #version 330
 
 #define GBUFFER_POSITION 0
 #define GBUFFER_DIFFUSE 1
-#define GBUFFER_NORMAL 2
-#define GBUFFER_TEXCOORD 3
-#define GBUFFER_COUNT 4
+#define GBUFFER_SPECULAR 2
+#define GBUFFER_NORMAL 3
+#define GBUFFER_TEXCOORD 4
+#define GBUFFER_COUNT 5
 
 in vec3 v_position;
 in vec3 v_normal;

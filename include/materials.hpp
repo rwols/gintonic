@@ -5,62 +5,115 @@
 #include "locks.hpp"
 #include "textures.hpp"
 #include <list>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/base_object.hpp>
 
 namespace gintonic {
 
-class material;
+/*****************************************************************************
+ * gintonic::material (base class for inheritance)                           *
+ ****************************************************************************/
 
-void serialize(material*, std::ostream& os);
-void deserialize(material**, std::istream& is);
-
-class material //: public std::enable_shared_from_this<material>
+class material : public std::enable_shared_from_this<material>
 {
 public:
+
 	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
+	
 	virtual ~material() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	
 	material() = default;
 
+	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return ".gtm";
+	}
+
+	void save(std::ostream&) const;
+	void save(const boost::filesystem::path&) const;
+	void save(const std::string&) const;
+	void save(const char*) const;
+
+	static material* load(std::istream&);
+	static material* load(const boost::filesystem::path&);
+	static material* load(const std::string&);
+	static material* load(const char*);
+
+protected:
+
+	typedef std::tuple
+	<
+		boost::filesystem::path, 
+		std::size_t, 
+		opengl::texture2d
+	> item_type;
+
+	typedef std::list<item_type> datastructure_type;
+	
+	typedef typename datastructure_type::iterator iter_type;
+
+	static void safe_obtain_texture(
+		const boost::filesystem::path& filename, 
+		iter_type& iter);
+
+	static void safe_set_null_texture(iter_type& iter);
+
+	static void safe_release_texture(iter_type& iter);
+
+private:
+
+	static datastructure_type s_textures;
+	
+	static write_lock s_textures_lock;
+
+	friend boost::serialization::access;
 	template <class Archive> 
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
 		/* Empty on purpose. */
 	}
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".gtm"; }
-protected:
-	typedef std::tuple<boost::filesystem::path, std::size_t, opengl::texture2d> item_type;
-	typedef std::list<item_type> datastructure_type;
-	typedef typename datastructure_type::iterator iter_type;
-	static datastructure_type s_textures;
-	static write_lock s_textures_lock;
-	static void safe_obtain_texture(const boost::filesystem::path& filename, iter_type& iter);
-	static void safe_set_null_texture(iter_type& iter);
-	static void safe_release_texture(iter_type& iter);
 	
 };
+
+/*****************************************************************************
+ * gintonic::material_c (color)                                              *
+ ****************************************************************************/
 
 class material_c : public material
 {
 public:
+
 	material_c() = default;
+
 	material_c(const vec4f& diffuse_color);
+
 	virtual ~material_c() BOOST_NOEXCEPT_OR_NOTHROW = default;
+
 	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
+
 	vec4f diffuse_color;
+
+private:
+
+	friend boost::serialization::access;
 
 	template <class Archive> 
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
-		boost::serialization::void_cast_register<material_c, material>();
-		std::cout << "serializing material_c...\n";
-		ar & diffuse_color;
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material);
+		ar & BOOST_SERIALIZATION_NVP(diffuse_color);
 	}
 };
 
 class diffuse_material : public material
 {
 public:
+
 	const opengl::texture2d& diffuse() const BOOST_NOEXCEPT_OR_NOTHROW;
+
 	void set_diffuse(const boost::filesystem::path& filename);
+
 	float diffuse_factor;
 
 	diffuse_material(
@@ -73,10 +126,16 @@ private:
 	iter_type m_diffuse;
 };
 
+/*****************************************************************************
+ * gintonic::material_cd (color, diffuse)                                    *
+ ****************************************************************************/
+
 class material_cd : public material_c
 {
 public:
+
 	const opengl::texture2d& diffuse() const BOOST_NOEXCEPT_OR_NOTHROW;
+
 	void set_diffuse(const boost::filesystem::path& filename);
 
 	material_cd(
@@ -84,31 +143,100 @@ public:
 		boost::filesystem::path diffuse_filename);
 
 	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
+
 	virtual ~material_cd() BOOST_NOEXCEPT_OR_NOTHROW;
+
+protected:
+
+	material_cd(); // for boost::serialization
+
+private:
+
+	friend boost::serialization::access;
 
 	template <class Archive> 
 	void save(Archive& ar, const unsigned /*version*/) const
 	{
-		ar & boost::serialization::base_object<material_c>(*this);
-		ar & std::get<0>(*m_diffuse);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_c);
+		ar & boost::serialization::make_nvp("diffuse", 
+			std::get<0>(*m_diffuse));
 	}
 
 	template <class Archive>
 	void load(Archive& ar, const unsigned /*version*/)
 	{
-		ar & boost::serialization::base_object<material_c>(*this);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_c);
 		boost::filesystem::path diffuse_filename;
-		ar & diffuse_filename;
+		ar & boost::serialization::make_nvp("diffuse", diffuse_filename);
 		set_diffuse(diffuse_filename);
 	}
-private:
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
+
 	iter_type m_diffuse;
 };
+
+
+/*****************************************************************************
+ * gintonic::material_cds (color, diffuse, specular)                         *
+ ****************************************************************************/
+
+class material_cds : public material_cd
+{
+	const opengl::texture2d& specular() const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	void set_specular(const boost::filesystem::path&);
+
+	material_cds(
+		const vec4f& color,
+		boost::filesystem::path diffuse_filename,
+		boost::filesystem::path specular_filename);
+
+	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	virtual ~material_cds() BOOST_NOEXCEPT_OR_NOTHROW;
+
+protected:
+
+	material_cds(); // for boost::serialization
+
+private:
+
+	friend boost::serialization::access;
+
+	template <class Archive>
+	void save(Archive& ar, const unsigned /*version*/) const
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_cd);
+		ar & boost::serialization::make_nvp("specular", 
+			std::get<0>(*m_specular));
+	}
+
+	template <class Archive>
+	void load(Archive& ar, const unsigned /*version*/)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_cd);
+		boost::filesystem::path specular_filename;
+		ar & boost::serialization::make_nvp("specular", specular_filename);
+		set_specular(specular_filename);
+	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
+
+	iter_type m_specular;
+
+};
+
+/*****************************************************************************
+ * gintonic::material_cdn (color, diffuse, normal map)                       *
+ ****************************************************************************/
 
 class material_cdn : public material_cd
 {
 public:
+
 	const opengl::texture2d& normal() const BOOST_NOEXCEPT_OR_NOTHROW;
+
 	void set_normal(const boost::filesystem::path&);
 
 	material_cdn(
@@ -119,22 +247,32 @@ public:
 	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
 	virtual ~material_cdn() BOOST_NOEXCEPT_OR_NOTHROW;
 
+protected:
+
+	material_cdn(); // for boost::serialization
+
+private:
+
+	friend boost::serialization::access;
+
 	template <class Archive>
 	void save(Archive& ar, const unsigned /*version*/) const
 	{
-		ar & boost::serialization::base_object<material_cd>(*this);
-		ar & std::get<0>(*m_normal);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_cd);
+		ar & boost::serialization::make_nvp("normal", std::get<0>(*m_normal));
 	}
 
 	template <class Archive>
 	void load(Archive& ar, const unsigned /*version*/)
 	{
-		ar & boost::serialization::base_object<material_cd>(*this);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_cd);
 		boost::filesystem::path normal_filename;
-		ar & normal_filename;
+		ar & boost::serialization::make_nvp("normal", normal_filename);
 		set_normal(normal_filename);
 	}
-private:
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
+
 	iter_type m_normal;
 };
 
@@ -157,79 +295,6 @@ private:
 	iter_type m_specular;
 };
 
-// class lambert_material : public material
-// {
-// public:
-
-// 	std::shared_ptr<opengl::texture2d> diffuse_value;
-// 	float diffuse_factor_value;
-
-// 	lambert_material(
-// 		std::shared_ptr<geometry_pass_shader> prog,
-// 		std::shared_ptr<opengl::texture2d> diffuse_tex,
-// 		const float diffuse_factor_value);
-
-// 	lambert_material(
-// 		std::shared_ptr<geometry_pass_shader> prog, 
-// 		FbxSurfaceLambert* fbx_material);
-
-// 	virtual ~lambert_material() BOOST_NOEXCEPT_OR_NOTHROW = default;
-
-// 	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
-
-// private:
-// 	std::shared_ptr<geometry_pass_shader> m_program;
-// };
-
-// class phong_material : public material
-// {
-// public:
-// 	std::shared_ptr<opengl::texture2d> diffuse_value;
-// 	std::shared_ptr<opengl::texture2d> specular_value;
-// 	float diffuse_factor_value;
-// 	float shininess;
-
-// 	phong_material(
-// 		std::shared_ptr<geometry_pass_shader> prog,
-// 		std::shared_ptr<opengl::texture2d> diffuse_tex,
-// 		std::shared_ptr<opengl::texture2d> specular_tex,
-// 		const float diffuse_factor_value,
-// 		const float shininess);
-
-// 	phong_material(
-// 		std::shared_ptr<geometry_pass_shader> prog, 
-// 		FbxSurfacePhong* fbx_material);
-
-// 	virtual ~phong_material() BOOST_NOEXCEPT_OR_NOTHROW = default;
-
-// 	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
-// private:
-// 	std::shared_ptr<geometry_pass_shader> m_program;
-// };
-
 } // namespace gintonic
-
-namespace boost { namespace serialization {
-
-template <class Archive> 
-void load_construct_data(Archive& ar, gintonic::material_cd* mat, const unsigned /*version*/)
-{
-	gintonic::vec4f color;
-	boost::filesystem::path diffuse_filename;
-	ar & color & diffuse_filename;
-	::new(mat) gintonic::material_cd(color, std::move(diffuse_filename));
-}
-
-template <class Archive>
-void load_construct_data(Archive& ar, gintonic::material_cdn* mat, const unsigned /*version*/)
-{
-	gintonic::vec4f color;
-	boost::filesystem::path diffuse_filename;
-	boost::filesystem::path normal_filename;
-	ar & color & diffuse_filename & normal_filename;
-	::new(mat) gintonic::material_cdn(color, std::move(diffuse_filename), std::move(normal_filename));
-}
-
-}} // namespace boost::serialization
 
 #endif
