@@ -49,35 +49,34 @@ protected:
 		++s_num_objects;
 	}
 
-	object(const object& other) : m_key(other.m_key)
-	{
-		++s_num_objects;
-	}
+	// object(const object& other) : m_key(other.m_key)
+	// {
+	// 	++s_num_objects;
+	// }
 
-	object& operator=(const object& other)
-	{
-		m_key = other.m_key;
-		++s_num_objects;
-		return *this;
-	}
-
-	#ifdef BOOST_MSVC
+	// object& operator=(const object& other)
+	// {
+	// 	m_key = other.m_key;
+	// 	++s_num_objects;
+	// 	return *this;
+	// }
 	
-	inline object(object&& other) BOOST_NOEXCEPT_OR_NOTHROW
-	: m_key(std::move(other.m_key))
-	{
-		/* Empty on purpose. */
-	}
-	inline object& operator=(object&& other) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		m_key = std::move(other.m_key);
-		return *this;
-	}
+	// inline object(object&& other) BOOST_NOEXCEPT_OR_NOTHROW
+	// : m_key(std::move(other.m_key))
+	// {
+	// 	/* Empty on purpose. */
+	// }
+	// inline object& operator=(object&& other) BOOST_NOEXCEPT_OR_NOTHROW
+	// {
+	// 	m_key = std::move(other.m_key);
+	// 	return *this;
+	// }
 
-	inline object(object&&) BOOST_NOEXCEPT_OR_NOTHROW = default;
-	inline object& operator=(object&&) BOOST_NOEXCEPT_OR_NOTHROW = default;
-	
-	#endif
+	// inline object(object&& other) BOOST_NOEXCEPT_OR_NOTHROW
+	// : m_key(std::move(other.m_key))
+	// {
+	// 	/* Empty on purpose. */
+	// }
 
 	object(const key_type& key) 
 	: m_key(key)

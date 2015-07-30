@@ -21,7 +21,7 @@ public:
 
 	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
 	
-	virtual ~material() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	virtual ~material() BOOST_NOEXCEPT_OR_NOTHROW;
 	
 	material() = default;
 
@@ -51,7 +51,7 @@ protected:
 
 	typedef std::list<item_type> datastructure_type;
 	
-	typedef typename datastructure_type::iterator iter_type;
+	typedef datastructure_type::iterator iter_type;
 
 	static void safe_obtain_texture(
 		const boost::filesystem::path& filename, 
@@ -88,7 +88,7 @@ public:
 
 	material_c(const vec4f& diffuse_color);
 
-	virtual ~material_c() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	virtual ~material_c() BOOST_NOEXCEPT_OR_NOTHROW;
 
 	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
 

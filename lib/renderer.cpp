@@ -59,6 +59,7 @@ namespace gintonic {
 	text_shader* renderer::s_text_shader = nullptr;
 
 	opengl::unit_quad_P* renderer::s_unit_quad_P = nullptr;
+	opengl::unit_sphere_P* renderer::s_unit_sphere_P = nullptr;
 
 	boost::signals2::signal<void(wchar_t)> renderer::char_typed;
 	boost::signals2::signal<void(double, double)> renderer::mouse_scrolled;

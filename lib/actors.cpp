@@ -46,6 +46,11 @@ namespace
 
 namespace gintonic {
 
+void actor::think()
+{
+	/* Empty on purpose. */
+}
+
 void actor::draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
@@ -55,7 +60,7 @@ void actor::draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-void actor::think()
+actor::~actor() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }
@@ -64,6 +69,11 @@ static_model_actor::static_model_actor(
 	FbxScene* scene)
 {
 	traverse_graph(scene->GetRootNode());	
+}
+
+static_model_actor::~static_model_actor() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
 }
 
 void static_model_actor::traverse_graph(

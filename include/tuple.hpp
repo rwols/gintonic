@@ -12,7 +12,7 @@ namespace std {
  ****************************************************************************/
 template<typename... T> struct hash<tuple<T...>> 
 {
-	inline size_t operator()(tuple<T...> const& arg) const noexcept
+	inline size_t operator()(tuple<T...> const& arg) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		return boost::hash_value(arg);
 	}

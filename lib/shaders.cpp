@@ -19,6 +19,11 @@ matrix_PVM_shader::matrix_PVM_shader(
 	loc_matrix_PVM = get_uniform_location("matrix_PVM");
 }
 
+matrix_PVM_shader::~matrix_PVM_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
 void matrix_PVM_shader::set_matrix_PVM(const mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_matrix_PVM, m);
@@ -39,6 +44,11 @@ matrix_PVM_VM_shader::matrix_PVM_VM_shader(
 : matrix_PVM_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
 	loc_matrix_VM = get_uniform_location("matrix_VM");
+}
+
+matrix_PVM_VM_shader::~matrix_PVM_VM_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
 }
 
 void matrix_PVM_VM_shader::set_matrix_VM(const mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -63,6 +73,11 @@ matrix_PVM_VM_N_shader::matrix_PVM_VM_N_shader(
 	loc_matrix_N = get_uniform_location("matrix_N");
 }
 
+matrix_PVM_VM_N_shader::~matrix_PVM_VM_N_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
 void matrix_PVM_VM_N_shader::set_matrix_N(const mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_matrix_N, m);
@@ -71,7 +86,12 @@ void matrix_PVM_VM_N_shader::set_matrix_N(const mat4f& m) const BOOST_NOEXCEPT_O
 geometry_null_shader::geometry_null_shader()
 : matrix_PVM_VM_N_shader("../s/gp_null.vs", "../s/gp_null.fs")
 {
-	
+	/* Empty on purpose. */
+}
+
+geometry_null_shader::~geometry_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
 }
 
 gp_c_shader::gp_c_shader()
@@ -94,6 +114,11 @@ gp_c_shader::gp_c_shader(
 : matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
 	loc_color = get_uniform_location("material.color");
+}
+
+gp_c_shader::~gp_c_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
 }
 
 void gp_c_shader::set_color(const vec4f& color) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -129,6 +154,11 @@ gp_cd_shader::gp_cd_shader(
 	loc_diffuse = get_uniform_location("material.diffuse");
 }
 
+gp_cd_shader::~gp_cd_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
 gp_cds_shader::gp_cds_shader()
 : gp_cd_shader("../s/gp_cds.vs", "../s/gp_cds.fs")
 {
@@ -157,6 +187,10 @@ gp_cds_shader::gp_cds_shader(
 	loc_specular = get_uniform_location("material.specular");
 }
 
+gp_cds_shader::~gp_cds_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
 
 gp_cdn_shader::gp_cdn_shader()
 : matrix_PVM_shader("../s/gp_cdn.vs", "../s/gp_cdn.fs")
@@ -202,12 +236,22 @@ gp_cdn_shader::gp_cdn_shader(
 	loc_normal = get_uniform_location("material.normal");
 }
 
+gp_cdn_shader::~gp_cdn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
 geometry_pass_shader::geometry_pass_shader()
 : matrix_PVM_VM_N_shader("../s/geometry_pass.vs", "../s/geometry_pass.fs")
 {
 	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_diffuse = get_uniform_location("material.diffuse");
 	loc_diffuse_factor = get_uniform_location("material.diffuse_factor");
+}
+
+geometry_pass_shader::~geometry_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
 }
 
 void geometry_pass_shader::set_diffuse_color(const vec4f& diffuse_color) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -230,6 +274,11 @@ lp_null_shader::lp_null_shader()
 {
 	loc_viewport_size = get_uniform_location("viewport_size");
 	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
+}
+
+lp_null_shader::~lp_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
 }
 
 void lp_null_shader::set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -269,6 +318,11 @@ lp_directional_shader::lp_directional_shader()
 	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
 	loc_light_intensity = get_uniform_location("light.intensity");
 	loc_light_direction = get_uniform_location("light.direction");
+}
+
+lp_directional_shader::~lp_directional_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
 }
 
 void lp_directional_shader::set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -324,6 +378,7 @@ lp_directional_shader::lp_directional_shader(
 
 // class lp_point_shader : public matrix_PVM_shader
 lp_point_shader::lp_point_shader()
+: matrix_PVM_shader("../s/lp_point.vs", "../s/lp_points.fs")
 {
 	loc_viewport_size = get_uniform_location("viewport_size");
 	loc_gbuffer_position = get_uniform_location("gbuffer.position");
@@ -333,6 +388,11 @@ lp_point_shader::lp_point_shader()
 	loc_light_intensity = get_uniform_location("light.intensity");
 	loc_light_position = get_uniform_location("light.position");
 	loc_light_attenuation = get_uniform_location("light.attenuation");
+}
+
+lp_point_shader::~lp_point_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
 }
 
 void lp_point_shader::set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -407,7 +467,11 @@ light_pass_shader::light_pass_shader(
 {
 	loc_viewport_size = get_uniform_location("viewport_size");
 	loc_light_intensity = get_uniform_location("light.intensity");
+}
 
+light_pass_shader::~light_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose .*/
 }
 
 light_pass_shader::light_pass_shader( 
@@ -438,6 +502,11 @@ directional_light_pass_shader::directional_light_pass_shader()
 	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
 }
 
+directional_light_pass_shader::~directional_light_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
 void directional_light_pass_shader::set_light_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_light_direction, direction);
@@ -461,6 +530,11 @@ point_light_pass_shader::point_light_pass_shader()
 	loc_gbuffer_position = get_uniform_location("gbuffer.position");
 	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
 	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
+}
+
+point_light_pass_shader::~point_light_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
 }
 
 void point_light_pass_shader::set_light_position(const vec3f& position) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -493,6 +567,11 @@ text_shader::text_shader()
 {
 	loc_color = get_uniform_location("color");
 	loc_texture = get_uniform_location("tex");
+}
+
+text_shader::~text_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
 }
 
 void text_shader::set_color(const vec3f& color) const BOOST_NOEXCEPT_OR_NOTHROW

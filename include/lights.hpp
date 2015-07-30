@@ -21,7 +21,7 @@ public:
 
 	light(const vec3f& intensity);
 	
-	virtual ~light() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	virtual ~light() BOOST_NOEXCEPT_OR_NOTHROW;
 	
 	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -44,7 +44,7 @@ public:
 	
 	directional_light(const vec3f& intensity);
 
-	virtual ~directional_light() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	virtual ~directional_light() BOOST_NOEXCEPT_OR_NOTHROW;
 
 	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -69,7 +69,7 @@ public:
 	
 	point_light(const vec3f& intensity, const vec3f& attenuation);
 
-	virtual ~point_light() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	virtual ~point_light() BOOST_NOEXCEPT_OR_NOTHROW;
 
 	vec3f attenuation() const BOOST_NOEXCEPT_OR_NOTHROW;
 

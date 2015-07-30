@@ -24,7 +24,7 @@ public:
 
 	sqt_transformf transform;
 
-	virtual ~actor() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	virtual ~actor() BOOST_NOEXCEPT_OR_NOTHROW;
 
 protected:
 	actor() = default;
@@ -36,7 +36,7 @@ public:
 	static_model_actor() = default;
 	static_model_actor(FbxScene*);
 
-	virtual ~static_model_actor() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	virtual ~static_model_actor() BOOST_NOEXCEPT_OR_NOTHROW;
 
 	virtual void draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW;
 	virtual void draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW;

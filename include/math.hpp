@@ -9,6 +9,7 @@
 #define math_hpp
 
 #define _USE_MATH_DEFINES
+#define NOMINMAX
 #include <cmath>
 #include <array>
 #include <algorithm>

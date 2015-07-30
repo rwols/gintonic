@@ -1,11 +1,17 @@
 #include "lights.hpp"
 #include "shaders.hpp"
 #include "renderer.hpp"
+#include "basic_shapes.hpp"
 
 namespace gintonic {
 
 light::light(const vec3f& intensity)
 : intensity(intensity)
+{
+	/* Empty on purpose. */
+}
+
+light::~light() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }
@@ -24,6 +30,12 @@ directional_light::directional_light(const vec3f& intensity)
 {
 	/* Empty on purpose. */
 }
+
+directional_light::~directional_light() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
 
 void directional_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {
@@ -55,6 +67,11 @@ point_light::point_light(const vec3f& intensity, const vec3f& attenuation)
 : light(intensity)
 {
 	set_attenuation(attenuation);
+}
+
+point_light::~point_light() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
 }
 
 void point_light::set_attenuation(const vec3f& att) BOOST_NOEXCEPT_OR_NOTHROW

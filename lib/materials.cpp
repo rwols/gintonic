@@ -114,6 +114,11 @@ void material::safe_release_texture(iter_type& iter)
 	s_textures_lock.release();
 }
 
+material::~material() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
 void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	const auto s = renderer::get_geometry_null_shader();
@@ -129,6 +134,11 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 
 material_c::material_c(const vec4f& diffuse_color)
 : diffuse_color(diffuse_color)
+{
+	/* Empty on purpose. */
+}
+
+material_c::~material_c() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }

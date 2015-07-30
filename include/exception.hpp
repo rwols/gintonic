@@ -25,11 +25,11 @@ public:
 	exception(const std::string& message);
 	exception(std::string&& message);
 	exception(const char* message);
-	exception(const exception& other) = default;
-	exception(exception&&) BOOST_NOEXCEPT_OR_NOTHROW = default;
-	exception& operator=(const exception&) = default;
-	exception& operator=(exception&&) = default;
-	virtual ~exception() BOOST_NOEXCEPT_OR_NOTHROW = default;
+	// exception(const exception& other) = default;
+	// exception(exception&&) BOOST_NOEXCEPT_OR_NOTHROW;
+	// exception& operator=(const exception&) = default;
+	// exception& operator=(exception&&);
+	virtual ~exception() BOOST_NOEXCEPT_OR_NOTHROW;
 	virtual const char* what() const BOOST_NOEXCEPT_OR_NOTHROW;
 	exception& append(std::string message);
 	exception& prepend(std::string message);

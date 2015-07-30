@@ -10,7 +10,7 @@
 namespace gintonic 
 {
 
-	namespace opengl { class unit_quad_P; }
+	namespace opengl { class unit_quad_P; class unit_sphere_P; }
 
 	class renderer
 	{
