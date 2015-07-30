@@ -6,11 +6,15 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/signals2.hpp>
 #include "shaders.hpp"
+#include "fonts.hpp"
 
 namespace gintonic 
 {
-
-	namespace opengl { class unit_quad_P; class unit_sphere_P; }
+	namespace opengl
+	{
+		class unit_quad_P;
+		class unit_sphere_P;
+	}
 
 	class renderer
 	{
@@ -133,6 +137,7 @@ namespace gintonic
 		static void bind_for_reading();
 		static void set_read_buffer(const enum GBUFFER type);
 		static void blit_drawbuffers_to_screen();
+		static void blit_drawbuffers_to_screen(fontstream&);
 		static void null_light_pass() BOOST_NOEXCEPT_OR_NOTHROW;
 
 		inline static geometry_null_shader* get_geometry_null_shader() BOOST_NOEXCEPT_OR_NOTHROW

@@ -41,20 +41,15 @@ void directional_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_N
 {
 	const auto& s = renderer::get_lp_directional_shader();
 	s.activate();
-	s.set_gbuffer_position(renderer::GBUFFER_POSITION);
+	s.set_viewport_size(vec2f(renderer::width(), renderer::height()));
+	// s.set_gbuffer_position(renderer::GBUFFER_POSITION);
 	s.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
-	s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
+	// s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	s.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
 	s.set_light_intensity(intensity);
-	s.set_light_direction(renderer::matrix_VM().upper_left_33() * t.rotation.direction());
+	// s.set_light_direction(renderer::camera().matrix_V().upper_left_33() * vec3f(0, -1, 0));
+	s.set_light_direction(renderer::camera().matrix_V().upper_left_33() * t.rotation.direction());
 	renderer::get_unit_quad_P().draw();
-
-	// m_program->activate();
-	// m_program->set_gbuffer_diffuse(1);
-	// m_program->set_gbuffer_normal(2);
-	// m_program->set_matrix_PVM(mat4f(1));
-	// m_program->set_light_intensity(intensity);
-	// m_program->set_light_direction(renderer::matrix_VM().upper_left_33() * t.rotation.direction());
 }
 
 point_light::point_light(const vec3f& intensity)
@@ -77,7 +72,27 @@ point_light::~point_light() BOOST_NOEXCEPT_OR_NOTHROW
 void point_light::set_attenuation(const vec3f& att) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	m_attenuation = att;
-	m_cutoff_point = (-att[1] + std::sqrt(att[1] * att[1] - 256.0f * att[0] * att[2])) / (2 * att[2]);
+
+	// Let c be equal to max(intensity[0], intensity[1], intensity[2])
+	// Let a be the attenuation
+	// Let d be the cutoff point
+	// There are 256 possible values in an 8-bit color channel
+	//
+	// We assume that a[0] + a[1] * d + a[2] * d^2 = 256 * c
+	//
+	// Solving for d, we find
+	//
+	// d = (-a[1] + sqrt(a[1]^2 - 4*a[2]*(a[0] - 256 * c))) / (2 * a[2])
+
+	const float c = std::max(intensity[0], std::max(intensity[1], intensity[2]));
+
+	std::cout << "Max intensity: " << c << '\n';
+
+	m_cutoff_point = (-att[1] + std::sqrt(att[1] * att[1] 
+		- 4.0f * att[2] * (att[0] - 256.0f * c))) 
+	/ (2 * att[2]);
+
+	std::cout << "Cutoff point was set to: " << m_cutoff_point << '\n';
 }
 
 vec3f point_light::attenuation() const BOOST_NOEXCEPT_OR_NOTHROW
@@ -94,9 +109,10 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	const auto& s = renderer::get_lp_point_shader();
 	s.activate();
+	s.set_viewport_size(vec2f(renderer::width(), renderer::height()));
 	s.set_gbuffer_position(renderer::GBUFFER_POSITION);
 	s.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
-	s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
+	// s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	s.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
 	s.set_light_intensity(intensity);
 	s.set_light_position(t.translation);

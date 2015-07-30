@@ -47,8 +47,9 @@ public:
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 	virtual ~matrix_PVM_VM_N_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_matrix_N(const mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_matrix_N(const mat3f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
 private:
 	GLuint loc_matrix_N;
 };
@@ -175,8 +176,8 @@ class lp_directional_shader : public lp_null_shader
 public:
 	lp_directional_shader();
 	virtual ~lp_directional_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	// void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW; // NOTE: ONLY TEMPORARY
+	// void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW; // NOTE: ONLY TEMPORARY
 	void set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_light_intensity(const vec3f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_light_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW;
@@ -189,8 +190,8 @@ protected:
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 private:
-	GLuint loc_gbuffer_position;
-	GLuint loc_gbuffer_specular;
+	// GLuint loc_gbuffer_position; // NOTE: ONLY TEMPORARY
+	// GLuint loc_gbuffer_specular; // NOTE: ONLY TEMPORARY
 	GLuint loc_gbuffer_normal;
 	GLuint loc_light_intensity;
 	GLuint loc_light_direction;
@@ -204,7 +205,7 @@ public:
 	void set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	// void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW; // NOTE: ONLY TEMPORARY
 	void set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_light_intensity(const vec3f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_light_position(const vec3f& position) const BOOST_NOEXCEPT_OR_NOTHROW;
@@ -221,7 +222,7 @@ private:
 	GLuint loc_viewport_size;
 	GLuint loc_gbuffer_position;
 	GLuint loc_gbuffer_diffuse;
-	GLuint loc_gbuffer_specular;
+	// GLuint loc_gbuffer_specular; // NOTE: ONLY TEMPORARY
 	GLuint loc_gbuffer_normal;
 	GLuint loc_light_intensity;
 	GLuint loc_light_position;

@@ -1,7 +1,7 @@
 //
-// lp_directional.fs
+// lp_point.fs
 //
-// Directional lighting
+// Point lighting
 //
 
 #version 330 core
@@ -10,7 +10,7 @@ uniform vec2 viewport_size;
 
 uniform struct GeometryBuffer
 {
-	// sampler2D position;
+	sampler2D position;
 	sampler2D diffuse;
 	// sampler2D specular;
 	sampler2D normal;
@@ -18,7 +18,8 @@ uniform struct GeometryBuffer
 
 uniform struct DirectionalLight {
 	vec3 intensity;
-	vec3 direction;
+	vec3 position;
+	vec3 attenuation;
 } light;
 
 // Returns the current fragment's clip-space coordinates, for
@@ -34,19 +35,25 @@ void main()
 {
 	vec2 screen_position = calculate_screen_position();
 
-	// vec3 position = texture(gbuffer.position, screen_position).xyz;
+	vec3 position = texture(gbuffer.position, screen_position).xyz;
 	vec4 diffuse  = texture(gbuffer.diffuse,  screen_position);
 	// vec4 specular = texture(gbuffer.specular, screen_position);
 	vec3 normal   = texture(gbuffer.normal,   screen_position).xyz;
 
-	vec3 light_dir = normalize(-light.direction);
+	vec3 light_dir = light.position - position;
+    
+    float light_dist = length(light_dir);
+    
+    light_dir = normalize(light_dir);
+    
+    float diffuse_factor = diffuse.a;
 
-	float lambertian = max(dot(light_dir, normal), 0.0f);
+    float attenuation = light.attenuation.x 
+    	+ light.attenuation.y * light_dist 
+    	+ light.attenuation.z * light_dist * light_dist;
 
-	float diffuse_factor = diffuse.a;
-	float ambient_factor = 1.0f - diffuse_factor;
+    float lambertian = (diffuse_factor / attenuation) * max(dot(light_dir, normal), 0.0f);
 
-	final_color = diffuse_factor * lambertian * light.intensity * diffuse.rgb 
-		+ ambient_factor * diffuse.rgb;
-	// final_color += diffuse.rgb;
+	final_color = lambertian * light.intensity * diffuse.rgb;
+	// final_color.r += 0.2f;
 }

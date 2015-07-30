@@ -78,7 +78,7 @@ matrix_PVM_VM_N_shader::~matrix_PVM_VM_N_shader() BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-void matrix_PVM_VM_N_shader::set_matrix_N(const mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW
+void matrix_PVM_VM_N_shader::set_matrix_N(const mat3f& m) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_matrix_N, m);
 }
@@ -311,10 +311,10 @@ lp_null_shader::lp_null_shader(
 }
 
 lp_directional_shader::lp_directional_shader()
-: lp_null_shader("../s/lp_directional_shader.vs", "../s/lp_directional_shader.fs")
+: lp_null_shader("../s/lp_directional.vs", "../s/lp_directional.fs")
 {
-	loc_gbuffer_position = get_uniform_location("gbuffer.position");
-	loc_gbuffer_specular = get_uniform_location("gbuffer.specular");
+	// loc_gbuffer_position = get_uniform_location("gbuffer.position"); // NOTE: ONLY TEMPORARY
+	// loc_gbuffer_specular = get_uniform_location("gbuffer.specular"); // NOTE: ONLY TEMPORARY
 	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
 	loc_light_intensity = get_uniform_location("light.intensity");
 	loc_light_direction = get_uniform_location("light.direction");
@@ -325,15 +325,15 @@ lp_directional_shader::~lp_directional_shader() BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-void lp_directional_shader::set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_gbuffer_position, texture_unit);
-}
+// void lp_directional_shader::set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+// {
+// 	set_uniform(loc_gbuffer_position, texture_unit); // NOTE: ONLY TEMPORARY
+// }
 
-void lp_directional_shader::set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_gbuffer_specular, texture_unit);
-}
+// void lp_directional_shader::set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+// {
+// 	set_uniform(loc_gbuffer_specular, texture_unit); // NOTE: ONLY TEMPORARY
+// }
 
 void lp_directional_shader::set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
 {
@@ -355,8 +355,8 @@ lp_directional_shader::lp_directional_shader(
 	boost::filesystem::path fragment_shader)
 : lp_null_shader(std::move(vertex_shader), std::move(fragment_shader))
 {
-	loc_gbuffer_position = get_uniform_location("gbuffer.position");
-	loc_gbuffer_specular = get_uniform_location("gbuffer.specular");
+	// loc_gbuffer_position = get_uniform_location("gbuffer.position"); // NOTE: ONLY TEMPORARY
+	// loc_gbuffer_specular = get_uniform_location("gbuffer.specular"); // NOTE: ONLY TEMPORARY
 	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
 	loc_light_intensity = get_uniform_location("light.intensity");
 	loc_light_direction = get_uniform_location("light.direction");
@@ -368,22 +368,21 @@ lp_directional_shader::lp_directional_shader(
 	boost::filesystem::path fragment_shader)
 : lp_null_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
-	loc_gbuffer_position = get_uniform_location("gbuffer.position");
-	loc_gbuffer_specular = get_uniform_location("gbuffer.specular");
+	// loc_gbuffer_position = get_uniform_location("gbuffer.position"); // NOTE: ONLY TEMPORARY
+	// loc_gbuffer_specular = get_uniform_location("gbuffer.specular"); // NOTE: ONLY TEMPORARY
 	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
 	loc_light_intensity = get_uniform_location("light.intensity");
 	loc_light_direction = get_uniform_location("light.direction");
 }
 
 
-// class lp_point_shader : public matrix_PVM_shader
 lp_point_shader::lp_point_shader()
-: matrix_PVM_shader("../s/lp_point.vs", "../s/lp_points.fs")
+: matrix_PVM_shader("../s/lp_point.vs", "../s/lp_point.fs")
 {
 	loc_viewport_size = get_uniform_location("viewport_size");
 	loc_gbuffer_position = get_uniform_location("gbuffer.position");
 	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
-	loc_gbuffer_specular = get_uniform_location("gbuffer.specular");
+	// loc_gbuffer_specular = get_uniform_location("gbuffer.specular"); // NOTE: ONLY TEMPORARY
 	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
 	loc_light_intensity = get_uniform_location("light.intensity");
 	loc_light_position = get_uniform_location("light.position");
@@ -410,14 +409,19 @@ void lp_point_shader::set_gbuffer_diffuse(const GLint texture_unit) const BOOST_
 	set_uniform(loc_gbuffer_diffuse, texture_unit);
 }
 
-void lp_point_shader::set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_gbuffer_specular, texture_unit);
-}
+// void lp_point_shader::set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+// {
+// 	set_uniform(loc_gbuffer_specular, texture_unit);
+// }
 
 void lp_point_shader::set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_gbuffer_normal, texture_unit);
+}
+
+void lp_point_shader::set_light_intensity(const vec3f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_light_intensity, intensity);
 }
 
 void lp_point_shader::set_light_position(const vec3f& position) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -438,7 +442,7 @@ lp_point_shader::lp_point_shader(
 	loc_viewport_size = get_uniform_location("viewport_size");
 	loc_gbuffer_position = get_uniform_location("gbuffer.position");
 	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
-	loc_gbuffer_specular = get_uniform_location("gbuffer.specular");
+	// loc_gbuffer_specular = get_uniform_location("gbuffer.specular"); // NOTE: ONLY TEMPORARY
 	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
 	loc_light_intensity = get_uniform_location("light.intensity");
 	loc_light_position = get_uniform_location("light.position");
@@ -453,7 +457,7 @@ lp_point_shader::lp_point_shader(
 	loc_viewport_size = get_uniform_location("viewport_size");
 	loc_gbuffer_position = get_uniform_location("gbuffer.position");
 	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
-	loc_gbuffer_specular = get_uniform_location("gbuffer.specular");
+	// loc_gbuffer_specular = get_uniform_location("gbuffer.specular"); // NOTE: ONLY TEMPORARY
 	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
 	loc_light_intensity = get_uniform_location("light.intensity");
 	loc_light_position = get_uniform_location("light.position");
