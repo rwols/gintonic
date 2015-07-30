@@ -1403,7 +1403,7 @@ template <class T, ::std::size_t N> std::ostream& operator << (std::ostream& os,
 			if (j != N - 1) os << ',';
 		}
 		os << ']';
-		if (i != N - 1) os << std::endl;
+		if (i != N - 1) os << '\n';
 	}
 	return os;
 }
@@ -1926,7 +1926,13 @@ template <class T> struct sqt_transform
 	{
 		mat<T,4> r = rotation.to_rotation_matrix();
 		r(0,0) *= scale;
+		r(0,1) *= scale;
+		r(0,2) *= scale;
+		r(1,0) *= scale;
 		r(1,1) *= scale;
+		r(1,2) *= scale;
+		r(2,0) *= scale;
+		r(2,1) *= scale;
 		r(2,2) *= scale;
 		r(0,3) = translation[0];
 		r(1,3) = translation[1];

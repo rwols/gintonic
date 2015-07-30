@@ -19,10 +19,21 @@ int main(int argc, char* argv[])
 
 			ptr->save(filename);
 
+			boost::archive::text_oarchive to_cout(std::cout);
+
+			std::cout << "\n\n\tOriginal material:\n\n";
+			
+			to_cout << ptr;
+
 			delete ptr;
 			ptr = nullptr;
 		}
 		// End of scope; archives flush
+
+		std::cout << "\n\n\tFilesize: "
+			<< boost::filesystem::file_size(filename)
+			<< " bytes";
+
 		{
 			gt::material* ptr = nullptr;
 
@@ -30,9 +41,16 @@ int main(int argc, char* argv[])
 
 			assert(ptr);
 
+			std::cout << "\n\n\tDeserialized material:\n\n";
+
+			boost::archive::text_oarchive to_cout(std::cout);
+
+			to_cout << ptr;
+
 			delete ptr;
 			ptr = nullptr;
 		}
+		boost::filesystem::remove(filename);
 	}
 	catch (const std::exception& e)
 	{

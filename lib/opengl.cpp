@@ -27,8 +27,11 @@
 #ifdef _MSC_VER
 	#define cpuid __cpuid
 #else
-	void cpuid(int CPUInfo[4],int InfoType){
-	    __asm__ __volatile__ (
+	void cpuid(int CPUInfo[4],int InfoType)
+	{
+		// I have no idea what happens here... But it works.
+	    __asm__ __volatile__ 
+	    (
 	        "cpuid":
 	        "=a" (CPUInfo[0]),
 	        "=b" (CPUInfo[1]),
@@ -189,18 +192,24 @@ source_code::source_code(const boost::filesystem::path& p)
 {
 	if (boost::filesystem::is_regular_file(p) == false)
 	{
-		throw std::runtime_error("Not a regular file.");
+		exception e(p.c_str());
+		e.append(" is not a regular file.");
+		throw e;
 	}
 	std::basic_string<GLchar> line;
 	std::basic_ifstream<GLchar> input(p.c_str());
 	if (!input)
 	{
-		throw std::runtime_error("Could not open file.");
+		exception e("Could not open file ");
+		e.append(p.c_str());
+		throw e;
 	}
 	while (std::getline(input, line)) ++m_count;
 	if (!m_count)
 	{
-		throw std::runtime_error("File has no content.");
+		exception e(p.c_str());
+		e.append(" has no content.");
+		throw e;
 	}
 	input.clear();
 	input.seekg(0, std::ios::beg);

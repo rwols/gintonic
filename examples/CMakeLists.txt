@@ -32,3 +32,15 @@ target_link_gintonic(textured_cube_with_mod_color)
 project(serialize_materials)
 add_executable(serialize_materials serialize_materials.cpp)
 target_link_gintonic(serialize_materials)
+
+project(geometry_buffer_showcase)
+add_executable(geometry_buffer_showcase geometry_buffer_showcase.cpp)
+target_link_gintonic(geometry_buffer_showcase)
+
+project(directional_light)
+add_executable(directional_light directional_light.cpp)
+target_link_gintonic(directional_light)
+
+project(point_lights)
+add_executable(point_lights point_lights.cpp)
+target_link_gintonic(point_lights)

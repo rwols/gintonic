@@ -1,5 +1,6 @@
 #include "renderer.hpp"
 #include "basic_shapes.hpp"
+// #include "fonts.hpp"
 #include <iostream>
 
 #ifndef DEBUG_PRINT
@@ -59,6 +60,7 @@ namespace gintonic {
 	text_shader* renderer::s_text_shader = nullptr;
 
 	opengl::unit_quad_P* renderer::s_unit_quad_P = nullptr;
+	opengl::unit_sphere_P* renderer::s_unit_sphere_P = nullptr;
 
 	boost::signals2::signal<void(wchar_t)> renderer::char_typed;
 	boost::signals2::signal<void(double, double)> renderer::mouse_scrolled;
@@ -160,7 +162,14 @@ namespace gintonic {
 		glBindTexture(GL_TEXTURE_2D, s_depth_texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, s_width, s_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_depth_texture, 0);
-		BOOST_CONSTEXPR GLenum DrawBuffers[GBUFFER_COUNT] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 }; 
+		BOOST_CONSTEXPR GLenum DrawBuffers[GBUFFER_COUNT] = 
+		{
+			GL_COLOR_ATTACHMENT0, 
+			GL_COLOR_ATTACHMENT1, 
+			GL_COLOR_ATTACHMENT2, 
+			GL_COLOR_ATTACHMENT3,
+			GL_COLOR_ATTACHMENT4
+		}; 
 		glDrawBuffers(GBUFFER_COUNT, DrawBuffers);
 		const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
@@ -459,14 +468,54 @@ namespace gintonic {
 		const GLsizei halfheight = (GLsizei)(height() / 2.0f);
 		set_read_buffer(GBUFFER_POSITION);
 		glBlitFramebuffer(0, 0, width(), height(), 0, 0, halfwidth, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-		set_read_buffer(GBUFFER_DIFFUSE);
-		glBlitFramebuffer(0, 0, width(), height(), 0, halfheight, halfwidth, height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		set_read_buffer(GBUFFER_NORMAL);
+		glBlitFramebuffer(0, 0, width(), height(), 0, halfheight, halfwidth, height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		set_read_buffer(GBUFFER_DIFFUSE);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-		set_read_buffer(GBUFFER_SPECULAR);
+		set_read_buffer(GBUFFER_TEXCOORD);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-		// we dont draw the texture coordinates, they're boring
 	}
+
+	void renderer::blit_drawbuffers_to_screen(fontstream& stream)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
+		const GLsizei halfwidth = (GLsizei)(width() / 2.0f);
+		const GLsizei halfheight = (GLsizei)(height() / 2.0f);
+			
+		
+		set_read_buffer(GBUFFER_POSITION);
+		glBlitFramebuffer(0, 0, width(), height(), 0, 0, halfwidth, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		
+		set_read_buffer(GBUFFER_NORMAL);
+		glBlitFramebuffer(0, 0, width(), height(), 0, halfheight, halfwidth, height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		
+		set_read_buffer(GBUFFER_DIFFUSE);
+		glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		
+		set_read_buffer(GBUFFER_TEXCOORD);
+		glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+
+		glDisable(GL_CULL_FACE);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
+		get_text_shader()->activate();
+		get_text_shader()->set_color(vec3f(1.0f, 1.0f, 1.0f));
+
+		stream << "GBUFFER_NORMAL" << std::endl;
+		stream->position[0] += 1.0f;
+		stream << "GBUFFER_DIFFUSE" << std::endl;
+		stream->position[1] -= 1.0f;
+		stream << "GBUFFER_TEXCOORD" << std::endl;
+		stream->position[0] -= 1.0f;
+		stream << "GBUFFER_POSITION" << std::endl;
+
+		glEnable(GL_CULL_FACE);
+	}
+
 	void renderer::null_light_pass() BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		const auto& s = get_lp_null_shader();
