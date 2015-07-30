@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( serialization_of_materials )
 				std::cout << "Deserializing.\n";
 				ia >> deserialized_mat;
 			}
-			catch (const std::exception& e)
+			catch (const std::exception&)
 			{
 				std::cout << "Failed!\n";
 				success = false;

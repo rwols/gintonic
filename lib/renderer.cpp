@@ -1,7 +1,10 @@
 #include "renderer.hpp"
 #include "basic_shapes.hpp"
-// #include "fonts.hpp"
 #include <iostream>
+
+#ifdef BOOST_MSVC
+	#include <Objbase.h> // for CoInitializeEx
+#endif
 
 #ifndef DEBUG_PRINT
 #define DEBUG_PRINT_START std::cerr << __FILE__ << '(' << __LINE__ << ')'
@@ -48,6 +51,7 @@ namespace gintonic {
 	const camera_transform<float>* renderer::s_camera = nullptr;
 
 	geometry_null_shader* renderer::s_geometry_null_shader = nullptr;
+	matrix_PVM_shader* renderer::s_matrix_PVM_shader = nullptr;
 	gp_c_shader* renderer::s_gp_c_shader = nullptr;
 	gp_cd_shader* renderer::s_gp_cd_shader = nullptr;
 	gp_cds_shader* renderer::s_gp_cds_shader = nullptr;
@@ -121,7 +125,9 @@ namespace gintonic {
 		s_key_state = SDL_GetKeyboardState(nullptr);
 		
 		if (was_already_initialized == false) std::atexit(renderer::release);
+		
 		vsync(true);
+		
 		s_start_time = clock_type::now();
 
 		#ifdef BOOST_MSVC
@@ -137,11 +143,11 @@ namespace gintonic {
 		glGenTextures(1, &s_depth_texture);
 		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = 
 		{
-			GL_RGB32F, // GBUFFER_POSITION, we need floats here
+			GL_RGB, // GBUFFER_POSITION, we need floats here
 			GL_RGBA,   // GBUFFER_DIFFUSE,  8 bits per channel are okay
 			GL_RGBA,   // GBUFFER_SPECULAR, 8 bits per channel are okay
-			GL_RGB32F, // GBUFFER_NORMAL,   we need floats here
-			GL_RG32F   // GBUFFER_TEXCOORD, we need floats here
+			GL_RGB, // GBUFFER_NORMAL,   we need floats here
+			GL_RG   // GBUFFER_TEXCOORD, we need floats here
 		};
 		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = 
 		{
@@ -188,6 +194,16 @@ namespace gintonic {
 		catch (exception& e)
 		{
 			e.prepend(": Failed to load geometry null shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_matrix_PVM_shader = new matrix_PVM_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load matrix_PVM_shader: ");
 			e.prepend(name());
 			throw;
 		}
@@ -315,11 +331,11 @@ namespace gintonic {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = 
 		{
-			GL_RGB32F, // GBUFFER_POSITION, we need floats here
+			GL_RGB, // GBUFFER_POSITION, we need floats here
 			GL_RGBA,   // GBUFFER_DIFFUSE,  8 bits per channel are okay
 			GL_RGBA,   // GBUFFER_SPECULAR, 8 bits per channel are okay
-			GL_RGB32F, // GBUFFER_NORMAL,   we need floats here
-			GL_RG32F   // GBUFFER_TEXCOORD, we need floats here
+			GL_RGB, // GBUFFER_NORMAL,   we need floats here
+			GL_RG   // GBUFFER_TEXCOORD, we need floats here
 		};
 		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = 
 		{
@@ -428,6 +444,34 @@ namespace gintonic {
 		}
 	}
 
+	void renderer::begin_geometry_pass()
+	{
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
+		glDepthMask(GL_TRUE);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+	}
+
+	void renderer::begin_light_pass()
+	{
+
+		glDepthMask(GL_FALSE);
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		for (unsigned int i = 0; i < GBUFFER_COUNT; ++i) 
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
+		}
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
 	void renderer::bind_for_writing()
 	{
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
@@ -521,7 +565,7 @@ namespace gintonic {
 		const auto& s = get_lp_null_shader();
 		s.activate();
 		s.set_gbuffer_diffuse(GBUFFER_DIFFUSE);
-		s.set_viewport_size(vec2f(width(), height()));
+		s.set_viewport_size(vec2f(static_cast<float>(width()), static_cast<float>(height())));
 		get_unit_quad_P().draw();
 	}
 

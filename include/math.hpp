@@ -9,7 +9,6 @@
 #define math_hpp
 
 #define _USE_MATH_DEFINES
-#define NOMINMAX
 #include <cmath>
 #include <array>
 #include <algorithm>
@@ -645,6 +644,16 @@ template <class T> struct BOOST_ALIGNMENT(16) vec<T,4> : public ::std::array<T,4
 		vec<T,3> r(0,0,0,0);
 		r[A] = 1;
 		return r;
+	}
+
+	inline static void* operator new(const std::size_t size)
+	{
+		return _mm_malloc(size, 16);
+	}
+
+	inline static void operator delete(void* ptr)
+	{
+		_mm_free(ptr);
 	}
 
 	// friend class boost::serialization::access;

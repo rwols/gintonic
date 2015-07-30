@@ -84,7 +84,7 @@ void static_model_actor::traverse_graph(
 	const auto fbx_rotation = fbx_transform.GetQ();
 	const auto fbx_translation = fbx_transform.GetT();
 	sqt_transformf t;
-	t.scale = fbx_scale[0];
+	t.scale = static_cast<float>(fbx_scale[0]);
 	t.rotation.w = static_cast<float>(fbx_rotation[3]);
 	t.rotation.x = static_cast<float>(fbx_rotation[0]);
 	t.rotation.y = static_cast<float>(fbx_rotation[1]);

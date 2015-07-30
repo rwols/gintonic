@@ -21,7 +21,7 @@ void light::shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW
 	const auto& s = renderer::get_lp_null_shader();
 	s.activate();
 	s.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
-	s.set_viewport_size(vec2f(renderer::width(), renderer::height()));
+	s.set_viewport_size(vec2f(static_cast<float>(renderer::width()), static_cast<float>(renderer::height())));
 	renderer::get_unit_quad_P().draw();
 }
 
@@ -41,7 +41,7 @@ void directional_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_N
 {
 	const auto& s = renderer::get_lp_directional_shader();
 	s.activate();
-	s.set_viewport_size(vec2f(renderer::width(), renderer::height()));
+	s.set_viewport_size(vec2f(static_cast<float>(renderer::width()), static_cast<float>(renderer::height())));
 	// s.set_gbuffer_position(renderer::GBUFFER_POSITION);
 	s.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
 	// s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
@@ -107,26 +107,50 @@ float point_light::cutoff_point() const BOOST_NOEXCEPT_OR_NOTHROW
 
 void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	const auto& s = renderer::get_lp_point_shader();
-	s.activate();
-	s.set_viewport_size(vec2f(renderer::width(), renderer::height()));
-	s.set_gbuffer_position(renderer::GBUFFER_POSITION);
-	s.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
-	// s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
-	s.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
-	s.set_light_intensity(intensity);
-	s.set_light_position(t.translation);
-	s.set_light_attenuation(m_attenuation);
-
 	sqt_transformf sphere_transform;
-	sphere_transform.scale = m_cutoff_point;
+	sphere_transform.scale = 4.0f;
 	sphere_transform.translation = t.translation;
 
 	renderer::set_model_matrix(sphere_transform.get_matrix());
 
-	s.set_matrix_PVM(renderer::matrix_PVM());
+	const auto& nullshader = renderer::get_null_shader();
+	const auto& pointshader = renderer::get_lp_point_shader();
+	const auto& sphere = renderer::get_unit_sphere_P();
 
-	renderer::get_unit_sphere_P().draw();
+    glDrawBuffer(GL_NONE);
+	glEnable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    glStencilFunc(GL_ALWAYS, 0, 0);
+    glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+    glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+
+	nullshader.activate();
+	nullshader.set_matrix_PVM(renderer::matrix_PVM());
+	sphere.draw();
+
+	glDrawBuffer(GL_COLOR_ATTACHMENT4);
+	// renderer::bind_for_light_pass();
+
+	glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_ONE, GL_ONE);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+
+	pointshader.activate();
+	pointshader.set_viewport_size(vec2f(static_cast<float>(renderer::width()), static_cast<float>(renderer::height())));
+	pointshader.set_gbuffer_position(renderer::GBUFFER_POSITION);
+	pointshader.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
+	// pointshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
+	pointshader.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
+	pointshader.set_light_intensity(intensity);
+	pointshader.set_light_position(t.translation);
+	pointshader.set_light_attenuation(m_attenuation);
+	pointshader.set_matrix_PVM(renderer::matrix_PVM());
+	sphere.draw();
 }
 
 } // namespace gintonic

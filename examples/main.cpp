@@ -108,7 +108,7 @@ bool continue_if_file_exists(const boost::filesystem::path& p)
 			do
 			{
 				std::cout << "Type 'y' or 'n': ";
-				std::cin >> answer;	
+				std::cin >> answer;
 			}
 			while (answer != 'n' && answer != 'y');
 			if (answer == 'y') return true;
@@ -185,7 +185,7 @@ void materials_menu_list()
 	for (directory_iterator itr("../resources"); itr != directory_iterator(); ++itr)
 	{
 		const auto ext = itr->path().extension();
-		if (mat_exts.count(ext.c_str()))
+		if (mat_exts.count(ext.string()))
 		{
 			++num;
 			std::cout << itr->path().filename().stem() << '\n';

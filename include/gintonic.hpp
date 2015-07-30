@@ -1,9 +1,9 @@
 #ifndef gintonic_hpp
 #define gintonic_hpp
 
+#include "renderer.hpp"
 #include "actors.hpp"
 #include "materials.hpp"
-#include "renderer.hpp"
 #include "mesh.hpp"
 #include "opengl.hpp"
 #include "shaders.hpp"

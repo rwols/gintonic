@@ -60,11 +60,11 @@ namespace gintonic
 		inline static float aspect_ratio() BOOST_NOEXCEPT_OR_NOTHROW{ return s_aspect_ratio; }
 		inline static bool key(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
 		{
-			return static_cast<bool>(s_key_state[keycode]);
+			return s_key_state[keycode] != 0;
 		}
 		inline static bool key_prev(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
 		{
-			return static_cast<bool>(s_key_prev_state[keycode]);
+			return s_key_prev_state[keycode] != 0;
 		}
 		inline static bool key_toggle_press(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
 		{
@@ -76,7 +76,7 @@ namespace gintonic
 		}
 		inline static bool mousebutton(const int buttoncode) BOOST_NOEXCEPT_OR_NOTHROW
 		{
-			return (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(buttoncode));
+			return 0 != (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(buttoncode));
 		}
 		inline static const vec2f& mouse_delta() BOOST_NOEXCEPT_OR_NOTHROW{ return s_mouse_delta; }
 		inline static const mat4f& matrix_M() BOOST_NOEXCEPT_OR_NOTHROW{ return s_matrix_M; }
@@ -133,8 +133,13 @@ namespace gintonic
 			GBUFFER_COUNT
 		};
 
+		static void begin_geometry_pass();
+		static void begin_stencil_test_pass();
+		static void begin_light_pass();
+
 		static void bind_for_writing();
 		static void bind_for_reading();
+		
 		static void set_read_buffer(const enum GBUFFER type);
 		static void blit_drawbuffers_to_screen();
 		static void blit_drawbuffers_to_screen(fontstream&);
@@ -144,7 +149,10 @@ namespace gintonic
 		{
 			return s_geometry_null_shader;
 		}
-
+		inline static const matrix_PVM_shader& get_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_matrix_PVM_shader;
+		}
 		inline static gp_c_shader* get_gp_c_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return s_gp_c_shader;
@@ -170,17 +178,17 @@ namespace gintonic
 			return s_geometry_pass_shader;
 		}
 
-		inline static lp_null_shader& get_lp_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		inline static const lp_null_shader& get_lp_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_lp_null_shader;
 		}
 
-		inline static lp_directional_shader& get_lp_directional_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		inline static const lp_directional_shader& get_lp_directional_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_lp_directional_shader;
 		}
 
-		inline static lp_point_shader& get_lp_point_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		inline static const lp_point_shader& get_lp_point_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_lp_point_shader;
 		}
@@ -250,6 +258,7 @@ namespace gintonic
 		static const camera_transform<float>* s_camera;
 
 		static geometry_null_shader* s_geometry_null_shader;
+		static matrix_PVM_shader* s_matrix_PVM_shader;
 		static gp_c_shader* s_gp_c_shader;
 		static gp_cd_shader* s_gp_cd_shader;
 		static gp_cds_shader* s_gp_cds_shader;

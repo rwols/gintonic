@@ -15,7 +15,7 @@ void init_all(const char* window_title)
 	g_default_camera.far_plane = 100.0f;
 	g_default_camera.add_horizontal_and_vertical_angles(static_cast<float>(M_PI), 0.0f);
 	g_default_camera.move_backward(4.0f);
-	renderer::init(window_title, g_default_camera, 800, 640, true);
+	renderer::init(window_title, g_default_camera, true, 800, 640);
 	opengl::texture2d::init();
 	font::init();
 }

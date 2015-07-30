@@ -156,7 +156,8 @@ void texture2d::init()
 		);
 		if (!SUCCEEDED(hr))
 		{
-			BOOST_THROW_EXCEPTION(wic_initialization_error());
+			throw exception("Failed to load image factory.");
+			// BOOST_THROW_EXCEPTION(wic_initialization_error());
 		}
 		#endif
 		std::atexit(texture2d::release_static);
@@ -196,12 +197,12 @@ texture2d::texture2d(boost::filesystem::path filename)
 		}
 		else
 		{
-			init_wic_image(width, height, format, type, data);
+			init_wic_image(filename, width, height, format, type, data);
 		}
-		else
-		{
-			throw exception(filename.c_str() + std::string(": Unknown file extension."));
-		}
+		// else
+		// {
+		// 	throw exception(filename.c_str() + std::string(": Unknown file extension."));
+		// }
 
 	#else
 
@@ -326,7 +327,7 @@ void texture2d::init_tga_image(
 	{
 		case 24: m_format = GL_BGR; break;
 		case 32: m_format = GL_BGRA; break;
-		default: throw exception(filename.c_str() + std::string(": Unknown TGA format."));
+		default: throw exception(filename.string() + std::string(": Unknown TGA format."));
 	}
 	const std::size_t size = (depth / 8) * m_width * m_height;
 	m_data.resize(size);
@@ -354,7 +355,8 @@ void texture2d::init_wic_image(
 
 	if (!s_is_initialized)
 	{
-		BOOST_THROW_EXCEPTION(wic_error() << errinfo_path(key()));
+		throw exception("Textures were not yet initialized.");
+		// BOOST_THROW_EXCEPTION(wic_error() << errinfo_path(key()));
 	}
 
 	hr = s_wic_factory->CreateDecoderFromFilename(

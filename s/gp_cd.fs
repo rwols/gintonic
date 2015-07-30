@@ -32,5 +32,6 @@ void main()
 	out_position = v_position;
 	out_diffuse  = material.color * texture(material.diffuse, v_texcoord);
 	out_normal   = normalize(v_normal);
+	// out_normal = vec3(1,1,1);
 	out_texcoord = v_texcoord;
 }

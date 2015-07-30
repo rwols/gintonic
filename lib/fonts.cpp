@@ -218,7 +218,7 @@ namespace gintonic {
 
 		std::streamsize fontstream::write(const char* text, const std::streamsize length) const BOOST_NOEXCEPT_OR_NOTHROW
 		{
-			underlying_font.get().draw(text, length, position, scale);
+			underlying_font.get().draw(text, static_cast<const std::size_t>(length), position, scale);
 			return length;
 		}
 	} // namespace detail

@@ -8,6 +8,10 @@ namespace gintonic {
 class matrix_PVM_shader : public opengl::shader
 {
 public:
+	matrix_PVM_shader();
+	virtual ~matrix_PVM_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_matrix_PVM(const mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
 	matrix_PVM_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
@@ -15,8 +19,6 @@ public:
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
-	virtual ~matrix_PVM_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_matrix_PVM(const mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
 private:
 	GLuint loc_matrix_PVM;
 };
@@ -24,6 +26,9 @@ private:
 class matrix_PVM_VM_shader : public matrix_PVM_shader
 {
 public:
+	virtual ~matrix_PVM_VM_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_matrix_VM(const mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
 	matrix_PVM_VM_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
@@ -31,8 +36,6 @@ public:
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
-	virtual ~matrix_PVM_VM_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_matrix_VM(const mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
 private:
 	GLuint loc_matrix_VM;
 };
@@ -40,6 +43,9 @@ private:
 class matrix_PVM_VM_N_shader : public matrix_PVM_VM_shader
 {
 public:
+	virtual ~matrix_PVM_VM_N_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_matrix_N(const mat3f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
 	matrix_PVM_VM_N_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
@@ -47,9 +53,6 @@ public:
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
-
-	virtual ~matrix_PVM_VM_N_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_matrix_N(const mat3f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
 private:
 	GLuint loc_matrix_N;
 };

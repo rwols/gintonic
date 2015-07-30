@@ -81,7 +81,8 @@ int main(int argc, char* argv[])
 				<< "Frames per second: " << std::fixed << std::setprecision(1) << 1.0f / dt << '\n'
 				<< "Camera position: " << gt::get_default_camera().position << '\n'
 				<< "Camera up:       " << gt::get_default_camera().up << '\n'
-				<< "Camera right:    " << gt::get_default_camera().right << std::endl;
+				<< "Camera right:    " << gt::get_default_camera().right << "\n\n"
+				<< "Normal matrix:\n" << gt::renderer::matrix_N() << std::endl;
 			stream.close();
 			glEnable(GL_CULL_FACE);
 			gt::renderer::update();

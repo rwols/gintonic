@@ -33,7 +33,6 @@
 #endif
 
 #ifdef BOOST_MSVC
-	#define NOMINMAX
 	#include <windows.h>
 #endif
 

@@ -2,6 +2,12 @@
 
 namespace gintonic {
 
+matrix_PVM_shader::matrix_PVM_shader()
+: opengl::shader("../s/null.vs", "../s/null.fs")
+{
+	loc_matrix_PVM = get_uniform_location("matrix_PVM");
+}
+
 matrix_PVM_shader::matrix_PVM_shader( 
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)

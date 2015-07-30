@@ -92,6 +92,11 @@
 #include <boost/archive/basic_binary_oprimitive.hpp>
 #include <boost/archive/basic_binary_oarchive.hpp>
 
+#ifdef BOOST_MSVC
+	#pragma warning( push )
+	#pragma warning( disable: 4800 )
+#endif
+
 #if BOOST_VERSION >= 105600
 #include <boost/serialization/shared_ptr_helper.hpp>
 #elif BOOST_VERSION >= 103500
@@ -322,8 +327,10 @@ namespace eos {
 		{
 			if (T temp = t)
 			{
-				#pragma clang diagnostic push
-				#pragma clang diagnostic ignored "-Wshift-count-overflow"
+				#ifdef __clang__
+					#pragma clang diagnostic push
+					#pragma clang diagnostic ignored "-Wshift-count-overflow"
+				#endif
 
 				// examine the number of bytes
 				// needed to represent the number
@@ -331,7 +338,9 @@ namespace eos {
 				do { temp >>= CHAR_BIT; ++size; } 
 				while (temp != 0 && temp != (T) -1);
 
-				#pragma clang diagnostic pop
+				#ifdef __clang__
+					#pragma clang diagnostic pop
+				#endif
 
 				// encode the sign bit into the size
 				save_signed_char(t > 0 ? size : -size);
@@ -476,5 +485,7 @@ namespace boost { namespace archive {
 #endif
 
 } } // namespace boost::archive
+
+#pragma warning( pop )
 
 #endif

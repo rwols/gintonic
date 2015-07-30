@@ -30,7 +30,11 @@ void material::save(std::ostream& output) const
 
 void material::save(const boost::filesystem::path& filename) const
 {
-	save(filename.c_str());
+	#ifdef BOOST_MSVC
+		save(filename.string());
+	#else
+		save(filename.c_str());
+	#endif
 }
 
 void material::save(const std::string& filename) const
@@ -54,18 +58,22 @@ material* material::load(std::istream& input)
 
 material* material::load(const boost::filesystem::path& filename)
 {
-	return material::load(filename.c_str());
+	#ifdef BOOST_MSVC
+		return load(filename.string());
+	#else
+		return load(filename.c_str());
+	#endif
 }
 
 material* material::load(const std::string& filename)
 {
-	return material::load(filename.c_str());
+	return load(filename.c_str());
 }
 
 material* material::load(const char* filename)
 {
 	std::ifstream input(filename, std::ios::binary);
-	return material::load(input);
+	return load(input);
 }
 
 void material::safe_obtain_texture(const boost::filesystem::path& filename, iter_type& iter)
@@ -80,7 +88,7 @@ void material::safe_obtain_texture(const boost::filesystem::path& filename, iter
 		// texture filename is not present in our global container, so we create a new texture2d
 		// initialized with a reference count of 1
 		try { s_textures.emplace_back(filename, 1, filename); }
-		catch (const exception& e)
+		catch (const exception&)
 		{
 			s_textures_lock.release();
 			throw;

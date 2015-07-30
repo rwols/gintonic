@@ -192,22 +192,22 @@ source_code::source_code(const boost::filesystem::path& p)
 {
 	if (boost::filesystem::is_regular_file(p) == false)
 	{
-		exception e(p.c_str());
+		exception e(p.string());
 		e.append(" is not a regular file.");
 		throw e;
 	}
 	std::basic_string<GLchar> line;
-	std::basic_ifstream<GLchar> input(p.c_str());
+	std::basic_ifstream<GLchar> input(p.string());
 	if (!input)
 	{
 		exception e("Could not open file ");
-		e.append(p.c_str());
+		e.append(p.string());
 		throw e;
 	}
 	while (std::getline(input, line)) ++m_count;
 	if (!m_count)
 	{
-		exception e(p.c_str());
+		exception e(p.string());
 		e.append(" has no content.");
 		throw e;
 	}
