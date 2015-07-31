@@ -129,16 +129,16 @@ namespace gintonic
 			GBUFFER_DIFFUSE,
 			GBUFFER_SPECULAR,
 			GBUFFER_NORMAL,
-			GBUFFER_TEXCOORD,
+			GBUFFER_FINAL_COLOR,
 			GBUFFER_COUNT
 		};
 
 		static void begin_geometry_pass();
-		static void begin_stencil_test_pass();
+		static void begin_stencil_pass(const GLenum front_dp_fail, const GLenum back_dp_fail);
 		static void begin_light_pass();
 
-		static void bind_for_writing();
-		static void bind_for_reading();
+		// static void bind_for_writing();
+		// static void bind_for_reading();
 		
 		static void set_read_buffer(const enum GBUFFER type);
 		static void blit_drawbuffers_to_screen();

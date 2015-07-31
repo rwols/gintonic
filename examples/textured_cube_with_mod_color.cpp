@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 			mousedelta[0] = -gintonic::deg_to_rad(mousedelta[0]) / 4.0f;
 			mousedelta[1] = -gintonic::deg_to_rad(mousedelta[1]) / 4.0f;
 			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
-			gt::renderer::bind_for_writing();
+			gt::renderer::begin_geometry_pass();
 			const auto yaxis = (1.0f + std::cos(curtime)) / 2.0f;
 			const auto zaxis = (1.0f + std::sin(curtime)) / 2.0f;
 			const auto rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 			the_material.diffuse_color[2] = zaxis;
 			the_material.bind();
 			the_shape.draw();
-			gt::renderer::bind_for_reading();
+			gt::renderer::begin_light_pass();
 			gt::renderer::null_light_pass();
 			gt::renderer::get_text_shader()->activate();
 			gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));

@@ -86,13 +86,9 @@ void point_light::set_attenuation(const vec3f& att) BOOST_NOEXCEPT_OR_NOTHROW
 
 	const float c = std::max(intensity[0], std::max(intensity[1], intensity[2]));
 
-	std::cout << "Max intensity: " << c << '\n';
-
 	m_cutoff_point = (-att[1] + std::sqrt(att[1] * att[1] 
 		- 4.0f * att[2] * (att[0] - 256.0f * c))) 
 	/ (2 * att[2]);
-
-	std::cout << "Cutoff point was set to: " << m_cutoff_point << '\n';
 }
 
 vec3f point_light::attenuation() const BOOST_NOEXCEPT_OR_NOTHROW
@@ -107,8 +103,10 @@ float point_light::cutoff_point() const BOOST_NOEXCEPT_OR_NOTHROW
 
 void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {
+	// The transformation data is delivered in WORLD coordinates.
+
 	sqt_transformf sphere_transform;
-	sphere_transform.scale = 4.0f;
+	sphere_transform.scale = m_cutoff_point;
 	sphere_transform.translation = t.translation;
 
 	renderer::set_model_matrix(sphere_transform.get_matrix());
@@ -117,37 +115,45 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	const auto& pointshader = renderer::get_lp_point_shader();
 	const auto& sphere = renderer::get_unit_sphere_P();
 
-    glDrawBuffer(GL_NONE);
-	glEnable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glClear(GL_STENCIL_BUFFER_BIT);
-    glStencilFunc(GL_ALWAYS, 0, 0);
-    glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-    glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+	// We first do a null-pass that only fills the renderer's stencil buffer.
+	// The stencil value is increased when a front-facing triangle is seen,
+	// and is decreased when a back-facing triangle is seen. This way, the
+	// values that are non-zero should be shaded.
 
+	renderer::begin_stencil_pass(GL_INCR_WRAP, GL_DECR_WRAP);
 	nullshader.activate();
 	nullshader.set_matrix_PVM(renderer::matrix_PVM());
 	sphere.draw();
 
-	glDrawBuffer(GL_COLOR_ATTACHMENT4);
-	// renderer::bind_for_light_pass();
+	// Here we use the information collected in the stencil buffer to only
+	// shade pixels that really need it.
 
+	renderer::begin_light_pass();
 	glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_ONE, GL_ONE);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
 	pointshader.activate();
-	pointshader.set_viewport_size(vec2f(static_cast<float>(renderer::width()), static_cast<float>(renderer::height())));
+	pointshader.set_viewport_size(vec2f(static_cast<float>(
+		renderer::width()), static_cast<float>(renderer::height())));
 	pointshader.set_gbuffer_position(renderer::GBUFFER_POSITION);
 	pointshader.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
 	// pointshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	pointshader.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
 	pointshader.set_light_intensity(intensity);
-	pointshader.set_light_position(t.translation);
+
+	// Here, we need to give the shader the position of the light in VIEW 
+	// coordinates. They are already in WORLD coordinates, so all we need to 
+	// do is to apply the WORLD -> VIEW matrix. We retrieve this matrix from
+	// the renderer's bound camera.
+	// NOTE: When we do normal mapping, this might need to be changed so that
+	// the position of the light is given in tangent space coordinates.
+
+	// const auto tmp = renderer::camera().matrix_V() * vec4f(t.translation[0], t.translation[1], t.translation[2], 1.0f);
+	// const vec3f light_pos(tmp[0], tmp[1], tmp[2]);
+	const auto light_pos = renderer::camera().matrix_V().apply_to_point(t.translation);
+
+	pointshader.set_light_position(light_pos);
 	pointshader.set_light_attenuation(m_attenuation);
 	pointshader.set_matrix_PVM(renderer::matrix_PVM());
 	sphere.draw();

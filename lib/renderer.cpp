@@ -143,19 +143,19 @@ namespace gintonic {
 		glGenTextures(1, &s_depth_texture);
 		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = 
 		{
-			GL_RGB, // GBUFFER_POSITION, we need floats here
-			GL_RGBA,   // GBUFFER_DIFFUSE,  8 bits per channel are okay
-			GL_RGBA,   // GBUFFER_SPECULAR, 8 bits per channel are okay
-			GL_RGB, // GBUFFER_NORMAL,   we need floats here
-			GL_RG   // GBUFFER_TEXCOORD, we need floats here
+			GL_RGB,  // GBUFFER_POSITION
+			GL_RGBA, // GBUFFER_DIFFUSE
+			GL_RGBA, // GBUFFER_SPECULAR
+			GL_RGBA, // GBUFFER_NORMAL
+			GL_RGB   // GBUFFER_FINAL_COLOR
 		};
 		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = 
 		{
-			GL_RGB,  // GBUFFER_POSITION, 3 channels
-			GL_RGBA, // GBUFFER_DIFFUSE,  4 channels (alpha channel is ambient intensity)
-			GL_RGBA, // GBUFFER_SPECULAR, 4 channels (alpha channel is reserved)
-			GL_RGB,  // GBUFFER_NORMAL,   3 channels
-			GL_RG    // GBUFFER_TEXCOORD, 2 channels
+			GL_RGB,  // GBUFFER_POSITION
+			GL_RGBA, // GBUFFER_DIFFUSE
+			GL_RGBA, // GBUFFER_SPECULAR
+			GL_RGBA, // GBUFFER_NORMAL
+			GL_RGB   // GBUFFER_FINAL_COLOR
 		};
 		for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
 		{
@@ -164,19 +164,11 @@ namespace gintonic {
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexImage2D(GL_TEXTURE_2D, 0, tex_internal[i], s_width, s_height, 0, tex_format[i], GL_FLOAT, nullptr);
 			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, s_textures[i], 0);
+
 		}
 		glBindTexture(GL_TEXTURE_2D, s_depth_texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, s_width, s_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_depth_texture, 0);
-		BOOST_CONSTEXPR GLenum DrawBuffers[GBUFFER_COUNT] = 
-		{
-			GL_COLOR_ATTACHMENT0, 
-			GL_COLOR_ATTACHMENT1, 
-			GL_COLOR_ATTACHMENT2, 
-			GL_COLOR_ATTACHMENT3,
-			GL_COLOR_ATTACHMENT4
-		}; 
-		glDrawBuffers(GBUFFER_COUNT, DrawBuffers);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, s_width, s_height, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, s_depth_texture, 0);
 		const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -331,19 +323,19 @@ namespace gintonic {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = 
 		{
-			GL_RGB, // GBUFFER_POSITION, we need floats here
-			GL_RGBA,   // GBUFFER_DIFFUSE,  8 bits per channel are okay
-			GL_RGBA,   // GBUFFER_SPECULAR, 8 bits per channel are okay
-			GL_RGB, // GBUFFER_NORMAL,   we need floats here
-			GL_RG   // GBUFFER_TEXCOORD, we need floats here
+			GL_RGB,  // GBUFFER_POSITION
+			GL_RGBA, // GBUFFER_DIFFUSE
+			GL_RGBA, // GBUFFER_SPECULAR
+			GL_RGBA, // GBUFFER_NORMAL
+			GL_RGB   // GBUFFER_FINAL_COLOR
 		};
 		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = 
 		{
-			GL_RGB,  // GBUFFER_POSITION, 3 channels
-			GL_RGBA, // GBUFFER_DIFFUSE,  4 channels (alpha channel is ambient intensity)
-			GL_RGBA, // GBUFFER_SPECULAR, 4 channels (alpha channel is reserved)
-			GL_RGB,  // GBUFFER_NORMAL,   3 channels
-			GL_RG    // GBUFFER_TEXCOORD, 2 channels
+			GL_RGB,  // GBUFFER_POSITION
+			GL_RGBA, // GBUFFER_DIFFUSE
+			GL_RGBA, // GBUFFER_SPECULAR
+			GL_RGBA, // GBUFFER_NORMAL
+			GL_RGB   // GBUFFER_FINAL_COLOR
 		};
 		for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
 		{
@@ -353,8 +345,8 @@ namespace gintonic {
 			glTexImage2D(GL_TEXTURE_2D, 0, tex_internal[i], s_width, s_height, 0, tex_format[i], GL_FLOAT, nullptr);
 		}
 		glBindTexture(GL_TEXTURE_2D, s_depth_texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, s_width, s_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-		GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, s_width, s_height, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
+		const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
 		{
 			throw exception("Frame buffer status was not complete: " + std::to_string(framebuffer_status));
@@ -398,7 +390,13 @@ namespace gintonic {
 
 	void renderer::update() BOOST_NOEXCEPT_OR_NOTHROW
 	{
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
+		glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
+		glBlitFramebuffer(0, 0, s_width, s_height, 0, 0, s_width, s_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		
 		SDL_GL_SwapWindow(s_window);
+		
 		s_prev_elapsed_time = s_elapsed_time;
 		s_elapsed_time = clock_type::now() - s_start_time;
 		s_delta_time = s_elapsed_time - s_prev_elapsed_time;
@@ -447,6 +445,16 @@ namespace gintonic {
 	void renderer::begin_geometry_pass()
 	{
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
+		glClear(GL_COLOR_BUFFER_BIT);
+		BOOST_CONSTEXPR GLenum DrawBuffers[4] = 
+		{
+			GL_COLOR_ATTACHMENT0 + GBUFFER_POSITION, 
+			GL_COLOR_ATTACHMENT0 + GBUFFER_DIFFUSE, 
+			GL_COLOR_ATTACHMENT0 + GBUFFER_SPECULAR, 
+			GL_COLOR_ATTACHMENT0 + GBUFFER_NORMAL
+		}; 
+		glDrawBuffers(4, DrawBuffers);
 		glDepthMask(GL_TRUE);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
@@ -455,48 +463,57 @@ namespace gintonic {
 		glCullFace(GL_BACK);
 	}
 
+	void renderer::begin_stencil_pass(const GLenum front_dp_fail, const GLenum back_dp_fail)
+	{
+		glDrawBuffer(GL_NONE);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		glClear(GL_STENCIL_BUFFER_BIT);
+		glStencilFunc(GL_ALWAYS, 0, 0);
+		glStencilOpSeparate(GL_BACK, GL_KEEP, front_dp_fail, GL_KEEP);
+		glStencilOpSeparate(GL_FRONT, GL_KEEP, back_dp_fail, GL_KEEP);
+	}
+
 	void renderer::begin_light_pass()
 	{
-
-		glDepthMask(GL_FALSE);
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_ONE, GL_ONE);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		for (unsigned int i = 0; i < GBUFFER_COUNT; ++i) 
+		glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
+		for (unsigned int i = 0; i < GBUFFER_FINAL_COLOR; ++i) 
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
 		}
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
-
-	void renderer::bind_for_writing()
-	{
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
-		glDepthMask(GL_TRUE);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
-		glEnable(GL_CULL_FACE);
-	}
-
-	void renderer::bind_for_reading()
-	{
-		glDepthMask(GL_FALSE);
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_ONE, GL_ONE);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		for (unsigned int i = 0; i < GBUFFER_COUNT; ++i) 
-		{
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
-		}
-		glClear(GL_COLOR_BUFFER_BIT);
+		// glClear(GL_COLOR_BUFFER_BIT);
 	}
+
+	// void renderer::bind_for_writing()
+	// {
+	// 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
+	// 	glDepthMask(GL_TRUE);
+	// 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// 	glEnable(GL_DEPTH_TEST);
+	// 	glDisable(GL_BLEND);
+	// 	glEnable(GL_CULL_FACE);
+	// }
+
+	// void renderer::bind_for_reading()
+	// {
+	// 	glDepthMask(GL_FALSE);
+	// 	glDisable(GL_DEPTH_TEST);
+	// 	glEnable(GL_BLEND);
+	// 	glBlendEquation(GL_FUNC_ADD);
+	// 	glBlendFunc(GL_ONE, GL_ONE);
+	// 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	// 	for (unsigned int i = 0; i < GBUFFER_COUNT; ++i) 
+	// 	{
+	// 		glActiveTexture(GL_TEXTURE0 + i);
+	// 		glBindTexture(GL_TEXTURE_2D, s_textures[i]);
+	// 	}
+	// 	glClear(GL_COLOR_BUFFER_BIT);
+	// }
 
 	void renderer::set_read_buffer(const enum GBUFFER type)
 	{
@@ -516,7 +533,7 @@ namespace gintonic {
 		glBlitFramebuffer(0, 0, width(), height(), 0, halfheight, halfwidth, height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		set_read_buffer(GBUFFER_DIFFUSE);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-		set_read_buffer(GBUFFER_TEXCOORD);
+		set_read_buffer(GBUFFER_FINAL_COLOR);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 	}
 
@@ -538,7 +555,7 @@ namespace gintonic {
 		set_read_buffer(GBUFFER_DIFFUSE);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		
-		set_read_buffer(GBUFFER_TEXCOORD);
+		set_read_buffer(GBUFFER_FINAL_COLOR);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 
@@ -553,7 +570,7 @@ namespace gintonic {
 		stream->position[0] += 1.0f;
 		stream << "GBUFFER_DIFFUSE" << std::endl;
 		stream->position[1] -= 1.0f;
-		stream << "GBUFFER_TEXCOORD" << std::endl;
+		stream << "GBUFFER_FINAL_COLOR" << std::endl;
 		stream->position[0] -= 1.0f;
 		stream << "GBUFFER_POSITION" << std::endl;
 

@@ -1,6 +1,16 @@
 cmake_minimum_required (VERSION 2.8)
 
-set(CMAKE_BUILD_TYPE Release)
+#
+# If the user specifies -DCMAKE_BUILD_TYPE on the command line, take their definition
+# and dump it in the cache along with proper documentation, otherwise set CMAKE_BUILD_TYPE
+# to Debug prior to calling PROJECT()
+#
+if (DEFINED CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of build, options are: None (CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+else()
+   set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: None (CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+endif()
+
 # First for the generic no-config case (e.g. with mingw)
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
 set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
@@ -14,7 +24,6 @@ foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
 endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
 if (WIN32)
-	# set(BOOST_ROOT "C:\\boost_1_58_0")
 	if ("$ENV{BOOST}" STREQUAL "")
 		message(FATAL_ERROR "Set up an environment variable called BOOST to point to the root Boost folder.")
 	endif ()
@@ -43,28 +52,43 @@ if (WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
 else ()
+	add_definitions(-DBOOST_TEST_DYN_LINK) 
 	add_definitions(-std=c++11)
-	add_definitions(-Wall)
+	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+		add_definitions(-Wall)
+	endif ()
 	add_definitions(-msse3)
 endif (WIN32)
 
 option(WITH_PROFILING "Profile various math functions. " OFF)
 option(WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
 
-
 include_directories("include")
-# Find boost libraries
-find_package(Boost
-	COMPONENTS
-		system
-		filesystem
-		serialization
-		program_options
-		unit_test_framework
-	REQUIRED)
-# if (WIN32)
-# 	link_directories(${Boost_LIBRARY_DIRS})
-# endif()
+
+# Configure Boost libraries
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME OFF)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(Boost_USE_STATIC_LIBS OFF)
+	find_package(Boost
+		COMPONENTS
+			system
+			filesystem
+			serialization
+			program_options
+			unit_test_framework
+		REQUIRED)
+else ()
+	set(Boost_USE_STATIC_LIBS ON)
+	find_package(Boost
+		COMPONENTS
+			system
+			filesystem
+			serialization
+			program_options
+		REQUIRED)
+endif ()
+
 find_package(OpenGL REQUIRED)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
@@ -183,10 +207,11 @@ else()
 endif()
 
 add_subdirectory (lib)
-add_subdirectory (examples)
-add_subdirectory (test)
 
-enable_testing()
-
-add_test(NAME math COMMAND math)
-add_test(NAME materials COMMAND materials)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_subdirectory (examples)
+	add_subdirectory (test)
+	enable_testing()
+	add_test(NAME math COMMAND math)
+	add_test(NAME materials COMMAND materials)
+endif ()

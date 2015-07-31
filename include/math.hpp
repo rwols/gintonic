@@ -1359,6 +1359,13 @@ template <class T> struct mat<T,4> : ::std::array<vec<T,4>,4>
 		return *this;
 	}
 
+	inline vec<T,3> apply_to_point(const vec<T,3>& point) const
+	{
+		vec<T,4> tmp(point[0], point[1], point[2], T(1));
+		tmp = (*this * tmp);
+		return vec<T,3>(tmp[0], tmp[1], tmp[2]);
+	}
+
 	inline mat<T,3> upper_left_33() const
 	{
 		mat<T,3> r;

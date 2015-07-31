@@ -28,11 +28,11 @@ int main(int argc, char* argv[])
 			{
 				gt::renderer::close();
 			}
-			gt::renderer::bind_for_writing();
+			gt::renderer::begin_geometry_pass();
 			gt::renderer::set_model_matrix(-curtime, gt::vec3f(0.0f, 0.0f, 1.0f));
 			the_material.bind();
 			the_shape.draw();
-			gt::renderer::bind_for_reading();
+			gt::renderer::begin_light_pass();
 			gt::renderer::null_light_pass();
 			gt::renderer::get_text_shader()->activate();
 			const gt::vec3f text_color((1.0f + std::sin(curtime)) / 2.0f, 1.0f, 1.0f);

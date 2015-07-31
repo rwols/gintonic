@@ -16,7 +16,7 @@ uniform struct GeometryBuffer
 	sampler2D normal;
 } gbuffer;
 
-uniform struct DirectionalLight {
+uniform struct PointLight {
 	vec3 intensity;
 	vec3 position;
 	vec3 attenuation;
@@ -40,8 +40,10 @@ void main()
 	// vec4 specular = texture(gbuffer.specular, screen_position);
 	vec3 normal   = texture(gbuffer.normal,   screen_position).xyz;
 
-	vec3 light_dir = light.position - position;
-    
+	vec3 light_dir;
+
+	light_dir  = light.position - position;
+
     float light_dist = length(light_dir);
     
     light_dir = normalize(light_dir);
@@ -52,8 +54,7 @@ void main()
     	+ light.attenuation.y * light_dist 
     	+ light.attenuation.z * light_dist * light_dist;
 
-    float lambertian = (diffuse_factor / attenuation) * max(dot(light_dir, normal), 0.0f);
+    float lambertian = (diffuse_factor / attenuation) * abs(dot(light_dir, normal));
 
 	final_color = lambertian * light.intensity * diffuse.rgb;
-	// final_color.r += 0.2f;
 }

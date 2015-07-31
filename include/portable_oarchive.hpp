@@ -486,6 +486,8 @@ namespace boost { namespace archive {
 
 } } // namespace boost::archive
 
-#pragma warning( pop )
+#ifdef BOOST_MSVC
+	#pragma warning( pop )
+#endif
 
 #endif

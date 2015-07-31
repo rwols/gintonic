@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 			
 			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
 			
-			gt::renderer::bind_for_writing();
+			gt::renderer::begin_geometry_pass();
 			
 			const auto yaxis = (1.0f + std::cos(curtime)) / 2.0f;
 			
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 			
 			the_shape.draw();
 
-			gt::renderer::bind_for_reading();
+			gt::renderer::begin_light_pass();
 
 			the_light->shine(the_light_transform);
 

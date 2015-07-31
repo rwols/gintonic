@@ -24,5 +24,6 @@ out vec3 final_color;
 
 void main()
 {
-	final_color = texture(gbuffer.diffuse, calculate_screen_position()).rgb;
+	vec4 diffuse = texture(gbuffer.diffuse, calculate_screen_position());
+	final_color = (1.0f - diffuse.a) * diffuse.rgb;
 }

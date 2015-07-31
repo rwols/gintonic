@@ -1,10 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(app)
-set(src_files main.cpp)
-add_executable(app ${src_files})
-target_link_gintonic(app)
-
 project(square)
 add_executable(square square.cpp)
 target_link_gintonic(square)

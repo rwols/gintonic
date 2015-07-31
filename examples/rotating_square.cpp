@@ -24,14 +24,14 @@ int main(int argc, char* argv[])
 			{
 				gt::renderer::close();
 			}
-			gt::renderer::bind_for_writing();
+			gt::renderer::begin_geometry_pass();
 
 			// angle-axis constructor for mat4f
 			gt::renderer::set_model_matrix(get_elapsed_time<float>(), gt::vec3f(0.0f, 0.0f, 1.0f));
 
 			the_material.bind();
 			the_shape.draw();
-			gt::renderer::bind_for_reading();
+			gt::renderer::begin_light_pass();
 			gt::renderer::null_light_pass();
 			gt::renderer::update();
 		}

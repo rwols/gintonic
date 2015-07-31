@@ -62,11 +62,11 @@ int main(int argc, char* argv[])
 			mousedelta[0] = -gintonic::deg_to_rad(mousedelta[0]) / 4.0f;
 			mousedelta[1] = -gintonic::deg_to_rad(mousedelta[1]) / 4.0f;
 			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
-			gt::renderer::bind_for_writing();
+			gt::renderer::begin_geometry_pass();
 			gt::renderer::set_model_matrix(-curtime, gt::vec3f(0.0f, 0.0f, 1.0f));
 			the_material.bind();
 			the_shape.draw();
-			gt::renderer::bind_for_reading();
+			gt::renderer::begin_light_pass();
 			gt::renderer::null_light_pass();
 			gt::renderer::get_text_shader()->activate();
 			gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
