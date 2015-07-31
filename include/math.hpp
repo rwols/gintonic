@@ -2320,7 +2320,7 @@ struct SQT_camera : public SQT
 	mat4f get_projection_matrix(const int width, const int height) 
 		const BOOST_NOEXCEPT_OR_NOTHROW
 	{
-
+		return mat4f(1.0f);
 	}
 };
 

@@ -65,9 +65,7 @@ if (WIN32)
 	# Enable multithreaded compilation
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
-endif ()
-
-if (CMAKE_COMPILER_IS_GNUCXX)
+else ()
 	add_definitions(-DBOOST_TEST_DYN_LINK) 
 	add_definitions(-std=c++11)
 	add_definitions(-Wall)
