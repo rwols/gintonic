@@ -182,7 +182,7 @@ public:
 	// void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW; // NOTE: ONLY TEMPORARY
 	// void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW; // NOTE: ONLY TEMPORARY
 	void set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_intensity(const vec3f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_light_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW;
 protected:
 	lp_directional_shader(
@@ -210,7 +210,7 @@ public:
 	void set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
 	// void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW; // NOTE: ONLY TEMPORARY
 	void set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_intensity(const vec3f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_light_position(const vec3f& position) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_light_attenuation(const vec3f& attenuation) const BOOST_NOEXCEPT_OR_NOTHROW;
 protected:

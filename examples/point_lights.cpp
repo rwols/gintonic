@@ -41,16 +41,17 @@ int main(int argc, char* argv[])
 		std::vector<std::unique_ptr<gt::material>> light_materials;
 
 		{
-			gt::vec3f attenuation(0.1f, 0.5f, 1.0f);
+			gt::vec3f attenuation(0.0f, 0.0f, 1.0f);
 
-			lights.emplace_back(new gt::point_light(gt::vec3f(1.0f, 0.1f, 0.1f), attenuation));
-			lights.emplace_back(new gt::point_light(gt::vec3f(0.1f, 1.0f, 0.1f), attenuation));
-			lights.emplace_back(new gt::point_light(gt::vec3f(0.1f, 0.1f, 1.0f), attenuation));
+			lights.emplace_back(new gt::point_light(gt::vec4f(1.0f, 0.0f, 0.0f, 8.0f), attenuation));
+			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 1.0f, 0.0f, 8.0f), attenuation));
+			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 0.0f, 1.0f, 8.0f), attenuation));
 
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f)));
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 1.0f, 0.0f, 0.0f)));
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 0.0f, 1.0f, 0.0f)));
 		}
+		
 		light_transforms[0].scale = 0.1f;
 		light_transforms[1].scale = 0.1f;
 		light_transforms[2].scale = 0.1f;

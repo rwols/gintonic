@@ -17,7 +17,7 @@ uniform struct GeometryBuffer
 } gbuffer;
 
 uniform struct DirectionalLight {
-	vec3 intensity;
+	vec4 intensity;
 	vec3 direction;
 } light;
 
@@ -46,7 +46,7 @@ void main()
 	float diffuse_factor = diffuse.a;
 	float ambient_factor = 1.0f - diffuse_factor;
 
-	final_color = diffuse_factor * lambertian * light.intensity * diffuse.rgb 
+	final_color = light.intensity.a * diffuse_factor * lambertian * light.intensity.rgb * diffuse.rgb 
 		+ ambient_factor * diffuse.rgb;
 	// final_color += diffuse.rgb;
 }

@@ -5,7 +5,7 @@
 
 namespace gintonic {
 
-light::light(const vec3f& intensity)
+light::light(const vec4f& intensity)
 : intensity(intensity)
 {
 	/* Empty on purpose. */
@@ -25,7 +25,7 @@ void light::shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW
 	renderer::get_unit_quad_P().draw();
 }
 
-directional_light::directional_light(const vec3f& intensity)
+directional_light::directional_light(const vec4f& intensity)
 : light(intensity)
 {
 	/* Empty on purpose. */
@@ -52,13 +52,13 @@ void directional_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_N
 	renderer::get_unit_quad_P().draw();
 }
 
-point_light::point_light(const vec3f& intensity)
+point_light::point_light(const vec4f& intensity)
 : light(intensity)
 {
 	/* Empty on purpose. */
 }
 
-point_light::point_light(const vec3f& intensity, const vec3f& attenuation)
+point_light::point_light(const vec4f& intensity, const vec3f& attenuation)
 : light(intensity)
 {
 	set_attenuation(attenuation);
@@ -141,19 +141,6 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	// pointshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	pointshader.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
 	pointshader.set_light_intensity(intensity);
-
-	// Here, we need to give the shader the position of the light in VIEW 
-	// coordinates. They are already in WORLD coordinates, so all we need to 
-	// do is to apply the WORLD -> VIEW matrix. We retrieve this matrix from
-	// the renderer's bound camera.
-	// NOTE: When we do normal mapping, this might need to be changed so that
-	// the position of the light is given in tangent space coordinates.
-
-	// const auto tmp = renderer::camera().matrix_V() * vec4f(t.translation[0], t.translation[1], t.translation[2], 1.0f);
-	// const vec3f light_pos(tmp[0], tmp[1], tmp[2]);
-	// const auto light_pos = renderer::camera().matrix_V().apply_to_point(t.translation);
-
-	// pointshader.set_light_position(light_pos);
 	pointshader.set_light_position(t.translation);
 	pointshader.set_light_attenuation(m_attenuation);
 	pointshader.set_matrix_PVM(renderer::matrix_PVM());

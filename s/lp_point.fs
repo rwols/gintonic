@@ -17,7 +17,7 @@ uniform struct GeometryBuffer
 } gbuffer;
 
 uniform struct PointLight {
-	vec3 intensity;
+	vec4 intensity;
 	vec3 position;
 	vec3 attenuation;
 } light;
@@ -56,5 +56,5 @@ void main()
 
     float lambertian = (diffuse_factor / attenuation) * abs(dot(light_dir, normal));
 
-	final_color = lambertian * light.intensity * diffuse.rgb;
+	final_color = light.intensity.a * lambertian * light.intensity.rgb * diffuse.rgb;
 }

@@ -346,7 +346,7 @@ void lp_directional_shader::set_gbuffer_normal(const GLint texture_unit) const B
 	set_uniform(loc_gbuffer_normal, texture_unit);
 }
 
-void lp_directional_shader::set_light_intensity(const vec3f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW
+void lp_directional_shader::set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_light_intensity, intensity);
 }
@@ -425,7 +425,7 @@ void lp_point_shader::set_gbuffer_normal(const GLint texture_unit) const BOOST_N
 	set_uniform(loc_gbuffer_normal, texture_unit);
 }
 
-void lp_point_shader::set_light_intensity(const vec3f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW
+void lp_point_shader::set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_light_intensity, intensity);
 }

@@ -15,11 +15,11 @@ class light : std::enable_shared_from_this<light>
 {
 public:
 
-	vec3f intensity;
+	vec4f intensity;
 
 	light() = default;
 
-	light(const vec3f& intensity);
+	light(const vec4f& intensity);
 	
 	virtual ~light() BOOST_NOEXCEPT_OR_NOTHROW;
 	
@@ -42,7 +42,7 @@ class directional_light : public light
 public:
 	directional_light() = default;
 	
-	directional_light(const vec3f& intensity);
+	directional_light(const vec4f& intensity);
 
 	virtual ~directional_light() BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -65,9 +65,9 @@ public:
 
 	point_light() = default;
 
-	point_light(const vec3f& intensity);
+	point_light(const vec4f& intensity);
 	
-	point_light(const vec3f& intensity, const vec3f& attenuation);
+	point_light(const vec4f& intensity, const vec3f& attenuation);
 
 	virtual ~point_light() BOOST_NOEXCEPT_OR_NOTHROW;
 
