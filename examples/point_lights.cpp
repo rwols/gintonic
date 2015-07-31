@@ -143,11 +143,19 @@ int main(int argc, char* argv[])
 				const auto numlights = static_cast<float>(lights.size());
 				const auto radius = 3.0f;
 				const auto elevation = 0.0f;
-				light_transforms[i].translation[0] = radius * std::cos(speed * curtime + 2.0f * float(i) * M_PI / numlights);
+				
+				light_transforms[i].translation[0] = radius 
+					* std::cos(speed * curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
+				
 				light_transforms[i].translation[1] = elevation;
-				light_transforms[i].translation[2] = radius * std::sin(speed * curtime + 2.0f * float(i) * M_PI / numlights);
+				
+				light_transforms[i].translation[2] = radius 
+					* std::sin(speed * curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
+				
 				gt::renderer::set_model_matrix(light_transforms[i].get_matrix());
+				
 				light_materials[i]->bind();
+				
 				gt::renderer::get_unit_sphere_P().draw();
 			}
 			gt::renderer::begin_light_pass();

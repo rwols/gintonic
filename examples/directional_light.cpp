@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 		gt::opengl::unit_cube_PUN the_shape;
 		std::unique_ptr<gt::light> the_light(new gt::directional_light(gt::vec4f(1.0f, 0.8f, 0.8f, 1.0f)));
 		gt::sqt_transformf the_light_transform;
-		the_light_transform.rotation = gt::quatf::from_angle_axis(-M_PI / 2.0f, gt::vec3f(1.0f, 0.0f, 0.0f));
+		the_light_transform.rotation = gt::quatf::from_angle_axis(static_cast<float>(-M_PI) / 2.0f, gt::vec3f(1.0f, 0.0f, 0.0f));
 		std::unique_ptr<gt::material> the_material(new gt::material_cd(gt::vec4f(1.0f,1.0f,1.0f,0.9f), "../examples/bricks.jpg"));
 		assert(the_material);
 		gt::renderer::show();

@@ -1,12 +1,6 @@
-/*!
-\file math.hpp
-\author Raoul Wols
-\date 17/09/2014
-\brief Various routines, structs and classes based around linear algebra.
-*/
-
 #ifndef math_hpp
 #define math_hpp
+
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -14,7 +8,6 @@
 #include <algorithm>
 #include <numeric>
 #include <sstream>
-#include <stack>
 #include <iomanip>
 
 #include <boost/config.hpp>
@@ -22,7 +15,7 @@
 #include <boost/serialization/array.hpp>
 #include <boost/geometry.hpp>
 
-#ifdef _MSC_VER
+#ifdef BOOST_MSVC
 	#include <intrin.h>
 #else
 	#include <x86intrin.h>
@@ -30,7 +23,48 @@
 
 #include "profiler.hpp"
 
-/*! \cond */
+/*****************************************************************************
+ * GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE                               *
+ *                                                                           *
+ * Purpose: Convenience macro to define a class' new and delete operators    *
+ *          so that they are aligned on the given boundary. Every class that *
+ *          has a vec4f as data member needs to define this macro in the     *
+ *          class definition with a value of 16.                             *
+ ****************************************************************************/
+#define GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(alignment)               \
+inline static void* operator new(std::size_t count)                          \
+{                                                                            \
+	return _mm_malloc(count, alignment);                                     \
+}                                                                            \
+inline static void operator delete(void* ptr)                                \
+{                                                                            \
+	_mm_free(ptr);                                                           \
+}                                                                            \
+inline static void* operator new[](std::size_t count)                        \
+{                                                                            \
+	return _mm_malloc(count, alignment);                                     \
+}                                                                            \
+inline static void operator delete[](void* ptr)                              \
+{                                                                            \
+	_mm_free(ptr);                                                           \
+}                                                                            \
+inline static void* operator new(std::size_t count, void* ptr)               \
+{                                                                            \
+	return ptr;                                                              \
+}                                                                            \
+inline static void operator delete(void* ptr, std::size_t count)             \
+{                                                                            \
+	_mm_free(ptr);                                                           \
+}                                                                            \
+inline static void operator delete[](void* ptr, std::size_t count)           \
+{                                                                            \
+	_mm_free(ptr);                                                           \
+}                                                                            \
+
+/*****************************************************************************
+ * We include the FBX SDK at this point. The header file has a bunch of      *
+ * warnings if we compile with clang, so we explicitly disable those here.   *
+ ****************************************************************************/
 #ifdef __clang__
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wdocumentation"
@@ -45,9 +79,7 @@
 #ifdef __clang__
 	#pragma clang diagnostic pop
 #endif
-/*! \endcond */
 
-// Clang does not like our nested anonymous structs... So we disable those warnings here.
 #ifdef __clang__
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wgnu"
@@ -55,6 +87,133 @@
 #endif
 
 namespace gintonic {
+
+/*****************************************************************************
+ * gintonic::allocator                                                       *
+ *                                                                           *
+ * Purpose: To be able to put SIMD types in containers.                      *
+ ****************************************************************************/
+template <typename T, std::size_t Alignment = 16> class allocator
+{
+public:
+	typedef T* pointer;
+	typedef const T* const_pointer;
+	typedef T& reference;
+	typedef const T& const_reference;
+	typedef T value_type;
+	typedef std::size_t size_type;
+	typedef ptrdiff_t difference_type;
+
+	inline T* address(T& t) const
+	{
+		return std::addressof(t);
+	}
+	inline const T * address(const T& t) const
+	{
+		return std::addressof(t);
+	}
+
+	inline std::size_t max_size() const
+	{
+		// The following has been carefully written to be independent of
+		// the definition of size_t and to avoid signed/unsigned warnings.
+		return (static_cast<std::size_t>(0) - static_cast<std::size_t>(1)) 
+			/ sizeof(T);
+	}
+
+	// What follows is always the same for all allocators.
+	template <typename U> struct rebind
+	{
+		typedef allocator<U, Alignment> other;
+	};
+
+	inline bool operator!=(const allocator& other) const
+	{
+		return !(*this == other);
+	}
+
+	void construct(T* const p, const T& t) const
+	{
+		void* const pv = static_cast<void*>(p);
+		new (pv) T(t);
+	}
+
+	inline void destroy(T * const p) const
+	{
+		p->~T();
+	}
+
+	// Returns true if and only if storage allocated from *this
+	// can be deallocated from other, and vice versa.
+	// Always returns true for stateless allocators.
+	inline bool operator==(const allocator& other) const
+	{
+		return true;
+	}
+
+
+	// Default constructor, copy constructor, rebinding constructor, and
+	// destructor. Empty for stateless allocators.
+	inline allocator() = default;
+
+	inline allocator(const allocator&) = default;
+
+	template <typename U> inline allocator(const allocator<U, Alignment>&) {}
+
+	inline ~allocator() {}
+
+
+	// The following will be different for each allocator.
+	T* allocate(const std::size_t n) const
+	{
+		// The return value of allocate(0) is unspecified.
+		// Mallocator returns NULL in order to avoid depending
+		// on malloc(0)'s implementation-defined behavior
+		// (the implementation can define malloc(0) to return NULL,
+		// in which case the bad_alloc check below would fire).
+		// All allocators can return NULL in this case.
+		if (n == 0) 
+		{
+			return nullptr;
+		}
+
+		// All allocators should contain an integer overflow check.
+		// The Standardization Committee recommends that std::length_error
+		// be thrown in the case of integer overflow.
+		if (n > max_size())
+		{
+			throw std::length_error(
+				"gintonic::allocator<T>::allocate() - Integer overflow.");
+		}
+
+		// Mallocator wraps malloc().
+		void * const pv = _mm_malloc(n * sizeof(T), Alignment);
+
+		// Allocators should throw std::bad_alloc in the case of memory 
+		// allocation failure.
+		if (pv == nullptr)
+		{
+			throw std::bad_alloc();
+		}
+
+		return static_cast<T*>(pv);
+	}
+
+	inline void deallocate(T* const p, const std::size_t n) const
+	{
+		_mm_free(p);
+	}
+
+
+	// The following will be the same for all allocators that ignore hints.
+	template <typename U>
+	inline T* allocate(const std::size_t n, const U* /* const hint */) const
+	{
+		return allocate(n);
+	}
+
+	allocator& operator=(const allocator&) = delete;
+};
 
 /*!
 \brief Computes the sine.
@@ -244,7 +403,7 @@ template <class T, ::std::size_t N> struct vec : public ::std::array<T,N>
 	\param last An iterator pointing to the last element.
 	*/
 	template <class ForwardIter> vec(ForwardIter first,
-	 								ForwardIter last)
+									ForwardIter last)
 	{
 		::std::copy(first, last, this->begin());
 	}
@@ -298,10 +457,10 @@ template <class T, ::std::size_t N> struct vec : public ::std::array<T,N>
 	}
 
 	friend class boost::serialization::access;
-    template <class Archive> void serialize(Archive& ar, const unsigned int version)
-    {
-        ar & *this;
-    }
+	template <class Archive> void serialize(Archive& ar, const unsigned int version)
+	{
+		ar & *this;
+	}
 };
 
 /*!
@@ -376,15 +535,15 @@ template <class T> struct vec<T,2> : public ::std::array<T,2>
 
 	// inline vec(const FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW
 	// {
-	// 	(*this)[0] = static_cast<T>(v[0]);
-	// 	(*this)[1] = static_cast<T>(v[1]);
+	//  (*this)[0] = static_cast<T>(v[0]);
+	//  (*this)[1] = static_cast<T>(v[1]);
 	// }
 
 	// inline vec& operator=(const FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW
 	// {
-	// 	(*this)[0] = static_cast<T>(v[0]);
-	// 	(*this)[1] = static_cast<T>(v[1]);
-	// 	return *this;
+	//  (*this)[0] = static_cast<T>(v[0]);
+	//  (*this)[1] = static_cast<T>(v[1]);
+	//  return *this;
 	// }
 
 	inline operator FbxVector2() const BOOST_NOEXCEPT_OR_NOTHROW
@@ -429,10 +588,10 @@ template <class T> struct vec<T,2> : public ::std::array<T,2>
 	}
 
 	friend class boost::serialization::access;
-    template <class Archive> void serialize(Archive& ar, const unsigned int version)
-    {
-        ar & *this;
-    }
+	template <class Archive> void serialize(Archive& ar, const unsigned int version)
+	{
+		ar & *this;
+	}
 
 	static const vec<T,2> NaN;
 	static const vec<T,2> zero;
@@ -470,8 +629,8 @@ template <class T> struct vec<T,3> : public ::std::array<T,3>
 
 	// inline vec& operator = (std::initializer_list<T> l)
 	// {
-	// 	std::copy(l.begin(), l.end(), this->begin());
-	// 	return *this;
+	//  std::copy(l.begin(), l.end(), this->begin());
+	//  return *this;
 	// }
 
 	vec(const FbxDouble3& fbx_vector)
@@ -488,17 +647,17 @@ template <class T> struct vec<T,3> : public ::std::array<T,3>
 
 	// inline vec(const FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
 	// {
-	// 	(*this)[0] = static_cast<T>(v[0]);
-	// 	(*this)[1] = static_cast<T>(v[1]);
-	// 	(*this)[2] = static_cast<T>(v[2]);
+	//  (*this)[0] = static_cast<T>(v[0]);
+	//  (*this)[1] = static_cast<T>(v[1]);
+	//  (*this)[2] = static_cast<T>(v[2]);
 	// }
 
 	// inline vec& operator = (const FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
 	// {
-	// 	(*this)[0] = static_cast<T>(v[0]);
-	// 	(*this)[1] = static_cast<T>(v[1]);
-	// 	(*this)[2] = static_cast<T>(v[2]);
-	// 	return *this;
+	//  (*this)[0] = static_cast<T>(v[0]);
+	//  (*this)[1] = static_cast<T>(v[1]);
+	//  (*this)[2] = static_cast<T>(v[2]);
+	//  return *this;
 	// }
 
 	template <class S>
@@ -559,10 +718,10 @@ template <class T> struct vec<T,3> : public ::std::array<T,3>
 	}
 
 	friend class boost::serialization::access;
-    template <class Archive> void serialize(Archive& ar, const unsigned int version)
-    {
-        ar & *this;
-    }
+	template <class Archive> void serialize(Archive& ar, const unsigned int version)
+	{
+		ar & *this;
+	}
 
 	static const vec<T,3> NaN;
 	static const vec<T,3> zero;
@@ -600,12 +759,12 @@ template <class T> struct BOOST_ALIGNMENT(16) vec<T,4> : public ::std::array<T,4
 	BOOST_CONSTEXPR vec(::std::array<T,4>&& a) : ::std::array<T,4>(std::move(a)) {}
 	// vec(const Fbxvec4& fbxvec)
 	// {
-	// 	static_assert(::std::is_same<T,float>::value || ::std::is_same<T,double>::value,
-	// 		"This constructor can only be used when the type T is either float or double.");
-	// 	(*this)[0] = ((const double*)fbxvec)[0];
-	// 	(*this)[1] = ((const double*)fbxvec)[1];
-	// 	(*this)[2] = ((const double*)fbxvec)[2];
-	// 	(*this)[3] = ((const double*)fbxvec)[3];
+	//  static_assert(::std::is_same<T,float>::value || ::std::is_same<T,double>::value,
+	//      "This constructor can only be used when the type T is either float or double.");
+	//  (*this)[0] = ((const double*)fbxvec)[0];
+	//  (*this)[1] = ((const double*)fbxvec)[1];
+	//  (*this)[2] = ((const double*)fbxvec)[2];
+	//  (*this)[3] = ((const double*)fbxvec)[3];
 	// }
 
 	BOOST_CONSTEXPR vec(const T x, const T y, const T z, const T w) : ::std::array<T,4>({{x,y,z,w}}) {} // Dont ask.....
@@ -646,21 +805,13 @@ template <class T> struct BOOST_ALIGNMENT(16) vec<T,4> : public ::std::array<T,4
 		return r;
 	}
 
-	inline static void* operator new(const std::size_t size)
-	{
-		return _mm_malloc(size, 16);
-	}
-
-	inline static void operator delete(void* ptr)
-	{
-		_mm_free(ptr);
-	}
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
 
 	// friend class boost::serialization::access;
-    template <class Archive> void serialize(Archive& ar, const unsigned /*int version*/)
-    {
-        ar & this->operator[](0) & this->operator[](1) & this->operator[](2) & this->operator[](3);
-    }
+	template <class Archive> void serialize(Archive& ar, const unsigned /*int version*/)
+	{
+		ar & this->operator[](0) & this->operator[](1) & this->operator[](2) & this->operator[](3);
+	}
 
 	static const vec<T,4> NaN;
 	static const vec<T,4> zero;
@@ -1014,8 +1165,8 @@ template <class T> struct mat<T,3> : ::std::array<vec<T,3>,3>
 		vec<T,3> theVec;
 		T sin, cos;
 		sincos(angle, sin, cos);
-	    // const T sin = ::std::sin(angle);
-	    // const T cos = ::std::cos(angle);
+		// const T sin = ::std::sin(angle);
+		// const T cos = ::std::cos(angle);
 		const T omcos = T(1) - cos;
 
 		theVec[0] = cos + axis[0] * axis[0] * omcos;
@@ -1442,7 +1593,7 @@ template <class T> struct euler_xyz
 		sincos(gamma, c_, c__);
 		return mat<T,3>
 		(
-			                 b__ * c__,                 -b__ * c_,      -b_ ,
+							 b__ * c__,                 -b__ * c_,      -b_ ,
 			a__ * c_ - a_  * b_  * c__, a_ * c__ + a_  * b_  * c_, -a_ * b__,
 			a_  * c_ + a__ * b_  * c__, a_ * c__ - a__ * b_  * c_, a__ * b__
 		);
@@ -1487,7 +1638,7 @@ template <class T> struct quat
 		w = cos(halfdiff) * halfsin;
 		x = sin(halfdiff) * halfsin;
 		y = sin(halfsum) * halfcos;
-		z = cos(halfsum) * halfcos;	
+		z = cos(halfsum) * halfcos; 
 	}
 
 	static quat from_angle_axis(const T angle, const vec<T,3>& axis)
@@ -1592,9 +1743,9 @@ template <class T> struct quat
 		return mat<T,4>
 		(
 		 1 - (yy + zz)  ,      xy - wz   ,       xz + wy , 0,
-		      xy + wz   , 1 - (xx + zz)  ,      yz - wx  , 0,
-		      xz - wy   ,      yz + wx   , 1 - (xx + yy) , 0,
-		             0  ,              0 ,             0 , 1
+			  xy + wz   , 1 - (xx + zz)  ,      yz - wx  , 0,
+			  xz - wy   ,      yz + wx   , 1 - (xx + yy) , 0,
+					 0  ,              0 ,             0 , 1
 		);
 	}
 
@@ -1613,9 +1764,9 @@ template <class T> struct quat
 		const T zz = s * z * z;
 		return mat<T,3>
 		(
-		    T(1) - (yy + zz),         xy - wz ,         xz + wy ,
-		            xy + wz , T(1) - (xx + zz),         yz - wx ,
-		            xz - wy ,         yz + wx , T(1) - (xx + yy)
+			T(1) - (yy + zz),         xy - wz ,         xz + wy ,
+					xy + wz , T(1) - (xx + zz),         yz - wx ,
+					xz - wy ,         yz + wx , T(1) - (xx + yy)
 		);
 	}
 
@@ -1733,7 +1884,7 @@ template <class T> struct axis_angle
 		sincos(angle, sin, cos);
 		const mat<T,3> e
 		(
-			       0, -axis[2],  axis[1], 
+				   0, -axis[2],  axis[1], 
 			 axis[2],        0, -axis[0], 
 			-axis[1],  axis[0],        0
 		);
@@ -1932,12 +2083,12 @@ template <class T> struct sqt_transform
 
 	// mat<T,4> get_matrix() const BOOST_NOEXCEPT_OR_NOTHROW
 	// {
-	// 	mat<T,4> lResult = rotation.to_rotation_matrix();
-	// 	lResult *= mat<T,4>(scale);
-	// 	lResult(0,3) = translation[0];
-	// 	lResult(1,3) = translation[1];
-	// 	lResult(2,3) = translation[2];
-	// 	return lResult;
+	//  mat<T,4> lResult = rotation.to_rotation_matrix();
+	//  lResult *= mat<T,4>(scale);
+	//  lResult(0,3) = translation[0];
+	//  lResult(1,3) = translation[1];
+	//  lResult(2,3) = translation[2];
+	//  return lResult;
 	// }
 	mat<T,4> get_matrix() const BOOST_NOEXCEPT_OR_NOTHROW
 	{
@@ -1959,13 +2110,13 @@ template <class T> struct sqt_transform
 
 	// mat<T,4> get_inverse_matrix() const BOOST_NOEXCEPT_OR_NOTHROW
 	// {
-	// 	mat<T,4> r = rotation.to_rotation_matrix().transpose();
-	// 	r(0,0) *= inverse(scale);
-	// 	r(1,1) *= inverse(scale);
-	// 	r(2,2) *= inverse(scale);
-	// 	r(0,3) = -translation[0];
-	// 	r(1,3) = -translation[1];
-	// 	r(2,3) = -translation[2];
+	//  mat<T,4> r = rotation.to_rotation_matrix().transpose();
+	//  r(0,0) *= inverse(scale);
+	//  r(1,1) *= inverse(scale);
+	//  r(2,2) *= inverse(scale);
+	//  r(0,3) = -translation[0];
+	//  r(1,3) = -translation[1];
+	//  r(2,3) = -translation[2];
 	// }
 
 	mat<T,3> get_non_translation_model_matrix() const BOOST_NOEXCEPT_OR_NOTHROW
@@ -2095,6 +2246,81 @@ template <class T> struct camera_transform
 	void move_down(const T amount) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		position -= amount * up;
+	}
+};
+
+struct SQT
+{
+	float scale;
+	quatf rotation;
+	vec3f translation;
+
+	SQT() = default;
+
+	SQT(const float scale, const quatf& rotation, const vec3f& translation)
+	: scale(scale), rotation(rotation), translation(translation) {}
+
+	mat4f get_matrix() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		mat4f r = rotation.to_rotation_matrix();
+		r(0,0) *= scale;
+		r(0,1) *= scale;
+		r(0,2) *= scale;
+		r(1,0) *= scale;
+		r(1,1) *= scale;
+		r(1,2) *= scale;
+		r(2,0) *= scale;
+		r(2,1) *= scale;
+		r(2,2) *= scale;
+		r(0,3) = translation[0];
+		r(1,3) = translation[1];
+		r(2,3) = translation[2];
+		return r;
+	}
+
+	SQT operator & (const SQT& other) const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return SQT(scale * other.scale, rotation * other.rotation, translation + other.translation);
+	}
+
+	SQT& operator &= (const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		scale *= other.scale;
+		rotation *= other.rotation;
+		translation += other.translation;
+		return *this;
+	}
+	// Example:
+	//
+	// SQT a, b;
+	//
+	// a.scale = 1;
+	// a.rotation = quatf::from_angle_axis(M_PI, vec3f(0,1,0));
+	// a.translation = vec3f(10,20,-40);
+	//
+	// b.scale = 0.5f;
+	// b.rotation = quatf(0,1,0,0);
+	// b.translation = vec3f(1,5,-19);
+	//
+	// SQT c = a & b;
+};
+
+struct SQT_camera : public SQT
+{
+	enum class e_projection_type : char { orthographic, projective };
+	e_projection_type projection_type;
+	float horizontal_angle;
+	float vertical_angle;
+	float fake_zoom;
+	float orthographic_zoom;
+	float field_of_view;
+	float near_plane;
+	float far_plane;
+
+	mat4f get_projection_matrix(const int width, const int height) 
+		const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+
 	}
 };
 

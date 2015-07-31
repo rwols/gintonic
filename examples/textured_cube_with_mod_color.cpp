@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
 		gt::fontstream stream;
 		gt::opengl::unit_cube_PUN the_shape;
-		gt::material_cd the_material(gt::vec4f(1.0f, 1.0f, 1.0f, 1.0f), "../examples/bricks.jpg");
+		gt::material_cd the_material(gt::vec4f(1.0f, 1.0f, 1.0f, 0.0f), "../examples/bricks.jpg");
 		gt::renderer::show();
 		float curtime, dt;
 		while (!gt::renderer::should_close())

@@ -1,5 +1,10 @@
 cmake_minimum_required (VERSION 2.8)
 
+project(gintonic)
+
+set(project_name Gintonic CACHE STRING "The name of the project")
+set(project_version v0.1 CACHE STRING "The project version")
+
 #
 # If the user specifies -DCMAKE_BUILD_TYPE on the command line, take their definition
 # and dump it in the cache along with proper documentation, otherwise set CMAKE_BUILD_TYPE
@@ -29,8 +34,8 @@ if (WIN32)
 	endif ()
 	set(BOOST_ROOT $ENV{BOOST})
 	
-	option(HIDE_CONSOLE "Hide the console on Windows." OFF)
-	option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output streams to files." OFF)
+	set(HIDE_CONSOLE OFF CACHE BOOL "Hide the console on Windows." )
+	set(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE OFF CACHE BOOL "Redirect the standard output streams to files.")
 	
 	if (HIDE_CONSOLE)
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
@@ -43,25 +48,34 @@ if (WIN32)
 	add_definitions(/DBOOST_TEST_DYN_LINK) 
 	add_definitions(/DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 
-	# Configure Boost libraries
-	set(Boost_USE_MULTITHREADED ON)
-	set(Boost_USE_STATIC_LIBS OFF)
-	set(Boost_USE_STATIC_RUNTIME OFF)
+	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+		# For some reason this still gives warnings about
+		# linking to a wrong C runtime. No idea how to fix this.
+		# add_definitions(/MD)
+	else ()
+		# For some reason this still gives warnings about
+		# linking to a wrong C runtime. No idea how to fix this.
+		# add_definitions(/MD)
+	endif ()
+
+	# WARNING: BIG HACK!!!
+	# Remove this when the above is fixed.
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ignore:4098" CACHE INTERNAL "Big hack")
 
 	# Enable multithreaded compilation
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
-else ()
+endif ()
+
+if (CMAKE_COMPILER_IS_GNUCXX)
 	add_definitions(-DBOOST_TEST_DYN_LINK) 
 	add_definitions(-std=c++11)
-	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-		add_definitions(-Wall)
-	endif ()
+	add_definitions(-Wall)
 	add_definitions(-msse3)
-endif (WIN32)
+endif ()
 
-option(WITH_PROFILING "Profile various math functions. " OFF)
-option(WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
+set(WITH_PROFILING OFF CACHE BOOL "Profile various math functions. ")
+set(WITH_MEMORY_PROFILING OFF CACHE BOOL "Profile various memory allocations.")
 
 include_directories("include")
 
@@ -97,6 +111,7 @@ if (NOT WIN32)
 	find_package(PNG REQUIRED)
 endif ()
 find_package(Freetype REQUIRED)
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 # find_package(FBX REQUIRED)
 if (APPLE)
@@ -122,7 +137,34 @@ include_directories(
 	${OPENGL_INCLUDE_DIRS}
 	${FBX_INCLUDE_DIR})
 
-if (NOT WIN32)
+if (WIN32)
+	list(GET SDL2_LIBRARY 1 SDL2_dll)
+	string(REPLACE ".lib" ".dll" SDL2_dll ${SDL2_dll})
+	file(COPY ${SDL2_dll} DESTINATION ${CMAKE_BINARY_DIR})
+	set(Boost_DLL_are_copied OFF CACHE INTERNAL "Only copy Boost DLLs once.")
+	if (NOT Boost_USE_STATIC_LIBS AND NOT Boost_DLL_are_copied)
+		message(STATUS "Copying Boost DLLs to build folder.")
+		set(found_correct_library OFF)
+		set(boost_lib_token "optimized")
+		if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+			set(boost_lib_token "debug")
+		endif ()
+		foreach (list_item IN LISTS Boost_LIBRARIES)
+			# message(STATUS "Current list item: ${list_item}")
+			if (list_item STREQUAL boost_lib_token)
+				# message(STATUS "Found debug lib...")
+				set(found_correct_library ON)
+			elseif (found_correct_library)
+				# message(STATUS "Replacing .lib with .dll")
+				string(REPLACE ".lib" ".dll" list_item ${list_item})
+				# message(STATUS "Copying ${list_item} to ${CMAKE_BINARY_DIR}")
+				file(COPY ${list_item} DESTINATION ${CMAKE_BINARY_DIR})
+				set(found_correct_library OFF)
+			endif ()
+		endforeach()
+		set(Boost_DLL_are_copied ON CACHE INTERNAL "Only copy Boost DLLs once.")
+	endif ()
+else ()
 	include_directories(
 		${JPEG_INCLUDE_DIR}
 		${PNG_INCLUDE_DIRS})
@@ -136,75 +178,6 @@ mark_as_advanced(SDL2_INCLUDE_DIR)
 mark_as_advanced(SDL2_LIBRARY)
 mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 mark_as_advanced(CMAKE_INSTALL_PREFIX)
-
-if (WIN32)
-	# string(REPLACE ".lib" ".dll" Boost_LIBRARIES_DLL ${Boost_LIBRARIES})
-	# string(REPLACE ".lib" ".dll" Boost_SYSTEM_DLL ${Boost_SYSTEM_LIBRARY})
-	# string(REPLACE ".lib" ".dll" Boost_FILESYSTEM_DLL ${Boost_FILESYSTEM_LIBRARY})
-	# string(REPLACE ".lib" ".dll" Boost_SERIALIZATION_DLL ${Boost_SERIALIZATION_LIBRARY})
-	# string(REPLACE ".lib" ".dll" SDL2_LIBRARY_DLL ${SDL2_LIBRARY})
-	# message(STATUS ${Boost_LIBRARIES_DLL})
-	# message(STATUS ${SDL2_LIBRARY_DLL})
-	function(target_link_gintonic targetname)
-		target_link_libraries(
-			${targetname} 
-			${Boost_LIBRARIES}
-			${OPENGL_LIBRARIES} 
-			${SDL2_LIBRARY} 
-			${FREETYPE_LIBRARIES} 
-			${FBX_LIBRARY_DEBUG} 
-			${CMAKE_THREAD_LIBS_INIT}
-			gintonic
-		)
-		# file(COPY ${Boost_LIBRARIES_DLL} DESTINATION ${CMAKE_BINARY_DIR})
-		# file(COPY ${SDL2_LIBRARY_DLL} DESTINATION ${CMAKE_BINARY_DIR})
-		# add_custom_command(
-		# 	TARGET ${targetname}
-		# 	POST_BUILD
-		# 	COMMAND cp ARGS ${SDL2_LIBRARY_DLL} ${CMAKE_BINARY_DIR}
-		# 	COMMAND cp ARGS ${Boost_LIBRARIES_DLL} ${CMAKE_BINARY_DIR}
-		# 	# COMMAND copy ARGS ${MYLIBRARY_SOURCE_DIR}/lib/release/mylib.lib ${MYLIBRARY_SOURCE_DIR}/lib
-		# )
-	endfunction(target_link_gintonic)
-	function(target_link_no_lib targetname)
-		target_link_libraries(
-			${targetname} 
-			${Boost_LIBRARIES}
-			${OPENGL_LIBRARIES} 
-			${SDL2_LIBRARY} 
-			${FREETYPE_LIBRARIES} 
-			${FBX_LIBRARY_DEBUG} 
-			${CMAKE_THREAD_LIBS_INIT})
-	endfunction(target_link_no_lib)
-else()
-	function(target_link_gintonic targetname)
-		target_link_libraries(
-			${targetname} 
-			${Boost_LIBRARIES} 
-			${OPENGL_LIBRARIES} 
-			${SDL2_LIBRARY} 
-			${JPEG_LIBRARIES} 
-			${PNG_LIBRARIES} 
-			${FREETYPE_LIBRARIES} 
-			${FBX_LIBRARY_DEBUG} 
-			${CMAKE_THREAD_LIBS_INIT}
-			-ldl
-			gintonic)
-	endfunction(target_link_gintonic)
-	function(target_link_no_lib targetname)
-		target_link_libraries(
-			${targetname} 
-			${Boost_LIBRARIES} 
-			${OPENGL_LIBRARIES} 
-			${SDL2_LIBRARY} 
-			${JPEG_LIBRARIES} 
-			${PNG_LIBRARIES} 
-			${FREETYPE_LIBRARIES} 
-			${FBX_LIBRARY_DEBUG} 
-			${CMAKE_THREAD_LIBS_INIT}
-			-ldl)
-	endfunction(target_link_no_lib)
-endif()
 
 add_subdirectory (lib)
 

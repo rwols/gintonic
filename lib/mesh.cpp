@@ -54,7 +54,7 @@ void load_UVs(FbxMesh* pMesh, std::vector<gintonic::vec2f>& uvs)
 
 				//User TODO:
 				//Print out the value of UV(lUVValue) or log it to a file
-				uvs.emplace_back(lUVValue[0], lUVValue[1]);
+				uvs.emplace_back(static_cast<float>(lUVValue[0]), static_cast<float>(lUVValue[1]));
 			}
 		}
 	}
@@ -78,7 +78,7 @@ void load_UVs(FbxMesh* pMesh, std::vector<gintonic::vec2f>& uvs)
 
 					//User TODO:
 					//Print out the value of UV(lUVValue) or log it to a file
-					uvs.emplace_back(lUVValue[0], lUVValue[1]);
+					uvs.emplace_back(static_cast<float>(lUVValue[0]), static_cast<float>(lUVValue[1]));
 
 					lPolyIndexCounter++;
 				}

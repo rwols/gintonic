@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(math)
-add_executable(math math.cpp)
-target_link_no_lib(math)
+set(unit_tests math
+	materials)
 
-project(materials)
-add_executable(materials materials.cpp)
-target_link_gintonic(materials)
+foreach (unit_test ${unit_tests})
+	add_executable(${unit_test} ${unit_test}.cpp)
+	target_link_libraries(${unit_test} gintonic)
+endforeach ()

@@ -25,6 +25,8 @@ public:
 	
 	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW;
 
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+
 private:
 
 	friend boost::serialization::access;
@@ -47,6 +49,8 @@ public:
 	virtual ~directional_light() BOOST_NOEXCEPT_OR_NOTHROW;
 
 	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
 
 private:
 
@@ -78,6 +82,8 @@ public:
 	float cutoff_point() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
 
 private:
 

@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "gintonic.hpp"
+#include <vector>
 
 using namespace gintonic;
 
@@ -28,7 +29,7 @@ BOOST_AUTO_TEST_CASE( vector2_test )
 	// auto dist = distance2(a, b);
 	// BOOST_CHECK_EQUAL(dist, 2.0f);
 	// dist = distance(a, b);
-	// BOOST_CHECK_CLOSE(dist, 1.41421356237f, 0.0001);
+	// BOOST_CHECK_CLOSE(dist, 1.41421356237f, 0.01f);
 }
 
 BOOST_AUTO_TEST_CASE( vector3_test )
@@ -42,29 +43,37 @@ BOOST_AUTO_TEST_CASE( vector3_test )
 	BOOST_CHECK_EQUAL(c % a, b); // cross product
 }
 
+BOOST_AUTO_TEST_CASE ( vector4_test )
+{
+	std::vector<vec4f, allocator<vec4f>> arr;
+	arr.emplace_back(1.0f, 2.0f,  3.0f, 4.0f);
+	arr.emplace_back(2.0f, 1.0f, -1.0f, 1.0f);
+	BOOST_CHECK_EQUAL(dot(arr[0], arr[1]), 5.0f);
+}
+
 BOOST_AUTO_TEST_CASE ( quaternion_test )
 {
-	quatf a = quatf::from_angle_axis(M_PI / 2.0f, vec3f(0.0f, 1.0f, 0.0f));
-	quatf b = quatf::from_angle_axis(M_PI / 2.0f, vec3f(0.0f, 0.0f, -1.0f));
+	quatf a = quatf::from_angle_axis(static_cast<float>(M_PI) / 2.0f, vec3f(0.0f, 1.0f, 0.0f));
+	quatf b = quatf::from_angle_axis(static_cast<float>(M_PI) / 2.0f, vec3f(0.0f, 0.0f, -1.0f));
 	auto dir = a.direction();
-	BOOST_CHECK_CLOSE(dir[0], -1.0f, 0.001);
-	BOOST_CHECK_CLOSE(dir[1], 0.0f, 0.001);
-	BOOST_CHECK_CLOSE(dir[2], 0.0f, 0.001);
+	BOOST_CHECK_CLOSE(dir[0], -1.0f, 0.001f);
+	BOOST_CHECK_CLOSE(dir[1],  0.0f, 0.001f);
+	BOOST_CHECK_CLOSE(dir[2],  0.0f, 0.001f);
 
 	// start with the vector [0,0,-1]. rotate it CCW 90 degrees around [0,0,-1]
 	// (so that does nothing), then rotate it CCW 90 degrees around [0,1,0],
 	// which results in the vector [-1,0,0].
 	dir = (a * b).direction();
-	BOOST_CHECK_CLOSE(dir[0], -1.0f, 0.001); // note that quaternion multiplication is not commutative ...
-	BOOST_CHECK_CLOSE(dir[1], 0.0f, 0.001);
-	BOOST_CHECK_CLOSE(dir[2], 0.0f, 0.001);
+	BOOST_CHECK_CLOSE(dir[0], -1.0f, 0.001f); // note that quaternion multiplication is not commutative ...
+	BOOST_CHECK_CLOSE(dir[1],  0.0f, 0.001f);
+	BOOST_CHECK_CLOSE(dir[2],  0.0f, 0.001f);
 
 	// start with the vector [0,0,-1], rotate it CCW 90 degrees around [0,1,0],
 	// which results in the vector [-1,0,0], then rotate it CCW 90 degrees around
 	// [0,0,-1]. This is the same as rotating CW 90 degrees around [0,0,1], which
 	// results in the vector [0,1,0].
 	dir = (b * a).direction();
-	BOOST_CHECK_CLOSE(dir[0], 0.0f, 0.001); // ... as is demonstrated here
-	BOOST_CHECK_CLOSE(dir[1], 1.0f, 0.001);
-	BOOST_CHECK_CLOSE(dir[2], 0.0f, 0.001);
+	BOOST_CHECK_CLOSE(dir[0], 0.0f, 0.001f); // ... as is demonstrated here
+	BOOST_CHECK_CLOSE(dir[1], 1.0f, 0.001f);
+	BOOST_CHECK_CLOSE(dir[2], 0.0f, 0.001f);
 }

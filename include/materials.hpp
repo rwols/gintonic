@@ -94,6 +94,8 @@ public:
 
 	vec4f diffuse_color;
 
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+
 private:
 
 	friend boost::serialization::access;
@@ -146,6 +148,8 @@ public:
 
 	virtual ~material_cd() BOOST_NOEXCEPT_OR_NOTHROW;
 
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+
 protected:
 
 	material_cd(); // for boost::serialization
@@ -183,6 +187,7 @@ private:
 
 class material_cds : public material_cd
 {
+public:
 	const opengl::texture2d& specular() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	void set_specular(const boost::filesystem::path&);
@@ -195,6 +200,8 @@ class material_cds : public material_cd
 	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	virtual ~material_cds() BOOST_NOEXCEPT_OR_NOTHROW;
+
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
 
 protected:
 
@@ -246,6 +253,8 @@ public:
 
 	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
 	virtual ~material_cdn() BOOST_NOEXCEPT_OR_NOTHROW;
+
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
 
 protected:
 
