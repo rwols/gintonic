@@ -151,9 +151,10 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 
 	// const auto tmp = renderer::camera().matrix_V() * vec4f(t.translation[0], t.translation[1], t.translation[2], 1.0f);
 	// const vec3f light_pos(tmp[0], tmp[1], tmp[2]);
-	const auto light_pos = renderer::camera().matrix_V().apply_to_point(t.translation);
+	// const auto light_pos = renderer::camera().matrix_V().apply_to_point(t.translation);
 
-	pointshader.set_light_position(light_pos);
+	// pointshader.set_light_position(light_pos);
+	pointshader.set_light_position(t.translation);
 	pointshader.set_light_attenuation(m_attenuation);
 	pointshader.set_matrix_PVM(renderer::matrix_PVM());
 	sphere.draw();
