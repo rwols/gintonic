@@ -4,6 +4,7 @@ set(examples directional_light
 	fps_camera
 	geometry_buffer_showcase
 	point_lights
+	quadtree_console
 	rotating_square
 	square
 	text

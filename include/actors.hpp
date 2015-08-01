@@ -8,9 +8,7 @@ namespace gintonic {
 
 class light;
 class material;
-class geometry_pass_shader;
-class directional_light_pass_shader;
-class point_light_pass_shader;
+template <class T> class octree;
 
 namespace opengl { class shader; }
 
@@ -26,8 +24,13 @@ public:
 
 	virtual ~actor() BOOST_NOEXCEPT_OR_NOTHROW;
 
+	const box3f& bounds() const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	octree<actor>* spatialtree = nullptr;
+
 protected:
 	actor() = default;
+	box3f m_bounds;
 };
 
 class static_model_actor : public actor
@@ -65,6 +68,17 @@ private:
 	void process_mesh(FbxMesh*, const sqt_transformf&);
 
 	void process_light(FbxLight*, const sqt_transformf&);
+};
+
+class animated_model_actor : public actor
+{
+	animated_model_actor() = default;
+	animated_model_actor(FbxScene*);
+
+	virtual ~animated_model_actor() BOOST_NOEXCEPT_OR_NOTHROW;
+
+	virtual void draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW;
 };
 
 } // namespace gintonic

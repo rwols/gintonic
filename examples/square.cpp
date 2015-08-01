@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 				gt::renderer::close();
 			}
 			gt::renderer::begin_geometry_pass();
-			gt::renderer::set_model_matrix(1);
+			gt::renderer::set_model_matrix(1.0f);
 			the_material.bind();
 			the_shape.draw();
 			gt::renderer::begin_light_pass();

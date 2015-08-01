@@ -65,6 +65,11 @@ actor::~actor() BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
+const box3f& actor::bounds() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return m_bounds;
+}
+
 static_model_actor::static_model_actor( 
 	FbxScene* scene)
 {
