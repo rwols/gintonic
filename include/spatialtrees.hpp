@@ -343,7 +343,8 @@ public:
 	: detail::spatialtree<2, T, quadtree<T>>(std::forward<U0>(min_corner), 
 		std::forward<U1>(max_corner))
 	{
-		m_child[0] = m_child[1] = m_child[2] = m_child[3] = nullptr;
+		this->m_child[0] = this->m_child[1] 
+			= this->m_child[2] = this->m_child[3] = nullptr;
 	}
 
 	template <class U0, class U1, class ForwardIter>
@@ -352,10 +353,11 @@ public:
 	: detail::spatialtree<2, T, quadtree<T>>(std::forward<U0>(min_corner), 
 		std::forward<U1>(max_corner))
 	{
-		m_child[0] = m_child[1] = m_child[2] = m_child[3] = nullptr;
+		this->m_child[0] = this->m_child[1] 
+			= this->m_child[2] = this->m_child[3] = nullptr;
 		while (first != last)
 		{
-			insert(&(*first));
+			this->insert(&(*first));
 			++first;
 		}
 	}
@@ -368,26 +370,27 @@ private:
 	: detail::spatialtree<2, T, quadtree<T>>(parent, 
 		std::forward<U0>(min_corner), std::forward<U1>(max_corner))
 	{
-		m_child[0] = m_child[1] = m_child[2] = m_child[3] = nullptr;
+		this->m_child[0] = this->m_child[1] 
+			= this->m_child[2] = this->m_child[3] = nullptr;
 	}
 
 	virtual void subdivide()
 	{
-		auto min = m_bounds.min_corner();
-		auto max = m_bounds.max_corner();
+		auto min = this->m_bounds.min_corner();
+		auto max = this->m_bounds.max_corner();
 		const auto half = (max - min) / 2.0f;
-		if (half[0] <= subdivision_threshold 
-			|| half[1] <= subdivision_threshold)
+		if (half[0] <= this->subdivision_threshold 
+			|| half[1] <= this->subdivision_threshold)
 		{
 			return;
 		}
-		m_child[0] = new quadtree(this, min, min + half);
+		this->m_child[0] = new quadtree(this, min, min + half);
 		min[0] += half[0];
-		m_child[1] = new quadtree(this, min, min + half);
+		this->m_child[1] = new quadtree(this, min, min + half);
 		min[1] += half[1];
-		m_child[2] = new quadtree(this, min, min + half);
+		this->m_child[2] = new quadtree(this, min, min + half);
 		min[0] -= half[0];
-		m_child[3] = new quadtree(this, min, min + half);
+		this->m_child[3] = new quadtree(this, min, min + half);
 	}
 };
 
@@ -400,8 +403,9 @@ public:
 	: detail::spatialtree<3, T, octree<T>>(std::forward<U0>(min_corner), 
 		std::forward<U1>(max_corner))
 	{
-		m_child[0] = m_child[1] = m_child[2] = m_child[3] =
-			m_child[4] = m_child[5] = m_child[6] = m_child[7] = nullptr;
+		this->m_child[0] = this->m_child[1] = this->m_child[2] 
+			= this->m_child[3] = this->m_child[4] = this->m_child[5] 
+			= this->m_child[6] = this->m_child[7] = nullptr;
 	}
 
 	template <class U0, class U1, class ForwardIter>
@@ -410,11 +414,12 @@ public:
 	: detail::spatialtree<3, T, octree<T>>(std::forward<U0>(min_corner), 
 		std::forward<U1>(max_corner))
 	{
-		m_child[0] = m_child[1] = m_child[2] = m_child[3] =
-			m_child[4] = m_child[5] = m_child[6] = m_child[7] = nullptr;
+		this->m_child[0] = this->m_child[1] = this->m_child[2] 
+			= this->m_child[3] = this->m_child[4] = this->m_child[5] 
+			= this->m_child[6] = this->m_child[7] = nullptr;
 		while (first != last)
 		{
-			insert(&(*first));
+			this->insert(&(*first));
 			++first;
 		}
 	}
@@ -428,38 +433,39 @@ private:
 	: detail::spatialtree<3, T, octree<T>>(parent, 
 		std::forward<U0>(min_corner), std::forward<U1>(max_corner))
 	{
-		m_child[0] = m_child[1] = m_child[2] = m_child[3] =
-			m_child[4] = m_child[5] = m_child[6] = m_child[7] = nullptr;
+		this->m_child[0] = this->m_child[1] = this->m_child[2] 
+			= this->m_child[3] = this->m_child[4] = this->m_child[5] 
+			= this->m_child[6] = this->m_child[7] = nullptr;
 	}
 
 	virtual void subdivide()
 	{
-		auto min = m_bounds.min_corner();
-		auto max = m_bounds.max_corner();
+		auto min = this->m_bounds.min_corner();
+		auto max = this->m_bounds.max_corner();
 		const auto half = (max - min) / 2.0f;
-		if (half[0] <= subdivision_threshold 
-			|| half[1] <= subdivision_threshold 
-			|| half[2] <= subdivision_threshold)
+		if (half[0] <= this->subdivision_threshold 
+			|| half[1] <= this->subdivision_threshold 
+			|| half[2] <= this->subdivision_threshold)
 		{
 			return;
 		}
-		m_child[0] = new octree(this, min, min + half);
+		this->m_child[0] = new octree(this, min, min + half);
 		min[0] += half[0];
-		m_child[1] = new octree(this, min, min + half);
+		this->m_child[1] = new octree(this, min, min + half);
 		min[1] += half[1];
-		m_child[2] = new octree(this, min, min + half);
+		this->m_child[2] = new octree(this, min, min + half);
 		min[0] -= half[0];
-		m_child[3] = new octree(this, min, min + half);
+		this->m_child[3] = new octree(this, min, min + half);
 		min[1] -= half[1];
 		// at this point, we are at the original location of min
 		min[2] += half[2];
-		m_child[4] = new octree(this, min, min + half);
+		this->m_child[4] = new octree(this, min, min + half);
 		min[0] += half[0];
-		m_child[5] = new octree(this, min, min + half);
+		this->m_child[5] = new octree(this, min, min + half);
 		min[1] += half[1];
-		m_child[6] = new octree(this, min, min + half);
+		this->m_child[6] = new octree(this, min, min + half);
 		min[0] -= half[0];
-		m_child[7] = new octree(this, min, min + half);
+		this->m_child[7] = new octree(this, min, min + half);
 	}
 };
 
