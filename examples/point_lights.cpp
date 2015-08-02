@@ -43,9 +43,9 @@ int main(int argc, char* argv[])
 		{
 			gt::vec3f attenuation(0.0f, 0.0f, 1.0f);
 
-			lights.emplace_back(new gt::point_light(gt::vec4f(1.0f, 0.0f, 0.0f, 8.0f), attenuation));
-			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 1.0f, 0.0f, 8.0f), attenuation));
-			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 0.0f, 1.0f, 8.0f), attenuation));
+			lights.emplace_back(new gt::point_light(gt::vec4f(1.0f, 0.0f, 0.0f, 1.0f), attenuation));
+			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 1.0f, 0.0f, 1.0f), attenuation));
+			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 0.0f, 1.0f, 1.0f), attenuation));
 
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f)));
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 1.0f, 0.0f, 0.0f)));
@@ -67,18 +67,17 @@ int main(int argc, char* argv[])
 
 		gt::renderer::show();
 
-		float curtime, dt;
+		float curtime = 0.0f, dt;
 		float current_cos, current_sin;
 		float yaxis, zaxis;
-		float speed = 1.0f;
-		float addspeed = 0.0f;
+		bool move_objects = false;
 		gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
 		
 		while (!gt::renderer::should_close())
 		{
-			curtime = get_elapsed_time<float>();
 			dt = get_dt<float>();
+			if (move_objects) curtime += dt;
 			
 			current_cos = std::cos(curtime);
 			current_sin = std::sin(curtime);
@@ -107,17 +106,23 @@ int main(int argc, char* argv[])
 			{
 				gt::get_default_camera().move_up(MOVE_SPEED * dt);
 			}
+			if (gintonic::renderer::key_toggle_press(SDL_SCANCODE_B))
+			{
+				move_objects = !move_objects;
+			}
 			if (gintonic::renderer::key(SDL_SCANCODE_EQUALS))
 			{
-				addspeed = 0.01f;
+				for (auto& l : lights)
+				{
+					l->intensity[3] += dt;
+				}
 			}
 			else if (gintonic::renderer::key(SDL_SCANCODE_MINUS))
 			{
-				addspeed = -0.01f;
-			}
-			else
-			{
-				addspeed = 0.0f;
+				for (auto& l : lights)
+				{
+					l->intensity[3] -= dt;
+				}
 			}
 
 			mousedelta = gintonic::renderer::mouse_delta();
@@ -145,12 +150,12 @@ int main(int argc, char* argv[])
 				const auto elevation = 0.0f;
 				
 				light_transforms[i].translation[0] = radius 
-					* std::cos(speed * curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
+					* std::cos(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
 				
 				light_transforms[i].translation[1] = elevation;
 				
 				light_transforms[i].translation[2] = radius 
-					* std::sin(speed * curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
+					* std::sin(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
 				
 				gt::renderer::set_model_matrix(light_transforms[i].get_matrix());
 				
@@ -180,8 +185,9 @@ int main(int argc, char* argv[])
 			stream << "Move around with WASD.\n"
 				<< "Look around with the mouse.\n"
 				<< "Go up by holding the spacebar.\n"
-				<< "Pressing -/+ will decrease/increase the speed of the balls.\n"
+				<< "Holding +/- will decrease/increase the light intensity.\n"
 				<< "Press Q to quit.\n"
+				<< "Press B to start/stop the simulation.\n"
 				<< "Camera position: " << std::fixed << std::setprecision(1) 
 				<< gt::renderer::camera().position << '\n';
 				// << "Light intensity: " << red_light->intensity << '\n'
@@ -190,8 +196,6 @@ int main(int argc, char* argv[])
 			stream.close();
 			
 			glEnable(GL_CULL_FACE);
-
-			speed += addspeed;
 			
 			gt::renderer::update();
 		}

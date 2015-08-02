@@ -9,12 +9,6 @@
 	#include <Objbase.h> // for CoInitializeEx
 #endif
 
-#ifndef DEBUG_PRINT
-#define DEBUG_PRINT_START std::cerr << __FILE__ << '(' << __LINE__ << ')'
-#define DEBUG_PRINT DEBUG_PRINT_START << '\n'
-#define PRINT_VAR(var) DEBUG_PRINT_START << ": " << #var << " == " << var << '\n'
-#endif
-
 namespace gintonic {
 
 	#ifdef ENABLE_DEBUG_TRACE
@@ -83,6 +77,23 @@ namespace gintonic {
 	boost::signals2::signal<void(void)> renderer::mouse_entered;
 	boost::signals2::signal<void(void)> renderer::mouse_left;
 	boost::signals2::signal<void(void)> renderer::about_to_close;
+
+	BOOST_CONSTEXPR GLenum gbuffer_tex_internal[renderer::GBUFFER_COUNT] = 
+	{
+		GL_RGB32F, // GBUFFER_POSITION
+		GL_RGBA,   // GBUFFER_DIFFUSE
+		GL_RGBA,   // GBUFFER_SPECULAR
+		GL_RGBA32F,// GBUFFER_NORMAL
+		GL_RGB     // GBUFFER_FINAL_COLOR
+	};
+	BOOST_CONSTEXPR GLenum gbuffer_tex_format[renderer::GBUFFER_COUNT] = 
+	{
+		GL_RGB,  // GBUFFER_POSITION
+		GL_RGBA, // GBUFFER_DIFFUSE
+		GL_RGBA, // GBUFFER_SPECULAR
+		GL_RGBA, // GBUFFER_NORMAL
+		GL_RGB   // GBUFFER_FINAL_COLOR
+	};
 
 	#ifdef ENABLE_DEBUG_TRACE
 	fontstream& renderer::cerr() { return *debug_stream; }
@@ -153,28 +164,28 @@ namespace gintonic {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		glGenTextures(GBUFFER_COUNT, s_textures);
 		glGenTextures(1, &s_depth_texture);
-		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = 
-		{
-			GL_RGB,  // GBUFFER_POSITION
-			GL_RGBA, // GBUFFER_DIFFUSE
-			GL_RGBA, // GBUFFER_SPECULAR
-			GL_RGBA, // GBUFFER_NORMAL
-			GL_RGB   // GBUFFER_FINAL_COLOR
-		};
-		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = 
-		{
-			GL_RGB,  // GBUFFER_POSITION
-			GL_RGBA, // GBUFFER_DIFFUSE
-			GL_RGBA, // GBUFFER_SPECULAR
-			GL_RGBA, // GBUFFER_NORMAL
-			GL_RGB   // GBUFFER_FINAL_COLOR
-		};
+		// BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = 
+		// {
+		// 	GL_RGB,  // GBUFFER_POSITION
+		// 	GL_RGBA, // GBUFFER_DIFFUSE
+		// 	GL_RGBA, // GBUFFER_SPECULAR
+		// 	GL_RGBA, // GBUFFER_NORMAL
+		// 	GL_RGB   // GBUFFER_FINAL_COLOR
+		// };
+		// BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = 
+		// {
+		// 	GL_RGB,  // GBUFFER_POSITION
+		// 	GL_RGBA, // GBUFFER_DIFFUSE
+		// 	GL_RGBA, // GBUFFER_SPECULAR
+		// 	GL_RGBA, // GBUFFER_NORMAL
+		// 	GL_RGB   // GBUFFER_FINAL_COLOR
+		// };
 		for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
 		{
 			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexImage2D(GL_TEXTURE_2D, 0, tex_internal[i], s_width, s_height, 0, tex_format[i], GL_FLOAT, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, gbuffer_tex_internal[i], s_width, s_height, 0, gbuffer_tex_format[i], GL_FLOAT, nullptr);
 			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, s_textures[i], 0);
 
 		}
@@ -343,28 +354,13 @@ namespace gintonic {
 		// resize framebuffers
 		//
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
-		BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = 
-		{
-			GL_RGB,  // GBUFFER_POSITION
-			GL_RGBA, // GBUFFER_DIFFUSE
-			GL_RGBA, // GBUFFER_SPECULAR
-			GL_RGBA, // GBUFFER_NORMAL
-			GL_RGB   // GBUFFER_FINAL_COLOR
-		};
-		BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = 
-		{
-			GL_RGB,  // GBUFFER_POSITION
-			GL_RGBA, // GBUFFER_DIFFUSE
-			GL_RGBA, // GBUFFER_SPECULAR
-			GL_RGBA, // GBUFFER_NORMAL
-			GL_RGB   // GBUFFER_FINAL_COLOR
-		};
+
 		for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
 		{
 			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexImage2D(GL_TEXTURE_2D, 0, tex_internal[i], s_width, s_height, 0, tex_format[i], GL_FLOAT, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, gbuffer_tex_internal[i], s_width, s_height, 0, gbuffer_tex_format[i], GL_FLOAT, nullptr);
 		}
 		glBindTexture(GL_TEXTURE_2D, s_depth_texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, s_width, s_height, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
@@ -562,23 +558,23 @@ namespace gintonic {
 			GL_COLOR_ATTACHMENT0 + GBUFFER_NORMAL
 		}; 
 		glDrawBuffers(4, DrawBuffers);
-		glDepthMask(GL_TRUE);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDepthMask(GL_TRUE);
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 	}
 
-	void renderer::begin_stencil_pass(const GLenum front_dp_fail, const GLenum back_dp_fail)
+	void renderer::begin_stencil_pass()
 	{
 		glDrawBuffer(GL_NONE);
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_CULL_FACE);
 		glClear(GL_STENCIL_BUFFER_BIT);
 		glStencilFunc(GL_ALWAYS, 0, 0);
-		glStencilOpSeparate(GL_BACK, GL_KEEP, front_dp_fail, GL_KEEP);
-		glStencilOpSeparate(GL_FRONT, GL_KEEP, back_dp_fail, GL_KEEP);
+		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 	}
 
 	void renderer::begin_light_pass()
@@ -595,32 +591,6 @@ namespace gintonic {
 		glBlendFunc(GL_ONE, GL_ONE);
 		// glClear(GL_COLOR_BUFFER_BIT);
 	}
-
-	// void renderer::bind_for_writing()
-	// {
-	// 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
-	// 	glDepthMask(GL_TRUE);
-	// 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// 	glEnable(GL_DEPTH_TEST);
-	// 	glDisable(GL_BLEND);
-	// 	glEnable(GL_CULL_FACE);
-	// }
-
-	// void renderer::bind_for_reading()
-	// {
-	// 	glDepthMask(GL_FALSE);
-	// 	glDisable(GL_DEPTH_TEST);
-	// 	glEnable(GL_BLEND);
-	// 	glBlendEquation(GL_FUNC_ADD);
-	// 	glBlendFunc(GL_ONE, GL_ONE);
-	// 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	// 	for (unsigned int i = 0; i < GBUFFER_COUNT; ++i) 
-	// 	{
-	// 		glActiveTexture(GL_TEXTURE0 + i);
-	// 		glBindTexture(GL_TEXTURE_2D, s_textures[i]);
-	// 	}
-	// 	glClear(GL_COLOR_BUFFER_BIT);
-	// }
 
 	void renderer::set_read_buffer(const enum GBUFFER type)
 	{

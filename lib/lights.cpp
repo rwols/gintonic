@@ -129,25 +129,21 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	// and is decreased when a back-facing triangle is seen. This way, the
 	// values that are non-zero should be shaded.
 
-	renderer::begin_stencil_pass(GL_INCR_WRAP, GL_DECR_WRAP);
+	renderer::begin_stencil_pass();
 	nullshader.activate();
 	nullshader.set_matrix_PVM(renderer::matrix_PVM());
 	sphere.draw();
 
 	// Here we use the information collected in the stencil buffer to only
 	// shade pixels that really need it.
-
-	renderer::begin_light_pass();
+	
 	glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
 	const auto light_pos = renderer::camera().matrix_V().apply_to_point(t.translation);
 
-	#ifdef ENABLE_DEBUG_TRACE
-	renderer::cerr() << "Drawing light with WORLD position: " << t.translation << '\n';
-	renderer::cerr() << "Transformed light VIEW position:   " << light_pos << '\n';
-	#endif
+	renderer::begin_light_pass();
 
 	pointshader.activate();
 	pointshader.set_viewport_size(vec2f(static_cast<float>(
@@ -161,6 +157,8 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	pointshader.set_light_attenuation(m_attenuation);
 	pointshader.set_matrix_PVM(renderer::matrix_PVM());
 	sphere.draw();
+
+	glDisable(GL_CULL_FACE);
 }
 
 } // namespace gintonic

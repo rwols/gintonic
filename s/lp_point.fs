@@ -8,9 +8,11 @@
 
 uniform vec2 viewport_size;
 
+uniform vec3 eye_position;
+
 uniform struct GeometryBuffer
 {
-	sampler2D position;
+	sampler2D position; // these are in VIEW coordinates
 	sampler2D diffuse;
 	// sampler2D specular;
 	sampler2D normal;
@@ -18,9 +20,11 @@ uniform struct GeometryBuffer
 
 uniform struct PointLight {
 	vec4 intensity;
-	vec3 position;
+	vec3 position; // in VIEW coordinates
 	vec3 attenuation;
 } light;
+
+out vec3 final_color;
 
 // Returns the current fragment's clip-space coordinates, for
 // fetching it from the g-buffer.
@@ -29,32 +33,31 @@ vec2 calculate_screen_position()
 	return vec2(gl_FragCoord.x / viewport_size.x, gl_FragCoord.y / viewport_size.y);
 }
 
-out vec3 final_color;
-
 void main()
 {
-	vec2 screen_position = calculate_screen_position();
+	vec2 screen_uv = calculate_screen_position();
 
-	vec3 position = texture(gbuffer.position, screen_position).xyz;
-	vec4 diffuse  = texture(gbuffer.diffuse,  screen_position);
-	// vec4 specular = texture(gbuffer.specular, screen_position);
-	vec3 normal   = texture(gbuffer.normal,   screen_position).xyz;
+	vec3 P = texture(gbuffer.position, screen_uv).xyz;
+	vec4 diffuse = texture(gbuffer.diffuse, screen_uv);
+	// vec4 specular = texture(gbuffer.specular, screen_uv);
+	vec3 N = texture(gbuffer.normal, screen_uv).xyz;
 
-	vec3 light_dir;
+	// L is the direction from the surface position to the light position
+	// P is in VM-coordinates, so light.position must be supplied in
+	// VM-coordinates too.
+	vec3 L = light.position - P;
 
-	light_dir  = light.position - position;
-
-    float light_dist = length(light_dir);
+	// d is the distance from the surface position to the light position
+    float d = length(L);
     
-    light_dir = normalize(light_dir);
+    // Don't forget to normalize L.
+    L = normalize(L);
     
-    float diffuse_factor = diffuse.a;
+    // dc is the diffuse contribution.
+    float dc = light.intensity.a * diffuse.a * max(dot(L, N), 0.0f);
 
-    float attenuation = light.attenuation.x 
-    	+ light.attenuation.y * light_dist 
-    	+ light.attenuation.z * light_dist * light_dist;
+    // The attenuation factor for a point light
+    dc /= light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d;
 
-    float lambertian = (diffuse_factor / attenuation) * abs(dot(light_dir, normal));
-
-	final_color = light.intensity.a * lambertian * light.intensity.rgb * diffuse.rgb;
+	final_color = dc * light.intensity.rgb * diffuse.rgb;
 }

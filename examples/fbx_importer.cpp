@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 		// gt::opengl::unit_cube_PUN the_shape;
 		
 		std::vector<std::unique_ptr<gt::light>> lights;
-		std::vector<gt::sqt_transformf> light_transforms(3);
+		std::vector<gt::sqt_transformf> light_transforms(4);
 		std::vector<std::unique_ptr<gt::material>> light_materials;
 
 		{
@@ -90,6 +90,7 @@ int main(int argc, char* argv[])
 			lights.emplace_back(new gt::point_light(gt::vec4f(1.0f, 0.0f, 0.0f, 1.0f), attenuation));
 			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 1.0f, 0.0f, 1.0f), attenuation));
 			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 0.0f, 1.0f, 1.0f), attenuation));
+			lights.emplace_back(new gt::directional_light(gt::vec4f(0.8f, 0.8f, 0.8f, 1.0f)));
 
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f)));
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 1.0f, 0.0f, 0.0f)));
@@ -103,6 +104,10 @@ int main(int argc, char* argv[])
 		light_transforms[0].translation = gt::vec3f( 0.0f, 2.0f, 0.0f);
 		light_transforms[1].translation = gt::vec3f( 1.0f, 1.2f, 0.0f);
 		light_transforms[2].translation = gt::vec3f(-1.0f, 1.2f, 0.0f);
+		light_transforms[3].rotation = gt::quatf::from_angle_axis(
+			gt::deg_to_rad(10) 
+			+ static_cast<float>(-M_PI) / 2.0f, 
+			gt::vec3f(1.0f, 0.0f, 0.0f));
 
 		// std::unique_ptr<gt::material> the_material(
 		// 	new gt::material_cd(
@@ -188,9 +193,9 @@ int main(int argc, char* argv[])
 			// the_material->bind();
 			// the_shape.draw();
 
-			for (std::size_t i = 0; i < lights.size(); ++i)
+			for (std::size_t i = 0; i < light_materials.size(); ++i)
 			{
-				const auto numlights = static_cast<float>(lights.size());
+				const auto numlights = static_cast<float>(light_materials.size());
 				const auto radius = 3.0f;
 				const auto elevation = 0.0f;
 				
@@ -225,14 +230,8 @@ int main(int argc, char* argv[])
 				{
 					lights[i]->shine(light_transforms[i]);
 				}
-
-				// gt::renderer::get_text_shader()->activate();
-				// gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
 				
-				// glDisable(GL_CULL_FACE);
-				// glEnable(GL_BLEND);
-				// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				
+				#ifdef ENABLE_DEBUG_STREAM
 				gt::renderer::cerr() << "Move around with WASD.\n"
 					<< "Look around with the mouse.\n"
 					<< "Go up by holding the spacebar.\n"
@@ -243,6 +242,7 @@ int main(int argc, char* argv[])
 					// << "Light intensity: " << red_light->intensity << '\n'
 					// << "Light position:  " << red_light_transform.translation 
 					// << '\n';
+				#endif
 			}
 
 			gt::renderer::update();
