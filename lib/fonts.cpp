@@ -7,6 +7,7 @@
 namespace {
 
 	FT_Library s_ft_library;
+	bool s_was_already_initialized = false;
 
 } // namespace
 
@@ -14,16 +15,19 @@ namespace gintonic {
 
 	void font::init()
 	{
+		if (s_was_already_initialized) return;
 		if (FT_Init_FreeType(&s_ft_library)) 
 		{
 			throw std::runtime_error("Could not initialize font library.");
 		}
 		std::atexit(font::release);
+		s_was_already_initialized = true;
 	}
 
 	void font::release()
 	{
 		FT_Done_FreeType(s_ft_library);
+		s_was_already_initialized = false;
 	}
 
 	font::font(const key_type& filename_and_size) : object<font, key_type>(filename_and_size)

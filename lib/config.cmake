@@ -2,9 +2,7 @@
 // This is an automatically generated configuration file.
 //
 
-#define PROJECT_NAME "${project_name}"
-#define PROJECT_VERSION "${project_version}"
-
+#cmakedefine ENABLE_DEBUG_TRACE
 #cmakedefine WITH_PROFILING
 #cmakedefine WITH_MEMORY_PROFILING
 #cmakedefine HIDE_CONSOLE

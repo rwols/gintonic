@@ -1,12 +1,15 @@
 #ifndef gintonic_renderer_linux_hpp
 #define gintonic_renderer_linux_hpp
 
-
 #include <chrono>
 #include <boost/circular_buffer.hpp>
 #include <boost/signals2.hpp>
-#include "shaders.hpp"
-#include "fonts.hpp"
+#include "opengl.hpp"
+#include "config.hpp"
+
+#ifdef ENABLE_DEBUG_TRACE
+	#include "fonts.hpp"
+#endif
 
 namespace gintonic 
 {
@@ -15,6 +18,19 @@ namespace gintonic
 		class unit_quad_P;
 		class unit_sphere_P;
 	}
+
+	class geometry_null_shader;
+	class matrix_PVM_shader;
+	class gp_c_shader;
+	class gp_cd_shader;
+	class gp_cds_shader;
+	class gp_cdn_shader;
+	class geometry_pass_shader;
+	class lp_null_shader;
+	class lp_directional_shader;
+	class lp_point_shader;
+	class directional_light_pass_shader;
+	class text_shader;
 
 	class renderer
 	{
@@ -26,75 +42,57 @@ namespace gintonic
 		static void init(const char* title, const camera_transform<float>& cam, const bool fullscreen, const int width, const int height);
 		inline static duration_type delta_time() BOOST_NOEXCEPT_OR_NOTHROW { return s_delta_time; }
 		inline static duration_type elapsed_time() BOOST_NOEXCEPT_OR_NOTHROW { return s_elapsed_time; }
-		static bool is_initialized() BOOST_NOEXCEPT_OR_NOTHROW{ return s_window != nullptr; }
+		static bool is_initialized() BOOST_NOEXCEPT_OR_NOTHROW;
 		static void set_camera(const camera_transform<float>& c);
 		inline static const camera_transform<float>& camera() BOOST_NOEXCEPT_OR_NOTHROW { return *s_camera; }
 		inline static int width() BOOST_NOEXCEPT_OR_NOTHROW { return s_width; }
-		inline static int height() BOOST_NOEXCEPT_OR_NOTHROW{ return s_height; }
+		inline static int height() BOOST_NOEXCEPT_OR_NOTHROW { return s_height; }
 		void static resize(const int width, const int height);
-		inline static void focus_context() BOOST_NOEXCEPT_OR_NOTHROW{ SDL_GL_MakeCurrent(s_window, s_context); }
-		inline static void set_cursor_position(const double x, const double y) BOOST_NOEXCEPT_OR_NOTHROW
+		static void focus_context() BOOST_NOEXCEPT_OR_NOTHROW;
+		static void set_cursor_position(const double x, const double y) BOOST_NOEXCEPT_OR_NOTHROW;
+		static void set_freeform_cursor(const bool b);
+		static void disable_cursor() BOOST_NOEXCEPT_OR_NOTHROW;
+		static void enable_cursor() BOOST_NOEXCEPT_OR_NOTHROW;
+		static void center_cursor() BOOST_NOEXCEPT_OR_NOTHROW;
+		static void vsync(const bool b);
+		static void show() BOOST_NOEXCEPT_OR_NOTHROW;
+		static void hide() BOOST_NOEXCEPT_OR_NOTHROW;
+		static void close() BOOST_NOEXCEPT_OR_NOTHROW;
+		static bool should_close() BOOST_NOEXCEPT_OR_NOTHROW;
+		static float aspect_ratio() BOOST_NOEXCEPT_OR_NOTHROW;
+		static bool key(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW;
+		static bool key_prev(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW;
+		static bool key_toggle_press(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW;
+		static bool key_toggle_release(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW;
+		static bool mousebutton(const int buttoncode) BOOST_NOEXCEPT_OR_NOTHROW;
+		inline static const vec2f& mouse_delta() BOOST_NOEXCEPT_OR_NOTHROW
 		{
-			SDL_WarpMouseInWindow(s_window, (int)x, (int)y);
-			SDL_FlushEvent(SDL_MOUSEMOTION);
+			return s_mouse_delta;
 		}
-		inline static void set_freeform_cursor(const bool b)
+
+		inline static const mat4f& matrix_M() BOOST_NOEXCEPT_OR_NOTHROW
 		{
-			SDL_SetRelativeMouseMode(b? SDL_TRUE : SDL_FALSE);
+			return s_matrix_M;
 		}
-		inline static void disable_cursor() BOOST_NOEXCEPT_OR_NOTHROW{ SDL_ShowCursor(0); }
-		inline static void enable_cursor() BOOST_NOEXCEPT_OR_NOTHROW{ SDL_ShowCursor(1); }
-		inline static void center_cursor() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			set_cursor_position(s_width / 2, s_height / 2);
-		}
-		inline static void vsync(const bool b) { SDL_GL_SetSwapInterval(b? 1 : 0); }
-		inline static void show() BOOST_NOEXCEPT_OR_NOTHROW { SDL_ShowWindow(s_window); }
-		inline static void hide() BOOST_NOEXCEPT_OR_NOTHROW { SDL_HideWindow(s_window); }
-		inline static void close() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			s_should_close = true;
-			about_to_close();
-		}
-		inline static bool should_close() BOOST_NOEXCEPT_OR_NOTHROW{ return s_should_close; }
-		inline static float aspect_ratio() BOOST_NOEXCEPT_OR_NOTHROW{ return s_aspect_ratio; }
-		inline static bool key(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return s_key_state[keycode] != 0;
-		}
-		inline static bool key_prev(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return s_key_prev_state[keycode] != 0;
-		}
-		inline static bool key_toggle_press(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return key(keycode) && !key_prev(keycode);
-		}
-		inline static bool key_toggle_release(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return !key(keycode) && key_prev(keycode);
-		}
-		inline static bool mousebutton(const int buttoncode) BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return 0 != (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(buttoncode));
-		}
-		inline static const vec2f& mouse_delta() BOOST_NOEXCEPT_OR_NOTHROW{ return s_mouse_delta; }
-		inline static const mat4f& matrix_M() BOOST_NOEXCEPT_OR_NOTHROW{ return s_matrix_M; }
+
 		inline static const mat4f& matrix_VM() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			update_matrix_VM();
 			return s_matrix_VM;
 		}
+
 		inline static const mat4f& matrix_PVM() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			update_matrix_PVM();
 			return s_matrix_PVM;
 		}
+
 		inline static const mat3f& matrix_N() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			update_matrix_N();
 			return s_matrix_N;
 		}
+
 		template <class ...Args> static void set_model_matrix(Args&&... args)
 		{
 			s_matrix_VM_dirty = true;
@@ -102,6 +100,10 @@ namespace gintonic
 			s_matrix_N_dirty = true;
 			s_matrix_M = mat4f(std::forward<Args>(args)...);
 		}
+
+		#ifdef ENABLE_DEBUG_TRACE
+		static fontstream& cerr();
+		#endif
 
 		static void update() BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -220,10 +222,6 @@ namespace gintonic
 		static void update_matrix_N();
 
 		static void release();
-
-		static SDL_Window* s_window;
-		static SDL_GLContext s_context;
-		static SDL_Event s_event;
 		
 		static bool s_should_close;
 		static bool s_fullscreen;
@@ -237,10 +235,6 @@ namespace gintonic
 		static duration_type s_elapsed_time;
 		static boost::circular_buffer<duration_type> s_circle_buffer;
 		static vec2f s_mouse_delta;
-
-		static const Uint8* s_key_state;
-		static Uint8* s_key_prev_state;
-		static int s_key_state_count;
 
 		static bool s_matrix_VM_dirty;
 		static bool s_matrix_PVM_dirty;

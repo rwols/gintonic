@@ -2,9 +2,7 @@
 // This is an automatically generated configuration file.
 //
 
-#define PROJECT_NAME "gintonic"
-#define PROJECT_VERSION "v0.1"
-
+#define ENABLE_DEBUG_TRACE
 /* #undef WITH_PROFILING */
 /* #undef WITH_MEMORY_PROFILING */
 /* #undef HIDE_CONSOLE */

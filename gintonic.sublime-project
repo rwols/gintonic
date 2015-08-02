@@ -10,10 +10,6 @@
 			"name": "Shaders"
 		},
 		{
-			"path": "include",
-			"name": "Include"
-		},
-		{
 			"path": "lib",
 			"name": "Library"
 		},

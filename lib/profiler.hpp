@@ -14,7 +14,7 @@
 
 // #define WITH_PROFILING
 
-#include "config.hpp"
+// #include "config.hpp"
 
 #define PROFILER_CPU_LOG_FILE "cpu_profile.csv"
 #define PROFILER_MEM_LOG_FILE "mem_profile.csv"

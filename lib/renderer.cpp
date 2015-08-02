@@ -1,6 +1,9 @@
 #include "renderer.hpp"
 #include "basic_shapes.hpp"
+#include "shaders.hpp"
+#include "fonts.hpp"
 #include <iostream>
+#include <SDL.h>
 
 #ifdef BOOST_MSVC
 	#include <Objbase.h> // for CoInitializeEx
@@ -14,9 +17,14 @@
 
 namespace gintonic {
 
-	SDL_Window* renderer::s_window = nullptr;
-	SDL_GLContext renderer::s_context;
-	SDL_Event renderer::s_event = SDL_Event();
+	#ifdef ENABLE_DEBUG_TRACE
+	font::flyweight* debug_font = nullptr;
+	fontstream* debug_stream = nullptr;
+	#endif
+
+	SDL_Window* s_window = nullptr;
+	SDL_GLContext s_context;
+	SDL_Event s_event = SDL_Event();
 	
 	bool renderer::s_should_close = false;
 	bool renderer::s_fullscreen = false;
@@ -31,9 +39,9 @@ namespace gintonic {
 	boost::circular_buffer<renderer::duration_type> renderer::s_circle_buffer = boost::circular_buffer<renderer::duration_type>();
 	vec2f renderer::s_mouse_delta = vec2f(0,0);
 
-	Uint8* renderer::s_key_prev_state = nullptr;
-	const Uint8* renderer::s_key_state = nullptr;
-	int renderer::s_key_state_count;
+	Uint8* s_key_prev_state = nullptr;
+	const Uint8* s_key_state = nullptr;
+	int s_key_state_count;
 
 	bool renderer::s_matrix_VM_dirty = true;
 	bool renderer::s_matrix_PVM_dirty = true;
@@ -75,6 +83,10 @@ namespace gintonic {
 	boost::signals2::signal<void(void)> renderer::mouse_entered;
 	boost::signals2::signal<void(void)> renderer::mouse_left;
 	boost::signals2::signal<void(void)> renderer::about_to_close;
+
+	#ifdef ENABLE_DEBUG_TRACE
+	fontstream& renderer::cerr() { return *debug_stream; }
+	#endif
 
 	void renderer::init(const char* title, const camera_transform<float>& cam, const bool fullscreen, const int width, const int height)
 	{
@@ -305,6 +317,16 @@ namespace gintonic {
 		//
 		s_unit_quad_P = new opengl::unit_quad_P();
 		s_unit_sphere_P = new opengl::unit_sphere_P(64, 64);
+
+		//
+		// Initialize debug variables
+		//
+		#ifdef ENABLE_DEBUG_TRACE
+		font::init();
+		debug_font = new font::flyweight("../resources/Inconsolata-Regular.ttf", 20);
+		debug_stream = new fontstream();
+		debug_stream->open(*debug_font);
+		#endif
 	}
 
 	void renderer::resize(const int width, const int height)
@@ -354,28 +376,100 @@ namespace gintonic {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	}
 
+	bool renderer::is_initialized() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return s_window != nullptr;
+	}
+
+	void renderer::focus_context() BOOST_NOEXCEPT_OR_NOTHROW
+	{ 
+		SDL_GL_MakeCurrent(s_window, s_context); 
+	}
+
+	void renderer::set_cursor_position(const double x, const double y) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		SDL_WarpMouseInWindow(s_window, (int)x, (int)y);
+		SDL_FlushEvent(SDL_MOUSEMOTION);
+	}
+
+	void renderer::set_freeform_cursor(const bool b)
+	{
+		SDL_SetRelativeMouseMode(b? SDL_TRUE : SDL_FALSE);
+	}
+
+	void renderer::disable_cursor() BOOST_NOEXCEPT_OR_NOTHROW
+	{ 
+		SDL_ShowCursor(0); 
+	}
+
+	void renderer::enable_cursor() BOOST_NOEXCEPT_OR_NOTHROW
+	{ 
+		SDL_ShowCursor(1); 
+	}
+
+	void renderer::center_cursor() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		set_cursor_position(s_width / 2, s_height / 2);
+	}
+
+	void renderer::vsync(const bool b) 
+	{ 
+		SDL_GL_SetSwapInterval(b? 1 : 0);
+	}
+
+	void renderer::show() BOOST_NOEXCEPT_OR_NOTHROW 
+	{ 
+		SDL_ShowWindow(s_window); 
+	}
+
+	void renderer::hide() BOOST_NOEXCEPT_OR_NOTHROW 
+	{ 
+		SDL_HideWindow(s_window); 
+	}
+
+	void renderer::close() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		s_should_close = true;
+		about_to_close();
+	}
+
+	bool renderer::should_close() BOOST_NOEXCEPT_OR_NOTHROW
+	{ 
+		return s_should_close; 
+	}
+
+	float renderer::aspect_ratio() BOOST_NOEXCEPT_OR_NOTHROW
+	{ 
+		return s_aspect_ratio; 
+	}
+
+	bool renderer::key(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return s_key_state[keycode] != 0;
+	}
+
+	bool renderer::key_prev(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return s_key_prev_state[keycode] != 0;
+	}
+
+	bool renderer::key_toggle_press(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return key(keycode) && !key_prev(keycode);
+	}
+
+	bool renderer::key_toggle_release(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return !key(keycode) && key_prev(keycode);
+	}
+
+	bool renderer::mousebutton(const int buttoncode) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return 0 != (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(buttoncode));
+	}
+
 	void renderer::release()
 	{
-		// if (s_directional_light_pass_shader)
-		// {
-		// 	delete s_directional_light_pass_shader;
-		// 	s_directional_light_pass_shader = nullptr;
-		// }
-		// if (s_geometry_pass_shader)
-		// {
-		// 	delete s_geometry_pass_shader;
-		// 	s_geometry_pass_shader = nullptr;
-		// }
-		// if (s_geometry_null_shader)
-		// {
-		// 	delete s_geometry_null_shader;
-		// 	s_geometry_null_shader = nullptr;
-		// }
-		// if (s_key_prev_state)
-		// {
-		// 	delete [] s_key_prev_state;
-		// 	s_key_prev_state = nullptr;
-		// }
 		if (s_context) // deletes shaders, textures, framebuffers, etc.
 		{
 			SDL_GL_DeleteContext(s_context);
@@ -390,12 +484,25 @@ namespace gintonic {
 
 	void renderer::update() BOOST_NOEXCEPT_OR_NOTHROW
 	{
+		#ifdef ENABLE_DEBUG_TRACE
+		get_text_shader()->activate();
+		get_text_shader()->set_color(vec3f(1.0f, 1.0f, 1.0f));
+		glDisable(GL_CULL_FACE);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		debug_stream->close();
+		#endif
+
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
 		glBlitFramebuffer(0, 0, s_width, s_height, 0, 0, s_width, s_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		
 		SDL_GL_SwapWindow(s_window);
+
+		#ifdef ENABLE_DEBUG_TRACE
+		debug_stream->open(*debug_font);
+		#endif
 		
 		s_prev_elapsed_time = s_elapsed_time;
 		s_elapsed_time = clock_type::now() - s_start_time;
@@ -522,29 +629,39 @@ namespace gintonic {
 
 	void renderer::blit_drawbuffers_to_screen()
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// Take s_fbo as the active framebuffer.
+		// We blit the geometry stuff into yet another color attachment.
+		// This final color attachment gets blitted to the screen in the update()
+		// method which is called at the end of the main render loop.
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
+
 		const GLsizei halfwidth = (GLsizei)(width() / 2.0f);
 		const GLsizei halfheight = (GLsizei)(height() / 2.0f);
+
 		set_read_buffer(GBUFFER_POSITION);
 		glBlitFramebuffer(0, 0, width(), height(), 0, 0, halfwidth, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		set_read_buffer(GBUFFER_NORMAL);
 		glBlitFramebuffer(0, 0, width(), height(), 0, halfheight, halfwidth, height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		set_read_buffer(GBUFFER_DIFFUSE);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-		set_read_buffer(GBUFFER_FINAL_COLOR);
+		set_read_buffer(GBUFFER_SPECULAR);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 	}
 
 	void renderer::blit_drawbuffers_to_screen(fontstream& stream)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// Take s_fbo as the active framebuffer.
+		// We blit the geometry stuff into yet another color attachment.
+		// This final color attachment gets blitted to the screen in the update()
+		// method which is called at the end of the main render loop.
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
+
 		const GLsizei halfwidth = (GLsizei)(width() / 2.0f);
-		const GLsizei halfheight = (GLsizei)(height() / 2.0f);
-			
+		const GLsizei halfheight = (GLsizei)(height() / 2.0f);		
 		
 		set_read_buffer(GBUFFER_POSITION);
 		glBlitFramebuffer(0, 0, width(), height(), 0, 0, halfwidth, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
@@ -555,7 +672,7 @@ namespace gintonic {
 		set_read_buffer(GBUFFER_DIFFUSE);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		
-		set_read_buffer(GBUFFER_FINAL_COLOR);
+		set_read_buffer(GBUFFER_SPECULAR);
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 
@@ -570,7 +687,7 @@ namespace gintonic {
 		stream->position[0] += 1.0f;
 		stream << "GBUFFER_DIFFUSE" << std::endl;
 		stream->position[1] -= 1.0f;
-		stream << "GBUFFER_FINAL_COLOR" << std::endl;
+		stream << "GBUFFER_SPECULAR" << std::endl;
 		stream->position[0] -= 1.0f;
 		stream << "GBUFFER_POSITION" << std::endl;
 

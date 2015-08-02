@@ -12,6 +12,7 @@
 #include "textures.hpp"
 #include "vertices.hpp"
 #include "lights.hpp"
+#include "scancodes.hpp"
 
 namespace gintonic {
 

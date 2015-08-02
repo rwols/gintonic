@@ -1,7 +1,11 @@
 #include "lights.hpp"
 #include "shaders.hpp"
-#include "renderer.hpp"
 #include "basic_shapes.hpp"
+#include "renderer.hpp"
+
+#ifdef ENABLE_DEBUG_TRACE
+	#include "fonts.hpp"
+#endif
 
 namespace gintonic {
 
@@ -89,6 +93,11 @@ void point_light::set_attenuation(const vec3f& att) BOOST_NOEXCEPT_OR_NOTHROW
 	m_cutoff_point = (-att[1] + std::sqrt(att[1] * att[1] 
 		- 4.0f * att[2] * (att[0] - 256.0f * c))) 
 	/ (2 * att[2]);
+	m_cutoff_point *= intensity[3];
+
+	#ifdef ENABLE_DEBUG_TRACE
+	renderer::cerr() << "Cutoff point was set to " << m_cutoff_point << '\n';
+	#endif
 }
 
 vec3f point_light::attenuation() const BOOST_NOEXCEPT_OR_NOTHROW
@@ -133,6 +142,13 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
+	const auto light_pos = renderer::camera().matrix_V().apply_to_point(t.translation);
+
+	#ifdef ENABLE_DEBUG_TRACE
+	renderer::cerr() << "Drawing light with WORLD position: " << t.translation << '\n';
+	renderer::cerr() << "Transformed light VIEW position:   " << light_pos << '\n';
+	#endif
+
 	pointshader.activate();
 	pointshader.set_viewport_size(vec2f(static_cast<float>(
 		renderer::width()), static_cast<float>(renderer::height())));
@@ -141,7 +157,7 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	// pointshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	pointshader.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
 	pointshader.set_light_intensity(intensity);
-	pointshader.set_light_position(t.translation);
+	pointshader.set_light_position(light_pos);
 	pointshader.set_light_attenuation(m_attenuation);
 	pointshader.set_matrix_PVM(renderer::matrix_PVM());
 	sphere.draw();

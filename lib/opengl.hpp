@@ -37,7 +37,6 @@
 #endif
 
 #include "glad.hpp"
-#include <SDL.h>
 
 #ifdef __clang__
 	#pragma clang diagnostic pop
