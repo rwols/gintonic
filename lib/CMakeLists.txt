@@ -14,45 +14,10 @@ cmake_minimum_required(VERSION 2.8)
 #     set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR} )
 # endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
-if (WIN32)
-	if ("$ENV{BOOST}" STREQUAL "")
-		message(FATAL_ERROR "Set up an environment variable called BOOST to point to the root Boost folder.")
-	endif ()
-	set(BOOST_ROOT $ENV{BOOST})
-
-	# Various bugfixes
-	add_definitions(/D_SCL_SECURE_NO_WARNINGS)
-	add_definitions(/DNOMINMAX)
-	add_definitions(/DBOOST_ALL_NO_LIB)
-	add_definitions(/DBOOST_PROGRAM_OPTIONS_DYN_LINK)
-
-	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-		# For some reason this still gives warnings about
-		# linking to a wrong C runtime. No idea how to fix this.
-		# add_definitions(/MD)
-	else ()
-		# For some reason this still gives warnings about
-		# linking to a wrong C runtime. No idea how to fix this.
-		# add_definitions(/MD)
-	endif ()
-
-	# WARNING: BIG HACK!!!
-	# Remove this when the above is fixed.
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ignore:4098" CACHE INTERNAL "Big hack")
-
-	# Enable multithreaded compilation
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
-else ()
-	add_definitions(-std=c++11)
-	add_definitions(-Wall)
-	add_definitions(-msse3)
-endif ()
-
 # Configure Boost libraries
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-set(Boost_USE_STATIC_LIBS OFF)
+# set(Boost_USE_MULTITHREADED ON)
+# set(Boost_USE_STATIC_RUNTIME OFF)
+# set(Boost_USE_STATIC_LIBS OFF)
 find_package(Boost
 	COMPONENTS
 		system
@@ -69,8 +34,8 @@ if (NOT WIN32)
 	find_package(PNG REQUIRED)
 endif ()
 find_package(Freetype REQUIRED)
-
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/..;${CMAKE_MODULE_PATH}")
+find_package(SDL2 REQUIRED)
 if (APPLE)
 	set(FBX_ROOT "/Applications/Autodesk/FBX\ SDK/2015.1")
 	set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
@@ -84,8 +49,6 @@ else ()
 	set(FBX_LIBRARY "${FBX_ROOT}/lib/gcc4/x64/release/libfbxsdk.so")
 	set(FBX_LIBRARY_DEBUG "${FBX_ROOT}/lib/gcc4/x64/debug/libfbxsdk.so")
 endif ()
-
-find_package(SDL2 REQUIRED)
 
 include_directories(
 	${SDL2_INCLUDE_DIR}
@@ -116,11 +79,15 @@ if (WIN32)
 					# message(STATUS "Replacing .lib with .dll")
 					string(REPLACE ".lib" ".dll" list_item ${list_item})
 					# message(STATUS "Copying ${list_item} to ${CMAKE_CURRENT_BINARY_DIR}")
-					file(COPY ${list_item} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+					if (boost_lib_token STREQUAL "debug")
+						file(COPY ${list_item} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}\Debug)
+					elseif (boost_lib_token STREQUAL "optimized")
+						file(COPY ${list_item} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}\Release)
+					endif ()
 					set(found_correct_library OFF)
 				endif ()
 			endforeach()
-			set(DLLs_are_copied ON CACHE FORCE INTERNAL "Only copy DLLs once." FORCE)
+			set(DLLs_are_copied ON CACHE INTERNAL "Only copy DLLs once." FORCE)
 		endif ()
 	endif ()
 else ()
@@ -172,8 +139,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(ENABLE_DEBUG_TRACE ON CACHE BOOL "Enable debug tracing via the renderer.")	
 endif ()
 
-add_library(gintonic SHARED ${src_files})
-# add_library(gintonic_static STATIC ${src_files})
+add_library(gintonic ${src_files})
+add_library(gintonic_static STATIC ${src_files})
 
 # if (WIN32)
 # 	set_target_properties(gintonic PROPERTIES OUTPUT_NAME gintonic)
@@ -193,14 +160,14 @@ if (WIN32)
 		${FREETYPE_LIBRARIES} 
 		${FBX_LIBRARY_DEBUG} 
 		${CMAKE_THREAD_LIBS_INIT})
-	# target_link_libraries(
-	# 	gintonic_static 
-	# 	${Boost_LIBRARIES} 
-	# 	${OPENGL_LIBRARIES} 
-	# 	${SDL2_LIBRARY} 
-	# 	${FREETYPE_LIBRARIES} 
-	# 	${FBX_LIBRARY_DEBUG} 
-	# 	${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(
+		gintonic_static 
+		${Boost_LIBRARIES} 
+		${OPENGL_LIBRARIES} 
+		${SDL2_LIBRARY} 
+		${FREETYPE_LIBRARIES} 
+		${FBX_LIBRARY_DEBUG} 
+		${CMAKE_THREAD_LIBS_INIT})
 else ()
 	target_link_libraries(
 		gintonic 
@@ -213,20 +180,20 @@ else ()
 		${FBX_LIBRARY_DEBUG} 
 		${CMAKE_THREAD_LIBS_INIT}
 		-ldl)
-	# target_link_libraries(
-	# 	gintonic_static 
-	# 	${Boost_LIBRARIES} 
-	# 	${OPENGL_LIBRARIES} 
-	# 	${SDL2_LIBRARY} 
-	# 	${JPEG_LIBRARIES} 
-	# 	${PNG_LIBRARIES} 
-	# 	${FREETYPE_LIBRARIES} 
-	# 	${FBX_LIBRARY_DEBUG} 
-	# 	${CMAKE_THREAD_LIBS_INIT}
-	# 	-ldl)
+	target_link_libraries(
+		gintonic_static 
+		${Boost_LIBRARIES} 
+		${OPENGL_LIBRARIES} 
+		${SDL2_LIBRARY} 
+		${JPEG_LIBRARIES} 
+		${PNG_LIBRARIES} 
+		${FREETYPE_LIBRARIES} 
+		${FBX_LIBRARY_DEBUG} 
+		${CMAKE_THREAD_LIBS_INIT}
+		-ldl)
 endif ()
 
 file(GLOB header_files "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp")
 install(FILES ${header_files} DESTINATION include/gintonic)
-install(TARGETS gintonic LIBRARY DESTINATION lib)
+install(TARGETS gintonic DESTINATION lib)
 # install(TARGETS gintonic_static ARCHIVE DESTINATION lib)

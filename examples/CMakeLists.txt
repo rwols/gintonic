@@ -12,13 +12,29 @@ set(examples directional_light
 	textured_cube
 	textured_cube_with_mod_color)
 
-include_directories(${CMAKE_SOURCE_DIR}/lib)
+find_package(Boost REQUIRED)
 
-add_definitions(-std=c++11)
-add_definitions(-Wall)
-add_definitions(-msse3)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/..;${CMAKE_MODULE_PATH}")
+if (APPLE)
+	set(FBX_ROOT "/Applications/Autodesk/FBX\ SDK/2015.1")
+	set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
+	set(FBX_LIBRARY "${FBX_ROOT}/lib/clang/release/libfbxsdk.a")
+	set(FBX_LIBRARY_DEBUG "${FBX_ROOT}/lib/clang/debug/libfbxsdk.a")
+elseif (WIN32)
+	find_package(FBX REQUIRED)
+else ()
+	set(FBX_ROOT "/usr/local")
+	set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
+	set(FBX_LIBRARY "${FBX_ROOT}/lib/gcc4/x64/release/libfbxsdk.so")
+	set(FBX_LIBRARY_DEBUG "${FBX_ROOT}/lib/gcc4/x64/debug/libfbxsdk.so")
+endif ()
+
+include_directories(
+	${CMAKE_SOURCE_DIR}/lib
+	${Boost_INCLUDE_DIR}
+	${FBX_INCLUDE_DIR})
 
 foreach (example ${examples})
 	add_executable(${example} ${example}.cpp)
-	target_link_libraries(${example} gintonic)
+	target_link_libraries(${example} gintonic_static ${FBX_LIBRARY_DEBUG})
 endforeach ()
