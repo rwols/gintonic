@@ -1,7 +1,7 @@
 #include "filesystem.hpp"
 
 #ifdef BOOST_MSVC
-// INCLUDE RELEVANT HEADER HERE
+#include <windows.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #elif __linux__
@@ -18,7 +18,17 @@ namespace gintonic {
 	{
 		#ifdef BOOST_MSVC
 
-		// TODO
+		wchar_t buf[MAX_PATH]; 
+		const auto result = GetModuleFileName(nullptr, (LPSTR)buf, MAX_PATH);
+		if (result == ERROR_SUCCESS)
+		{
+			boost::filesystem::path exec_path(buf);
+			return exec_path.parent_path();
+		}
+		else
+		{
+			return boost::filesystem::path(); // silent error
+		}
 
 		#elif defined(__APPLE__)
 		
@@ -26,7 +36,7 @@ namespace gintonic {
 		char* buf = nullptr;
 		_NSGetExecutablePath(nullptr, &bufsize);
 		buf = new char[bufsize];
-		auto result = _NSGetExecutablePath(buf, &bufsize);
+		const auto result = _NSGetExecutablePath(buf, &bufsize);
 		if (result == 0)
 		{
 			boost::filesystem::path exec_path(buf);

@@ -25,7 +25,13 @@ include_directories(${CMAKE_SOURCE_DIR}/lib ${Boost_INCLUDE_DIRS} ${FBX_INCLUDE_
 
 foreach (exe ${executables})
 	add_executable(${exe} ${exe}.cpp)
+	# if ( MSVC )
+	#     set_target_properties( gintonic PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
+ #    	set_target_properties( gintonic PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR} )
+ #   		set_target_properties( gintonic PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR} )
+ #    # etc for the other available configuration types (MinSizeRel, RelWithDebInfo)
+	# endif ( MSVC )
 	target_link_libraries(${exe} gintonic ${Boost_LIBRARIES} ${FBX_LIBRARY})
-	add_custom_command(TARGET ${exe} POST_BUILD
-		COMMAND ln -sf ${FBX_LIBRARY} $<TARGET_FILE_DIR:${exe}>)
+	# add_custom_command(TARGET ${exe} POST_BUILD
+	# 	COMMAND ln -sf ${FBX_LIBRARY} $<TARGET_FILE_DIR:${exe}>)
 endforeach ()

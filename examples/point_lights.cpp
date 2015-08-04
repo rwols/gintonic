@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
 {
 	try
 	{
+		boost::filesystem::current_path(gt::get_executable_path() / "..");
 		gt::init_all("point_lights");
 		
 		gt::renderer::set_freeform_cursor(true);

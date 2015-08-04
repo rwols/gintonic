@@ -38,44 +38,22 @@ include_directories(
 	${FBX_INCLUDE_DIR})
 
 if (WIN32)
-	set(DLLs_are_copied OFF CACHE INTERNAL "Only copy DLLs once.")
-	if (NOT DLLs_are_copied)
-		list(GET SDL2_LIBRARY 1 SDL2_dll)
-		string(REPLACE ".lib" ".dll" SDL2_dll ${SDL2_dll})
-		if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-			file(COPY ${SDL2_dll} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}\Debug)
-		else ()
-			file(COPY ${SDL2_dll} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}\Release)
-		endif ()
-		if (NOT Boost_USE_STATIC_LIBS)
-			message(STATUS "Copying Boost DLLs to build folder.")
-			set(found_correct_library OFF)
-			set(boost_lib_token "optimized")
-			if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-				set(boost_lib_token "debug")
-			endif ()
-			foreach (list_item IN LISTS Boost_LIBRARIES)
-				# message(STATUS "Current list item: ${list_item}")
-				if (list_item STREQUAL boost_lib_token)
-					# message(STATUS "Found debug lib...")
-					set(found_correct_library ON)
-				elseif (found_correct_library)
-					# message(STATUS "Replacing .lib with .dll")
-					string(REPLACE ".lib" ".dll" list_item ${list_item})
-					# message(STATUS "Copying ${list_item} to ${CMAKE_CURRENT_BINARY_DIR}")
-					if (boost_lib_token STREQUAL "debug")
-						file(COPY ${list_item} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}\Debug)
-					elseif (boost_lib_token STREQUAL "optimized")
-						file(COPY ${list_item} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}\Release)
-					endif ()
-					set(found_correct_library OFF)
-				endif ()
-			endforeach()
-			set(DLLs_are_copied ON CACHE INTERNAL "Only copy DLLs once." FORCE)
-		endif ()
+	set(found_correct_library OFF)
+	set(boost_lib_token "optimized")
+	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+		set(boost_lib_token "debug")
 	endif ()
-elseif (APPLE)
-
+	foreach (list_item IN LISTS Boost_LIBRARIES)
+		if (list_item STREQUAL boost_lib_token)
+			set(found_correct_library ON)
+		elseif (found_correct_library)
+			string(REPLACE ".lib" ".dll" list_item ${list_item})
+			list(APPEND Boost_DLLS ${list_item})
+			set(found_correct_library OFF)
+		endif ()
+	endforeach()
+	list(GET SDL2_LIBRARY 1 SDL2_DLL)
+	string(REPLACE ".lib" ".dll" SDL2_DLL ${SDL2_DLL})
 else ()
 	include_directories(
 		${JPEG_INCLUDE_DIR}
@@ -127,9 +105,18 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(ENABLE_DEBUG_TRACE ON CACHE BOOL "Enable debug tracing via the renderer.")	
 endif ()
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-set(CMAKE_MACOSX_RPATH ON)
-add_library(gintonic SHARED ${src_files})
+# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+# set(CMAKE_MACOSX_RPATH ON)
+# add_library(gintonic SHARED ${src_files})
+
+add_library(gintonic ${src_files})
+
+# if ( MSVC )
+#     	set_target_properties( gintonic PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
+#     	set_target_properties( gintonic PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR} )
+#    		set_target_properties( gintonic PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR} )
+#     # etc for the other available configuration types (MinSizeRel, RelWithDebInfo)
+# endif ( MSVC )
 
 # add_library(gintonic_static STATIC ${src_files})
 
@@ -142,6 +129,16 @@ if (WIN32)
 		${FREETYPE_LIBRARIES} 
 		${FBX_LIBRARY} 
 		${CMAKE_THREAD_LIBS_INIT})
+	# foreach (DLL IN LISTS Boost_DLLS)
+	# 	add_custom_command(
+	# 		TARGET gintonic 
+	# 		POST_BUILD
+	# 		COMMAND ln -sf ${DLL} $<TARGET_FILE_DIR:gintonic>)
+	# endforeach()
+	# add_custom_command(
+	# 	TARGET gintonic
+	# 	POST_BUILD
+	# 	COMMAND ln -sf ${SDL2_DLL} $<TARGET_FILE_DIR:gintonic>)
 elseif (APPLE)
 	target_link_libraries(
 		gintonic 

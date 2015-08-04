@@ -53,13 +53,15 @@ endif ()
 
 set (FBX_SEARCH_PATHS
     $ENV{FBX_ROOT}
-    # "$ENV{ProgramW6432}/Autodesk/FBX/FBX SDK/2015.1"
-    "$ENV{PROGRAMFILES}/Autodesk/FBX/FBX SDK/2015.1"
+    "$ENV{ProgramW6432}/Autodesk/FBX/FBX SDK/2016.0"
+    "$ENV{programfiles}/Autodesk/FBX/FBX SDK/2016.0"
+    "/Applications/Autodesk/FBX SDK/2016.0"
+    "$ENV{ProgramW6432}/Autodesk/FBX/FBX SDK/2015.1"
+    "$ENV{programfiles}/Autodesk/FBX/FBX SDK/2015.1"
     "/Applications/Autodesk/FBX SDK/2015.1"
-    # "$ENV{ProgramW6432}/Autodesk/FBX/FBX SDK/2014.2"
-    "$ENV{PROGRAMFILES}/Autodesk/FBX/FBX SDK/2014.2"
+    "$ENV{ProgramW6432}/Autodesk/FBX/FBX SDK/2014.2"
+    "$ENV{programfiles}/Autodesk/FBX/FBX SDK/2014.2"
     "/Applications/Autodesk/FBX SDK/2014.2"
-    # "/Applications/Autodesk/FBX SDK/2014.1"
 )
 #I think the last line in the search path is an old typo, but let's search for 2014.1 anyway - LV
 
@@ -163,11 +165,7 @@ IF(NOT FBX_FOUND)
 
 endif ()
 
-# If we're doing a debug build, set
-# FBX_LIBRARY to FBX_LIBRARY_DEBUG
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(FBX_LIBRARY ${FBX_LIBRARY_DEBUG})
-endif ()
+set(FBX_LIBRARY optimized ${FBX_LIBRARY} debug ${FBX_LIBRARY_DEBUG})
 
 include(FindPackageHandleStandardArgs)
 
