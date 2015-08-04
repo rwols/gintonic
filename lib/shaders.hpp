@@ -5,6 +5,10 @@
 
 namespace gintonic {
 
+/*****************************************************************************
+ * gintonic::matrix_PVM_shader                                               *
+ ****************************************************************************/
+
 class matrix_PVM_shader : public opengl::shader
 {
 public:
@@ -23,6 +27,10 @@ private:
 	GLuint loc_matrix_PVM;
 };
 
+/*****************************************************************************
+ * gintonic::matrix_PVM_VM_shader                                            *
+ ****************************************************************************/
+
 class matrix_PVM_VM_shader : public matrix_PVM_shader
 {
 public:
@@ -39,6 +47,10 @@ protected:
 private:
 	GLuint loc_matrix_VM;
 };
+
+/*****************************************************************************
+ * gintonic::matrix_PVM_VM_N_shader                                          *
+ ****************************************************************************/
 
 class matrix_PVM_VM_N_shader : public matrix_PVM_VM_shader
 {
@@ -57,12 +69,107 @@ private:
 	GLuint loc_matrix_N;
 };
 
+/*****************************************************************************
+ * gintonic::geometry_null_shader                                            *
+ ****************************************************************************/
+
 class geometry_null_shader : public matrix_PVM_VM_N_shader
 {
 public:
 	geometry_null_shader();
 	virtual ~geometry_null_shader() BOOST_NOEXCEPT_OR_NOTHROW;
 };
+
+/*****************************************************************************
+ * gintonic::gp_dc_shader                                                    *
+ ****************************************************************************/
+
+class gp_dc_shader : public virtual matrix_PVM_VM_N_shader
+{
+public:
+	gp_dc_shader();
+	virtual ~gp_dc_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_diffuse_color(const vec4f& color) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_dc_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_dc_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_diffuse_color;
+};
+
+/*****************************************************************************
+ * gintonic::gp_dcsc_shader                                                  *
+ ****************************************************************************/
+
+ class gp_dcsc_shader : public virtual gp_dc_shader
+ {
+ public:
+ 	gp_dcsc_shader();
+ 	virtual ~gp_dcsc_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+ 	void set_specular_color(const vec4f& color) const BOOST_NOEXCEPT_OR_NOTHROW;
+ protected:
+	gp_dcsc_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_dcsc_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_specular_color;
+ };
+
+/*****************************************************************************
+ * gintonic::gp_dt_shader                                                    *
+ ****************************************************************************/
+
+class gp_dt_shader : public virtual matrix_PVM_VM_N_shader
+{
+public:
+	gp_dt_shader();
+	virtual ~gp_dt_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_diffuse_texture(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_dt_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_dt_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_diffuse_texture;
+};
+
+/*****************************************************************************
+ * gintonic::gp_dcdt_shader                                                  *
+ ****************************************************************************/
+
+class gp_dcdt_shader 
+: public gp_dc_shader
+, public gp_dt_shader
+{
+public:
+	gp_dcdt_shader();
+	virtual ~gp_dcdt_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_dcdt_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_dcdt_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+};
+
+/*****************************************************************************
+ * gintonic::gp_c_shader                                                     *
+ ****************************************************************************/
 
 class gp_c_shader : public matrix_PVM_VM_N_shader
 {
@@ -82,6 +189,10 @@ private:
 	GLuint loc_color;
 };
 
+/*****************************************************************************
+ * gintonic::gp_cd_shader                                                    *
+ ****************************************************************************/
+
 class gp_cd_shader : public gp_c_shader
 {
 public:
@@ -100,6 +211,10 @@ private:
 	GLuint loc_diffuse;
 };
 
+/*****************************************************************************
+ * gintonic::gp_cds_shader                                                   *
+ ****************************************************************************/
+
 class gp_cds_shader : public gp_cd_shader
 {
 public:
@@ -117,6 +232,10 @@ protected:
 private:
 	GLuint loc_specular;
 };
+
+/*****************************************************************************
+ * gintonic::gp_cdn_shader                                                   *
+ ****************************************************************************/
 
 class gp_cdn_shader : public matrix_PVM_shader
 {
@@ -140,6 +259,10 @@ private:
 	GLuint loc_normal;
 };
 
+/*****************************************************************************
+ * gintonic::geometry_pass_shader                                            *
+ ****************************************************************************/
+
 class geometry_pass_shader : public matrix_PVM_VM_N_shader
 {
 public:
@@ -153,6 +276,10 @@ private:
 	GLuint loc_diffuse;
 	GLuint loc_diffuse_factor;
 };
+
+/*****************************************************************************
+ * gintonic::lp_null_shader                                                  *
+ ****************************************************************************/
 
 class lp_null_shader : public opengl::shader
 {
@@ -174,13 +301,17 @@ private:
 	GLuint loc_gbuffer_diffuse;
 };
 
+/*****************************************************************************
+ * gintonic::lp_directional_shader                                           *
+ ****************************************************************************/
+
 class lp_directional_shader : public lp_null_shader
 {
 public:
 	lp_directional_shader();
 	virtual ~lp_directional_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	// void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW; // NOTE: ONLY TEMPORARY
-	// void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW; // NOTE: ONLY TEMPORARY
+	void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_light_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW;
@@ -193,12 +324,16 @@ protected:
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 private:
-	// GLuint loc_gbuffer_position; // NOTE: ONLY TEMPORARY
-	// GLuint loc_gbuffer_specular; // NOTE: ONLY TEMPORARY
+	GLuint loc_gbuffer_position;
+	GLuint loc_gbuffer_specular;
 	GLuint loc_gbuffer_normal;
 	GLuint loc_light_intensity;
 	GLuint loc_light_direction;
 };
+
+/*****************************************************************************
+ * gintonic::lp_point_shader                                                 *
+ ****************************************************************************/
 
 class lp_point_shader : public matrix_PVM_shader
 {
@@ -208,7 +343,7 @@ public:
 	void set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	// void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW; // NOTE: ONLY TEMPORARY
+	void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_light_position(const vec3f& position) const BOOST_NOEXCEPT_OR_NOTHROW;
@@ -225,12 +360,16 @@ private:
 	GLuint loc_viewport_size;
 	GLuint loc_gbuffer_position;
 	GLuint loc_gbuffer_diffuse;
-	// GLuint loc_gbuffer_specular; // NOTE: ONLY TEMPORARY
+	GLuint loc_gbuffer_specular;
 	GLuint loc_gbuffer_normal;
 	GLuint loc_light_intensity;
 	GLuint loc_light_position;
 	GLuint loc_light_attenuation;
 };
+
+/*****************************************************************************
+ * gintonic::light_pass_shader                                               *
+ ****************************************************************************/
 
 class light_pass_shader : public matrix_PVM_shader
 {
@@ -252,6 +391,10 @@ private:
 
 };
 
+/*****************************************************************************
+ * gintonic::directional_light_pass_shader                                   *
+ ****************************************************************************/
+
 class directional_light_pass_shader : public light_pass_shader
 {
 public:
@@ -265,6 +408,10 @@ private:
 	GLuint loc_gbuffer_diffuse;
 	GLuint loc_gbuffer_normal;
 };
+
+/*****************************************************************************
+ * gintonic::point_light_pass_shader                                         *
+ ****************************************************************************/
 
 class point_light_pass_shader : public light_pass_shader
 {
@@ -283,6 +430,10 @@ private:
 	GLuint loc_gbuffer_diffuse;
 	GLuint loc_gbuffer_normal;
 };
+
+/*****************************************************************************
+ * gintonic::text_shader                                                     *
+ ****************************************************************************/
 
 class text_shader : public opengl::shader
 {

@@ -43,9 +43,9 @@ int main(int argc, char* argv[])
 		{
 			gt::vec3f attenuation(0.0f, 0.0f, 1.0f);
 
-			lights.emplace_back(new gt::point_light(gt::vec4f(1.0f, 0.0f, 0.0f, 1.0f), attenuation));
-			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 1.0f, 0.0f, 1.0f), attenuation));
-			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 0.0f, 1.0f, 1.0f), attenuation));
+			lights.emplace_back(new gt::point_light(gt::vec4f(1.0f, 0.0f, 0.0f, 1.5f), attenuation));
+			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 1.0f, 0.0f, 1.5f), attenuation));
+			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 0.0f, 1.0f, 1.5f), attenuation));
 
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f)));
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 1.0f, 0.0f, 0.0f)));
@@ -189,7 +189,8 @@ int main(int argc, char* argv[])
 				<< "Press Q to quit.\n"
 				<< "Press B to start/stop the simulation.\n"
 				<< "Camera position: " << std::fixed << std::setprecision(1) 
-				<< gt::renderer::camera().position << '\n';
+				<< gt::renderer::camera().position << '\n'
+				<< "FPS: " << 1.0f / dt << '\n';
 				// << "Light intensity: " << red_light->intensity << '\n'
 				// << "Light position:  " << red_light_transform.translation 
 				// << '\n';

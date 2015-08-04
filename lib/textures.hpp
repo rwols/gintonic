@@ -10,8 +10,8 @@
 #include "filesystem.hpp"
 #include <array>
 #include <vector>
-#include <list>
-#include <mutex>
+// #include <list>
+// #include <mutex>
 
 namespace gintonic {
 namespace opengl {

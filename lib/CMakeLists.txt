@@ -1,23 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 
-
-
-# # First for the generic no-config case (e.g. with mingw)
-# set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
-# set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
-# set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
-# # Second, for multi-config builds (e.g. msvc)
-# foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
-#     string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
-#     set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR} )
-#     set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR} )
-#     set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR} )
-# endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
-
-# Configure Boost libraries
-# set(Boost_USE_MULTITHREADED ON)
-# set(Boost_USE_STATIC_RUNTIME OFF)
-# set(Boost_USE_STATIC_LIBS OFF)
 find_package(Boost
 	COMPONENTS
 		system
@@ -29,19 +11,17 @@ find_package(Boost
 find_package(OpenGL REQUIRED)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
-if (NOT WIN32)
+if (WIN32)
+	# do nothing
+else ()
 	find_package(JPEG REQUIRED)
 	find_package(PNG REQUIRED)
 endif ()
+
 find_package(Freetype REQUIRED)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/..;${CMAKE_MODULE_PATH}")
 find_package(SDL2 REQUIRED)
-if (APPLE)
-	set(FBX_ROOT "/Applications/Autodesk/FBX\ SDK/2015.1")
-	set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
-	set(FBX_LIBRARY "${FBX_ROOT}/lib/clang/release/libfbxsdk.a")
-	set(FBX_LIBRARY_DEBUG "${FBX_ROOT}/lib/clang/debug/libfbxsdk.a")
-elseif (WIN32)
+if (APPLE OR WIN32)
 	find_package(FBX REQUIRED)
 else ()
 	set(FBX_ROOT "/usr/local")
@@ -62,7 +42,11 @@ if (WIN32)
 	if (NOT DLLs_are_copied)
 		list(GET SDL2_LIBRARY 1 SDL2_dll)
 		string(REPLACE ".lib" ".dll" SDL2_dll ${SDL2_dll})
-		file(COPY ${SDL2_dll} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+		if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+			file(COPY ${SDL2_dll} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}\Debug)
+		else ()
+			file(COPY ${SDL2_dll} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}\Release)
+		endif ()
 		if (NOT Boost_USE_STATIC_LIBS)
 			message(STATUS "Copying Boost DLLs to build folder.")
 			set(found_correct_library OFF)
@@ -90,6 +74,8 @@ if (WIN32)
 			set(DLLs_are_copied ON CACHE INTERNAL "Only copy DLLs once." FORCE)
 		endif ()
 	endif ()
+elseif (APPLE)
+
 else ()
 	include_directories(
 		${JPEG_INCLUDE_DIR}
@@ -108,6 +94,7 @@ mark_as_advanced(CMAKE_INSTALL_PREFIX)
 set(src_files actors.cpp
 	basic_shapes.cpp
 	exception.cpp
+	filesystem.cpp
 	fonts.cpp
 	gintonic.cpp
 	glad.cpp
@@ -121,7 +108,8 @@ set(src_files actors.cpp
 	renderer.cpp
 	shaders.cpp
 	textures.cpp
-	timers.cpp)
+	timers.cpp
+	vec2.cpp)
 
 option(WITH_PROFILING "Profile various math functions. Does nothing at the moment." OFF)
 option(WITH_PROFILING "Profile various math functions." OFF)
@@ -139,17 +127,11 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(ENABLE_DEBUG_TRACE ON CACHE BOOL "Enable debug tracing via the renderer.")	
 endif ()
 
-add_library(gintonic ${src_files})
-add_library(gintonic_static STATIC ${src_files})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+set(CMAKE_MACOSX_RPATH ON)
+add_library(gintonic SHARED ${src_files})
 
-# if (WIN32)
-# 	set_target_properties(gintonic PROPERTIES OUTPUT_NAME gintonic)
-# 	set_target_properties(gintonic_static PROPERTIES OUTPUT_NAME gintonic_static)
-# else ()
-# 	set_target_properties(gintonic PROPERTIES OUTPUT_NAME gintonic)
-# 	set_target_properties(gintonic_static PROPERTIES OUTPUT_NAME gintonic)
-# endif ()
-
+# add_library(gintonic_static STATIC ${src_files})
 
 if (WIN32)
 	target_link_libraries(
@@ -158,13 +140,16 @@ if (WIN32)
 		${OPENGL_LIBRARIES} 
 		${SDL2_LIBRARY} 
 		${FREETYPE_LIBRARIES} 
-		${FBX_LIBRARY_DEBUG} 
+		${FBX_LIBRARY} 
 		${CMAKE_THREAD_LIBS_INIT})
+elseif (APPLE)
 	target_link_libraries(
-		gintonic_static 
+		gintonic 
 		${Boost_LIBRARIES} 
 		${OPENGL_LIBRARIES} 
 		${SDL2_LIBRARY} 
+		${JPEG_LIBRARIES} 
+		${PNG_LIBRARIES} 
 		${FREETYPE_LIBRARIES} 
 		${FBX_LIBRARY_DEBUG} 
 		${CMAKE_THREAD_LIBS_INIT})
@@ -180,20 +165,8 @@ else ()
 		${FBX_LIBRARY_DEBUG} 
 		${CMAKE_THREAD_LIBS_INIT}
 		-ldl)
-	target_link_libraries(
-		gintonic_static 
-		${Boost_LIBRARIES} 
-		${OPENGL_LIBRARIES} 
-		${SDL2_LIBRARY} 
-		${JPEG_LIBRARIES} 
-		${PNG_LIBRARIES} 
-		${FREETYPE_LIBRARIES} 
-		${FBX_LIBRARY_DEBUG} 
-		${CMAKE_THREAD_LIBS_INIT}
-		-ldl)
 endif ()
 
 file(GLOB header_files "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp")
 install(FILES ${header_files} DESTINATION include/gintonic)
 install(TARGETS gintonic DESTINATION lib)
-# install(TARGETS gintonic_static ARCHIVE DESTINATION lib)

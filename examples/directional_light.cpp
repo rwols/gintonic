@@ -22,6 +22,7 @@ int main(int argc, char* argv[])
 {
 	try
 	{
+		boost::filesystem::current_path(gt::get_executable_path() / "..");
 		gt::init_all("directional_light");
 		gt::renderer::set_freeform_cursor(true);
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
@@ -30,7 +31,11 @@ int main(int argc, char* argv[])
 		std::unique_ptr<gt::light> the_light(new gt::directional_light(gt::vec4f(1.0f, 0.8f, 0.8f, 1.0f)));
 		gt::sqt_transformf the_light_transform;
 		the_light_transform.rotation = gt::quatf::from_angle_axis(static_cast<float>(-M_PI) / 2.0f, gt::vec3f(1.0f, 0.0f, 0.0f));
-		std::unique_ptr<gt::material> the_material(new gt::material_cd(gt::vec4f(1.0f,1.0f,1.0f,0.9f), "../examples/bricks.jpg"));
+		// std::unique_ptr<gt::material> the_material(new gt::material_cd(gt::vec4f(1.0f,1.0f,1.0f,0.9f), "../examples/bricks.jpg"));
+		std::unique_ptr<gt::material> the_material(new gt::material_dcsc(
+			gt::vec4f(1.0f, 0.0f, 0.0f,  0.9f), // diffuse color. 4th component is diffuse contribution
+			gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f)  // specular color. 4th component is shininess
+		));
 		assert(the_material);
 		gt::renderer::show();
 		float curtime, dt;

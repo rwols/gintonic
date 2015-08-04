@@ -1,6 +1,18 @@
+/**
+ * REMARKS
+ *
+ * This file has become waaay to big. Worse, I wrote this a long time ago and
+ * now feel that most of the interface and design totally sucks. Everything
+ * should be rewritten from the ground up with SIMD in mind. The FBX SDK
+ * should not be included here. The basic vector class is templated, but I
+ * don't think there's ever a use for a vec<long long, 6>, to name something
+ * pointless.
+ * The basic types should be limited to vec2, vec3, vec4, mat2, mat3, mat4,
+ * quat and optionally perhaps integer variants if we're going to rewrite.
+ */
+
 #ifndef math_hpp
 #define math_hpp
-
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -93,7 +105,7 @@ namespace gintonic {
  *                                                                           *
  * Purpose: To be able to put SIMD types in containers.                      *
  ****************************************************************************/
-template <typename T, std::size_t Alignment = 16> class allocator
+template <class T, std::size_t Alignment = 16> class allocator
 {
 public:
 	typedef T* pointer;
@@ -187,7 +199,7 @@ public:
 		}
 
 		// Mallocator wraps malloc().
-		void * const pv = _mm_malloc(n * sizeof(T), Alignment);
+		void* const pv = _mm_malloc(n * sizeof(T), Alignment);
 
 		// Allocators should throw std::bad_alloc in the case of memory 
 		// allocation failure.

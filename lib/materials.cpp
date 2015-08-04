@@ -137,6 +137,127 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 }
 
 /*****************************************************************************
+ * gintonic::material_dc (diffuse color)                                     *
+ ****************************************************************************/
+
+material_dc::material_dc(const vec4f& diffuse_color)
+: diffuse_color(diffuse_color)
+{
+	/* Empty on purpose. */
+}
+
+material_dc::~material_dc() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
+void material_dc::bind() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	const auto& s = renderer::get_gp_dc_shader();
+	s.activate();
+	s.set_matrix_PVM(renderer::matrix_PVM());
+	s.set_matrix_VM(renderer::matrix_VM());
+	s.set_matrix_N(renderer::matrix_N());
+	s.set_diffuse_color(diffuse_color);
+}
+
+/*****************************************************************************
+ * gintonic::material_dcsc (diffuse color, specular color)                   *
+ ****************************************************************************/
+
+material_dcsc::material_dcsc(const vec4f& diffuse_color, const vec4f& specular_color)
+: material_dc(diffuse_color)
+, specular_color(specular_color)
+{
+	/* Empty on purpose. */
+}
+
+material_dcsc::~material_dcsc() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
+void material_dcsc::bind() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	const auto& s = renderer::get_gp_dcsc_shader();
+	s.activate();
+	s.set_matrix_PVM(renderer::matrix_PVM());
+	s.set_matrix_VM(renderer::matrix_VM());
+	s.set_matrix_N(renderer::matrix_N());
+	s.set_diffuse_color(diffuse_color);
+	s.set_specular_color(specular_color);
+}
+
+/*****************************************************************************
+ * gintonic::material_dt (diffuse texture)                                   *
+ ****************************************************************************/
+
+material_dt::material_dt()
+{
+	safe_set_null_texture(m_diffuse);
+}
+
+material_dt::material_dt(boost::filesystem::path diffuse_filename)
+{
+	safe_obtain_texture(diffuse_filename, m_diffuse);
+}
+
+material_dt::~material_dt() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	safe_release_texture(m_diffuse);
+}
+
+void material_dt::set_diffuse_texture(const boost::filesystem::path& filename)
+{
+	safe_release_texture(m_diffuse);
+	safe_obtain_texture(filename, m_diffuse);
+}
+
+const opengl::texture2d& material_dt::diffuse_texture() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return std::get<2>(*m_diffuse);
+}
+
+void material_dt::bind() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	const auto& s = renderer::get_gp_dt_shader();
+	s.activate();
+	s.set_matrix_PVM(renderer::matrix_PVM());
+	s.set_matrix_VM(renderer::matrix_VM());
+	s.set_matrix_N(renderer::matrix_N());
+	s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
+	diffuse_texture().bind(renderer::GBUFFER_TEX_DIFFUSE);
+}
+
+/*****************************************************************************
+ * gintonic::material_dcdt (diffuse color+texture)                           *
+ ****************************************************************************/
+
+material_dcdt::material_dcdt(const vec4f& diffuse_color, boost::filesystem::path diffuse_filename)
+: material_dt(std::move(diffuse_filename))
+, diffuse_color(diffuse_color)
+{
+	/* Empty on purpose. */
+}
+
+material_dcdt::~material_dcdt() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
+void material_dcdt::bind() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	const auto& s = renderer::get_gp_dcdt_shader();
+	s.activate();
+	s.set_matrix_PVM(renderer::matrix_PVM());
+	s.set_matrix_VM(renderer::matrix_VM());
+	s.set_matrix_N(renderer::matrix_N());
+	s.set_diffuse_color(diffuse_color);
+	s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
+	diffuse_texture().bind(renderer::GBUFFER_TEX_DIFFUSE);
+}
+
+/*****************************************************************************
  * gintonic::material_c (color)                                              *
  ****************************************************************************/
 
@@ -232,9 +353,9 @@ void material_cd::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 	s.set_matrix_PVM(renderer::matrix_PVM());
 	s.set_matrix_VM(renderer::matrix_VM());
 	s.set_matrix_N(renderer::matrix_N());
-	s.set_diffuse(0);
+	s.set_diffuse(renderer::GBUFFER_TEX_DIFFUSE);
 	s.set_color(diffuse_color);
-	diffuse().bind(0);
+	diffuse().bind(renderer::GBUFFER_TEX_DIFFUSE);
 }
 
 material_cd::~material_cd() BOOST_NOEXCEPT_OR_NOTHROW
@@ -279,10 +400,10 @@ void material_cds::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 	s.set_matrix_VM(renderer::matrix_VM());
 	s.set_matrix_N(renderer::matrix_N());
 	s.set_color(diffuse_color);
-	s.set_diffuse(0);
-	s.set_specular(1);
-	diffuse().bind(0);
-	specular().bind(1);
+	s.set_diffuse(renderer::GBUFFER_TEX_DIFFUSE);
+	s.set_specular(renderer::GBUFFER_TEX_SPECULAR);
+	diffuse().bind(renderer::GBUFFER_TEX_DIFFUSE);
+	specular().bind(renderer::GBUFFER_TEX_SPECULAR);
 }
 
 material_cds::~material_cds() BOOST_NOEXCEPT_OR_NOTHROW
@@ -325,10 +446,10 @@ void material_cdn::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 	s.activate();
 	s.set_matrix_PVM(renderer::matrix_PVM());
 	s.set_color(diffuse_color);
-	s.set_diffuse(0);
-	s.set_normal(1);
-	diffuse().bind(0);
-	normal().bind(1);
+	s.set_diffuse(renderer::GBUFFER_TEX_DIFFUSE);
+	s.set_normal(renderer::GBUFFER_TEX_NORMAL);
+	diffuse().bind(renderer::GBUFFER_TEX_DIFFUSE);
+	normal().bind(renderer::GBUFFER_TEX_NORMAL);
 }
 
 material_cdn::~material_cdn() BOOST_NOEXCEPT_OR_NOTHROW
@@ -367,118 +488,13 @@ specular_diffuse_material::~specular_diffuse_material() BOOST_NOEXCEPT_OR_NOTHRO
 	safe_release_texture(m_specular);
 }
 
-// lambert_material::lambert_material(
-// 	std::shared_ptr<geometry_pass_shader> prog,
-// 	std::shared_ptr<opengl::texture2d> diffuse_tex, 
-// 	const float diffuse_tex_factor)
-// : diffuse_value(diffuse_tex)
-// , diffuse_factor_value(diffuse_tex_factor)
-// , m_program(prog)
-// {
-// 	/* Empty on purpose. */
-// }
-
-// lambert_material::lambert_material(std::shared_ptr<geometry_pass_shader> prog, FbxSurfaceLambert* fbx_mat)
-// : m_program(prog)
-// {
-// 	auto prop_diffuse = fbx_mat->FindProperty(FbxSurfaceMaterial::sDiffuse);
-// 	auto prop_diffuse_factor = fbx_mat->FindProperty(FbxSurfaceMaterial::sDiffuseFactor);
-// 	std::cerr << "Determining number of file textures...\n";
-// 	auto file_texture_count = prop_diffuse.GetSrcObjectCount<FbxFileTexture>();
-// 	std::cerr << "Lambert material has " << file_texture_count << " file textures.\n";
-// 	if (!file_texture_count) throw std::runtime_error("No diffuse texture.");
-// 	auto file_texture = FbxCast<FbxFileTexture>(prop_diffuse.GetSrcObject<FbxFileTexture>(0));
-// 	std::cerr << file_texture->GetFileName() << '\n';
-// }
-
-// void lambert_material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-// {
-// 	m_program->activate();
-// 	m_program->set_matrix_PVM(renderer::matrix_PVM());
-// 	m_program->set_matrix_VM(renderer::matrix_VM());
-// 	m_program->set_matrix_N(renderer::matrix_N());
-// 	m_program->set_diffuse(0);
-// 	m_program->set_diffuse_factor(diffuse_factor_value);
-// 	diffuse_value->bind(0);
-// }
-
-// phong_material::phong_material(
-// 	std::shared_ptr<geometry_pass_shader> prog,
-// 	std::shared_ptr<opengl::texture2d> diffuse_tex,
-// 	std::shared_ptr<opengl::texture2d> specular_tex,
-// 	const float diffuse_factor_value,
-// 	const float shininess)
-// : diffuse_value(diffuse_tex)
-// , specular_value(specular_tex)
-// , diffuse_factor_value(diffuse_factor_value)
-// , shininess(shininess)
-// , m_program(prog)
-// {
-// 	/* Empty on purpose. */
-// }
-
-// phong_material::phong_material(
-// 	std::shared_ptr<geometry_pass_shader> prog, 
-// 	FbxSurfacePhong* fbx_mat)
-// : m_program(prog)
-// {
-// 	auto prop_diffuse = fbx_mat->FindProperty(FbxSurfaceMaterial::sDiffuse);
-// 	auto prop_diffuse_factor = fbx_mat->FindProperty(FbxSurfaceMaterial::sDiffuseFactor);
-// 	auto prop_specular = fbx_mat->FindProperty(FbxSurfaceMaterial::sSpecular);
-// 	auto prop_normal = fbx_mat->FindProperty(FbxSurfaceMaterial::sNormalMap);
-// 	auto diffuse_texture_count = prop_diffuse.GetSrcObjectCount<FbxFileTexture>();
-// 	auto specular_texture_count = prop_specular.GetSrcObjectCount<FbxFileTexture>();
-// 	auto normal_texture_count = prop_normal.GetSrcObjectCount<FbxFileTexture>();
-// 	std::cerr << "Phong material has " << diffuse_texture_count << " diffuse textures.\n";
-// 	std::cerr << "Phong material has " << specular_texture_count << " specular textures.\n";
-// 	std::cerr << "Phong material has " << normal_texture_count << " normal textures.\n";
-// 	if (!diffuse_texture_count) throw std::runtime_error("No diffuse texture.");
-// 	if (!specular_texture_count) throw std::runtime_error("No specular texture.");
-// 	if (!normal_texture_count)
-// 	{
-// 		auto prop_bump = fbx_mat->FindProperty(FbxSurfaceMaterial::sBump);
-// 		auto prop_bump_factor = fbx_mat->FindProperty(FbxSurfaceMaterial::sBumpFactor);
-// 		auto bump_texture_count = prop_bump.GetSrcObjectCount<FbxFileTexture>();
-// 		if (!bump_texture_count) throw std::runtime_error("Neither a normal map nor a bump map.");
-// 		auto file_diffuse = FbxCast<FbxFileTexture>(prop_diffuse.GetSrcObject<FbxFileTexture>(0));
-// 		auto file_specular = FbxCast<FbxFileTexture>(prop_specular.GetSrcObject<FbxFileTexture>(0));
-// 		auto file_bump = FbxCast<FbxFileTexture>(prop_bump.GetSrcObject<FbxFileTexture>(0));
-
-// 		std::cerr << file_diffuse->GetFileName() << '\n';
-// 		std::cerr << file_specular->GetFileName() << '\n';
-// 		std::cerr << file_bump->GetFileName() << '\n';
-// 		std::cerr << "Bump factor: " << prop_bump_factor.Get<FbxDouble>() << '\n';
-// 	}
-// 	else
-// 	{
-// 		auto file_diffuse = FbxCast<FbxFileTexture>(prop_diffuse.GetSrcObject<FbxFileTexture>(0));
-// 		auto file_specular = FbxCast<FbxFileTexture>(prop_specular.GetSrcObject<FbxFileTexture>(0));
-// 		auto file_normal = FbxCast<FbxFileTexture>(prop_normal.GetSrcObject<FbxFileTexture>(0));
-
-// 		std::cerr << file_diffuse->GetFileName() << '\n';
-// 		std::cerr << file_specular->GetFileName() << '\n';
-// 		std::cerr << file_normal->GetFileName() << '\n';
-// 	}
-// 	throw std::runtime_error("The rest is not yet implemented. :-(");
-// }
-
-// void phong_material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-// {
-// 	m_program->activate();
-// 	m_program->set_matrix_PVM(renderer::matrix_PVM());
-// 	m_program->set_matrix_VM(renderer::matrix_VM());
-// 	m_program->set_matrix_N(renderer::matrix_N());
-// 	m_program->set_diffuse(0);
-// 	m_program->set_diffuse_factor(diffuse_factor_value);
-// 	// m_program->set_specular(1);
-// 	// m_program->set_shininess(shininess);
-// 	diffuse_value->bind(0);
-// 	// specular_value->bind(1);
-// }
-
 } // namespace gintonic
 
-// BOOST_CLASS_EXPORT(gintonic::material)
+BOOST_CLASS_TRACKING(gintonic::material, boost::serialization::track_always)
+BOOST_CLASS_EXPORT(gintonic::material_dc)
+BOOST_CLASS_EXPORT(gintonic::material_dcsc)
+BOOST_CLASS_EXPORT(gintonic::material_dt)
+BOOST_CLASS_EXPORT(gintonic::material_dcdt)
 BOOST_CLASS_EXPORT(gintonic::material_c)
 BOOST_CLASS_EXPORT(gintonic::material_cd)
 BOOST_CLASS_EXPORT(gintonic::material_cds)

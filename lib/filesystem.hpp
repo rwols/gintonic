@@ -6,6 +6,8 @@
 
 namespace gintonic {
 
+	boost::filesystem::path get_executable_path();
+
 	typedef boost::error_info<struct tag_filesystem_path_err,boost::filesystem::path> errinfo_path;
 
 } // namespace gintonic

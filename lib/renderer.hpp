@@ -25,6 +25,12 @@ namespace gintonic
 	class gp_cd_shader;
 	class gp_cds_shader;
 	class gp_cdn_shader;
+
+	class gp_dc_shader;
+	class gp_dcsc_shader;
+	class gp_dt_shader;
+	class gp_dcdt_shader;
+
 	class geometry_pass_shader;
 	class lp_null_shader;
 	class lp_directional_shader;
@@ -135,6 +141,13 @@ namespace gintonic
 			GBUFFER_COUNT
 		};
 
+		enum GBUFFER_IN
+		{
+			GBUFFER_TEX_DIFFUSE = 0,
+			GBUFFER_TEX_SPECULAR,
+			GBUFFER_TEX_NORMAL
+		};
+
 		static void begin_geometry_pass();
 		static void begin_stencil_pass();
 		static void begin_light_pass();
@@ -170,6 +183,26 @@ namespace gintonic
 		inline static const gp_cdn_shader& get_gp_cdn_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_gp_cdn_shader;
+		}
+
+		inline static const gp_dc_shader& get_gp_dc_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_dc_shader;
+		}
+
+		inline static const gp_dcsc_shader& get_gp_dcsc_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_dcsc_shader;
+		}
+
+		inline static const gp_dt_shader& get_gp_dt_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_dt_shader;
+		}
+
+		inline static const gp_dcdt_shader& get_gp_dcdt_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_dcdt_shader;
 		}
 
 		inline static geometry_pass_shader* get_geometry_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
@@ -254,6 +287,12 @@ namespace gintonic
 		static gp_cd_shader* s_gp_cd_shader;
 		static gp_cds_shader* s_gp_cds_shader;
 		static gp_cdn_shader* s_gp_cdn_shader;
+
+		static gp_dc_shader* s_gp_dc_shader;
+		static gp_dcsc_shader* s_gp_dcsc_shader;
+		static gp_dt_shader* s_gp_dt_shader;
+		static gp_dcdt_shader* s_gp_dcdt_shader;
+
 		static geometry_pass_shader* s_geometry_pass_shader;
 		static lp_null_shader* s_lp_null_shader;
 		static lp_directional_shader* s_lp_directional_shader;

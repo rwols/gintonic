@@ -58,6 +58,12 @@ namespace gintonic {
 	gp_cd_shader* renderer::s_gp_cd_shader = nullptr;
 	gp_cds_shader* renderer::s_gp_cds_shader = nullptr;
 	gp_cdn_shader* renderer::s_gp_cdn_shader = nullptr;
+
+	gp_dc_shader* renderer::s_gp_dc_shader = nullptr;
+	gp_dcsc_shader* renderer::s_gp_dcsc_shader = nullptr;
+	gp_dt_shader* renderer::s_gp_dt_shader = nullptr;
+	gp_dcdt_shader* renderer::s_gp_dcdt_shader = nullptr;
+
 	geometry_pass_shader* renderer::s_geometry_pass_shader = nullptr;
 	lp_null_shader* renderer::s_lp_null_shader = nullptr;
 	lp_directional_shader* renderer::s_lp_directional_shader = nullptr;
@@ -80,15 +86,15 @@ namespace gintonic {
 
 	BOOST_CONSTEXPR GLenum gbuffer_tex_internal[renderer::GBUFFER_COUNT] = 
 	{
-		GL_RGB32F, // GBUFFER_POSITION
-		GL_RGBA,   // GBUFFER_DIFFUSE
-		GL_RGBA,   // GBUFFER_SPECULAR
-		GL_RGBA32F,// GBUFFER_NORMAL
-		GL_RGB     // GBUFFER_FINAL_COLOR
+		GL_RGBA32F, // GBUFFER_POSITION
+		GL_RGBA,    // GBUFFER_DIFFUSE
+		GL_RGBA,    // GBUFFER_SPECULAR
+		GL_RGBA32F, // GBUFFER_NORMAL
+		GL_RGB      // GBUFFER_FINAL_COLOR
 	};
 	BOOST_CONSTEXPR GLenum gbuffer_tex_format[renderer::GBUFFER_COUNT] = 
 	{
-		GL_RGB,  // GBUFFER_POSITION
+		GL_RGBA, // GBUFFER_POSITION
 		GL_RGBA, // GBUFFER_DIFFUSE
 		GL_RGBA, // GBUFFER_SPECULAR
 		GL_RGBA, // GBUFFER_NORMAL
@@ -127,14 +133,30 @@ namespace gintonic {
 		Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
 		if (s_fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		s_window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
+
+		// We start by trying to obtain an OpenGL 4.1 context.
 		SDL_GL_ResetAttributes();
+		SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		s_context = SDL_GL_CreateContext(s_window);
+		if (!s_context)
+		{
+			// Failed to get an OpenGL 4.1 context. Let's try an OpenGL 3.3 context.
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+			s_context = SDL_GL_CreateContext(s_window);
+			if (!s_context)
+			{
+				// The user should update their drivers at this point...
+				release();
+				throw exception("Failed to obtain OpenGL 3.3 context.");
+			}
+		}
 		const auto glad_error = gladLoadGL();
-		glGetError(); // clear any GL errors from GLEW
+		// glGetError(); // clear any GL errors from GLEW
 		if (glad_error != 1)
 		{
 			std::clog << "Could not initialize OpenGL.\n";
@@ -164,22 +186,6 @@ namespace gintonic {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		glGenTextures(GBUFFER_COUNT, s_textures);
 		glGenTextures(1, &s_depth_texture);
-		// BOOST_CONSTEXPR GLenum tex_internal[GBUFFER_COUNT] = 
-		// {
-		// 	GL_RGB,  // GBUFFER_POSITION
-		// 	GL_RGBA, // GBUFFER_DIFFUSE
-		// 	GL_RGBA, // GBUFFER_SPECULAR
-		// 	GL_RGBA, // GBUFFER_NORMAL
-		// 	GL_RGB   // GBUFFER_FINAL_COLOR
-		// };
-		// BOOST_CONSTEXPR GLenum tex_format[GBUFFER_COUNT] = 
-		// {
-		// 	GL_RGB,  // GBUFFER_POSITION
-		// 	GL_RGBA, // GBUFFER_DIFFUSE
-		// 	GL_RGBA, // GBUFFER_SPECULAR
-		// 	GL_RGBA, // GBUFFER_NORMAL
-		// 	GL_RGB   // GBUFFER_FINAL_COLOR
-		// };
 		for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
 		{
 			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
@@ -187,7 +193,6 @@ namespace gintonic {
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexImage2D(GL_TEXTURE_2D, 0, gbuffer_tex_internal[i], s_width, s_height, 0, gbuffer_tex_format[i], GL_FLOAT, nullptr);
 			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, s_textures[i], 0);
-
 		}
 		glBindTexture(GL_TEXTURE_2D, s_depth_texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, s_width, s_height, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
@@ -259,6 +264,45 @@ namespace gintonic {
 		catch (exception& e)
 		{
 			e.prepend(": Failed to load gp_cdn_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_dc_shader = new gp_dc_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_dc_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_dcsc_shader = new gp_dcsc_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_dcsc_shader: ");
+			e.prepend(name());
+		}
+		try
+		{
+			s_gp_dt_shader = new gp_dt_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_dt_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_dcdt_shader = new gp_dcdt_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_dcdt_shader: ");
 			e.prepend(name());
 			throw;
 		}

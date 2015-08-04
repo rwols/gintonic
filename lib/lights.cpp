@@ -46,9 +46,9 @@ void directional_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_N
 	const auto& s = renderer::get_lp_directional_shader();
 	s.activate();
 	s.set_viewport_size(vec2f(static_cast<float>(renderer::width()), static_cast<float>(renderer::height())));
-	// s.set_gbuffer_position(renderer::GBUFFER_POSITION);
+	s.set_gbuffer_position(renderer::GBUFFER_POSITION);
 	s.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
-	// s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
+	s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	s.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
 	s.set_light_intensity(intensity);
 	// s.set_light_direction(renderer::camera().matrix_V().upper_left_33() * vec3f(0, -1, 0));
@@ -150,7 +150,7 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 		renderer::width()), static_cast<float>(renderer::height())));
 	pointshader.set_gbuffer_position(renderer::GBUFFER_POSITION);
 	pointshader.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
-	// pointshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
+	pointshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	pointshader.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
 	pointshader.set_light_intensity(intensity);
 	pointshader.set_light_position(light_pos);
