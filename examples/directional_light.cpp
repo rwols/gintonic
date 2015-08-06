@@ -22,7 +22,11 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-		boost::filesystem::current_path(gt::get_executable_path() / "..");
+		#ifdef BOOST_MSVC
+			boost::filesystem::current_path(gt::get_executable_path());
+		#else
+			boost::filesystem::current_path(gt::get_executable_path() / "..");
+		#endif
 		gt::init_all("directional_light");
 		gt::renderer::set_freeform_cursor(true);
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);

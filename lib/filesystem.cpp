@@ -1,4 +1,5 @@
 #include "filesystem.hpp"
+#include <iostream>
 
 #ifdef BOOST_MSVC
 #include <windows.h>
@@ -22,16 +23,16 @@ namespace gintonic {
 	{
 		#ifdef BOOST_MSVC
 
-		wchar_t buf[MAX_PATH]; 
-		const auto result = GetModuleFileName(nullptr, (LPSTR)buf, MAX_PATH);
-		if (result == ERROR_SUCCESS)
+		char buf[MAX_PATH]; 
+		const auto numbytes = GetModuleFileName(nullptr, (LPSTR)buf, MAX_PATH);
+		if (numbytes == 0)
 		{
-			boost::filesystem::path exec_path(buf);
-			return exec_path.parent_path();
+			return boost::filesystem::path();
 		}
 		else
 		{
-			return boost::filesystem::path(); // silent error
+			boost::filesystem::path exec_path(buf);
+			return exec_path.parent_path();			
 		}
 
 		#elif defined(__APPLE__)

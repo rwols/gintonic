@@ -12,22 +12,24 @@ Windows
 =======
 
 You do not have to install libjpeg and libpng. Loading images into memory can 
-be done with the WIC API of Windows. I probably want to do the same with OSX, 
-using the Cocoa API, but that's another story. There is no universal way to 
-install dependencies on Windows, so it can be a bit of a pain to do this. CMake
-has an installer, so no problem there. I recommend downloading the precompiled 
-binaries of SDL2. The website of the Freetype project has some links to websites
-which provide precompiled binaries. I suggest making a separate folder for each
-dependency in your top-level directory. For instance, C:\Freetype, C:\SDL2, and
-so forth. Once the dependencies are installed, you need to setup some
-environment variables. The top-level CMakeLists.txt file expects the following
-environment variables to be defined.
+be done with the WIC API of Windows. There is no universal way to install
+dependencies on Windows, so it can be a bit of a pain to do this. CMake has an
+installer, so no problem there. I recommend downloading the precompiled 
+binaries of SDL2. The website of the Freetype project has some links to
+websites which provide precompiled binaries. I suggest making a separate
+folder for each dependency in your top-level directory. For instance,
+C:\Freetype, C:\SDL2, and so forth. The FBX SDK has an installer, so that's
+nice too. The FBX SDK will be installed in %programfiles%\Autodesk\FBX. Once
+the dependencies are installed, you need to setup some environment variables.
+The top-level CMakeLists.txt file expects the following environment variables
+to be defined.
 
 * BOOST_ROOT: Location of Boost (e.g. C:\Boost)
-* FBX_DIR: Location of the FBX SDK directory 
-	(e.g. %PROGRAMFILES%\Autodesk\FBX SDK\)
 * SDL2: Location of the SDL2 directory (e.g. C:\SDL2)
 * FREETYPE_DIR: Location of the Freetype library (e.g. C:\Freetype)
+
+In addition, if for some reason CMake cannot find the FBX SDK, you can set an
+environment variable called FBX_ROOT to point to the root FBX folder.
 
 OSX
 ===
@@ -56,3 +58,48 @@ Use apt-get to install the dependencies. The following command should work:
 	sudo apt-get install cmake boost freetype libjpeg libpng sdl2
 	
 Download the FBX SDK and follow the instructions for Linux.
+
+The Project File Structure
+==========================
+
+The root folder has five directories:
+
+* lib -- This is where the source code resides for the engine.
+* s -- This is where all the OpenGL shaders reside.
+* test -- This is where the unit tests are.
+* examples -- Some example applications are here.
+* resources -- The place for supporting files such as textures etc.
+
+In addition, there's the top-level CMakeLists.txt file, and two support files 
+FindFBX.cmake and FindSDL.cmake so that CMake can find those libs.
+
+The Structure of the Engine
+===========================
+
+My suggestion is to explore the code in the examples directory to get a feel
+for how the various classes interact with eachother. Basically, there's a huge
+singleton class in renderer.hpp that takes care of rendering. There are
+vectors, matrices and quaternion classes in math.hpp.
+
+Rendering geometry is done with the mesh class in mesh.hpp. However if you 
+need simple geometric shapes you could look into basic_shapes.hpp. When 
+rendering a mesh, you need to bind a material so that the correct shader gets
+activated. This interplay is in the files materials.hpp and shaders.hpp. Every
+class in shaders.hpp derives from the gintonic::opengl::shader class and adds
+some extra methods that correspond to uniform variables in the corresponding
+shader with the same name (as the class). Each material in materials.hpp
+(again with the same naming scheme) then references its corresponding shader
+class and sets up the uniform variables in the shader given its own data
+members. Each new shader class needs to be known to the giant singleton class
+in renderer.hpp (called gintonic::renderer). Currently, I just give it a new
+static method that fetches the new shader class (and add a new static pointer
+to the new class). This works for now, but could probably benefit from a more
+generic approach.
+
+I wrote the classes in math.hpp a very long time ago. I believe they could use
+a rewrite using SSE intrinsics. The vector and matrix class being templated
+is pointless.
+
+The classes in lights.hpp represent a light in space. Currently, I have
+implemented a directional light and a point light. Just as with materials,
+each light has a corresponding shader class and a corresponding shader.

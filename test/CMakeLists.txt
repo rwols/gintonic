@@ -4,35 +4,66 @@ set(executables math
 	materials
 	vec2)
 
-add_definitions(-std=c++11)
-add_definitions(-Wall)
-add_definitions(-msse3)
 add_definitions(-DBOOST_TEST_DYN_LINK) 
 
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
-
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/..;${CMAKE_MODULE_PATH}")
-find_package(FBX REQUIRED)
-# if (APPLE OR WIN32)
-# 	find_package(FBX REQUIRED)
-# else ()
-# 	set(FBX_ROOT "/usr/local")
-# 	set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
-# 	set(FBX_LIBRARY "${FBX_ROOT}/lib/gcc4/x64/release/libfbxsdk.so")
-# 	set(FBX_LIBRARY_DEBUG "${FBX_ROOT}/lib/gcc4/x64/debug/libfbxsdk.so")
-# endif ()
-
-include_directories(${CMAKE_SOURCE_DIR}/lib ${Boost_INCLUDE_DIRS} ${FBX_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/lib)
 
 foreach (exe ${executables})
 	add_executable(${exe} ${exe}.cpp)
-	# if ( MSVC )
-	#     set_target_properties( gintonic PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
- #    	set_target_properties( gintonic PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR} )
- #   		set_target_properties( gintonic PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR} )
- #    # etc for the other available configuration types (MinSizeRel, RelWithDebInfo)
-	# endif ( MSVC )
-	target_link_libraries(${exe} gintonic ${Boost_LIBRARIES} ${FBX_LIBRARY})
-	# add_custom_command(TARGET ${exe} POST_BUILD
-	# 	COMMAND ln -sf ${FBX_LIBRARY} $<TARGET_FILE_DIR:${exe}>)
+	if (MSVC)
+	    set_target_properties(${exe} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+	    set_target_properties(${exe} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR})
+	    set_target_properties(${exe} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
+	    # etc for the other available configuration types (MinSizeRel, RelWithDebInfo)
+	endif (MSVC)
+	if (WIN32)
+		target_link_libraries(
+			${exe}
+			gintonic 
+			${Boost_LIBRARIES} 
+			${OPENGL_LIBRARIES} 
+			${SDL2_LIBRARY} 
+			${FREETYPE_LIBRARIES} 
+			${FBX_LIBRARY} 
+			${CMAKE_THREAD_LIBS_INIT})
+		# foreach (DLL ${DEBUG_DLLS})
+		# 	get_filename_component(DLL_NAME ${DLL} NAME)
+		# 	add_custom_command(TARGET ${exe} 
+		# 		POST_BUILD
+		# 		COMMAND ${CMAKE_COMMAND}
+		# 		ARGS -E create_symlink ${DLL} "Debug\${DLL_NAME}")
+		# endforeach ()
+		# foreach (DLL ${RELEASE_DLLS})
+		# 	get_filename_component(DLL_NAME ${DLL} NAME)
+		# 	add_custom_command(TARGET ${exe}
+		# 		POST_BUILD
+		# 		COMMAND ${CMAKE_COMMAND}
+		# 		ARGS -E create_symlink ${DLL} "Release\${DLL_NAME}")
+		# endforeach()
+	elseif (APPLE)
+		target_link_libraries(
+			${exe}
+			gintonic 
+			${Boost_LIBRARIES} 
+			${OPENGL_LIBRARIES} 
+			${SDL2_LIBRARY} 
+			${JPEG_LIBRARIES} 
+			${PNG_LIBRARIES} 
+			${FREETYPE_LIBRARIES} 
+			${FBX_LIBRARY_DEBUG} 
+			${CMAKE_THREAD_LIBS_INIT})
+	else ()
+		target_link_libraries(
+			${exe}
+			gintonic 
+			${Boost_LIBRARIES} 
+			${OPENGL_LIBRARIES} 
+			${SDL2_LIBRARY} 
+			${JPEG_LIBRARIES} 
+			${PNG_LIBRARIES} 
+			${FREETYPE_LIBRARIES} 
+			${FBX_LIBRARY_DEBUG} 
+			${CMAKE_THREAD_LIBS_INIT}
+			-ldl)
+	endif ()
 endforeach ()
