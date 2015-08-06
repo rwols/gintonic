@@ -3,18 +3,18 @@
  *
  * The material classes follow a naming scheme. This works as follows.
  * The words "diffuse", "specular", "normal" and "height" are abbreviated
- * with their first letter. So, "diffuse" becomes just "d" or "D". If it is
- * a small letter, then this indicates that it is a uniform color value for
- * the whole material. If it is a capital letter, then this indicates that it 
- * is a texture from a file. So for example, if you want a material with a 
- * diffuse texture, a uniform specular value, and a normal map, then this
- * would be material_DsN. For another example, if we want a material that has
- * both a diffuse color value and a diffuse texture, which get multiplied in
- * the shader, together with a normal map and a height map, then this would be
- * material_dDNH. The corresponding shaders follow the same convention. Each 
- * shader pair that belongs to a material starts with gp_*. So for example, 
- * the corresponding shader pair for material_DsN is gp_DsN.vs and gp_DsN.fs. 
- * The abbreviation gp stands for geometry pass.
+ * with their first letter. So, "diffuse" becomes just "d", specular becomes
+ * "s", and so forth. The letter after the color component indicates if it is
+ * a simple uniform color value or a reference to a texture (file). So for
+ * example, if you want a material with a diffuse texture, a uniform specular 
+ * value, and a normal map, then this would be material_dtscnt. For another 
+ * example, if we want a material that has both a diffuse color value and a 
+ * diffuse texture, which get multiplied in the shader, together with a normal
+ * map and a height map, then this would be material_dcdtn. The corresponding 
+ * shaders follow the same convention. Each shader pair that belongs to a 
+ * material starts with gp_*. So for example, the corresponding shader pair 
+ * for material_dtscnt is gp_dtscnt.vs and gp_dtscnt.fs. The abbreviation gp 
+ * stands for geometry pass.
  */
 
 #ifndef gintonic_materials_hpp
@@ -29,6 +29,11 @@
 #include <boost/serialization/base_object.hpp>
 
 namespace gintonic {
+
+// forward declarations
+class material_component_diffuse_texture;
+class material_component_specular_texture;
+class material_component_normal_texture;	
 
 /*****************************************************************************
  * gintonic::material (base class for inheritance)                           *
@@ -92,12 +97,213 @@ private:
 	{
 		/* Empty on purpose. */
 	}
+
+	friend class material_component_diffuse_texture;
+	friend class material_component_specular_texture;
+	friend class material_component_normal_texture;	
+};
+
+class material_component_diffuse_color
+{
+public:
 	
+	vec4f diffuse_color;
+
+	material_component_diffuse_color(const vec4f&);
+
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+
+	virtual ~material_component_diffuse_color() BOOST_NOEXCEPT_OR_NOTHROW;
+
+protected:
+
+	material_component_diffuse_color() = default;
+
+private:
+
+	friend boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive& ar, const unsigned /*version*/)
+	{
+		ar & BOOST_SERIALIZATION_NVP(diffuse_color);
+	}
+};
+
+class material_component_diffuse_texture
+{
+public:
+
+	const opengl::texture2d& diffuse_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_diffuse_texture(boost::filesystem::path);
+
+	material_component_diffuse_texture(boost::filesystem::path);
+
+	virtual ~material_component_diffuse_texture() BOOST_NOEXCEPT_OR_NOTHROW;
+
+protected:
+
+	material_component_diffuse_texture();
+
+private:
+
+	material::iter_type m_tex;
+
+	friend boost::serialization::access;
+
+	template <class Archive> 
+	void save(Archive& ar, const unsigned /*version*/) const
+	{
+		ar & boost::serialization::make_nvp("diffuse_texture", 
+			std::get<0>(*m_tex));
+	}
+
+	template <class Archive>
+	void load(Archive& ar, const unsigned /*version*/)
+	{
+		boost::filesystem::path diffuse_filename;
+		ar & boost::serialization::make_nvp("diffuse_texture", 
+			diffuse_filename);
+		set_diffuse_texture(diffuse_filename);
+	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
+};
+
+class material_component_specular_color
+{
+	
+	vec4f specular_color;
+
+	material_component_specular_color(const vec4f&);
+
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+
+	virtual ~material_component_specular_color() BOOST_NOEXCEPT_OR_NOTHROW;
+
+protected:
+
+	material_component_specular_color() = default;
+
+private:
+
+	friend boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive& ar, const unsigned /*version*/)
+	{
+		ar & BOOST_SERIALIZATION_NVP(specular_color);
+	}
+};
+
+class material_component_specular_texture
+{
+public:
+
+	const opengl::texture2d& specular_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_specular_texture(boost::filesystem::path);
+
+	material_component_specular_texture(boost::filesystem::path);
+
+	virtual ~material_component_specular_texture() BOOST_NOEXCEPT_OR_NOTHROW;
+
+protected:
+
+	material_component_specular_texture();
+
+private:
+
+	material::iter_type m_tex;
+
+	friend boost::serialization::access;
+
+	template <class Archive> 
+	void save(Archive& ar, const unsigned /*version*/) const
+	{
+		ar & boost::serialization::make_nvp("specular_texture", 
+			std::get<0>(*m_tex));
+	}
+
+	template <class Archive>
+	void load(Archive& ar, const unsigned /*version*/)
+	{
+		boost::filesystem::path diffuse_filename;
+		ar & boost::serialization::make_nvp("specular_texture", 
+			diffuse_filename);
+		set_specular_texture(diffuse_filename);
+	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
+};
+
+class material_component_normal_texture
+{
+public:
+
+	const opengl::texture2d& normal_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_normal_texture(boost::filesystem::path);
+
+	material_component_normal_texture(boost::filesystem::path);
+
+	virtual ~material_component_normal_texture() BOOST_NOEXCEPT_OR_NOTHROW;
+
+protected:
+
+	material_component_normal_texture();
+
+private:
+
+	material::iter_type m_tex;
+
+	friend boost::serialization::access;
+
+	template <class Archive> 
+	void save(Archive& ar, const unsigned /*version*/) const
+	{
+		ar & boost::serialization::make_nvp("normal_texture", 
+			std::get<0>(*m_tex));
+	}
+
+	template <class Archive>
+	void load(Archive& ar, const unsigned /*version*/)
+	{
+		boost::filesystem::path diffuse_filename;
+		ar & boost::serialization::make_nvp("normal_texture", 
+			diffuse_filename);
+		set_normal_texture(diffuse_filename);
+	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
 /*****************************************************************************
  * gintonic::material_dc (diffuse color)                                     *
  ****************************************************************************/
+
+// class material_dcdtscnt
+// : public material_component_diffuse_color
+// , public material_component_diffuse_texture
+// , public material_component_specular_color
+// , public material_component_normal_texture
+// {
+// public:
+// 	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
+
+// 	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+
+// private:
+
+// 	friend boost::serialization::access;
+
+// 	template <class Archive>
+// 	void serialize(Archive& ar, const unsigned /*version*/)
+// 	{
+// 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_component_diffuse_color);
+// 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_component_diffuse_texture);
+// 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_component_specular_color);
+// 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_component_normal_texture);
+// 	}
+// };
 
 class material_dc : public material
 {
@@ -208,7 +414,7 @@ private:
 };
 
 /*****************************************************************************
- * gintonic::material_dcdt (diffuse color+texture)                           *
+ * gintonic::material_dtsc (diffuse color+texture)                           *
  ****************************************************************************/
 
 class material_dcdt : public material_dt
@@ -239,6 +445,42 @@ private:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_dt);
 		ar & BOOST_SERIALIZATION_NVP(diffuse_color);
+	}
+};
+
+/*****************************************************************************
+ * gintonic::material_dtsc (diffuse texture, specular color)                 *
+ ****************************************************************************/
+
+class material_dtsc : public material_dt
+{
+public:
+
+	vec4f specular_color;
+
+	material_dtsc(
+		boost::filesystem::path diffuse_filename,
+		const vec4f& specular_color);
+
+	virtual ~material_dtsc() BOOST_NOEXCEPT_OR_NOTHROW;
+
+	virtual void bind() const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+
+protected:
+
+	material_dtsc() = default; // for boost serialization
+
+private:
+
+	friend boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive& ar, const unsigned /*version*/)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(material_dt);
+		ar & BOOST_SERIALIZATION_NVP(specular_color);
 	}
 };
 

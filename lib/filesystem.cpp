@@ -5,7 +5,11 @@
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #elif __linux__
-// INCLUDE RELEVANT HEADER HERE
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <limits.h>
+#include <stdio.h>
 #else
 
 #error "Platform not supported."
@@ -51,8 +55,22 @@ namespace gintonic {
 		
 		#elif __linux__
 
-		// TODO
-
+		char path[PATH_MAX];
+		char dest[PATH_MAX];
+		struct stat info;
+		pid_t pid = getpid();
+		sprintf(path, "/proc/%d/exe", pid);
+		if (readlink(path, dest, PATH_MAX) == -1)
+		{
+			return boost::filesystem::path(); // empty, silent failure
+		}
+		else 
+		{
+			printf("%s\n", dest);
+			boost::filesystem::path exec_path(dest);
+			return exec_path.parent_path();
+		}
+		
 		#else
 
 		#error "Platform not supported."

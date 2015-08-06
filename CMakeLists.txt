@@ -1,5 +1,9 @@
 cmake_minimum_required (VERSION 2.8)
 
+if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+  message(FATAL_ERROR "Prevented in-source build. Please create a build directory outside of the Gintonic source code and call CMake from there.")
+endif()
+
 #
 # If the user specifies -DCMAKE_BUILD_TYPE on the command line, take their definition
 # and dump it in the cache along with proper documentation, otherwise set CMAKE_BUILD_TYPE
@@ -11,13 +15,14 @@ else()
    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build: Debug Release RelWithDebInfo MinSizeRel.")
 endif()
 
-project(gintonic)
+project(gintonic C CXX)
 
 if (WIN32)
 	if ("$ENV{BOOST}" STREQUAL "")
-		message(FATAL_ERROR "Set up an environment variable called BOOST to point to the root Boost folder.")
+		message(WARNING "The %BOOST% environment variable is not set.")
+	else ()
+		set(BOOST_ROOT $ENV{BOOST})
 	endif ()
-	set(BOOST_ROOT $ENV{BOOST})
 
 	# Various bugfixes
 	add_definitions(/D_SCL_SECURE_NO_WARNINGS)
@@ -49,6 +54,10 @@ else ()
 	add_definitions(-std=c++11)
 	add_definitions(-Wall)
 	add_definitions(-msse3)
+
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\$$ORIGIN" 
+		CACHE INTERNAL "Set dynamic library path to the executable's folder.")
+	
 endif ()
 
 add_subdirectory (lib)

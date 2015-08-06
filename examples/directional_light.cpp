@@ -34,11 +34,13 @@ int main(int argc, char* argv[])
 		// std::unique_ptr<gt::material> the_material(new gt::material_cd(gt::vec4f(1.0f,1.0f,1.0f,0.9f), "../examples/bricks.jpg"));
 		std::unique_ptr<gt::material> the_material(new gt::material_dcsc(
 			gt::vec4f(1.0f, 0.0f, 0.0f,  0.9f), // diffuse color. 4th component is diffuse contribution
-			gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f)  // specular color. 4th component is shininess
+			gt::vec4f(1.0f, 0.4f, 0.4f, 20.0f)  // specular color. 4th component is shininess
 		));
-		assert(the_material);
+
 		gt::renderer::show();
 		float curtime, dt;
+		gt::vec2f mousedelta;
+		
 		while (!gt::renderer::should_close())
 		{
 			curtime = get_elapsed_time<float>();
@@ -68,7 +70,7 @@ int main(int argc, char* argv[])
 				gt::get_default_camera().move_up(dt);
 			}
 
-			auto mousedelta = gintonic::renderer::mouse_delta();
+			mousedelta = gintonic::renderer::mouse_delta();
 			mousedelta[0] = -gintonic::deg_to_rad(mousedelta[0]) / 4.0f;
 			mousedelta[1] = -gintonic::deg_to_rad(mousedelta[1]) / 4.0f;
 			

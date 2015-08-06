@@ -15,16 +15,19 @@ set(executables directional_light
 find_package(Boost REQUIRED)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/..;${CMAKE_MODULE_PATH}")
-if (APPLE OR WIN32)
-	find_package(FBX REQUIRED)
-else ()
-	set(FBX_ROOT "/usr/local")
-	set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
-	set(FBX_LIBRARY "${FBX_ROOT}/lib/gcc4/x64/release/libfbxsdk.so")
-	set(FBX_LIBRARY_DEBUG "${FBX_ROOT}/lib/gcc4/x64/debug/libfbxsdk.so")
-endif ()
+find_package(FBX REQUIRED)
+# if (APPLE OR WIN32)
+# 	find_package(FBX REQUIRED)
+# else ()
+# 	set(FBX_ROOT "/usr/local")
+# 	set(FBX_INCLUDE_DIR "${FBX_ROOT}/include")
+# 	set(FBX_LIBRARY "${FBX_ROOT}/lib/gcc4/x64/release/libfbxsdk.so")
+# 	set(FBX_LIBRARY_DEBUG "${FBX_ROOT}/lib/gcc4/x64/debug/libfbxsdk.so")
+# endif ()
 
 # get_filename_component(FBX_SYMLINK ${FBX_LIBRARY} NAME)
+
+# add_definitions(-m64)
 
 include_directories(
 	${CMAKE_SOURCE_DIR}/lib
