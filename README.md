@@ -8,8 +8,8 @@ Gintonic depends on the following software:
 * SDL2 -- For a cross-platform windowing system
 * FBX SDK -- For importing meshes, materials, light, etc.
 
-Windows
-=======
+Installing Windows Dependencies
+===============================
 
 You do not have to install libjpeg and libpng. Loading images into memory can 
 be done with the WIC API of Windows. There is no universal way to install
@@ -31,8 +31,8 @@ to be defined.
 In addition, if for some reason CMake cannot find the FBX SDK, you can set an
 environment variable called FBX_ROOT to point to the root FBX folder.
 
-OSX
-===
+Installing OSX Dependencies
+===========================
 
 The best way to install the dependencies is via Homebrew. Go to http://brew.sh
 and read the instructions on how to install Homebrew. Once installed, you can
@@ -50,14 +50,31 @@ http://download.autodesk.com/us/fbx/20161/fbx20161_fbxsdk_clang_mac.pkg.tgz
 You may need to edit some variables in the top-level CMakeLists.txt file
 of the Gintonic project to get everything to work.
 
-Linux
-=====
+Installing Linux Dependencies
+=============================
 
-Use apt-get to install the dependencies. The following command should work:
+Use apt-get to install most of the dependencies. The following command should work:
 
-	sudo apt-get install cmake boost freetype libjpeg libpng sdl2
-	
-Download the FBX SDK and follow the instructions for Linux.
+	$ sudo apt-get install cmake libjpeg-dev libpng-dev libsdl2-dev libfreetype6-dev
+
+That takes care of all dependencies except for Boost and the FBX SDK. You can
+install Boost via apt-get, but those versions are not always up to date. It's
+best if you fetch them from
+
+http://sourceforge.net/projects/boost/files/boost/1.58.0/
+
+and just build them from source. Boost has its own funky build process called Boost.Build but it mostly should just work out of the box.
+
+To install boost, cd into the downloaded boost folder and run
+
+    $ ./bootstrap.sh
+
+The command sets up some variables and gives you instructions on how to
+build the libraries.
+
+To install the FBX SDK, you can fetch it from
+
+http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=10775847
 
 The Project File Structure
 ==========================
@@ -70,15 +87,13 @@ The root folder has five directories:
 * examples -- Some example applications are here.
 * resources -- The place for supporting files such as textures etc.
 
-In addition, there's the top-level CMakeLists.txt file, and two support files 
-FindFBX.cmake and FindSDL.cmake so that CMake can find those libs.
+In addition, there's the top-level CMakeLists.txt file, and two support files FindFBX.cmake and FindSDL.cmake so that CMake can find those libs.
 
 The Structure of the Engine
 ===========================
 
 My suggestion is to explore the code in the examples directory to get a feel
-for how the various classes interact with eachother. Basically, there's a huge
-singleton class in renderer.hpp that takes care of rendering. There are
+for how the various classes interact with eachother. Basically, there's a huge singleton class in renderer.hpp that takes care of rendering. There are
 vectors, matrices and quaternion classes in math.hpp.
 
 Rendering geometry is done with the mesh class in mesh.hpp. However if you 
@@ -103,3 +118,23 @@ is pointless.
 The classes in lights.hpp represent a light in space. Currently, I have
 implemented a directional light and a point light. Just as with materials,
 each light has a corresponding shader class and a corresponding shader.
+
+Git Instructions for Windows
+============================
+
+Download "Git for Windows" (https://git-scm.com/download/win) to get a Unix
+environment in Windows. Open a new terminal with Git Bash.
+
+Build Instructions
+==================
+
+We use CMake for building. CMake is not a compiler, but a cross-platform
+build generator. What this is means in practise is that it generates Visual
+C++ project files on Windows, and it generates Makefiles on Unix. The files
+that are generated can then be build using a native compiler.
+
+cd into the project root folder, and create a new directory where the build
+will go. I usually use the name "build". If you go with another directory
+name, then be sure to add that directory name to the .gitignore file. We don't
+want to have build files checked in. When you have made your build folder, cd
+into it and call CMake
