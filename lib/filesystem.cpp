@@ -58,7 +58,6 @@ namespace gintonic {
 
 		char path[PATH_MAX];
 		char dest[PATH_MAX];
-		struct stat info;
 		pid_t pid = getpid();
 		sprintf(path, "/proc/%d/exe", pid);
 		if (readlink(path, dest, PATH_MAX) == -1)

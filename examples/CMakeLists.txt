@@ -43,27 +43,27 @@ foreach (exe ${executables})
 	elseif (APPLE)
 		target_link_libraries(
 			${exe}
-			gintonic 
-			${Boost_LIBRARIES} 
-			${OPENGL_LIBRARIES} 
-			${SDL2_LIBRARY} 
-			${JPEG_LIBRARIES} 
-			${PNG_LIBRARIES} 
-			${FREETYPE_LIBRARIES} 
-			${FBX_LIBRARY_DEBUG} 
-			${CMAKE_THREAD_LIBS_INIT})
+			gintonic)
+			# ${Boost_LIBRARIES} 
+			# ${OPENGL_LIBRARIES} 
+			# ${SDL2_LIBRARY} 
+			# ${JPEG_LIBRARIES} 
+			# ${PNG_LIBRARIES} 
+			# ${FREETYPE_LIBRARIES} 
+			# ${FBX_LIBRARY_DEBUG} 
+			# ${CMAKE_THREAD_LIBS_INIT})
 	else ()
 		target_link_libraries(
 			${exe}
-			gintonic 
-			${Boost_LIBRARIES} 
-			${OPENGL_LIBRARIES} 
-			${SDL2_LIBRARY} 
-			${JPEG_LIBRARIES} 
-			${PNG_LIBRARIES} 
-			${FREETYPE_LIBRARIES} 
-			${FBX_LIBRARY_DEBUG} 
-			${CMAKE_THREAD_LIBS_INIT}
-			-ldl)
+			gintonic)
+			# ${Boost_LIBRARIES} 
+			# ${OPENGL_LIBRARIES} 
+			# ${SDL2_LIBRARY} 
+			# ${JPEG_LIBRARIES} 
+			# ${PNG_LIBRARIES} 
+			# ${FREETYPE_LIBRARIES} 
+			# ${FBX_LIBRARY_DEBUG} 
+			# ${CMAKE_THREAD_LIBS_INIT}
+			# -ldl)
 	endif ()
 endforeach ()
