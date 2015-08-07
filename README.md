@@ -1,3 +1,8 @@
+Introduction
+============
+
+Gintonic is the name of an engine framework written in C++ using OpenGL.
+
 Dependencies of Gintonic
 ========================
 
@@ -56,9 +61,11 @@ of the Gintonic project to get everything to work.
 Installing Linux Dependencies
 =============================
 
-Use apt-get to install most of the dependencies. The following command should work:
+Use apt-get to install most of the dependencies. The following command should
+work:
 
-	$ sudo apt-get install cmake libjpeg-dev libpng-dev libsdl2-dev libfreetype6-dev
+	$ sudo apt-get install cmake libjpeg-dev libpng-dev libsdl2-dev
+	libfreetype6-dev
 
 That takes care of all dependencies except for Boost and the FBX SDK. You can
 install Boost via apt-get, but those versions are not always up to date. It's
@@ -66,7 +73,8 @@ best if you fetch them from
 
 http://sourceforge.net/projects/boost/files/boost/1.58.0/
 
-and just build them from source. Boost has its own funky build process called Boost.Build but it mostly should just work out of the box.
+and just build them from source. Boost has its own funky build process called 
+Boost.Build but it mostly should just work out of the box.
 
 To install boost, cd into the downloaded boost folder and run
 
@@ -82,11 +90,17 @@ http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=10775847
 Git Instructions
 ================
 
-The Gintonic git repo is hosted at a site called "The Storehouse". It's a pretty obscure site, I think it's a site managed by just one guy. It's also a pretty new site, so some things are still a bit buggy. In particular, setting up SSH keys seems to fail everytime. If you are a new user setting up an SSH key, let me (Raoul) know so that I can email the guy behind Storehouse.
+The Gintonic git repo is hosted at a site called "The Storehouse". It's a 
+pretty obscure site, I think it's a site managed by just one guy. It's also a 
+new site, so some things are still a bit buggy. In particular, setting up SSH 
+keys seems to fail everytime. If you are a new user setting up an SSH key, 
+let me (Raoul) know so that I can email the guy behind Storehouse.
 
-For every machine that you want to use the Gintonic git repo with, you NEED to set up an SSH key for that machine.
+For every machine that you want to use the Gintonic git repo with, you NEED to
+set up an SSH key for that machine.
 
-Once you have an SSH key set up (see section below on how to do that), you can do
+Once you have an SSH key set up (see section below on how to do that), you can
+do
 
 	$ git clone <your-username>@sthse.co:/code/gt.git
 
@@ -96,7 +110,10 @@ Special Considerations for Windows and Git
 ==========================================
 
 Windows has no git in its terminal. Download "Git for Windows"
-(https://git-scm.com/download/win) to get a Unix environment in Windows. Open a new terminal with Git Bash, and don't ever use the native Windows terminal anymore. From this point on I will assume that Windows users use the Git Bash terminal instead of the native terminal.
+(https://git-scm.com/download/win) to get a Unix environment in Windows. Open 
+a new terminal with Git Bash, and don't ever use the native Windows terminal 
+anymore. From this point on I will assume that Windows users use the Git Bash 
+terminal instead of the native terminal.
 
 Setting up an SSH key
 =====================
@@ -105,15 +122,19 @@ Execute the following command.
 
 	$ cd ~/.ssh
 
-You are now inside a hidden folder called .ssh that is located in your home folder. Check if you already have a public key:
+You are now inside a hidden folder called .ssh that is located in your home 
+folder. Check if you already have a public key:
 
     $ ls | grep id_rsa.pub
 
-If such a file is present, you can skip the steps on how to generate a public key. If there is no such file, read on. To generate a public key, call
+If such a file is present, you can skip the steps on how to generate a public 
+key. If there is no such file, read on. To generate a public key, call
 
 	$ ssh-keygen
 
-A bunch of questions and options are given to you, but just press enter a few times because the default values are fine. After this, a file called id_rsa.pub should now be present in ~/.ssh. Now do
+A bunch of questions and options are given to you, but just press enter a few 
+times because the default values are fine. After this, a file called 
+id_rsa.pub should now be present in ~/.ssh. Now do
 
 	$ cat id_rsa.pub
 
@@ -124,9 +145,15 @@ Next, go to
 	http://sthse.co
 
 and log in with your user name and password. Click in the upper right corner
-on "Account" and then click on "SSH Keys". Click on "Add Key". Give a name for your public key. For example, the name of your machine or your current location. Paste the content of the clipboard as the key. If done correctly, a "key fingerprint" will be shown with a bunch of symbols. If not, it will say "invalid key".
+on "Account" and then click on "SSH Keys". Click on "Add Key". Give a name for
+your public key. For example, the name of your machine or your current 
+location. Paste the content of the clipboard as the key. If done correctly, 
+a "key fingerprint" will be shown with a bunch of symbols. If not, it will say
+"invalid key".
 
-Unfortunately (as of 07/08/2015) there seems to be an issue with SSH keys not getting updated so if you added a new key let me know and I'll contact the guy from Storehouse so that he'll update the keys.
+Unfortunately (as of 07/08/2015) there seems to be an issue with SSH keys not 
+getting updated so if you added a new key let me know and I'll contact the guy
+from Storehouse so that he'll update the keys.
 
 Build Instructions
 ==================
@@ -147,25 +174,31 @@ Then cd into ~/dev/gt/build. Then call CMake with
 
 	$ cmake ..
 
-to generate Makefiles. After a succesful configuration stage of CMake, you can then call
+to generate Makefiles. After a succesful configuration stage of CMake, you can
+then call
 
     $ make
 
-to build the engine library, the example executables and the unit tests on Unix/OSX. On Windows, you can call
+to build the engine library, the example executables and the unit tests on
+Unix/OSX. On Windows, you can call
 
     $ cmake --build .
 
-By default, on Windows a multithreaded build is started. On Unix/OSX this is not the case. To use multithreaded building on those platforms you can do
+By default, on Windows a multithreaded build is started. On Unix/OSX this is 
+not the case. To use multithreaded building on those platforms you can do
 
     $ make -jN
 
-where N is the number of threads that you want to devote to building. A good choice is the number of (logical) processors on the machine. For instance, if you have an Intel CPU with 2 physical cores, then make -j4 is a good choice.
+where N is the number of threads that you want to devote to building. A good 
+choice is the number of (logical) processors on the machine. For instance, if 
+you have an Intel CPU with 2 physical cores, then make -j4 is a good choice.
 
 To run all unit tests on Unix/OSX, simply call
 
 	$ make test
 
-I still have no idea how to run all unit tests on Windows. You can manually call them by their executable though.
+I still have no idea how to run all unit tests on Windows. You can manually 
+call them by their executable though.
 
 The Project File Structure
 ==========================
@@ -178,13 +211,15 @@ The root folder has five directories:
 * examples -- Some example applications are here.
 * resources -- The place for supporting files such as textures etc.
 
-In addition, there's the top-level CMakeLists.txt file, and two support files FindFBX.cmake and FindSDL.cmake so that CMake can find those libs.
+In addition, there's the top-level CMakeLists.txt file, and two support files 
+FindFBX.cmake and FindSDL.cmake so that CMake can find those libs.
 
 The Structure of the Engine
 ===========================
 
 My suggestion is to explore the code in the examples directory to get a feel
-for how the various classes interact with eachother. Basically, there's a huge singleton class in renderer.hpp that takes care of rendering. There are
+for how the various classes interact with eachother. Basically, there's a huge
+singleton class in renderer.hpp that takes care of rendering. There are
 vectors, matrices and quaternion classes in math.hpp.
 
 Rendering geometry is done with the mesh class in mesh.hpp. However if you 
