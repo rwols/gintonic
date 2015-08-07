@@ -68,11 +68,13 @@ namespace gintonic {
 	lp_null_shader* renderer::s_lp_null_shader = nullptr;
 	lp_directional_shader* renderer::s_lp_directional_shader = nullptr;
 	lp_point_shader* renderer::s_lp_point_shader = nullptr;
+	lp_spot_shader* renderer::s_lp_spot_shader = nullptr;
 	directional_light_pass_shader* renderer::s_directional_light_pass_shader = nullptr;
 	text_shader* renderer::s_text_shader = nullptr;
 
 	opengl::unit_quad_P* renderer::s_unit_quad_P = nullptr;
 	opengl::unit_sphere_P* renderer::s_unit_sphere_P = nullptr;
+	opengl::unit_cone_P* renderer::s_unit_cone_P = nullptr;
 
 	boost::signals2::signal<void(wchar_t)> renderer::char_typed;
 	boost::signals2::signal<void(double, double)> renderer::mouse_scrolled;
@@ -348,6 +350,16 @@ namespace gintonic {
 		}
 		try
 		{
+			s_lp_spot_shader = new lp_spot_shader();	
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load lp_spot_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
 			s_directional_light_pass_shader = new directional_light_pass_shader();	
 		}
 		catch (exception& e)
@@ -372,6 +384,7 @@ namespace gintonic {
 		//
 		s_unit_quad_P = new opengl::unit_quad_P();
 		s_unit_sphere_P = new opengl::unit_sphere_P(64, 64);
+		s_unit_cone_P = new opengl::unit_cone_P(16);
 
 		//
 		// Initialize debug variables

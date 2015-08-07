@@ -9,10 +9,17 @@
 # and environment variable called FBX_ROOT that should point tro
 # the root folder of the FBX SDK. For example, if the FBX SDK is
 # located at C:\FBX\2016.0, then FBX_ROOT should resolve to that folder.
+#
+# If you want to use a specific FBX version, you define a variable
+# named FBX_PREFER_VERSION. For example, set(FBX_PREFER_VERSION "2015.1")
 
 # Prepend more version numbers when they get released
 # REMARK: PREPEND, not APPEND.
-set (versions "2016.0" "2015.1" "2014.2" "2014.1")
+if (FBX_PREFER_VERSION)
+    set(versions ${FBX_PREFER_VERSION})
+else ()
+    set (versions "2016.0" "2015.1" "2014.2" "2014.1")
+endif ()
 
 set(GCC_OR_CLANG OFF)
 

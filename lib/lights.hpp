@@ -71,13 +71,13 @@ public:
 
 	point_light(const vec4f& intensity);
 	
-	point_light(const vec4f& intensity, const vec3f& attenuation);
+	point_light(const vec4f& intensity, const vec4f& attenuation);
 
 	virtual ~point_light() BOOST_NOEXCEPT_OR_NOTHROW;
 
-	vec3f attenuation() const BOOST_NOEXCEPT_OR_NOTHROW;
+	vec4f attenuation() const BOOST_NOEXCEPT_OR_NOTHROW;
 
-	void set_attenuation(const vec3f&) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_attenuation(const vec4f&) BOOST_NOEXCEPT_OR_NOTHROW;
 	
 	float cutoff_point() const BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -87,7 +87,7 @@ public:
 
 private:
 
-	vec3f m_attenuation;
+	vec4f m_attenuation;
 
 	float m_cutoff_point;
 
@@ -103,13 +103,39 @@ private:
 	template <class Archive>
 	void load(Archive& ar, const unsigned /*version*/)
 	{
-		vec3f att;
+		vec4f att;
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(light);
 		ar & boost::serialization::make_nvp("attenuation", att);
 		set_attenuation(att);
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER();
+};
+
+class spot_light : public point_light
+{
+public:
+	spot_light() = default;
+
+	spot_light(const vec4f& intensity);
+	
+	spot_light(const vec4f& intensity, const vec4f& attenuation);
+
+	virtual ~spot_light() BOOST_NOEXCEPT_OR_NOTHROW;
+	
+	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+
+private:
+
+	friend boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive& ar, const unsigned /*version*/)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(point_light);
+	}
 };
 
 } // namespace gintonic

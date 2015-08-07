@@ -17,6 +17,7 @@ namespace gintonic
 	{
 		class unit_quad_P;
 		class unit_sphere_P;
+		class unit_cone_P;
 	}
 
 	class geometry_null_shader;
@@ -35,6 +36,7 @@ namespace gintonic
 	class lp_null_shader;
 	class lp_directional_shader;
 	class lp_point_shader;
+	class lp_spot_shader;
 	class directional_light_pass_shader;
 	class text_shader;
 
@@ -225,6 +227,11 @@ namespace gintonic
 			return *s_lp_point_shader;
 		}
 
+		inline static const lp_spot_shader& get_lp_spot_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_lp_spot_shader;
+		}
+
 		inline static directional_light_pass_shader* get_directional_light_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return s_directional_light_pass_shader;
@@ -243,6 +250,11 @@ namespace gintonic
 		inline static const opengl::unit_sphere_P& get_unit_sphere_P() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_unit_sphere_P;
+		}
+
+		inline static const opengl::unit_cone_P& get_unit_cone_P() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_unit_cone_P;
 		}
 
 	private:
@@ -297,11 +309,13 @@ namespace gintonic
 		static lp_null_shader* s_lp_null_shader;
 		static lp_directional_shader* s_lp_directional_shader;
 		static lp_point_shader* s_lp_point_shader;
+		static lp_spot_shader* s_lp_spot_shader;
 		static directional_light_pass_shader* s_directional_light_pass_shader;
 		static text_shader* s_text_shader;
 
 		static opengl::unit_quad_P* s_unit_quad_P;
 		static opengl::unit_sphere_P* s_unit_sphere_P;
+		static opengl::unit_cone_P* s_unit_cone_P;
 	};
 } // namespace gintonic
 

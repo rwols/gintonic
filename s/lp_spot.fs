@@ -1,7 +1,7 @@
 //
-// lp_point.fs
+// lp_spot.fs
 //
-// Point lighting
+// Spot lighting
 //
 
 #version 330 core
@@ -18,9 +18,10 @@ uniform struct GeometryBuffer
 	sampler2D normal;
 } gbuffer;
 
-uniform struct PointLight {
+uniform struct SpotLight {
 	vec4 intensity;
 	vec3 position; // in VIEW coordinates
+	vec3 direction; // in VIEW coordinates
 	vec4 attenuation;
 } light;
 
@@ -53,18 +54,25 @@ void main()
 	// Don't forget to normalize L.
 	L = normalize(L);
 
-	// The attenuation factor for a point light
+	// E is the direction from the surface to the eye/camera.
+	// Since we are in VIEW coordinates, the position of the eye is 0.
+	// So the direction from the surface to the eye is 0 - P = - P.
+	vec3 E = normalize(-P);
+
+	// R is the reflection direction. When E gets closer to R, specularity enhances.
+	vec3 R = normalize(-reflect(L,N));
+
+	// The attenuation factor for a spot light
 	float att = 1.0f / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
 	
 	// dc is the diffuse contribution.
-	float dc = light.intensity.a * diffuse.a * max(dot(L, N), 0.0f) * att;
+	float dc = light.intensity.a * diffuse.a * pow(max(dot(L, -light.direction), 0.0f), light.attenuation.w) * att;
 
-
-	vec3 E = normalize(-P);
-	vec3 R = normalize(-reflect(L,N));
 	float spec_factor = clamp(pow(max(dot(R,E), 0.0f), specular.a), 0.0f, 1.0f);
 	spec_factor *= att;
 
 	final_color = dc * light.intensity.rgb * diffuse.rgb 
 		+ spec_factor * specular.rgb * light.intensity.rgb;
+
+	final_color.r += 0.2f;
 }

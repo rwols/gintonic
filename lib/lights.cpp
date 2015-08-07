@@ -62,7 +62,7 @@ point_light::point_light(const vec4f& intensity)
 	/* Empty on purpose. */
 }
 
-point_light::point_light(const vec4f& intensity, const vec3f& attenuation)
+point_light::point_light(const vec4f& intensity, const vec4f& attenuation)
 : light(intensity)
 {
 	set_attenuation(attenuation);
@@ -73,7 +73,7 @@ point_light::~point_light() BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-void point_light::set_attenuation(const vec3f& att) BOOST_NOEXCEPT_OR_NOTHROW
+void point_light::set_attenuation(const vec4f& att) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	m_attenuation = att;
 
@@ -100,7 +100,7 @@ void point_light::set_attenuation(const vec3f& att) BOOST_NOEXCEPT_OR_NOTHROW
 	#endif
 }
 
-vec3f point_light::attenuation() const BOOST_NOEXCEPT_OR_NOTHROW
+vec4f point_light::attenuation() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	return m_attenuation;
 }
@@ -157,6 +157,76 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	pointshader.set_light_attenuation(m_attenuation);
 	pointshader.set_matrix_PVM(renderer::matrix_PVM());
 	sphere.draw();
+
+	glDisable(GL_CULL_FACE);
+}
+
+spot_light::spot_light(const vec4f& intensity)
+: point_light(intensity)
+{
+	/* Empty on purpose. */
+}
+
+spot_light::spot_light(const vec4f& intensity, const vec4f& attenuation)
+: point_light(intensity, attenuation)
+{
+	/* Empty on purpose. */
+}
+
+spot_light::~spot_light() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	 /* Empty on purpose. */
+}
+
+void spot_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	// The transformation data is delivered in WORLD coordinates.
+
+	sqt_transformf cone_transform;
+	cone_transform.scale = cutoff_point();
+	cone_transform.translation = t.translation;
+
+	renderer::set_model_matrix(cone_transform.get_matrix());
+
+	const auto& nullshader = renderer::get_null_shader();
+	const auto& spotshader = renderer::get_lp_spot_shader();
+	const auto& cone = renderer::get_unit_cone_P();
+
+	// We first do a null-pass that only fills the renderer's stencil buffer.
+	// The stencil value is increased when a front-facing triangle is seen,
+	// and is decreased when a back-facing triangle is seen. This way, the
+	// values that are non-zero should be shaded.
+
+	renderer::begin_stencil_pass();
+	nullshader.activate();
+	nullshader.set_matrix_PVM(renderer::matrix_PVM());
+	cone.draw();
+
+	// Here we use the information collected in the stencil buffer to only
+	// shade pixels that really need it.
+	
+	glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+
+	const auto light_pos = renderer::camera().matrix_V().apply_to_point(t.translation);
+	const auto light_dir = renderer::camera().matrix_V().apply_to_point(t.rotation.direction());
+
+	renderer::begin_light_pass();
+
+	spotshader.activate();
+	spotshader.set_viewport_size(vec2f(static_cast<float>(
+		renderer::width()), static_cast<float>(renderer::height())));
+	spotshader.set_gbuffer_position(renderer::GBUFFER_POSITION);
+	spotshader.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
+	spotshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
+	spotshader.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
+	spotshader.set_light_intensity(intensity);
+	spotshader.set_light_position(light_pos);
+	spotshader.set_light_direction(light_dir);
+	spotshader.set_light_attenuation(attenuation());
+	spotshader.set_matrix_PVM(renderer::matrix_PVM());
+	cone.draw();
 
 	glDisable(GL_CULL_FACE);
 }

@@ -633,7 +633,7 @@ void lp_point_shader::set_light_position(const vec3f& position) const BOOST_NOEX
 	set_uniform(loc_light_position, position);
 }
 
-void lp_point_shader::set_light_attenuation(const vec3f& attenuation) const BOOST_NOEXCEPT_OR_NOTHROW
+void lp_point_shader::set_light_attenuation(const vec4f& attenuation) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_light_attenuation, attenuation);
 }
@@ -666,6 +666,107 @@ lp_point_shader::lp_point_shader(
 	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
 	loc_light_intensity = get_uniform_location("light.intensity");
 	loc_light_position = get_uniform_location("light.position");
+	loc_light_attenuation = get_uniform_location("light.attenuation");
+}
+
+/*****************************************************************************
+ * gintonic::lp_spot_shader                                                 *
+ ****************************************************************************/
+
+lp_spot_shader::lp_spot_shader()
+: matrix_PVM_shader("../s/lp_spot.vs", "../s/lp_spot.fs")
+{
+	loc_viewport_size = get_uniform_location("viewport_size");
+	loc_gbuffer_position = get_uniform_location("gbuffer.position");
+	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
+	loc_gbuffer_specular = get_uniform_location("gbuffer.specular");
+	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
+	loc_light_intensity = get_uniform_location("light.intensity");
+	loc_light_position = get_uniform_location("light.position");
+	loc_light_direction = get_uniform_location("light.direction");
+	loc_light_attenuation = get_uniform_location("light.attenuation");
+}
+
+lp_spot_shader::~lp_spot_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
+void lp_spot_shader::set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_viewport_size, size);
+}
+
+void lp_spot_shader::set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_gbuffer_position, texture_unit);
+}
+
+void lp_spot_shader::set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_gbuffer_diffuse, texture_unit);
+}
+
+void lp_spot_shader::set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_gbuffer_specular, texture_unit);
+}
+
+void lp_spot_shader::set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_gbuffer_normal, texture_unit);
+}
+
+void lp_spot_shader::set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_light_intensity, intensity);
+}
+
+void lp_spot_shader::set_light_position(const vec3f& position) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_light_position, position);
+}
+
+void lp_spot_shader::set_light_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_light_direction, direction);
+}
+
+void lp_spot_shader::set_light_attenuation(const vec4f& attenuation) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_light_attenuation, attenuation);
+}
+
+lp_spot_shader::lp_spot_shader(
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path fragment_shader)
+: matrix_PVM_shader(std::move(vertex_shader), std::move(fragment_shader))
+{
+	loc_viewport_size = get_uniform_location("viewport_size");
+	loc_gbuffer_position = get_uniform_location("gbuffer.position");
+	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
+	loc_gbuffer_specular = get_uniform_location("gbuffer.specular");
+	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
+	loc_light_intensity = get_uniform_location("light.intensity");
+	loc_light_position = get_uniform_location("light.position");
+	loc_light_direction = get_uniform_location("light.direction");
+	loc_light_attenuation = get_uniform_location("light.attenuation");
+}
+
+lp_spot_shader::lp_spot_shader( 
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path geometry_shader,
+	boost::filesystem::path fragment_shader)
+: matrix_PVM_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+{
+	loc_viewport_size = get_uniform_location("viewport_size");
+	loc_gbuffer_position = get_uniform_location("gbuffer.position");
+	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
+	loc_gbuffer_specular = get_uniform_location("gbuffer.specular");
+	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
+	loc_light_intensity = get_uniform_location("light.intensity");
+	loc_light_position = get_uniform_location("light.position");
+	loc_light_direction = get_uniform_location("light.direction");
 	loc_light_attenuation = get_uniform_location("light.attenuation");
 }
 
