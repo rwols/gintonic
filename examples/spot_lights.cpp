@@ -43,23 +43,27 @@ int main(int argc, char* argv[])
 
 		gt::sqt_transformf the_shape_transform;
 		
-		std::vector<std::unique_ptr<gt::light>> lights;
+		std::vector<gt::point_light> lights(3);
 		std::vector<gt::sqt_transformf> light_transforms(3);
 		std::vector<std::unique_ptr<gt::material>> light_materials;
 
 		{
-			gt::vec4f attenuation(0.0f, 0.0f, 1.0f, 5.0f);
+			gt::vec4f attenuation(0.0f, 0.0f, 1.0f, 20.0f);
 
-			lights.emplace_back(new gt::spot_light(gt::vec4f(1.0f, 0.0f, 0.0f, 1.5f), attenuation));
-			lights.emplace_back(new gt::spot_light(gt::vec4f(0.0f, 1.0f, 0.0f, 1.5f), attenuation));
-			lights.emplace_back(new gt::spot_light(gt::vec4f(0.0f, 0.0f, 1.0f, 1.5f), attenuation));
+			lights[0].intensity = gt::vec4f(1.0f, 0.0f, 0.0f, 6.0f);
+			lights[1].intensity = gt::vec4f(0.0f, 1.0f, 0.0f, 6.0f);
+			lights[2].intensity = gt::vec4f(0.0f, 0.0f, 1.0f, 6.0f);
+
+			lights[0].set_attenuation(attenuation);
+			lights[1].set_attenuation(attenuation);
+			lights[2].set_attenuation(attenuation);
 
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f)));
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 1.0f, 0.0f, 0.0f)));
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 0.0f, 1.0f, 0.0f)));
 		}
 
-		the_shape_transform.scale = 10.0f;
+		the_shape_transform.scale = 6.0f;
 		the_shape_transform.rotation = gt::quatf::from_angle_axis(0.0f, gt::vec3f(1.0f, 0.0f, 0.0f));
 		the_shape_transform.translation = gt::vec3f(0.0f, -11.0f, 0.0f);
 		
@@ -75,7 +79,7 @@ int main(int argc, char* argv[])
 
 		std::unique_ptr<gt::material> the_material(
 			new gt::material_cd(
-				gt::vec4f(1.0f,1.0f,1.0f,0.9f), 
+				gt::vec4f(1.0f,1.0f,1.0f,0.99f), 
 				"../examples/bricks.jpg"));
 
 		gt::renderer::show();
@@ -84,6 +88,7 @@ int main(int argc, char* argv[])
 		float current_cos, current_sin;
 		float yaxis, zaxis;
 		bool move_objects = false;
+		float toggle_spot_lights = 1.0f;
 		gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
 		
@@ -123,18 +128,43 @@ int main(int argc, char* argv[])
 			{
 				move_objects = !move_objects;
 			}
+			if (gintonic::renderer::key_toggle_press(SDL_SCANCODE_T))
+			{
+				light_transforms[0].rotation 
+					= light_transforms[1].rotation 
+					= light_transforms[2].rotation
+					= gt::quatf::from_angle_axis(
+						toggle_spot_lights * static_cast<float>(M_PI) / 2.0f, 
+						gt::vec3f(1.0f, 0.0f, 0.0f)
+				);
+				toggle_spot_lights *= -1.0f;
+			}
 			if (gintonic::renderer::key(SDL_SCANCODE_EQUALS))
 			{
 				for (auto& l : lights)
 				{
-					l->intensity[3] += dt;
+					l.set_attenuation(l.attenuation() + gt::vec4f(0.0f, 0.0f, 0.0f, dt));
 				}
 			}
 			else if (gintonic::renderer::key(SDL_SCANCODE_MINUS))
 			{
 				for (auto& l : lights)
 				{
-					l->intensity[3] -= dt;
+					l.set_attenuation(l.attenuation() + gt::vec4f(0.0f, 0.0f, 0.0f, -dt));
+				}
+			}
+			if (gintonic::renderer::key(SDL_SCANCODE_UP))
+			{
+				for (auto& l : lights)
+				{
+					l.intensity[3] += dt;
+				}
+			}
+			else if (gintonic::renderer::key(SDL_SCANCODE_DOWN))
+			{
+				for (auto& l : lights)
+				{
+					l.intensity[3] -= dt;
 				}
 			}
 
@@ -156,6 +186,7 @@ int main(int argc, char* argv[])
 			the_material->bind();
 			the_shape.draw();
 
+			// flip the cube in the XZ plane
 			the_shape_transform.translation[1] = -the_shape_transform.translation[1];
 			gt::renderer::set_model_matrix(the_shape_transform.get_matrix());
 			the_material->bind();
@@ -164,7 +195,6 @@ int main(int argc, char* argv[])
 			for (std::size_t i = 0; i < lights.size(); ++i)
 			{
 				const auto numlights = static_cast<float>(lights.size());
-
 				
 				light_transforms[i].translation[0] = light_radius 
 					* std::cos(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
@@ -186,7 +216,7 @@ int main(int argc, char* argv[])
 
 			for (std::size_t i = 0; i < lights.size(); ++i)
 			{
-				lights[i]->shine(light_transforms[i]);
+				lights[i].shine(light_transforms[i]);
 			}
 
 			gt::renderer::get_text_shader()->activate();
@@ -198,19 +228,29 @@ int main(int argc, char* argv[])
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			
 			stream.open(font_inconsolata);
-			
+
 			stream << "Move around with WASD.\n"
 				<< "Look around with the mouse.\n"
 				<< "Go up by holding the spacebar.\n"
-				<< "Holding +/- will decrease/increase the light intensity.\n"
+				<< "Holding +/- will increase/decrease the spot lights' power coefficient.\n"
+				<< "Holding Up/Down arrows will increase/decrease the spot lights' intensity coefficient.\n"
 				<< "Press Q to quit.\n"
 				<< "Press B to start/stop the simulation.\n"
+				<< "Press T to toggle the spot lights' direction.\n"
 				<< "Camera position: " << std::fixed << std::setprecision(1) 
 				<< gt::renderer::camera().position << '\n'
 				<< "FPS: " << 1.0f / dt << '\n';
-				// << "Light intensity: " << red_light->intensity << '\n'
-				// << "Light position:  " << red_light_transform.translation 
-				// << '\n';
+				for (std::size_t i = 0; i < lights.size(); ++i)
+				{
+					stream << "Light " << (i+1) << " intensity:     " 
+						<< std::fixed << std::setprecision(1) << lights[i].intensity << '\n';
+						
+					stream << "Light " << (i+1) << " attenuation:   " 
+						<< std::fixed << std::setprecision(1) << lights[i].attenuation() << '\n';
+
+					stream << "Light " << (i+1) << " cutoff radius: " 
+						<< std::fixed << std::setprecision(1) << lights[i].cutoff_point() << '\n';
+				}
 			stream.close();
 			
 			glEnable(GL_CULL_FACE);

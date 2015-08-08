@@ -41,16 +41,16 @@ int main(int argc, char* argv[])
 		
 		gt::opengl::unit_cube_PUN the_shape;
 		
-		std::vector<std::unique_ptr<gt::light>> lights;
+		std::vector<gt::point_light> lights;
 		std::vector<gt::sqt_transformf> light_transforms(3);
 		std::vector<std::unique_ptr<gt::material>> light_materials;
 
 		{
-			gt::vec3f attenuation(0.0f, 0.0f, 1.0f);
+			gt::vec4f attenuation(0.0f, 0.0f, 1.0f, 0.0f);
 
-			lights.emplace_back(new gt::point_light(gt::vec4f(1.0f, 0.0f, 0.0f, 1.5f), attenuation));
-			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 1.0f, 0.0f, 1.5f), attenuation));
-			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 0.0f, 1.0f, 1.5f), attenuation));
+			lights.emplace_back(gt::vec4f(1.0f, 0.0f, 0.0f, 1.5f), attenuation);
+			lights.emplace_back(gt::vec4f(0.0f, 1.0f, 0.0f, 1.5f), attenuation);
+			lights.emplace_back(gt::vec4f(0.0f, 0.0f, 1.0f, 1.5f), attenuation);
 
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f)));
 			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 1.0f, 0.0f, 0.0f)));
@@ -76,6 +76,7 @@ int main(int argc, char* argv[])
 		float current_cos, current_sin;
 		float yaxis, zaxis;
 		bool move_objects = false;
+		bool show_gbuffer = false;
 		gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
 		
@@ -115,18 +116,22 @@ int main(int argc, char* argv[])
 			{
 				move_objects = !move_objects;
 			}
+			if (gintonic::renderer::key_toggle_press(SDL_SCANCODE_G))
+			{
+				show_gbuffer = !show_gbuffer;
+			}
 			if (gintonic::renderer::key(SDL_SCANCODE_EQUALS))
 			{
 				for (auto& l : lights)
 				{
-					l->intensity[3] += dt;
+					l.intensity[3] += dt;
 				}
 			}
 			else if (gintonic::renderer::key(SDL_SCANCODE_MINUS))
 			{
 				for (auto& l : lights)
 				{
-					l->intensity[3] -= dt;
+					l.intensity[3] -= dt;
 				}
 			}
 
@@ -168,41 +173,59 @@ int main(int argc, char* argv[])
 				
 				gt::renderer::get_unit_sphere_P().draw();
 			}
-			gt::renderer::begin_light_pass();
 
-			gt::renderer::null_light_pass();
-
-			for (std::size_t i = 0; i < lights.size(); ++i)
+			if (show_gbuffer)
 			{
-				lights[i]->shine(light_transforms[i]);
+				stream.open(font_inconsolata);
+				gt::renderer::blit_drawbuffers_to_screen(stream);
+				stream.close();
+			}
+			else
+			{
+				gt::renderer::begin_light_pass();
+
+				gt::renderer::null_light_pass();
+
+				for (std::size_t i = 0; i < lights.size(); ++i)
+				{
+					lights[i].shine(light_transforms[i]);
+				}
+
+				gt::renderer::get_text_shader()->activate();
+				
+				gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
+				
+				glDisable(GL_CULL_FACE);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				
+				stream.open(font_inconsolata);
+				
+				stream << "Move around with WASD.\n"
+					<< "Look around with the mouse.\n"
+					<< "Go up by holding the spacebar.\n"
+					<< "Holding +/- will decrease/increase the light intensity.\n"
+					<< "Press Q to quit.\n"
+					<< "Press B to start/stop the simulation.\n"
+					<< "Camera position: " << std::fixed << std::setprecision(1) 
+					<< gt::renderer::camera().position << '\n'
+					<< "FPS: " << 1.0f / dt << '\n';
+				for (std::size_t i = 0; i < lights.size(); ++i)
+				{
+					stream << "Light " << (i+1) << " intensity:     " 
+						<< std::fixed << std::setprecision(1) << lights[i].intensity << '\n';
+						
+					stream << "Light " << (i+1) << " attenuation:   " 
+						<< std::fixed << std::setprecision(1) << lights[i].attenuation() << '\n';
+
+					stream << "Light " << (i+1) << " cutoff radius: " 
+						<< std::fixed << std::setprecision(1) << lights[i].cutoff_point() << '\n';
+				}
+				stream.close();
+				
+				glEnable(GL_CULL_FACE);
 			}
 
-			gt::renderer::get_text_shader()->activate();
-			
-			gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
-			
-			glDisable(GL_CULL_FACE);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			
-			stream.open(font_inconsolata);
-			
-			stream << "Move around with WASD.\n"
-				<< "Look around with the mouse.\n"
-				<< "Go up by holding the spacebar.\n"
-				<< "Holding +/- will decrease/increase the light intensity.\n"
-				<< "Press Q to quit.\n"
-				<< "Press B to start/stop the simulation.\n"
-				<< "Camera position: " << std::fixed << std::setprecision(1) 
-				<< gt::renderer::camera().position << '\n'
-				<< "FPS: " << 1.0f / dt << '\n';
-				// << "Light intensity: " << red_light->intensity << '\n'
-				// << "Light position:  " << red_light_transform.translation 
-				// << '\n';
-			stream.close();
-			
-			glEnable(GL_CULL_FACE);
-			
 			gt::renderer::update();
 		}
 	}

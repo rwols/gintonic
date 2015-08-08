@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 		std::vector<std::unique_ptr<gt::material>> light_materials;
 
 		{
-			gt::vec3f attenuation(1.0f, 0.0f, 1.0f);
+			gt::vec4f attenuation(1.0f, 0.0f, 1.0f, 1.0f);
 
 			lights.emplace_back(new gt::point_light(gt::vec4f(1.0f, 0.0f, 0.0f, 1.0f), attenuation));
 			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 1.0f, 0.0f, 1.0f), attenuation));

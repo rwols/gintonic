@@ -1,7 +1,7 @@
 //
-// lp_spot.fs
+// lp_point.fs
 //
-// Spot lighting
+// Point lighting
 //
 
 #version 330 core
@@ -18,7 +18,7 @@ uniform struct GeometryBuffer
 	sampler2D normal;
 } gbuffer;
 
-uniform struct SpotLight {
+uniform struct PointLight {
 	vec4 intensity;
 	vec3 position; // in VIEW coordinates
 	vec3 direction; // in VIEW coordinates
@@ -52,27 +52,32 @@ void main()
 	float d = length(L);
 	
 	// Don't forget to normalize L.
+
 	L = normalize(L);
 
-	// E is the direction from the surface to the eye/camera.
-	// Since we are in VIEW coordinates, the position of the eye is 0.
-	// So the direction from the surface to the eye is 0 - P = - P.
-	vec3 E = normalize(-P);
+	float maxdotNL = max(dot(N,L), 0.0f);
 
-	// R is the reflection direction. When E gets closer to R, specularity enhances.
-	vec3 R = normalize(-reflect(L,N));
-
-	// The attenuation factor for a spot light
+	// The attenuation factor for a point light
 	float att = 1.0f / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
 	
 	// dc is the diffuse contribution.
-	float dc = light.intensity.a * diffuse.a * pow(max(dot(L, -light.direction), 0.0f), light.attenuation.w) * att;
+	float dc = light.intensity.a * diffuse.a * maxdotNL * att;
 
-	float spec_factor = clamp(pow(max(dot(R,E), 0.0f), specular.a), 0.0f, 1.0f);
-	spec_factor *= att;
+	float spotfactor = clamp(pow(max(dot(-light.direction, L), 0.0f), light.attenuation.w), 0.0f, 1.0f);
+
+	dc *= spotfactor;
+
+	float spec_factor = 0.0f;
+	if (maxdotNL > 0.0f)
+	{
+		vec3 E = normalize(-P);
+		vec3 R = normalize(-reflect(L,N));
+		spec_factor = clamp(pow(max(dot(R,E), 0.0f), specular.a), 0.0f, 1.0f);
+	}
 
 	final_color = dc * light.intensity.rgb * diffuse.rgb 
-		+ spec_factor * specular.rgb * light.intensity.rgb;
+		+  (spec_factor * specular.rgb * light.intensity.rgb);
 
-	final_color.r += 0.2f;
+	// Debug the cone stencil pass
+	final_color.r += 0.05f;
 }

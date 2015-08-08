@@ -64,6 +64,25 @@ public:
 	static material* load(const std::string&);
 	static material* load(const char*);
 
+	vec4f diffuse_color;
+	vec4f specular_color;
+
+	bool has_diffuse_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+	bool has_specular_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+	bool has_normal_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	const opengl::texture2d& diffuse_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+	const opengl::texture2d& specular_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+	const opengl::texture2d& normal_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	void set_diffuse_texture(const boost::filesystem::path&);
+	void set_specular_texture(const boost::filesystem::path&);
+	void set_normal_texture(const boost::filesystem::path&);
+
+	void clear_diffuse_texture();
+	void clear_specular_texture();
+	void clear_normal_texture();
+
 protected:
 
 	typedef std::tuple
@@ -97,6 +116,10 @@ private:
 	{
 		/* Empty on purpose. */
 	}
+
+	iter_type m_diffuse_tex;
+	iter_type m_specular_tex;
+	iter_type m_normal_tex;
 
 	friend class material_component_diffuse_texture;
 	friend class material_component_specular_texture;

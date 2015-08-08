@@ -1529,6 +1529,13 @@ template <class T> struct mat<T,4> : ::std::array<vec<T,4>,4>
 		return vec<T,3>(tmp[0], tmp[1], tmp[2]);
 	}
 
+	inline vec<T,3> apply_to_direction(const vec<T,3>& direction) const
+	{
+		vec<T,4> tmp(direction[0], direction[1], direction[2], T(0));
+		tmp = (*this * tmp);
+		return vec<T,3>(tmp[0], tmp[1], tmp[2]);
+	}
+
 	inline mat<T,3> upper_left_33() const
 	{
 		mat<T,3> r;

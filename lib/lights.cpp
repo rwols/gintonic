@@ -95,9 +95,9 @@ void point_light::set_attenuation(const vec4f& att) BOOST_NOEXCEPT_OR_NOTHROW
 	/ (2 * att[2]);
 	m_cutoff_point *= intensity[3];
 
-	#ifdef ENABLE_DEBUG_TRACE
-	renderer::cerr() << "Cutoff point was set to " << m_cutoff_point << '\n';
-	#endif
+	// #ifdef ENABLE_DEBUG_TRACE
+	// renderer::cerr() << "Cutoff point was set to " << m_cutoff_point << '\n';
+	// #endif
 }
 
 vec4f point_light::attenuation() const BOOST_NOEXCEPT_OR_NOTHROW
@@ -182,15 +182,16 @@ void spot_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	// The transformation data is delivered in WORLD coordinates.
 
-	sqt_transformf cone_transform;
-	cone_transform.scale = cutoff_point();
-	cone_transform.translation = t.translation;
+	sqt_transformf sphere_transform;
+	sphere_transform.scale = cutoff_point();
+	// sphere_transform.rotation = t.rotation;
+	sphere_transform.translation = t.translation;
 
-	renderer::set_model_matrix(cone_transform.get_matrix());
+	renderer::set_model_matrix(sphere_transform.get_matrix());
 
 	const auto& nullshader = renderer::get_null_shader();
 	const auto& spotshader = renderer::get_lp_spot_shader();
-	const auto& cone = renderer::get_unit_cone_P();
+	const auto& sphere = renderer::get_unit_sphere_P();
 
 	// We first do a null-pass that only fills the renderer's stencil buffer.
 	// The stencil value is increased when a front-facing triangle is seen,
@@ -200,7 +201,7 @@ void spot_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	renderer::begin_stencil_pass();
 	nullshader.activate();
 	nullshader.set_matrix_PVM(renderer::matrix_PVM());
-	cone.draw();
+	sphere.draw();
 
 	// Here we use the information collected in the stencil buffer to only
 	// shade pixels that really need it.
@@ -209,8 +210,11 @@ void spot_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	const auto light_pos = renderer::camera().matrix_V().apply_to_point(t.translation);
-	const auto light_dir = renderer::camera().matrix_V().apply_to_point(t.rotation.direction());
+	// What we actually want to do here: renderer::camera() should just be an SQT transform,
+	// and then we can do (renderer::camera().rotation * t.rotation).direction()
+	const auto matrix_V = renderer::camera().matrix_V();
+	const auto light_pos = matrix_V.apply_to_point(t.translation);
+	const auto light_dir = matrix_V.apply_to_direction(t.rotation.direction());
 
 	renderer::begin_light_pass();
 
@@ -226,7 +230,7 @@ void spot_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	spotshader.set_light_direction(light_dir);
 	spotshader.set_light_attenuation(attenuation());
 	spotshader.set_matrix_PVM(renderer::matrix_PVM());
-	cone.draw();
+	sphere.draw();
 
 	glDisable(GL_CULL_FACE);
 }

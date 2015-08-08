@@ -659,7 +659,7 @@ namespace gintonic {
 		// Take s_fbo as the active framebuffer.
 		// We blit the geometry stuff into yet another color attachment.
 		// This final color attachment gets blitted to the screen in the update()
-		// method which is called at the end of the main render loop.
+		// method which is (or rather should be) called at the end of the main render loop.
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
@@ -682,7 +682,7 @@ namespace gintonic {
 		// Take s_fbo as the active framebuffer.
 		// We blit the geometry stuff into yet another color attachment.
 		// This final color attachment gets blitted to the screen in the update()
-		// method which is called at the end of the main render loop.
+		// method which is (or rather should be) called at the end of the main render loop.
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);

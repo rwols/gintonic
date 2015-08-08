@@ -33,6 +33,21 @@ vec2 calculate_screen_position()
 	return vec2(gl_FragCoord.x / viewport_size.x, gl_FragCoord.y / viewport_size.y);
 }
 
+float maxdot(in vec3 A, in vec3 B)
+{
+	return max(dot(A,B), 0.0f);
+}
+
+float clamppowmaxdot(in vec3 A, in vec3 B, in float exponent)
+{
+	return clamp(pow(maxdot(A,B), exponent), 0.0f, 1.0f);
+}
+
+float quadratic_poly(in float a, in float b, in float c, in float x)
+{
+	return a * x * x + b * x + c;
+}
+
 void main()
 {
 	vec2 screen_uv = calculate_screen_position();
@@ -54,17 +69,25 @@ void main()
 	L = normalize(L);
 
 	// The attenuation factor for a point light
-	float att = 1.0f / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
+	float att = 1.0f / quadratic_poly(light.attenuation.x, light.attenuation.y, light.attenuation.z, d);
 	
 	// dc is the diffuse contribution.
-	float dc = light.intensity.a * diffuse.a * max(dot(L, N), 0.0f) * att;
+	float dc = maxdot(N,L);
 
-
+	// Since we are in VIEW coordinates, the eye position is at the origin.
+	// Therefore the unit direction vector from the point on the surface P
+	// to the eye is given by (0 - P) / (||0 - P||) = normalize(-P).
 	vec3 E = normalize(-P);
-	vec3 R = normalize(-reflect(L,N));
-	float spec_factor = clamp(pow(max(dot(R,E), 0.0f), specular.a), 0.0f, 1.0f);
-	spec_factor *= att;
 
-	final_color = dc * light.intensity.rgb * diffuse.rgb 
-		+ spec_factor * specular.rgb * light.intensity.rgb;
+	// We reflect the E direction vector *around* the surface normal.
+	// The idea is now that if the angle of incidence of te light is equal
+	// to the outgoing angle of incidence to the eye, we experience specularity.
+	vec3 R = reflect(E,N);
+
+	// sc is the specular contribution.
+	float sc = dot(N,L) > 0.0f ? clamppowmaxdot(R,E, specular.a) : 0.0f;
+
+	final_color = light.intensity.a * att * diffuse.a * light.intensity.rgb * (dc * diffuse.rgb + sc * specular.rgb);
+
+	// final_color.r += .1f;
 }
