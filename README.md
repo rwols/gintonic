@@ -61,31 +61,8 @@ of the Gintonic project to get everything to work.
 Installing Linux Dependencies
 =============================
 
-Use apt-get to install most of the dependencies. The following command should
-work:
-
-	$ sudo apt-get install cmake libjpeg-dev libpng-dev libsdl2-dev
-	libfreetype6-dev
-
-That takes care of all dependencies except for Boost and the FBX SDK. You can
-install Boost via apt-get, but those versions are not always up to date. It's
-best if you fetch them from
-
-http://sourceforge.net/projects/boost/files/boost/1.58.0/
-
-and just build them from source. Boost has its own funky build process called 
-Boost.Build but it mostly should just work out of the box.
-
-To install boost, cd into the downloaded boost folder and run
-
-    $ ./bootstrap.sh
-
-The command sets up some variables and gives you instructions on how to
-build the libraries.
-
-To install the FBX SDK, you can fetch it from
-
-http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=10775847
+In the top-level directory there's a file called `bootstrap-linux.sh`.
+Run that file to install all dependencies.
 
 Git Instructions
 ================
