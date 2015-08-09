@@ -1,9 +1,0 @@
-geometry geometry_pass.vs geometry_pass.fs
-ambient light_pass.vs ambient_pass.fs
-directional light_pass.vs directional_light_pass.fs
-point light_pass.vs point_light_pass.fs
-debug_geometry_vertex_color debug_geometry_color_pass.vs debug_geometry_color_pass.fs
-debug_geometry_uniform_color light_pass.vs debug_geometry_uniform_color_pass.fs
-phong phong.vs phong.fs
-flat_uniform_color flat_uniform_color.vs flat_uniform_color.fs
-flat_color flat_color.vs flat_color.fs

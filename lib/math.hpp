@@ -346,7 +346,7 @@ template <class T> inline void spherical_to_cartesian(const T r, const T theta, 
 }
 
 /*!
-\brief Output stream support for `FbxFector2`.
+\brief Output stream support for `FbxVector2`.
 \param[in,out] os The output stream.
 \param[in] v The vector to print.
 \return The output stream.
@@ -356,7 +356,7 @@ template <class T> inline void spherical_to_cartesian(const T r, const T theta, 
 std::ostream& operator << (std::ostream& os, const FbxVector2& v);
 
 /*!
-\brief Output stream support for `FbxFector4`.
+\brief Output stream support for `FbxVector4`.
 \param[in,out] os The output stream.
 \param[in] v The vector to print.
 \return The output stream.

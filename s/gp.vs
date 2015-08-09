@@ -1,9 +1,6 @@
 //
 // gp.vs
 //
-// This is an attempt at a generic geometry pass shader
-// So far this isn't working.
-//
 
 #version 330
 

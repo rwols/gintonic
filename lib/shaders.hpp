@@ -70,6 +70,184 @@ private:
 };
 
 /*****************************************************************************
+ * gintonic::gp_shader                                                       *
+ ****************************************************************************/
+
+class gp_shader : public matrix_PVM_VM_N_shader
+{
+public:
+	gp_shader();
+	virtual ~gp_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_diffuse_color(const vec4f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_specular_color(const vec4f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_diffuse_color;
+	GLuint loc_specular_color;
+};
+
+/*****************************************************************************
+ * gintonic::gp_d_shader                                                     *
+ ****************************************************************************/
+
+class gp_d_shader : public gp_shader
+{
+public:
+	gp_d_shader();
+	virtual ~gp_d_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_diffuse_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_d_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_d_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_diffuse_texture;
+};
+
+/*****************************************************************************
+ * gintonic::gp_s_shader                                                     *
+ ****************************************************************************/
+
+class gp_s_shader : public gp_shader
+{
+public:
+	gp_s_shader();
+	virtual ~gp_s_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_specular_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_s_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_s_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_specular_texture;
+};
+
+/*****************************************************************************
+ * gintonic::gp_n_shader                                                     *
+ ****************************************************************************/
+
+class gp_n_shader : public gp_shader
+{
+public:
+	gp_n_shader();
+	virtual ~gp_n_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_n_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_n_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_normal_texture;
+};
+
+/*****************************************************************************
+ * gintonic::gp_ds_shader                                                    *
+ ****************************************************************************/
+
+class gp_ds_shader : public gp_d_shader
+{
+public:
+	gp_ds_shader();
+	virtual ~gp_ds_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_specular_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_ds_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_ds_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_specular_texture;
+};
+
+/*****************************************************************************
+ * gintonic::gp_dn_shader                                                    *
+ ****************************************************************************/
+
+class gp_dn_shader : public gp_d_shader
+{
+public:
+	gp_dn_shader();
+	virtual ~gp_dn_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_dn_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_dn_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_normal_texture;
+};
+
+/*****************************************************************************
+ * gintonic::gp_sn_shader                                                    *
+ ****************************************************************************/
+
+class gp_sn_shader : public gp_s_shader
+{
+public:
+	gp_sn_shader();
+	virtual ~gp_sn_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_sn_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_sn_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_normal_texture;
+};
+
+/*****************************************************************************
+ * gintonic::gp_dsn_shader                                                   *
+ ****************************************************************************/
+
+class gp_dsn_shader : public gp_ds_shader
+{
+public:
+	gp_dsn_shader();
+	virtual ~gp_dsn_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	gp_dsn_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	gp_dsn_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_normal_texture;
+};
+
+/*****************************************************************************
  * gintonic::geometry_null_shader                                            *
  ****************************************************************************/
 

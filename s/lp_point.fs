@@ -8,8 +8,6 @@
 
 uniform vec2 viewport_size;
 
-uniform vec3 eye_position;
-
 uniform struct GeometryBuffer
 {
 	sampler2D position; // these are in VIEW coordinates

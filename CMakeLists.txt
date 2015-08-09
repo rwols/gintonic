@@ -48,8 +48,10 @@ else ()
 	add_definitions(-Wall)
 	add_definitions(-msse3)
 
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\$$ORIGIN" 
-		CACHE INTERNAL "Set dynamic library path to the executable's folder.")
+	if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\$$ORIGIN" 
+			CACHE INTERNAL "Set dynamic library path to the executable's folder.")
+	endif ()
 	
 endif ()
 
@@ -124,17 +126,17 @@ if (WIN32)
 		file (COPY ${DLL} DESTINATION ${CMAKE_BINARY_DIR})
 	endforeach()
 
-	# message(STATUS "Boost_DLLS: ${Boost_DLLS}")
-	# message(FATAL_ERROR "SDL2_DLL: ${SDL2_DLL}")
-
-	# foreach (DLL IN LISTS Boost_DLLS)
-	# 	file(COPY ${DLL} DESTINATION ${CMAKE_BINARY_DIR})
-	# endforeach()
-	# file(COPY ${SDL2_DLL} DESTINATION ${CMAKE_BINARY_DIR})
 else ()
 	include_directories(
 		${JPEG_INCLUDE_DIR}
 		${PNG_INCLUDE_DIRS})
+
+	if (APPLE)
+		# Need to copy fbxsdk
+		list(GET FBX_LIBRARY 1 FBX_DLL)
+		file (COPY ${FBX_DLL} DESTINATION ${CMAKE_BINARY_DIR}/examples)
+		file (COPY ${FBX_DLL} DESTINATION ${CMAKE_BINARY_DIR}/test)
+	endif ()
 endif ()
 
 mark_as_advanced(FBX_INCLUDE_DIR)

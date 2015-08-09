@@ -32,6 +32,15 @@ namespace gintonic
 	class gp_dt_shader;
 	class gp_dcdt_shader;
 
+	class gp_shader;
+	class gp_d_shader;
+	class gp_s_shader;
+	class gp_n_shader;
+	class gp_ds_shader;
+	class gp_dn_shader;
+	class gp_sn_shader;
+	class gp_dsn_shader;
+
 	class geometry_pass_shader;
 	class lp_null_shader;
 	class lp_directional_shader;
@@ -206,6 +215,46 @@ namespace gintonic
 		{
 			return *s_gp_dcdt_shader;
 		}
+	
+		inline static const gp_shader& get_gp_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_shader;
+		}
+
+		inline static const gp_d_shader& get_gp_d_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_d_shader;
+		}
+
+		inline static const gp_s_shader& get_gp_s_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_s_shader;
+		}
+
+		inline static const gp_n_shader& get_gp_n_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_n_shader;
+		}
+
+		inline static const gp_ds_shader& get_gp_ds_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_ds_shader;
+		}
+
+		inline static const gp_dn_shader& get_gp_dn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_dn_shader;
+		}
+
+		inline static const gp_sn_shader& get_gp_sn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_sn_shader;
+		}
+
+		inline static const gp_dsn_shader& get_gp_dsn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gp_dsn_shader;
+		}
 
 		inline static geometry_pass_shader* get_geometry_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
@@ -304,6 +353,15 @@ namespace gintonic
 		static gp_dcsc_shader* s_gp_dcsc_shader;
 		static gp_dt_shader* s_gp_dt_shader;
 		static gp_dcdt_shader* s_gp_dcdt_shader;
+
+		static gp_shader* s_gp_shader;
+		static gp_d_shader* s_gp_d_shader;
+		static gp_s_shader* s_gp_s_shader;
+		static gp_n_shader* s_gp_n_shader;
+		static gp_ds_shader* s_gp_ds_shader;
+		static gp_dn_shader* s_gp_dn_shader;
+		static gp_sn_shader* s_gp_sn_shader;
+		static gp_dsn_shader* s_gp_dsn_shader;
 
 		static geometry_pass_shader* s_geometry_pass_shader;
 		static lp_null_shader* s_lp_null_shader;

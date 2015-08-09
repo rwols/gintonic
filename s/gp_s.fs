@@ -1,5 +1,5 @@
 //
-// gp.fs
+// gp_s.fs
 //
 // Uses gp.vs as vertex shader
 
@@ -24,6 +24,7 @@ uniform struct Material
 {
 	vec4 diffuse_color;
 	vec4 specular_color;
+	sampler2D specular_texture;
 } material;
 
 void main()
@@ -31,5 +32,6 @@ void main()
 	out_position = v_position;
 	out_diffuse = material.diffuse_color;
 	out_specular = material.specular_color;
+	out_specular *= texture(material.specular_texture, v_texcoord);
 	out_normal = normalize(v_normal);
 }

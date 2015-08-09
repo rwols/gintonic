@@ -64,6 +64,15 @@ namespace gintonic {
 	gp_dt_shader* renderer::s_gp_dt_shader = nullptr;
 	gp_dcdt_shader* renderer::s_gp_dcdt_shader = nullptr;
 
+	gp_shader* renderer::s_gp_shader = nullptr;
+	gp_d_shader* renderer::s_gp_d_shader = nullptr;
+	gp_s_shader* renderer::s_gp_s_shader = nullptr;
+	gp_n_shader* renderer::s_gp_n_shader = nullptr;
+	gp_ds_shader* renderer::s_gp_ds_shader = nullptr;
+	gp_dn_shader* renderer::s_gp_dn_shader = nullptr;
+	gp_sn_shader* renderer::s_gp_sn_shader = nullptr;
+	gp_dsn_shader* renderer::s_gp_dsn_shader = nullptr;
+
 	geometry_pass_shader* renderer::s_geometry_pass_shader = nullptr;
 	lp_null_shader* renderer::s_lp_null_shader = nullptr;
 	lp_directional_shader* renderer::s_lp_directional_shader = nullptr;
@@ -305,6 +314,86 @@ namespace gintonic {
 		catch (exception& e)
 		{
 			e.prepend(": Failed to load gp_dcdt_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_shader = new gp_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_d_shader = new gp_d_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_d_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_s_shader = new gp_s_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_s_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_n_shader = new gp_n_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_n_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_ds_shader = new gp_ds_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_ds_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_dn_shader = new gp_dn_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_dn_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_sn_shader = new gp_sn_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_sn_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gp_dsn_shader = new gp_dsn_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gp_dsn_shader: ");
 			e.prepend(name());
 			throw;
 		}

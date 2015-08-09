@@ -47,7 +47,32 @@ public:
 	
 	virtual ~material() BOOST_NOEXCEPT_OR_NOTHROW;
 	
-	material() = default;
+	material();
+
+	material(
+		const vec4f& diffuse_color);
+
+	material(
+		const vec4f& diffuse_color, 
+		const vec4f& specular_color);
+
+	material(
+		const vec4f& diffuse_color, 
+		const vec4f& specular_color,
+		const boost::filesystem::path& diffuse_texture);
+
+	material(
+		const vec4f& diffuse_color, 
+		const vec4f& specular_color,
+		const boost::filesystem::path& diffuse_texture,
+		const boost::filesystem::path& specular_texture);
+
+	material(
+		const vec4f& diffuse_color, 
+		const vec4f& specular_color,
+		const boost::filesystem::path& diffuse_texture,
+		const boost::filesystem::path& specular_texture,
+		const boost::filesystem::path& normal_texture);
 
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW
 	{
@@ -59,10 +84,10 @@ public:
 	void save(const std::string&) const;
 	void save(const char*) const;
 
-	static material* load(std::istream&);
-	static material* load(const boost::filesystem::path&);
-	static material* load(const std::string&);
-	static material* load(const char*);
+	static material load(std::istream&);
+	static material load(const boost::filesystem::path&);
+	static material load(const std::string&);
+	static material load(const char*);
 
 	vec4f diffuse_color;
 	vec4f specular_color;
@@ -83,6 +108,8 @@ public:
 	void clear_specular_texture();
 	void clear_normal_texture();
 
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+
 protected:
 
 	typedef std::tuple
@@ -100,9 +127,15 @@ protected:
 		const boost::filesystem::path& filename, 
 		iter_type& iter);
 
+	static void unsafe_obtain_texture(
+		const boost::filesystem::path& filename,
+		iter_type& iter);
+
 	static void safe_set_null_texture(iter_type& iter);
 
 	static void safe_release_texture(iter_type& iter);
+
+	static void unsafe_release_texture(iter_type& iter);
 
 private:
 
