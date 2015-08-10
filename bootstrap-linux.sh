@@ -14,7 +14,7 @@ cd tmp
 
 # Install CMake, Boost, libjpeg, libpng, SDL2, Freetype
 sudo apt-get update
-sudo apt-get install cmake libboost-dev libjpeg-dev libpng-dev libsdl2-dev libfreetype6-dev
+sudo apt-get install cmake libboost-all-dev libjpeg-dev libpng-dev libsdl2-dev libfreetype6-dev
 
 # Install FBX SDK
 wget -O $FBX_TAR $FBX_DOWNLOAD_FOLDER/$FBX_TAR
