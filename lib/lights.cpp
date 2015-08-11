@@ -29,6 +29,41 @@ void light::shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW
 	renderer::get_unit_quad_P().draw();
 }
 
+void light::set_brightness(const float brightness)
+{
+	intensity[3] = brightness;
+}
+
+float light::brightness() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return intensity[3];
+}
+
+std::ostream& operator << (std::ostream& os, const light* l)
+{
+	return l->pretty_print(os);
+}
+
+std::ostream& operator << (std::ostream& os, const std::unique_ptr<light>& l)
+{
+	return l->pretty_print(os);
+}
+
+std::ostream& operator << (std::ostream& os, const std::shared_ptr<light>& l)
+{
+	return l->pretty_print(os);
+}
+
+std::ostream& operator << (std::ostream& os, const light& l)
+{
+	return l.pretty_print(os);
+}
+
+std::ostream& light::pretty_print(std::ostream& os) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return os << "{ (light) intensity: " << intensity << " }";
+}
+
 directional_light::directional_light(const vec4f& intensity)
 : light(intensity)
 {
@@ -56,6 +91,16 @@ void directional_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_N
 	renderer::get_unit_quad_P().draw();
 }
 
+std::ostream& operator << (std::ostream& os, const directional_light& l)
+{
+	return l.pretty_print(os);
+}
+
+std::ostream& directional_light::pretty_print(std::ostream& os) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return os << "{ (directional_light) intensity: " << intensity << " }";
+}
+
 point_light::point_light(const vec4f& intensity)
 : light(intensity)
 {
@@ -76,28 +121,7 @@ point_light::~point_light() BOOST_NOEXCEPT_OR_NOTHROW
 void point_light::set_attenuation(const vec4f& att) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	m_attenuation = att;
-
-	// Let c be equal to max(intensity[0], intensity[1], intensity[2])
-	// Let a be the attenuation
-	// Let d be the cutoff point
-	// There are 256 possible values in an 8-bit color channel
-	//
-	// We assume that a[0] + a[1] * d + a[2] * d^2 = 256 * c
-	//
-	// Solving for d, we find
-	//
-	// d = (-a[1] + sqrt(a[1]^2 - 4*a[2]*(a[0] - 256 * c))) / (2 * a[2])
-
-	const float c = std::max(intensity[0], std::max(intensity[1], intensity[2]));
-
-	m_cutoff_point = (-att[1] + std::sqrt(att[1] * att[1] 
-		- 4.0f * att[2] * (att[0] - 256.0f * c))) 
-	/ (2 * att[2]);
-	m_cutoff_point *= intensity[3];
-
-	// #ifdef ENABLE_DEBUG_TRACE
-	// renderer::cerr() << "Cutoff point was set to " << m_cutoff_point << '\n';
-	// #endif
+	calculate_cutoff_radius();
 }
 
 vec4f point_light::attenuation() const BOOST_NOEXCEPT_OR_NOTHROW
@@ -159,6 +183,56 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	sphere.draw();
 
 	glDisable(GL_CULL_FACE);
+}
+
+void point_light::set_brightness(const float brightness)
+{
+	intensity[3] = brightness;
+	calculate_cutoff_radius();
+}
+
+void point_light::calculate_cutoff_radius() BOOST_NOEXCEPT_OR_NOTHROW
+{
+
+	// Let c be equal to intensity[3] * max(intensity[0], intensity[1], intensity[2])
+	// Let a be the attenuation
+	// Let d be the cutoff radius
+	// There are 256 possible values in an 8-bit color channel
+	// Therefore,
+	//
+	//     a[0] + a[1] * d + a[2] * d^2 = 256 * c
+	//
+	// Solving for d, we find
+	//
+	// d = (-a[1] + sqrt(a[1]^2 - 4*a[2]*(a[0] - 256 * c))) / (2 * a[2])
+
+	#define att m_attenuation
+	#define in intensity
+
+	const float c = in[3] * std::max(in[0], std::max(in[1], in[2]));
+
+	m_cutoff_point = (-att[1] + std::sqrt(att[1] * att[1] 
+		- 4.0f * att[2] * (att[0] - 256.0f * c))) 
+	/ (2 * att[2]);
+
+	#undef in
+	#undef att
+
+	// #ifdef ENABLE_DEBUG_TRACE
+	// renderer::cerr() << "Cutoff point was set to " << m_cutoff_point << '\n';
+	// #endif
+}
+
+std::ostream& operator << (std::ostream& os, const point_light& l)
+{
+	return l.pretty_print(os);
+}
+
+std::ostream& point_light::pretty_print(std::ostream& os) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return os << "{ (point_light) intensity: " << intensity
+		<< ", attenuation: " << m_attenuation
+		<< ", cutoff_point: " << m_cutoff_point << " }";
 }
 
 spot_light::spot_light(const vec4f& intensity)
@@ -233,6 +307,18 @@ void spot_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	sphere.draw();
 
 	glDisable(GL_CULL_FACE);
+}
+
+std::ostream& operator << (std::ostream& os, const spot_light& l)
+{
+	return l.pretty_print(os);
+}
+
+std::ostream& spot_light::pretty_print(std::ostream& os) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return os << "{ (spot_light) intensity: " << intensity
+		<< ", attenuation: " << attenuation()
+		<< ", cutoff_point: " << cutoff_point() << " }";
 }
 
 } // namespace gintonic

@@ -2,6 +2,7 @@ Introduction
 ============
 
 Gintonic is the name of an engine framework written in C++ using OpenGL.
+The project is ongoing.
 
 Dependencies of Gintonic
 ========================
@@ -64,7 +65,7 @@ Installing Linux Dependencies
 In the top-level directory there's a file called `bootstrap-linux.sh`.
 Run that file to install all dependencies.
 
-Git Instructions
+<!-- Git Instructions
 ================
 
 The Gintonic git repo is hosted at a site called "The Storehouse". It's a 
@@ -81,12 +82,12 @@ do
 
 	$ git clone <your-username>@sthse.co:/code/gt.git
 
-to clone the repo.
+to clone the repo. -->
 
 Special Considerations for Windows and Git
 ==========================================
 
-Windows has no git in its terminal. Download "Git for Windows"
+Windows has no git in its terminal. Download [Git for Windows]
 (https://git-scm.com/download/win) to get a Unix environment in Windows. Open 
 a new terminal with Git Bash, and don't ever use the native Windows terminal 
 anymore. From this point on I will assume that Windows users use the Git Bash 
@@ -117,7 +118,9 @@ id_rsa.pub should now be present in ~/.ssh. Now do
 
 to get the content of the file. Copy the content of the file to the clipboard.
 
-Next, go to
+Add the contents of this key to your SSH keys in your account on BitBucket.
+
+<!-- Next, go to
 
 	http://sthse.co
 
@@ -130,7 +133,7 @@ a "key fingerprint" will be shown with a bunch of symbols. If not, it will say
 
 Unfortunately (as of 07/08/2015) there seems to be an issue with SSH keys not 
 getting updated so if you added a new key let me know and I'll contact the guy
-from Storehouse so that he'll update the keys.
+from Storehouse so that he'll update the keys. -->
 
 Build Instructions
 ==================
@@ -154,17 +157,17 @@ Then cd into ~/dev/gt/build. Then call CMake with
 to generate Makefiles. After a succesful configuration stage of CMake, you can
 then call
 
-    $ make
+	$ make
 
 to build the engine library, the example executables and the unit tests on
 Unix/OSX. On Windows, you can call
 
-    $ cmake --build .
+	$ cmake --build .
 
 By default, on Windows a multithreaded build is started. On Unix/OSX this is 
 not the case. To use multithreaded building on those platforms you can do
 
-    $ make -jN
+	$ make -jN
 
 where N is the number of threads that you want to devote to building. A good 
 choice is the number of (logical) processors on the machine. For instance, if 

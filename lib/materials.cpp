@@ -77,17 +77,22 @@ material material::load(const char* filename)
 	return load(input);
 }
 
-void material::safe_obtain_texture(const boost::filesystem::path& filename, iter_type& iter)
+void material::safe_obtain_texture(
+	const boost::filesystem::path& filename, 
+	iter_type& iter)
 {
 	s_textures_lock.obtain();
-	iter = std::find_if(s_textures.begin(), s_textures.end(), [&filename](const material::item_type& tup){
+	iter = std::find_if(s_textures.begin(), s_textures.end(), 
+		[&filename](const material::item_type& tup)
+	{
 		if (std::get<0>(tup) == filename) return true;
 		else return false;
 	});
 	if (iter == s_textures.end())
 	{
-		// texture filename is not present in our global container, so we create a new texture2d
-		// initialized with a reference count of 1
+		// texture filename is not present in our global container,
+		// so we create a new texture2d initialized with a
+		// reference count of 1
 		try { s_textures.emplace_back(filename, 1, filename); }
 		catch (const exception&)
 		{
@@ -107,14 +112,17 @@ void material::unsafe_obtain_texture(
 	const boost::filesystem::path& filename,
 	iter_type& iter)
 {
-	iter = std::find_if(s_textures.begin(), s_textures.end(), [&filename](const material::item_type& tup){
+	iter = std::find_if(s_textures.begin(), s_textures.end(),
+		[&filename](const material::item_type& tup)
+	{
 		if (std::get<0>(tup) == filename) return true;
 		else return false;
 	});
 	if (iter == s_textures.end())
 	{
-		// texture filename is not present in our global container, so we create a new texture2d
-		// initialized with a reference count of 1
+		// texture filename is not present in our global container,
+		// so we create a new texture2d initialized with a
+		// reference count of 1
 		try { s_textures.emplace_back(filename, 1, filename); }
 		catch (const exception&)
 		{
@@ -267,9 +275,9 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
 				s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
 				s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-				diffuse_texture().bind(renderer::GBUFFER_TEX_DIFFUSE);
-				specular_texture().bind(renderer::GBUFFER_TEX_SPECULAR);
-				normal_texture().bind(renderer::GBUFFER_TEX_NORMAL);
+				std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+				std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+				std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
 			}
 			else
 			{
@@ -283,8 +291,8 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 				s.set_specular_color(specular_color);
 				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
 				s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
-				diffuse_texture().bind(renderer::GBUFFER_TEX_DIFFUSE);
-				specular_texture().bind(renderer::GBUFFER_TEX_SPECULAR);
+				std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+				std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
 			}
 		}
 		else if (m_normal_tex != s_textures.end())
@@ -299,8 +307,8 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 			s.set_specular_color(specular_color);
 			s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
 			s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-			diffuse_texture().bind(renderer::GBUFFER_TEX_DIFFUSE);
-			normal_texture().bind(renderer::GBUFFER_TEX_NORMAL);
+			std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+			std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
 		}
 		else
 		{
@@ -313,7 +321,7 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 			s.set_diffuse_color(diffuse_color);
 			s.set_specular_color(specular_color);
 			s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
-			diffuse_texture().bind(renderer::GBUFFER_TEX_DIFFUSE);
+			std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
 		}
 	}
 	else if (m_specular_tex != s_textures.end())
@@ -330,8 +338,8 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 			s.set_specular_color(specular_color);
 			s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
 			s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-			specular_texture().bind(renderer::GBUFFER_TEX_SPECULAR);
-			normal_texture().bind(renderer::GBUFFER_TEX_NORMAL);
+			std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+			std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
 		}
 		else
 		{
@@ -344,7 +352,7 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 			s.set_diffuse_color(diffuse_color);
 			s.set_specular_color(specular_color);
 			s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
-			specular_texture().bind(renderer::GBUFFER_TEX_SPECULAR);
+			std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
 		}
 	}
 	else if (m_normal_tex != s_textures.end())
@@ -358,7 +366,7 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 		s.set_diffuse_color(diffuse_color);
 		s.set_specular_color(specular_color);
 		s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-		normal_texture().bind(renderer::GBUFFER_TEX_NORMAL);
+		std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
 	}
 	else
 	{
@@ -398,17 +406,20 @@ bool material::has_normal_texture() const BOOST_NOEXCEPT_OR_NOTHROW
 	return result;
 }
 
-const opengl::texture2d& material::diffuse_texture() const BOOST_NOEXCEPT_OR_NOTHROW
+const opengl::texture2d& material::diffuse_texture() const 
+BOOST_NOEXCEPT_OR_NOTHROW
 {
 	return std::get<2>(*m_diffuse_tex);
 }
 
-const opengl::texture2d& material::specular_texture() const BOOST_NOEXCEPT_OR_NOTHROW
+const opengl::texture2d& material::specular_texture() const 
+BOOST_NOEXCEPT_OR_NOTHROW
 {
 	return std::get<2>(*m_specular_tex);
 }
 
-const opengl::texture2d& material::normal_texture() const BOOST_NOEXCEPT_OR_NOTHROW
+const opengl::texture2d& material::normal_texture() const 
+BOOST_NOEXCEPT_OR_NOTHROW
 {
 	return std::get<2>(*m_normal_tex);
 }
@@ -459,6 +470,35 @@ void material::clear_normal_texture()
 	unsafe_release_texture(m_normal_tex);
 	m_normal_tex = s_textures.end();
 	s_textures_lock.release();
+}
+
+std::ostream& operator << (std::ostream& os, const material& mat)
+{
+	// First print out the diffuse color and specular color.
+	os << "{ diffuse_color: " << mat.diffuse_color << ", specular_color: "
+		<< mat.specular_color;
+
+	// Obtain a lock on the global texture container.
+	material::s_textures_lock.obtain();
+
+	if (mat.m_diffuse_tex != material::s_textures.end())
+	{
+		os << ", diffuse_texture: " << std::get<2>(*mat.m_diffuse_tex);
+	}
+	if (mat.m_specular_tex != material::s_textures.end())
+	{
+		os << ", specular_texture: " << std::get<2>(*mat.m_specular_tex);
+	}
+	if (mat.m_normal_tex != material::s_textures.end())
+	{
+		os << ", normal_texture: " << std::get<2>(*mat.m_normal_tex);
+	}
+	os << " }";
+
+	// Release the lock on the global texture container.
+	material::s_textures_lock.release();
+
+	return os;
 }
 
 /*****************************************************************************

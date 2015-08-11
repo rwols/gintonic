@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 		float curtime = 0.0f, dt;
 		float current_cos, current_sin;
 		float yaxis, zaxis;
-		bool move_objects = false;
+		bool move_objects = true;
 		bool show_gbuffer = false;
 		gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
@@ -124,14 +124,14 @@ int main(int argc, char* argv[])
 			{
 				for (auto& l : lights)
 				{
-					l.intensity[3] += dt;
+					l.set_brightness(l.brightness() + dt);
 				}
 			}
 			else if (gintonic::renderer::key(SDL_SCANCODE_MINUS))
 			{
 				for (auto& l : lights)
 				{
-					l.intensity[3] -= dt;
+					l.set_brightness(l.brightness() - dt);
 				}
 			}
 
@@ -207,19 +207,14 @@ int main(int argc, char* argv[])
 					<< "Holding +/- will decrease/increase the light intensity.\n"
 					<< "Press Q to quit.\n"
 					<< "Press B to start/stop the simulation.\n"
+					<< "Press G to view the contents of the geometry buffers.\n"
 					<< "Camera position: " << std::fixed << std::setprecision(1) 
 					<< gt::renderer::camera().position << '\n'
 					<< "FPS: " << 1.0f / dt << '\n';
 				for (std::size_t i = 0; i < lights.size(); ++i)
 				{
-					stream << "Light " << (i+1) << " intensity:     " 
-						<< std::fixed << std::setprecision(1) << lights[i].intensity << '\n';
-						
-					stream << "Light " << (i+1) << " attenuation:   " 
-						<< std::fixed << std::setprecision(1) << lights[i].attenuation() << '\n';
-
-					stream << "Light " << (i+1) << " cutoff radius: " 
-						<< std::fixed << std::setprecision(1) << lights[i].cutoff_point() << '\n';
+					stream << "Light " << (i+1) << ' ' << std::fixed 
+						<< std::setprecision(1) << lights[i] << '\n';
 				}
 				stream.close();
 				

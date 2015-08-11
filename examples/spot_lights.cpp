@@ -43,16 +43,16 @@ int main(int argc, char* argv[])
 
 		gt::sqt_transformf the_shape_transform;
 		
-		std::vector<gt::point_light> lights(3);
+		std::vector<gt::spot_light> lights(3);
 		std::vector<gt::sqt_transformf> light_transforms(3);
 		std::vector<std::unique_ptr<gt::material>> light_materials;
 
 		{
-			gt::vec4f attenuation(0.0f, 0.0f, 1.0f, 20.0f);
+			gt::vec4f attenuation(0.0f, 0.0f, 1.0f, 12.7f);
 
-			lights[0].intensity = gt::vec4f(1.0f, 0.0f, 0.0f, 6.0f);
-			lights[1].intensity = gt::vec4f(0.0f, 1.0f, 0.0f, 6.0f);
-			lights[2].intensity = gt::vec4f(0.0f, 0.0f, 1.0f, 6.0f);
+			lights[0].intensity = gt::vec4f(1.0f, 0.0f, 0.0f, 18.9f);
+			lights[1].intensity = gt::vec4f(0.0f, 1.0f, 0.0f, 18.9f);
+			lights[2].intensity = gt::vec4f(0.0f, 0.0f, 1.0f, 18.9f);
 
 			lights[0].set_attenuation(attenuation);
 			lights[1].set_attenuation(attenuation);
@@ -87,10 +87,14 @@ int main(int argc, char* argv[])
 		float curtime = 0.0f, dt;
 		float current_cos, current_sin;
 		float yaxis, zaxis;
-		bool move_objects = false;
+		bool move_objects = true;
 		float toggle_spot_lights = 1.0f;
 		gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
+
+		// Orient the camera so that we have a "nice" view.
+		gt::get_default_camera().position = {3.3f, 1.7f, 10.5f};
+		gt::get_default_camera().add_horizontal_and_vertical_angles(gt::deg_to_rad(15.0f), -gt::deg_to_rad(15.0f));
 		
 		while (!gt::renderer::should_close())
 		{
@@ -143,28 +147,28 @@ int main(int argc, char* argv[])
 			{
 				for (auto& l : lights)
 				{
-					l.set_attenuation(l.attenuation() + gt::vec4f(0.0f, 0.0f, 0.0f, dt));
+					l.set_attenuation(l.attenuation() + gt::vec4f(0.0f, 0.0f, 0.0f, 5.0f * dt));
 				}
 			}
 			else if (gintonic::renderer::key(SDL_SCANCODE_MINUS))
 			{
 				for (auto& l : lights)
 				{
-					l.set_attenuation(l.attenuation() + gt::vec4f(0.0f, 0.0f, 0.0f, -dt));
+					l.set_attenuation(l.attenuation() + gt::vec4f(0.0f, 0.0f, 0.0f, -5.0f * dt));
 				}
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_UP))
 			{
 				for (auto& l : lights)
 				{
-					l.intensity[3] += dt;
+					l.set_brightness(l.brightness() + dt);
 				}
 			}
 			else if (gintonic::renderer::key(SDL_SCANCODE_DOWN))
 			{
 				for (auto& l : lights)
 				{
-					l.intensity[3] -= dt;
+					l.set_brightness(l.brightness() - dt);
 				}
 			}
 
@@ -242,14 +246,8 @@ int main(int argc, char* argv[])
 				<< "FPS: " << 1.0f / dt << '\n';
 				for (std::size_t i = 0; i < lights.size(); ++i)
 				{
-					stream << "Light " << (i+1) << " intensity:     " 
-						<< std::fixed << std::setprecision(1) << lights[i].intensity << '\n';
-						
-					stream << "Light " << (i+1) << " attenuation:   " 
-						<< std::fixed << std::setprecision(1) << lights[i].attenuation() << '\n';
-
-					stream << "Light " << (i+1) << " cutoff radius: " 
-						<< std::fixed << std::setprecision(1) << lights[i].cutoff_point() << '\n';
+					stream << "Light " << (i+1) << ' ' << std::fixed 
+					<< std::setprecision(1) << lights[i] << '\n';
 				}
 			stream.close();
 			

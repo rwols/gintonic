@@ -112,8 +112,7 @@ int main(int argc, char* argv[])
 				<< "Look around with the mouse.\n"
 				<< "Go up by holding the spacebar.\n"
 				<< "Press Q to quit.\n"
-				<< "Light intensity: " << the_light->intensity << '\n'
-				<< "Light direction: " << the_light_transform.rotation.direction() << '\n';
+				<< the_light << '\n';
 			stream.close();
 			
 			glEnable(GL_CULL_FACE);

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 set(executables directional_light
+	driver_info
 	fbx_importer
 	fps_camera
 	geometry_buffer_showcase

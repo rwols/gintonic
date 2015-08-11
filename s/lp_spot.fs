@@ -78,6 +78,6 @@ void main()
 	final_color = dc * light.intensity.rgb * diffuse.rgb 
 		+  (spec_factor * specular.rgb * light.intensity.rgb);
 
-	// Debug the cone stencil pass
-	final_color.r += 0.05f;
+	// Debug the sphere stencil pass
+	// final_color.r += 0.1f;
 }
