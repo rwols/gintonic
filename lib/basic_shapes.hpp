@@ -199,14 +199,14 @@ private:
 class unit_sphere_PUN : public basic_shape
 {
 public:
-	unit_sphere_PUN(const unsigned short stacks, const unsigned short slices);
+	unit_sphere_PUN(const unsigned short subdivisions);
 	virtual ~unit_sphere_PUN();
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
 private:
 	vertex_array_object m_vao;
 	buffer_object m_vbo;
-	buffer_object m_ibo;
-	unsigned short num_indices;
+	// buffer_object m_ibo;
+	GLsizei m_count;
 };
 
 /*!
@@ -250,6 +250,22 @@ public:
 private:
 	vertex_array_object m_vao;
 	buffer_object m_vertices;
+};
+
+class unit_cone_PN : public basic_shape
+{
+public:
+
+	unit_cone_PN(const GLsizei divisions);
+
+	virtual ~unit_cone_PN();
+
+	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+
+	const GLsizei divisions; //!< The number of divisions of this cone.
+private:
+	vertex_array_object m_vao;
+	buffer_object m_vbo;
 };
 
 /*!

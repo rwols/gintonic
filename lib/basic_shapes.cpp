@@ -470,9 +470,193 @@ void unit_sphere_PU::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glBindVertexArray(0);
 }
 
-unit_sphere_PUN::unit_sphere_PUN(const unsigned short stacks, const unsigned short slices)
+struct sphere_face
 {
+	virtual ~sphere_face() { /* Do nothing */ }
+	virtual void get(
+		const float s, 
+		const float t, 
+		vec3f& pos, 
+		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+};
 
+struct sphere_front_face : public sphere_face
+{
+	virtual ~sphere_front_face() { /* Do nothing */ }
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		vec3f& pos, 
+		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+	{
+		pos[0] = 2.0f * s - 1.0f;
+		pos[1] = 2.0f * t - 1.0f;
+		pos[2] = 1.0f;
+		uv[0] = s;
+		uv[1] = t;
+		pos = normalize(pos);
+	}
+};
+
+struct sphere_back_face : public sphere_face
+{
+	virtual ~sphere_back_face() { /* Do nothing */ }
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		vec3f& pos, 
+		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+	{
+		pos[0] = 2.0f * s - 1.0f;
+		pos[1] = -(2.0f * t - 1.0f);
+		pos[2] = -1.0f;
+		uv[0] = s;
+		uv[1] = t;
+		pos = normalize(pos);
+	}
+};
+
+struct sphere_top_face : public sphere_face
+{
+	virtual ~sphere_top_face() { /* Do nothing */ }
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		vec3f& pos, 
+		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+	{
+		pos[0] = 2.0f * s - 1.0f;
+		pos[1] = 1.0f;
+		pos[2] = -(2.0f * t - 1.0f);
+		uv[0] = s;
+		uv[1] = t;
+		pos = normalize(pos);
+	}
+};
+
+struct sphere_bottom_face : public sphere_face
+{
+	virtual ~sphere_bottom_face() { /* Do nothing */ }
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		vec3f& pos, 
+		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+	{
+		pos[0] = 2.0f * s - 1.0f;
+		pos[1] = -1.0f;
+		pos[2] = 2.0f * t - 1.0f;
+		uv[0] = s;
+		uv[1] = t;
+		pos = normalize(pos);
+	}
+};
+
+struct sphere_left_face : public sphere_face
+{
+	virtual ~sphere_left_face() { /* Do nothing */ }
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		vec3f& pos, 
+		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+	{
+		pos[0] = -1.0f;
+		pos[1] = 2.0f * s - 1.0f;
+		pos[2] = -(2.0f * t - 1.0f);
+		uv[0] = s;
+		uv[1] = t;
+		pos = normalize(pos);
+	}
+};
+
+struct sphere_right_face : public sphere_face
+{
+	virtual ~sphere_right_face() { /* Do nothing */ }
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		vec3f& pos, 
+		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+	{
+		pos[0] = 1.0f;
+		pos[1] = 2.0f * s - 1.0f;
+		pos[2] = 2.0f * t - 1.0f;
+		uv[0] = s;
+		uv[1] = t;
+		pos = normalize(pos);
+	}
+};
+
+unit_sphere_PUN::unit_sphere_PUN(const unsigned short subdivisions)
+{
+	if (subdivisions == 0)
+	{
+		throw std::logic_error("Can't have 0 subdivisions");
+	}
+
+	sphere_face* sphere_faces[6] =
+	{
+		new sphere_front_face(),
+		new sphere_back_face(),
+		new sphere_top_face(),
+		new sphere_bottom_face(),
+		new sphere_left_face(),
+		new sphere_right_face()
+	};
+
+	float s;
+	float t;
+	const float subdivs = static_cast<float>(subdivisions);
+	vec3f pos;
+	vec2f uv;
+
+	std::vector<vertex_PUN<GLfloat>> vertices;
+
+	for (std::size_t f = 0; f < 6; ++f)
+	{
+		for (unsigned short i = 0; i < subdivisions; ++i)
+		{
+			for (unsigned short j = 0; j < subdivisions; ++j)
+			{
+				s = static_cast<float>(i) / subdivs;
+				t = static_cast<float>(j) / subdivs;
+				sphere_faces[f]->get(s, t, pos, uv);
+				vertices.emplace_back(pos, uv, pos);
+
+				s = static_cast<float>(i+1) / subdivs;
+				sphere_faces[f]->get(s, t, pos, uv);
+				vertices.emplace_back(pos, uv, pos);
+
+				s = static_cast<float>(i) / subdivs;
+				t = static_cast<float>(j+1) / subdivs;
+				sphere_faces[f]->get(s, t, pos, uv);
+				vertices.emplace_back(pos, uv, pos);
+
+				vertices.emplace_back(pos, uv, pos);
+
+				s = static_cast<float>(i+1) / subdivs;
+				t = static_cast<float>(j) / subdivs;
+				sphere_faces[f]->get(s, t, pos, uv);
+				vertices.emplace_back(pos, uv, pos);
+
+				s = static_cast<float>(i+1) / subdivs;
+				t = static_cast<float>(j+1) / subdivs;
+				sphere_faces[f]->get(s, t, pos, uv);
+				vertices.emplace_back(pos, uv, pos);
+			}
+		}
+		delete sphere_faces[f];
+	}
+
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	vertex_PUN<GLfloat>::enable_attributes();
+	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	m_count = static_cast<GLsizei>(vertices.size());
 }
 
 unit_sphere_PUN::~unit_sphere_PUN()
@@ -484,12 +668,15 @@ void unit_sphere_PUN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glDrawElements(GL_TRIANGLE_STRIP, num_indices, GL_UNSIGNED_SHORT, nullptr);
+	// glDisable(GL_CULL_FACE);
+	glDrawArrays(GL_TRIANGLES, 0, m_count);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
-unit_cone_P::unit_cone_P(const GLsizei divs) : basic_shape(), divisions(divs+2)
+unit_cone_P::unit_cone_P(const GLsizei divs)
+: basic_shape()
+, divisions(divs+2)
 {
 	std::vector<vertex_P<GLfloat>> vertices(2 * divisions);
 	GLfloat s, c;
@@ -522,13 +709,88 @@ unit_cone_P::unit_cone_P(const GLsizei divs) : basic_shape(), divisions(divs+2)
 
 unit_cone_P::~unit_cone_P()
 {
-
+	/* Empty on purpose. */
 }
 
 void unit_cone_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertices);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, divisions);
+	glFrontFace(GL_CW);
+	glDrawArrays(GL_TRIANGLE_FAN, divisions, divisions);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glFrontFace(GL_CCW);
+}
+
+unit_cone_PN::unit_cone_PN(const GLsizei divs)
+: basic_shape()
+, divisions(divs+2)
+{
+	std::vector<vertex_PN<GLfloat>> vertices(2 * divisions);
+	GLfloat s, c, next_s, next_c;
+	const GLfloat angle = 2.0f * static_cast<GLfloat>(M_PI) / static_cast<GLfloat>(divs);
+
+	vertices[0].position[0] =  0.0f;
+	vertices[0].position[1] = -1.0f;
+	vertices[0].position[2] =  0.0f;
+	vertices[0].normal[0] =  0.0f;
+	vertices[0].normal[1] = -1.0f;
+	vertices[0].normal[2] =  0.0f;
+
+	vertices[divisions].position[0] = 0.0f;
+	vertices[divisions].position[1] = 1.0f;
+	vertices[divisions].position[2] = 0.0f;
+	vertices[divisions].normal[0] = 0.0f;
+	vertices[divisions].normal[1] = 1.0f;
+	vertices[divisions].normal[2] = 0.0f;
+	
+	for (GLsizei div = 1; div < divisions; ++div)
+	{
+		c = cos(static_cast<GLfloat>(div-1) * angle);
+		s = sin(static_cast<GLfloat>(div-1) * angle);
+		next_c = cos(static_cast<GLfloat>(div) * angle);
+		next_s = sin(static_cast<GLfloat>(div) * angle);
+
+		vec3f P0(0.0f, 1.0f, 0.0f);
+		vec3f P1(c, -1.0f, s);
+		vec3f P2(next_c, -1.0f, next_s);
+
+		auto N = (P2 - P0) % (P1 - P0); // cross product
+		N = normalize(N);
+
+		vertices[div].position[0] = c;
+		vertices[div].position[1] = -1.0f;
+		vertices[div].position[2] = s;
+		vertices[div].normal[0] =  0.0f;
+		vertices[div].normal[1] = -1.0f;
+		vertices[div].normal[2] =  0.0f;
+		
+		vertices[divisions+div].position[0] = c;
+		vertices[divisions+div].position[1] = -1.0f;
+		vertices[divisions+div].position[2] = s;
+		vertices[divisions+div].normal[0] = N[0];
+		vertices[divisions+div].normal[1] = N[1];
+		vertices[divisions+div].normal[2] = N[2];
+	}
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	vertex_PN<GLfloat>::enable_attributes();
+	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+unit_cone_PN::~unit_cone_PN()
+{
+	/* Empty on purpose. */
+}
+
+void unit_cone_PN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, divisions);
 	glFrontFace(GL_CW);
 	glDrawArrays(GL_TRIANGLE_FAN, divisions, divisions);
