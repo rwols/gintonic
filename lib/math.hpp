@@ -763,7 +763,7 @@ is specialized to use SIMD instructions.
 \tparam T The value type.
 
 */
-template <class T> struct BOOST_ALIGNMENT(16) vec<T,4> : public ::std::array<T,4>
+template <class T> struct alignas(16) vec<T,4> : public ::std::array<T,4>
 {
 	typedef T float_type;
 	BOOST_CONSTEXPR vec() = default;
@@ -2031,14 +2031,14 @@ template <typename T, std::size_t N> using linestring = boost::geometry::model::
 template <typename T> using linestring2 = linestring<T,2>;
 template <typename T> using linestring3 = linestring<T,3>;
 template <typename T> using linestring4 = linestring<T,4>;
-template <typename T, std::size_t N> using polygon = boost::geometry::model::polygon<vec<T,N>>;
-template <typename T> using polygon2 = polygon<T,2>;
-template <typename T> using polygon3 = polygon<T,3>;
-template <typename T> using polygon4 = polygon<T,4>;
-template <typename T, std::size_t N> using multi_polygon = boost::geometry::model::multi_polygon<vec<T,N>>;
-template <typename T> using multi_polygon2 = multi_polygon<T,2>;
-template <typename T> using multi_polygon3 = multi_polygon<T,3>;
-template <typename T> using multi_polygon4 = multi_polygon<T,4>;
+// template <typename T, std::size_t N> using polygon = boost::geometry::model::polygon<vec<T,N>>;
+// template <typename T> using polygon2 = polygon<T,2>;
+// template <typename T> using polygon3 = polygon<T,3>;
+// template <typename T> using polygon4 = polygon<T,4>;
+// template <typename T, std::size_t N> using multi_polygon = boost::geometry::model::multi_polygon<vec<T,N>>;
+// template <typename T> using multi_polygon2 = multi_polygon<T,2>;
+// template <typename T> using multi_polygon3 = multi_polygon<T,3>;
+// template <typename T> using multi_polygon4 = multi_polygon<T,4>;
 
 using vec2f = vec2<float>;
 using vec3f = vec3<float>;
