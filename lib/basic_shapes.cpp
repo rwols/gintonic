@@ -10,6 +10,11 @@
 namespace gintonic {
 namespace opengl {
 
+basic_shape::~basic_shape()
+{
+	/* Empty on purpose. */
+}
+
 unit_quad_P::unit_quad_P() : basic_shape()
 {
 	#ifdef BOOST_MSVC
@@ -42,6 +47,11 @@ void unit_quad_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glBindVertexArray(0);
 }
 
+unit_quad_P::~unit_quad_P()
+{
+	/* Empty on purpose. */
+}
+
 unit_quad_PN::unit_quad_PN()
 {
 	const vertex_PN<GLfloat> quad[4] =
@@ -67,6 +77,11 @@ void unit_quad_PN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+unit_quad_PN::~unit_quad_PN()
+{
+	/* Empty on purpose. */
 }
 
 unit_quad_PC::unit_quad_PC(
@@ -360,6 +375,92 @@ void unit_cube_PUN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+unit_cube_PUNTB::unit_cube_PUNTB()
+{
+	const vertex_PUNTB<GLfloat> cube_vertices[24] =
+	{
+		// front
+		// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{-1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f ,  0.0f,  1.0f,  0.0f, -1.0f,  0.0f,  0.0f},
+    	{ 1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  0.0f,  1.0f ,  0.0f,  1.0f,  0.0f, -1.0f,  0.0f,  0.0f},
+    	{ 1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f ,  0.0f,  1.0f,  0.0f, -1.0f,  0.0f,  0.0f},
+    	{-1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f,  1.0f ,  0.0f,  1.0f,  0.0f, -1.0f,  0.0f,  0.0f},
+    	// top
+    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{-1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  1.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,  0.0f},
+    	{ 1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,  0.0f},
+    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  1.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,  0.0f},
+    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,  0.0f},
+    	// back
+    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{ 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  0.0f, -1.0f , -1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
+    	{-1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f , -1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
+    	{-1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  0.0f, -1.0f , -1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
+    	{ 1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f , -1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
+    	// bottom
+    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  0.0f,  0.0f, -1.0f, -1.0f,  0.0f,  0.0f},
+    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  0.0f,  0.0f, -1.0f, -1.0f,  0.0f,  0.0f},
+    	{ 1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  0.0f,  0.0f, -1.0f, -1.0f,  0.0f,  0.0f},
+    	{-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  0.0f,  0.0f, -1.0f, -1.0f,  0.0f,  0.0f},
+    	// left
+    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f ,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f, -1.0f},
+    	{-1.0f, -1.0f,  1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f ,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f, -1.0f},
+    	{-1.0f,  1.0f,  1.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f ,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f, -1.0f},
+    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f ,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f, -1.0f},
+    	// right
+    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{ 1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f},
+    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f},
+    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f},
+    	{ 1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f}
+	};
+	BOOST_CONSTEXPR GLubyte cube_indices[36] =
+	{
+		// front
+     	0,  1,  2,
+     	2,  3,  0,
+    	// top
+    	4,  5,  6,
+    	6,  7,  4,
+    	// back
+    	8,  9, 10,
+    	10, 11,  8,
+    	// bottom
+    	12, 13, 14,
+    	14, 15, 12,
+    	// left
+    	16, 17, 18,
+    	18, 19, 16,
+    	// right
+    	20, 21, 22,
+    	22, 23, 20
+	};
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	vertex_PUNTB<GLfloat>::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PUNTB<GLfloat>) * 24, cube_vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void unit_cube_PUNTB::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+unit_cube_PUNTB::~unit_cube_PUNTB()
+{
+	/* Empty on purpose. */
 }
 
 unit_sphere_P::unit_sphere_P(const unsigned short stacks, const unsigned short slices) 

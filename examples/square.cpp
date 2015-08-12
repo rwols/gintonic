@@ -6,9 +6,14 @@ int main(int argc, char* argv[])
 {
 	try
 	{
+		#ifdef BOOST_MSVC
+			boost::filesystem::current_path(gt::get_executable_path());
+		#else
+			boost::filesystem::current_path(gt::get_executable_path() / "..");
+		#endif
 		gt::init_all("square");
 		gt::opengl::unit_quad_P the_shape;
-		gt::material the_material;
+		gt::material the_material(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f));
 		gt::renderer::show();
 		while (!gt::renderer::should_close())
 		{
