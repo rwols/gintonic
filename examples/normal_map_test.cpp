@@ -42,32 +42,24 @@ int main(int argc, char* argv[])
 		gt::opengl::unit_cube_PUNTB the_shape;
 		
 		std::vector<gt::point_light> lights;
-		std::vector<gt::sqt_transformf> light_transforms(3);
+		std::vector<gt::sqt_transformf> light_transforms(1);
 		std::vector<gt::material> light_materials;
 
 		{
 			const gt::vec4f attenuation(0.0f, 0.0f, 1.0f, 0.0f);
 			const gt::vec4f specularity(1.0f, 1.0f, 1.0f, 1.0f);
 
-			lights.emplace_back(gt::vec4f(1.0f, 0.0f, 0.0f, 1.5f), attenuation);
-			lights.emplace_back(gt::vec4f(0.0f, 1.0f, 0.0f, 1.5f), attenuation);
-			lights.emplace_back(gt::vec4f(0.0f, 0.0f, 1.0f, 1.5f), attenuation);
+			lights.emplace_back(gt::vec4f(1.0f, 1.0f, 1.0f, 0.8f), attenuation);
 
-			light_materials.emplace_back(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f), specularity);
-			light_materials.emplace_back(gt::vec4f(0.0f, 1.0f, 0.0f, 0.0f), specularity);
-			light_materials.emplace_back(gt::vec4f(0.0f, 0.0f, 1.0f, 0.0f), specularity);
+			light_materials.emplace_back(gt::vec4f(1.0f, 1.0f, 1.0f, 0.0f), specularity);
 		}
 		
 		light_transforms[0].scale = 0.1f;
-		light_transforms[1].scale = 0.1f;
-		light_transforms[2].scale = 0.1f;
 		
 		gt::material the_material(
-			gt::vec4f(1.0f, 1.0f, 1.0f,  0.9f), // base diffuse color
-			gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f), // base specular color
-			"../examples/bricks_COLOR.png",     // diffuse texture
-			"../examples/bricks_SPEC.png",      // specular texture
-			"../examples/bricks_NRM.png");      // normal texture
+			gt::vec4f(0.7f, 0.7f, 0.7f, 0.9f),  // base diffuse color
+			gt::vec4f(0.3f, 0.3f, 0.3f, 1.0f)); // base specular color
+		the_material.set_normal_texture("../examples/normal_test.jpg");
 
 		gt::renderer::show();
 
@@ -142,13 +134,13 @@ int main(int argc, char* argv[])
 			
 			gt::renderer::begin_geometry_pass();
 			
-			yaxis = (1.0f + current_cos) / 2.0f;
+			// yaxis = (1.0f + current_cos) / 2.0f;
 			
-			zaxis = (1.0f + current_sin) / 2.0f;
+			// zaxis = (1.0f + current_sin) / 2.0f;
 			
-			rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
+			// rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
 			
-			gt::renderer::set_model_matrix(-curtime / 4.0f, rotation_axis);
+			gt::renderer::set_model_matrix(-curtime / 8.0f, gt::vec3f(0.0f, 1.0f, 0.0f));
 			the_material.bind();
 			the_shape.draw();
 
@@ -159,12 +151,12 @@ int main(int argc, char* argv[])
 				const auto elevation = 0.0f;
 				
 				light_transforms[i].translation[0] = radius 
-					* std::cos(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
+					* std::cos(curtime / 3.0f + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
 				
 				light_transforms[i].translation[1] = elevation;
 				
 				light_transforms[i].translation[2] = radius 
-					* std::sin(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
+					* std::sin(curtime / 3.0f + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
 				
 				gt::renderer::set_model_matrix(light_transforms[i].get_matrix());
 				

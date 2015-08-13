@@ -6,6 +6,7 @@ set(executables basic_shapes
 	fbx_importer
 	fps_camera
 	geometry_buffer_showcase
+	normal_map_test
 	point_lights
 	quadtree_console
 	rotating_square

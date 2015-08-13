@@ -6,30 +6,67 @@
 namespace gintonic {
 namespace opengl {
 
+/*****************************************************************************
+* gintonic::opengl::basic_shape                                              *
+*                                                                            *
+* Purpose: Base class for inheritance. The draw method is pure virtual, so   *
+*          needs to be overridden by a derived class.                        *
+*****************************************************************************/
 class basic_shape
 {
 public:
+
+	// Destructor.
 	virtual ~basic_shape();
+
+	// Draw the basic shape. This methods requires
+	// an implementation from a derived class.
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW = 0;
 };
 
+/*****************************************************************************
+* gintonic::opengl::unit_quad_P                                              *
+*                                                                            *
+* Purpose: A quad that spans [-1,+1] x [-1,+1]. This quad only carries       *
+*          position (P) information in its vertices.                         *
+*****************************************************************************/
 class unit_quad_P : public basic_shape
 {
 public:
+
+	// Default constructor.
 	unit_quad_P();
+
+	// Destructor.
 	virtual ~unit_quad_P();
+
+	// Draw the quad.
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	
 private:
 	vertex_array_object m_vao;
 	buffer_object m_vbo;
 };
 
+/*****************************************************************************
+* gintonic::opengl::unit_quad_PN                                             *
+*                                                                            *
+* Purpose: A quad that spans [-1,+1] x [-1,+1]. This quad carries position   *
+*          (P) and normal (N) information, so it can be shaded by lights.    *
+*****************************************************************************/
 class unit_quad_PN : public basic_shape
 {
 public:
+
+	// Default constructor.
 	unit_quad_PN();
+
+	// Destructor.
 	virtual ~unit_quad_PN();
+
+	// Draw the quad.
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+
 private:
 	vertex_array_object m_vao;
 	buffer_object m_vbo;

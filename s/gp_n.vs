@@ -43,21 +43,17 @@ void main()
 	v_position = (matrix_VM * vec4(in_position, 1.0f)).xyz;
 	v_texcoord = in_texcoord;
 
-	// Transform the normal, tangent and bitangent vectors to VIEW space
-	vec3 N = normalize(matrix_N * in_normal);
+	// Transform the normal, tangent and bitangent vectors
+	// from MODEL (or LOCAL) space to VIEW (or CAMERA) space
 	vec3 T = normalize(matrix_N * in_tangent);
 	vec3 B = normalize(matrix_N * in_bitangent);
+	vec3 N = normalize(matrix_N * in_normal);
 
 	// Gramm-Schmidt orthonormalization
 	// Not sure if this is really necessary...
-	// vec3 T = normalize(T - dot(N,T) * N);
-	// vec3 B = normalize(B - dot(N,B) * N - dot(T,B) * T);
-	
-	// matrix that goes from VIEW space to TANGENT space
-	v_matrix_T = mat3(N, T, B);
+	// T = normalize(T - dot(N,T) * N);
+	// B = normalize(B - dot(N,B) * N - dot(T,B) * T);
 
-	// v_matrix_T is an orthonormal matrix, so its inverse is equal to
-	// its transpose. The resulting matrix goes from TANGENT space
-	// to VIEW space.
-	v_matrix_T = transpose(v_matrix_T);
+	// matrix that goes from TANGENT space to VIEW space
+	v_matrix_T = mat3(T, B, N);
 }

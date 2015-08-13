@@ -52,8 +52,8 @@ int main(int argc, char* argv[])
 		);
 
 		gt::material brick_with_normal_material(
-			gt::vec4f(0.8f, 0.8f, 0.8f,  0.9f), // diffuse color. 4th component is diffuse contribution
-			gt::vec4f(0.3f, 0.3f, 0.3f,  4.0f), // specular color. 4th component is shininess
+			gt::vec4f(1.0f, 1.0f, 1.0f,  0.9f), // diffuse color. 4th component is diffuse contribution
+			gt::vec4f(0.3f, 0.3f, 0.3f, 20.0f), // specular color. 4th component is shininess
 			"../examples/bricks_COLOR.png",     // diffuse texture.
 			"../examples/bricks_SPEC.png",      // specular texture.
 			"../examples/bricks_NRM.png"
@@ -61,10 +61,10 @@ int main(int argc, char* argv[])
 
 		gt::material flat_material(
 			gt::vec4f(0.4f, 0.4f, 0.4f, 0.8f), // diffuse color
-			gt::vec4f(0.3f, 0.3f, 0.3f, 20.0f)  // specular color (none)
+			gt::vec4f(0.3f, 0.3f, 0.3f, 20.0f) // specular color
 		);
 
-		float curtime, dt, yaxis, zaxis;
+		float curtime, dt, yaxis, zaxis, cursin;
 		gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
 		gt::sqt_transformf shape_transform;
@@ -149,11 +149,16 @@ int main(int argc, char* argv[])
 			else
 			{
 				gt::renderer::begin_light_pass();
+
+				cursin = gt::sin(curtime) / 2.0f;
+
+				the_light_transform.rotation = gt::quatf::from_angle_axis(
+					cursin + static_cast<float>(-M_PI) / 2.0f, // angle
+					gt::vec3f(1.0f, 0.0f, 0.0f));              // rotation axis
 				the_light->shine(the_light_transform);
+
 				gt::renderer::get_text_shader()->activate();
-				
 				gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
-				
 				glDisable(GL_CULL_FACE);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
