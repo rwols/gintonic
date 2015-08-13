@@ -752,19 +752,11 @@ template <class T> inline vec<T,3> normalOfTriangle(const vec<T,3>& p1, const ve
 	return normalize((p3 - p1) % (p3 - p2));
 }
 
-/*!
-\brief Partial template specialization of a vector with `N = 4`.
-
-An additional convenience constructor is added, as well as a way
-to obtain standard unit axes. The specialization is aligned to
-a sixteen byte boundary. This is because the dot product operator
-is specialized to use SIMD instructions.
-
-\tparam T The value type.
-
-*/
-template <class T> struct alignas(16) vec<T,4> : public ::std::array<T,4>
-{
+#ifdef BOOST_MSVC
+template <class T> struct __declspec(align(16)) vec<T,4> : public ::std::array<T,4> {
+#else
+template <class T> struct alignas(16) vec<T,4> : public ::std::array<T,4> {
+#endif
 	typedef T float_type;
 	BOOST_CONSTEXPR vec() = default;
 	BOOST_CONSTEXPR vec(const ::std::array<T,4>& a) : ::std::array<T,4>(a) {}
@@ -825,19 +817,19 @@ template <class T> struct alignas(16) vec<T,4> : public ::std::array<T,4>
 		ar & this->operator[](0) & this->operator[](1) & this->operator[](2) & this->operator[](3);
 	}
 
-	static const vec<T,4> NaN;
-	static const vec<T,4> zero;
+	// static const vec<T,4> NaN;
+	// static const vec<T,4> zero;
 
 };
 
-template <class T> vec<T,4> const vec<T,4>::NaN = 
-vec<T,4>(std::numeric_limits<T>::quiet_NaN(), 
-	std::numeric_limits<T>::quiet_NaN(),
-	std::numeric_limits<T>::quiet_NaN(),
-	std::numeric_limits<T>::quiet_NaN());
+// template <class T> vec<T,4> const vec<T,4>::NaN = 
+// vec<T,4>(std::numeric_limits<T>::quiet_NaN(), 
+// 	std::numeric_limits<T>::quiet_NaN(),
+// 	std::numeric_limits<T>::quiet_NaN(),
+// 	std::numeric_limits<T>::quiet_NaN());
 
-template <class T> vec<T,4> const vec<T,4>::zero = 
-vec<T,4>(T(0), T(0), T(0), T(0));
+// template <class T> vec<T,4> const vec<T,4>::zero = 
+// vec<T,4>(T(0), T(0), T(0), T(0));
 
 template <class T> inline T inverse(const T t) { return T(1) / t; }
 
