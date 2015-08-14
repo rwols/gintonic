@@ -22,6 +22,12 @@ template <class FloatType> FloatType get_dt()
 
 int main(int argc, char* argv[])
 {
+	if (argc < 2)
+	{
+		std::cerr << "Usage: " << argv[0] << " <grid-size> <number-of-point-lights>\n";
+		std::cerr << "(For example: " << argv[0] << " 1 1)\n";
+		return EXIT_FAILURE;
+	}
 	try
 	{
 		#ifdef BOOST_MSVC
@@ -29,7 +35,7 @@ int main(int argc, char* argv[])
 		#else
 			boost::filesystem::current_path(gt::get_executable_path() / "..");
 		#endif
-		gt::init_all("spot_lights");
+		gt::init_all("point_lights");
 		
 		gt::renderer::set_freeform_cursor(true);
 
@@ -38,67 +44,96 @@ int main(int argc, char* argv[])
 			20);
 
 		gt::fontstream stream;
-		
-		gt::opengl::unit_cube_PUNTB the_shape;
 
-		gt::sqt_transformf the_shape_transform;
-		
-		std::vector<gt::spot_light> lights(3);
-		std::vector<gt::sqt_transformf> light_transforms(3);
-		std::vector<std::unique_ptr<gt::material>> light_materials;
+		const int max_objects = 30;
 
+		int numobjects = std::min(std::atoi(argv[1]), max_objects);
+		const int numlights = std::atoi(argv[2]);
+
+		if (numobjects < 0)
 		{
-			gt::vec4f attenuation(0.0f, 0.0f, 1.0f, 12.7f);
-
-			lights[0].intensity = gt::vec4f(1.0f, 0.0f, 0.0f, 18.9f);
-			lights[1].intensity = gt::vec4f(0.0f, 1.0f, 0.0f, 18.9f);
-			lights[2].intensity = gt::vec4f(0.0f, 0.0f, 1.0f, 18.9f);
-
-			lights[0].set_attenuation(attenuation);
-			lights[1].set_attenuation(attenuation);
-			lights[2].set_attenuation(attenuation);
-
-			light_materials.emplace_back(new gt::material_c(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f)));
-			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 1.0f, 0.0f, 0.0f)));
-			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 0.0f, 1.0f, 0.0f)));
+			throw std::runtime_error("Cannot have a negative number of objects.");
+		}
+		if (numlights <= 0)
+		{
+			throw std::runtime_error("Cannot have zero or less point lights.");
 		}
 
-		the_shape_transform.scale = 6.0f;
-		the_shape_transform.rotation = gt::quatf::from_angle_axis(0.0f, gt::vec3f(1.0f, 0.0f, 0.0f));
-		the_shape_transform.translation = gt::vec3f(0.0f, -11.0f, 0.0f);
+		std::srand((int)std::clock()); // random number generator seed
+		// Generate a random boolean matrix
+		std::vector<std::vector<bool>> boolmatrix;
+		for (int i = -max_objects; i <= max_objects; ++i)
+		{
+			boolmatrix.push_back(std::vector<bool>(2 * max_objects + 1));
+			for (int j  = -max_objects; j <= max_objects; ++j)
+			{
+				boolmatrix[i + max_objects][j + max_objects] = static_cast<bool>(rand() % 2);
+			}
+		}
 		
-		light_transforms[0].scale = 0.1f;
-		light_transforms[1].scale = 0.1f;
-		light_transforms[2].scale = 0.1f;
+		gt::opengl::unit_cube_PUNTB a_cube;
+		gt::opengl::unit_sphere_PUN a_sphere(16);
+		
+		std::vector<gt::spot_light> lights;
+		std::vector<gt::sqt_transformf> light_transforms;
+		std::vector<gt::material> light_materials;
+		gt::sqt_transformf shape_transform;
 
-		const auto light_radius = 3.0f;
-		const auto light_elevation = 0.0f;
+		// Generate the lights
+		for (int i = 0; i < numlights; ++i)
+		{
+			const gt::vec4f attenuation(1.0f, 1.0f, 8.0f, 4.0f);
+			const gt::vec4f specularity(0.2f, 0.2f, 0.2f, 4.0f);
+			gt::vec4f intensity;
+			gt::vec3f color;
+			float ceiling;
+			color[0] = std::rand() % 1000;
+			color[1] = std::rand() % 1000;
+			color[2] = std::rand() % 1000;
+			color = normalize(color);
+			ceiling = std::max(std::max(color[0], color[1]), color[2]);
+			ceiling = 1.0f - ceiling;
+			color[0] += ceiling;
+			color[1] += ceiling;
+			color[2] += ceiling;
+			intensity = {color[0], color[1], color[2], 9.0f};
+			lights.emplace_back(intensity, attenuation);
+			intensity[3] = 0.0f;
+			light_materials.emplace_back(intensity, specularity);
+			light_transforms.emplace_back(gt::sqt_transformf());
+			light_transforms.back().scale = 0.1f;
+			light_transforms.back().rotation = gt::quatf::from_angle_axis(-static_cast<float>(M_PI) / 2.0, gt::vec3f(1.0f, 0.0f, 0.0f));
+		}
 
-		light_transforms[0].rotation = light_transforms[1].rotation = light_transforms[2].rotation
-			= gt::quatf::from_angle_axis(static_cast<float>(-M_PI) / 2.0f, gt::vec3f(1.0f, 0.0f, 0.0f));
-
+		shape_transform.scale = 1.0f;
+		
 		gt::material the_material(
-			gt::vec4f(1.0f, 1.0f, 1.0f,  0.9f), // base diffuse color
+			gt::vec4f(1.0f, 1.0f, 1.0f,  1.0f), // base diffuse color
 			gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f), // base specular color
 			"../examples/bricks_COLOR.png",     // diffuse texture
 			"../examples/bricks_SPEC.png",      // specular texture
 			"../examples/bricks_NRM.png");      // normal texture
 
+		// Orient the camera
+		gt::get_default_camera().position = {0.0f, 2.0f, 4.0f};
+		gt::get_default_camera().add_horizontal_and_vertical_angles(0.0f, 0.0f);
+
 		float curtime = 0.0f, dt;
 		float current_cos, current_sin;
 		float yaxis, zaxis;
+		float attenuation_factor = 8.0f;
+		float light_intensity_value = 9.0f;
+		float light_elevation = 4.0f;
+		float light_power_coeff = 4.0f;
+		float spot_light_orientation = -1.0f;
 		bool move_objects = true;
 		bool show_gbuffer = false;
-		float toggle_spot_lights = 1.0f;
+		int attenuation_type = 2; // 0 is constant, 1 is linear, 2 is quadratic
 		gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
 
-		// Orient the camera so that we have a "nice" view.
-		gt::get_default_camera().position = {3.3f, 1.7f, 10.5f};
-		gt::get_default_camera().add_horizontal_and_vertical_angles(gt::deg_to_rad(15.0f), -gt::deg_to_rad(15.0f));
-		
 		gt::renderer::show();
-
+		
 		while (!gt::renderer::should_close())
 		{
 			dt = get_dt<float>();
@@ -135,48 +170,57 @@ int main(int argc, char* argv[])
 			{
 				move_objects = !move_objects;
 			}
-			if (gt::renderer::key_toggle_press(SDL_SCANCODE_T))
-			{
-				light_transforms[0].rotation 
-					= light_transforms[1].rotation 
-					= light_transforms[2].rotation
-					= gt::quatf::from_angle_axis(
-						toggle_spot_lights * static_cast<float>(M_PI) / 2.0f, 
-						gt::vec3f(1.0f, 0.0f, 0.0f)
-				);
-				toggle_spot_lights *= -1.0f;
-			}
-			if (gt::renderer::key(SDL_SCANCODE_EQUALS))
-			{
-				for (auto& l : lights)
-				{
-					l.set_attenuation(l.attenuation() + gt::vec4f(0.0f, 0.0f, 0.0f, 5.0f * dt));
-				}
-			}
-			else if (gt::renderer::key(SDL_SCANCODE_MINUS))
-			{
-				for (auto& l : lights)
-				{
-					l.set_attenuation(l.attenuation() + gt::vec4f(0.0f, 0.0f, 0.0f, -5.0f * dt));
-				}
-			}
-			if (gt::renderer::key(SDL_SCANCODE_UP))
-			{
-				for (auto& l : lights)
-				{
-					l.set_brightness(l.brightness() + dt);
-				}
-			}
-			else if (gt::renderer::key(SDL_SCANCODE_DOWN))
-			{
-				for (auto& l : lights)
-				{
-					l.set_brightness(l.brightness() - dt);
-				}
-			}
 			if (gt::renderer::key_toggle_press(SDL_SCANCODE_G))
 			{
 				show_gbuffer = !show_gbuffer;
+			}
+			if (gt::renderer::key(SDL_SCANCODE_EQUALS))
+			{
+				attenuation_factor += dt;
+			}
+			else if (gt::renderer::key(SDL_SCANCODE_MINUS))
+			{
+				attenuation_factor -= dt;
+			}
+			if (gt::renderer::key_toggle_press(SDL_SCANCODE_1))
+			{
+				attenuation_type = 0;
+			}
+			else if (gt::renderer::key_toggle_press(SDL_SCANCODE_2))
+			{
+				attenuation_type = 1;
+			}
+			else if (gt::renderer::key_toggle_press(SDL_SCANCODE_3))
+			{
+				attenuation_type = 2;
+			}
+			if (gt::renderer::key(SDL_SCANCODE_UP))
+			{
+				light_intensity_value += dt;
+			}
+			else if (gt::renderer::key(SDL_SCANCODE_DOWN))
+			{
+				light_intensity_value -= dt;
+			}
+			if (gt::renderer::key(SDL_SCANCODE_I))
+			{
+				light_elevation += dt;
+			}
+			else if (gt::renderer::key(SDL_SCANCODE_K))
+			{
+				light_elevation -= dt;
+			}
+			if (gt::renderer::key(SDL_SCANCODE_O))
+			{
+				light_power_coeff += dt;
+			}
+			else if (gt::renderer::key(SDL_SCANCODE_L))
+			{
+				light_power_coeff -= dt;
+			}
+			if (gt::renderer::key_toggle_press(SDL_SCANCODE_T))
+			{
+				spot_light_orientation *= -1.0f;
 			}
 
 			mousedelta = gt::renderer::mouse_delta();
@@ -184,40 +228,69 @@ int main(int argc, char* argv[])
 			mousedelta[1] = -gt::deg_to_rad(mousedelta[1]) / 4.0f;
 			
 			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
+
+			// numobjects = 1.0f / dt < 40.0f ? std::max(numobjects - 1, 1) : std::min(numobjects + 1, max_objects);
+
+			// if (1.0f / dt < 40.0f)
+			// {
+			// 	numobjects = std::max(numobjects - 1, 1);
+			// }
+			// else if (1.0f / dt > 50.0f)
+			// {
+			// 	numobjects = std::min(numobjects + 1, max_objects);
+			// }
 			
 			gt::renderer::begin_geometry_pass();
 			
 			yaxis = (1.0f + current_cos) / 2.0f;
-			
 			zaxis = (1.0f + current_sin) / 2.0f;
-			
 			rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
-			
-			gt::renderer::set_model_matrix(the_shape_transform.get_matrix());
-			the_material.bind();
-			the_shape.draw();
+			shape_transform.rotation = gt::quatf::from_angle_axis(-curtime / 4.0f, rotation_axis);
 
-			// flip the cube in the XZ plane
-			the_shape_transform.translation[1] = -the_shape_transform.translation[1];
-			gt::renderer::set_model_matrix(the_shape_transform.get_matrix());
-			the_material.bind();
-			the_shape.draw();
+			for (int i = -numobjects; i <= numobjects; ++i)
+			{
+				for (int j  = -numobjects; j <= numobjects; ++j)
+				{
+					// Draw a grid of (2*numobjects + 1)^2 rotating cubes/spheres :-)
+					const float yval = std::cos(static_cast<float>(j) + curtime) * std::sin(static_cast<float>(i) + curtime);
+
+					shape_transform.translation = {2.0f * i, yval, 2.0f * j};
+					gt::renderer::set_model_matrix(shape_transform.get_matrix());
+					the_material.bind();
+					a_sphere.draw();
+					// if (boolmatrix[i + numobjects][j + numobjects]) a_cube.draw();
+					// else a_sphere.draw();
+
+					shape_transform.translation = {2.0f * i, 10.0f + yval, 2.0f * j};
+					gt::renderer::set_model_matrix(shape_transform.get_matrix());
+					the_material.bind();
+					a_sphere.draw();
+					// if (boolmatrix[i + numobjects][j + numobjects]) a_cube.draw();
+					// else a_sphere.draw();
+				}
+			}
 
 			for (std::size_t i = 0; i < lights.size(); ++i)
 			{
+
 				const auto numlights = static_cast<float>(lights.size());
+				const auto radius = static_cast<float>(numlights);
 				
-				light_transforms[i].translation[0] = light_radius 
+				light_transforms[i].translation[0] = radius 
 					* std::cos(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
 				
 				light_transforms[i].translation[1] = light_elevation;
 				
-				light_transforms[i].translation[2] = light_radius 
+				light_transforms[i].translation[2] = radius 
 					* std::sin(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
+
+				light_transforms[i].rotation = gt::quatf::from_angle_axis(
+					spot_light_orientation * static_cast<float>(M_PI) / 2.0f,
+					gt::vec3f(1.0f, 0.0f, 0.0f));
 				
 				gt::renderer::set_model_matrix(light_transforms[i].get_matrix());
 				
-				light_materials[i]->bind();
+				light_materials[i].bind();
 				
 				gt::renderer::get_unit_sphere_P().draw();
 			}
@@ -236,6 +309,16 @@ int main(int argc, char* argv[])
 
 				for (std::size_t i = 0; i < lights.size(); ++i)
 				{
+					gt::vec4f attenuation;
+					switch (attenuation_type)
+					{
+						case 0:  attenuation = gt::vec4f(attenuation_factor, 1.0f, 1.0f, light_power_coeff); break;
+						case 1:  attenuation = gt::vec4f(1.0f, attenuation_factor, 1.0f, light_power_coeff); break;
+						case 2:  attenuation = gt::vec4f(1.0f, 1.0f, attenuation_factor, light_power_coeff); break;
+						default: attenuation = gt::vec4f(1.0f, 1.0f, attenuation_factor, light_power_coeff); break;
+					}
+					lights[i].set_attenuation(attenuation);
+					lights[i].set_brightness(light_intensity_value);
 					lights[i].shine(light_transforms[i]);
 				}
 
@@ -248,31 +331,39 @@ int main(int argc, char* argv[])
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				
 				stream.open(font_inconsolata);
-
+				
 				stream << "Move around with WASD.\n"
 					<< "Look around with the mouse.\n"
 					<< "Go up by holding the spacebar.\n"
-					<< "Holding +/- will increase/decrease the spot lights' power coefficient.\n"
-					<< "Holding Up/Down arrows will increase/decrease the spot lights' intensity coefficient.\n"
-					<< "Press Q to quit.\n"
-					<< "Press B to start/stop the simulation.\n"
-					<< "Press G to examine the geometry buffer.\n"
-					<< "Press T to toggle the spot lights' direction.\n"
-					<< "Camera position: " << std::fixed << std::setprecision(1) 
-					<< gt::renderer::camera().position << '\n'
-					<< "FPS: " << 1.0f / dt << '\n';
-					for (std::size_t i = 0; i < lights.size(); ++i)
-					{
-						stream << "Light " << (i+1) << ' ' << std::fixed 
-						<< std::setprecision(1) << lights[i] << '\n';
-					}
+					<< "Press [Q] to quit.\n"
+					<< "Press [B] to start/stop the simulation.\n"
+					<< "Press [G] to view the contents of the geometry buffers.\n"
+					<< "Press [T] to toggle the orientation of the spot lights.\n"
+					<< "[-]/[+] to increase/decrease attenuation.\n"
+					<< "[1], [2] or [3] to select attenuation type.\n"
+					<< "[UP]/[DOWN] to increase/decrease intensity.\n"
+					<< "[I]/[K] to change the elevation of the lights.\n"
+					<< "[O]/[L] to decrease/increase the power coefficient.\n"
+					<< "FPS: " << 1.0f / dt << '\n'
+					<< "Number of objects: " << 2 * (2 * numobjects + 1) * (2 * numobjects + 1) << '\n'
+					<< "Number of lights: " << numlights << '\n'
+					<< "Attenuation factor: " << attenuation_factor << '\n'
+					<< "Attenuation type: ";
+				switch (attenuation_type)
+				{
+					case 0: stream << "constant\n"; break;
+					case 1: stream << "linear\n"; break;
+					case 2: stream << "quadratic\n"; break;
+					default: stream << "unknown!\n";	
+				}
+				stream << "Intensity: " << light_intensity_value << '\n'
+					<< "Power coefficient: " << light_power_coeff << '\n'
+					<< "Light elevation: " << light_elevation << '\n';
 				stream.close();
 				
 				glEnable(GL_CULL_FACE);
 			}
 
-
-			
 			gt::renderer::update();
 		}
 	}
