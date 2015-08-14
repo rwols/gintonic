@@ -50,7 +50,7 @@ public:
 		<
 			sqt_transformf,
 			std::shared_ptr<mesh>, 
-			std::shared_ptr<material>
+			material
 		>
 	> model;
 

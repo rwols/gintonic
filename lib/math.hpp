@@ -558,6 +558,12 @@ template <class T> struct vec<T,2> : public ::std::array<T,2>
 	//  return *this;
 	// }
 
+	vec(const FbxVector2& v)
+	{
+		(*this)[0] = v[0];
+		(*this)[1] = v[1];
+	}
+
 	inline operator FbxVector2() const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		return FbxVector2((*this)[0], (*this)[1]);
@@ -654,6 +660,13 @@ template <class T> struct vec<T,3> : public ::std::array<T,3>
 	}})
 	{
 
+	}
+
+	vec(const FbxVector4& v)
+	{
+		(*this)[0] = v[0];
+		(*this)[1] = v[1];
+		(*this)[2] = v[2];
 	}
 
 
@@ -771,9 +784,16 @@ template <class T> struct alignas(16) vec<T,4> : public ::std::array<T,4> {
 	//  (*this)[3] = ((const double*)fbxvec)[3];
 	// }
 
-	BOOST_CONSTEXPR vec(const T x, const T y, const T z, const T w) : ::std::array<T,4>({{x,y,z,w}}) {} // Dont ask.....
+	BOOST_CONSTEXPR vec(const T x, const T y, const T z, const T w) : ::std::array<T,4>({{x,y,z,w}}) {}
 
-	//template <class InputIt> vec(InputIt first) { ::std::copy(first, ::std::advance(first, N), this->begin()); }
+	vec(const FbxVector4& v)
+	{
+		(*this)[0] = v[0];
+		(*this)[1] = v[1];
+		(*this)[2] = v[2];
+		(*this)[3] = v[3];
+	}
+
 	template <class InputIt> vec(InputIt first, InputIt last) { ::std::copy(first, last, this->begin()); }
 
 	template <class S>

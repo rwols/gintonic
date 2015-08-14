@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 
 		gt::fontstream stream;
 		
-		gt::opengl::unit_cube_PUN the_shape;
+		gt::opengl::unit_cube_PUNTB the_shape;
 
 		gt::sqt_transformf the_shape_transform;
 		
@@ -77,17 +77,18 @@ int main(int argc, char* argv[])
 		light_transforms[0].rotation = light_transforms[1].rotation = light_transforms[2].rotation
 			= gt::quatf::from_angle_axis(static_cast<float>(-M_PI) / 2.0f, gt::vec3f(1.0f, 0.0f, 0.0f));
 
-		std::unique_ptr<gt::material> the_material(
-			new gt::material_cd(
-				gt::vec4f(1.0f,1.0f,1.0f,0.99f), 
-				"../examples/bricks.jpg"));
-
-		gt::renderer::show();
+		gt::material the_material(
+			gt::vec4f(1.0f, 1.0f, 1.0f,  0.9f), // base diffuse color
+			gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f), // base specular color
+			"../examples/bricks_COLOR.png",     // diffuse texture
+			"../examples/bricks_SPEC.png",      // specular texture
+			"../examples/bricks_NRM.png");      // normal texture
 
 		float curtime = 0.0f, dt;
 		float current_cos, current_sin;
 		float yaxis, zaxis;
 		bool move_objects = true;
+		bool show_gbuffer = false;
 		float toggle_spot_lights = 1.0f;
 		gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
@@ -96,6 +97,8 @@ int main(int argc, char* argv[])
 		gt::get_default_camera().position = {3.3f, 1.7f, 10.5f};
 		gt::get_default_camera().add_horizontal_and_vertical_angles(gt::deg_to_rad(15.0f), -gt::deg_to_rad(15.0f));
 		
+		gt::renderer::show();
+
 		while (!gt::renderer::should_close())
 		{
 			dt = get_dt<float>();
@@ -104,35 +107,35 @@ int main(int argc, char* argv[])
 			current_cos = std::cos(curtime);
 			current_sin = std::sin(curtime);
 			
-			if (gintonic::renderer::key_toggle_press(SDL_SCANCODE_Q))
+			if (gt::renderer::key_toggle_press(SDL_SCANCODE_Q))
 			{
-				gintonic::renderer::close();
+				gt::renderer::close();
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_W))
+			if (gt::renderer::key(SDL_SCANCODE_W))
 			{
 				gt::get_default_camera().move_forward(MOVE_SPEED * dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_A))
+			if (gt::renderer::key(SDL_SCANCODE_A))
 			{
 				gt::get_default_camera().move_left(MOVE_SPEED * dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_S))
+			if (gt::renderer::key(SDL_SCANCODE_S))
 			{
 				gt::get_default_camera().move_backward(MOVE_SPEED * dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_D))
+			if (gt::renderer::key(SDL_SCANCODE_D))
 			{
 				gt::get_default_camera().move_right(MOVE_SPEED * dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_SPACE))
+			if (gt::renderer::key(SDL_SCANCODE_SPACE))
 			{
 				gt::get_default_camera().move_up(MOVE_SPEED * dt);
 			}
-			if (gintonic::renderer::key_toggle_press(SDL_SCANCODE_B))
+			if (gt::renderer::key_toggle_press(SDL_SCANCODE_B))
 			{
 				move_objects = !move_objects;
 			}
-			if (gintonic::renderer::key_toggle_press(SDL_SCANCODE_T))
+			if (gt::renderer::key_toggle_press(SDL_SCANCODE_T))
 			{
 				light_transforms[0].rotation 
 					= light_transforms[1].rotation 
@@ -143,38 +146,42 @@ int main(int argc, char* argv[])
 				);
 				toggle_spot_lights *= -1.0f;
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_EQUALS))
+			if (gt::renderer::key(SDL_SCANCODE_EQUALS))
 			{
 				for (auto& l : lights)
 				{
 					l.set_attenuation(l.attenuation() + gt::vec4f(0.0f, 0.0f, 0.0f, 5.0f * dt));
 				}
 			}
-			else if (gintonic::renderer::key(SDL_SCANCODE_MINUS))
+			else if (gt::renderer::key(SDL_SCANCODE_MINUS))
 			{
 				for (auto& l : lights)
 				{
 					l.set_attenuation(l.attenuation() + gt::vec4f(0.0f, 0.0f, 0.0f, -5.0f * dt));
 				}
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_UP))
+			if (gt::renderer::key(SDL_SCANCODE_UP))
 			{
 				for (auto& l : lights)
 				{
 					l.set_brightness(l.brightness() + dt);
 				}
 			}
-			else if (gintonic::renderer::key(SDL_SCANCODE_DOWN))
+			else if (gt::renderer::key(SDL_SCANCODE_DOWN))
 			{
 				for (auto& l : lights)
 				{
 					l.set_brightness(l.brightness() - dt);
 				}
 			}
+			if (gt::renderer::key_toggle_press(SDL_SCANCODE_G))
+			{
+				show_gbuffer = !show_gbuffer;
+			}
 
-			mousedelta = gintonic::renderer::mouse_delta();
-			mousedelta[0] = -gintonic::deg_to_rad(mousedelta[0]) / 4.0f;
-			mousedelta[1] = -gintonic::deg_to_rad(mousedelta[1]) / 4.0f;
+			mousedelta = gt::renderer::mouse_delta();
+			mousedelta[0] = -gt::deg_to_rad(mousedelta[0]) / 4.0f;
+			mousedelta[1] = -gt::deg_to_rad(mousedelta[1]) / 4.0f;
 			
 			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
 			
@@ -187,13 +194,13 @@ int main(int argc, char* argv[])
 			rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
 			
 			gt::renderer::set_model_matrix(the_shape_transform.get_matrix());
-			the_material->bind();
+			the_material.bind();
 			the_shape.draw();
 
 			// flip the cube in the XZ plane
 			the_shape_transform.translation[1] = -the_shape_transform.translation[1];
 			gt::renderer::set_model_matrix(the_shape_transform.get_matrix());
-			the_material->bind();
+			the_material.bind();
 			the_shape.draw();
 
 			for (std::size_t i = 0; i < lights.size(); ++i)
@@ -214,44 +221,57 @@ int main(int argc, char* argv[])
 				
 				gt::renderer::get_unit_sphere_P().draw();
 			}
-			gt::renderer::begin_light_pass();
 
-			gt::renderer::null_light_pass();
-
-			for (std::size_t i = 0; i < lights.size(); ++i)
+			if (show_gbuffer)
 			{
-				lights[i].shine(light_transforms[i]);
+				stream.open(font_inconsolata);
+				gt::renderer::blit_drawbuffers_to_screen(stream);
+				stream.close();
 			}
+			else
+			{
+				gt::renderer::begin_light_pass();
 
-			gt::renderer::get_text_shader()->activate();
-			
-			gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
-			
-			glDisable(GL_CULL_FACE);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			
-			stream.open(font_inconsolata);
+				gt::renderer::null_light_pass();
 
-			stream << "Move around with WASD.\n"
-				<< "Look around with the mouse.\n"
-				<< "Go up by holding the spacebar.\n"
-				<< "Holding +/- will increase/decrease the spot lights' power coefficient.\n"
-				<< "Holding Up/Down arrows will increase/decrease the spot lights' intensity coefficient.\n"
-				<< "Press Q to quit.\n"
-				<< "Press B to start/stop the simulation.\n"
-				<< "Press T to toggle the spot lights' direction.\n"
-				<< "Camera position: " << std::fixed << std::setprecision(1) 
-				<< gt::renderer::camera().position << '\n'
-				<< "FPS: " << 1.0f / dt << '\n';
 				for (std::size_t i = 0; i < lights.size(); ++i)
 				{
-					stream << "Light " << (i+1) << ' ' << std::fixed 
-					<< std::setprecision(1) << lights[i] << '\n';
+					lights[i].shine(light_transforms[i]);
 				}
-			stream.close();
-			
-			glEnable(GL_CULL_FACE);
+
+				gt::renderer::get_text_shader()->activate();
+				
+				gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
+				
+				glDisable(GL_CULL_FACE);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				
+				stream.open(font_inconsolata);
+
+				stream << "Move around with WASD.\n"
+					<< "Look around with the mouse.\n"
+					<< "Go up by holding the spacebar.\n"
+					<< "Holding +/- will increase/decrease the spot lights' power coefficient.\n"
+					<< "Holding Up/Down arrows will increase/decrease the spot lights' intensity coefficient.\n"
+					<< "Press Q to quit.\n"
+					<< "Press B to start/stop the simulation.\n"
+					<< "Press G to examine the geometry buffer.\n"
+					<< "Press T to toggle the spot lights' direction.\n"
+					<< "Camera position: " << std::fixed << std::setprecision(1) 
+					<< gt::renderer::camera().position << '\n'
+					<< "FPS: " << 1.0f / dt << '\n';
+					for (std::size_t i = 0; i < lights.size(); ++i)
+					{
+						stream << "Light " << (i+1) << ' ' << std::fixed 
+						<< std::setprecision(1) << lights[i] << '\n';
+					}
+				stream.close();
+				
+				glEnable(GL_CULL_FACE);
+			}
+
+
 			
 			gt::renderer::update();
 		}

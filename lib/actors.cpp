@@ -133,34 +133,32 @@ void static_model_actor::process_mesh(
 		// const auto ambient_count = texture_count(fbx_mat, FbxSurfaceMaterial::sAmbient);
 		const auto diffuse_count = texture_count(fbx_mat, FbxSurfaceMaterial::sDiffuse);
 		const auto specular_count = texture_count(fbx_mat, FbxSurfaceMaterial::sSpecular);
+		const auto normal_count = texture_count(fbx_mat, FbxSurfaceMaterial::sNormalMap);
 		const auto diffuse_factor = get_texture_factor(fbx_mat, FbxSurfaceMaterial::sDiffuseFactor);
 		const auto specular_factor = get_texture_factor(fbx_mat, FbxSurfaceMaterial::sSpecularFactor);
 		const auto shininess = get_texture_factor(fbx_mat, FbxSurfaceMaterial::sShininess);
 		const auto diffuse_color = get_material_color(fbx_mat, FbxSurfaceMaterial::sDiffuse);
 		auto specular_color = get_material_color(fbx_mat, FbxSurfaceMaterial::sSpecular);
 
-		if (specular_count && diffuse_count)
+		mat.diffuse_color = vec4f(diffuse_color[0], diffuse_color[1], diffuse_color[2], diffuse_factor);
+		specular_color *= specular_factor;
+		mat.specular_color = vec4f(specular_color[0], specular_color[1], specular_color[2], shininess);
+
+		boost::filesystem::path tex_filename;
+		if (diffuse_count)
 		{
-			auto diffuse_filename = get_texture_filename(fbx_mat, FbxSurfaceMaterial::sDiffuse, 0);
-			auto specular_filename = get_texture_filename(fbx_mat, FbxSurfaceMaterial::sSpecular, 0);
-			auto diffuse_factor = get_texture_factor(fbx_mat, FbxSurfaceMaterial::sDiffuseFactor);
-			
-			std::cerr << fbx_mesh->GetNode()->GetName() << ": Constructing specular_diffuse_material.\n";
-			mat = std::make_shared<specular_diffuse_material>(diffuse_filename, specular_filename, diffuse_factor, shininess);
+			tex_filename = get_texture_filename(fbx_mat, FbxSurfaceMaterial::sDiffuse, 0);
+			mat.set_diffuse_texture(tex_filename);
 		}
-		else if (diffuse_count)
+		if (specular_count)
 		{
-			auto diffuse_filename = get_texture_filename(fbx_mat, FbxSurfaceMaterial::sDiffuse, 0);
-			auto diffuse_factor = get_texture_factor(fbx_mat, FbxSurfaceMaterial::sDiffuseFactor);
-			std::cerr << fbx_mesh->GetNode()->GetName() << ": Constructing diffuse_material.\n";
-			mat = std::make_shared<diffuse_material>(diffuse_filename, diffuse_factor);
+			tex_filename = get_texture_filename(fbx_mat, FbxSurfaceMaterial::sSpecular, 0);
+			mat.set_diffuse_texture(tex_filename);
 		}
-		else
+		if (normal_count)
 		{
-			std::cerr << fbx_mesh->GetNode()->GetName() << ": Constructing material with diffuse and specular color.\n";
-			mat.diffuse_color = vec4f(diffuse_color[0], diffuse_color[1], diffuse_color[2], diffuse_factor);
-			specular_color *= specular_factor;
-			mat.specular_color = vec4f(specular_color[0], specular_color[1], specular_color[2], shininess);
+			tex_filename = get_texture_filename(fbx_mat, FbxSurfaceMaterial::sNormalMap, 0);
+			mat.set_normal_texture(tex_filename);
 		}
 	}
 	else
@@ -257,7 +255,7 @@ void static_model_actor::draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	sqt_transformf t;
 	std::shared_ptr<const mesh> m;
-	std::shared_ptr<const material> mat;
+	material mat;
 	
 	for (const auto& tup : model)
 	{
@@ -275,7 +273,7 @@ void static_model_actor::draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW
 
 		// mat->program->bind_material(mat);
 
-		mat->bind();
+		mat.bind();
 
 		m->draw();
 	}

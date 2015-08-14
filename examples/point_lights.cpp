@@ -69,6 +69,11 @@ int main(int argc, char* argv[])
 			"../examples/bricks_SPEC.png",      // specular texture
 			"../examples/bricks_NRM.png");      // normal texture
 
+		// gt::material the_material(
+		// 	gt::vec4f(1.0f, 1.0f, 1.0f, 0.9f),
+		// 	gt::vec4f(0.0f, 0.0f, 0.0f, 0.0f),
+		// 	"../examples/RuralBrickWall.jpg");
+
 		gt::renderer::show();
 
 		float curtime = 0.0f, dt;

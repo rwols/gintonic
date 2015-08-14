@@ -34,6 +34,16 @@ vec2 calculate_screen_position()
 	return vec2(gl_FragCoord.x / viewport_size.x, gl_FragCoord.y / viewport_size.y);
 }
 
+float quadraticpoly(in float a, in float b, in float c, in float x)
+{
+	return a * x * x + b * x + c;
+}
+
+float clamppowmaxdot(in vec3 A, in vec3 B, in float power)
+{
+	return clamp(pow(max(dot(A,B), 0.0f), power), 0.0f, 1.0f);
+}
+
 void main()
 {
 	vec2 screen_uv = calculate_screen_position();
@@ -63,20 +73,22 @@ void main()
 	// dc is the diffuse contribution.
 	float dc = light.intensity.a * diffuse.a * maxdotNL * att;
 
-	float spotfactor = clamp(pow(max(dot(-light.direction, L), 0.0f), light.attenuation.w), 0.0f, 1.0f);
+	float spotfactor = 0.0f;
+	float specfactor = 0.0f;
+
+	if (maxdotNL > 0.0f)
+	{
+		spotfactor = clamppowmaxdot(-light.direction, L, light.attenuation.w);
+		vec3 E = normalize(-P);
+		vec3 R = normalize(-reflect(L, N));
+		specfactor = clamppowmaxdot(R, E, specular.a);
+		specfactor *= spotfactor;
+	}
 
 	dc *= spotfactor;
 
-	float spec_factor = 0.0f;
-	if (maxdotNL > 0.0f)
-	{
-		vec3 E = normalize(-P);
-		vec3 R = normalize(-reflect(L,N));
-		spec_factor = clamp(pow(max(dot(R,E), 0.0f), specular.a), 0.0f, 1.0f);
-	}
-
 	final_color = dc * light.intensity.rgb * diffuse.rgb 
-		+  (spec_factor * specular.rgb * light.intensity.rgb);
+		+  (specfactor * specular.rgb * light.intensity.rgb);
 
 	// Debug the sphere stencil pass
 	// final_color.r += 0.1f;
