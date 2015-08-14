@@ -377,6 +377,92 @@ void unit_cube_PUN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glBindVertexArray(0);
 }
 
+unit_cube_PUN_flipped_normals::unit_cube_PUN_flipped_normals()
+{
+	const vertex_PUN<GLfloat> cube_vertices[24] =
+	{
+		// front
+		// --positions------|---uvs-----|---normals-----------
+    	{-1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f, -1.0f},
+    	{ 1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f},
+    	{ 1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f, -1.0f},
+    	{-1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f},
+    	// top
+    	// --positions------|---uvs-----|---normals-----------
+    	{-1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f},
+    	{ 1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f},
+    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f},
+    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f},
+    	// back
+    	// --positions------|---uvs-----|---normals-----------
+    	{ 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f},
+    	{-1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f,  1.0f},
+    	{-1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f},
+    	{ 1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f,  1.0f},
+    	// bottom
+    	// --positions------|---uvs-----|---normals-----------
+    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  1.0f,  0.0f},
+    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f},
+    	{ 1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  1.0f,  0.0f},
+    	{-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f},
+    	// left
+    	// --positions------|---uvs-----|---normals-----------
+    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f},
+    	{-1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  1.0f,  0.0f,  0.0f},
+    	{-1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f},
+    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f},
+    	// right
+    	// --positions------|---uvs-----|---normals-----------
+    	{ 1.0f, -1.0f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f},
+    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f},
+    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f},
+    	{ 1.0f,  1.0f,  1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f},
+	};
+	BOOST_CONSTEXPR GLubyte cube_indices[36] =
+	{
+		// front
+     	 2,  1,  0,
+     	 0,  3,  2,
+    	// top
+    	 6,  5,  4,
+    	 4,  7,  6,
+    	// back
+    	10,  9,  8,
+    	 8, 11, 10,
+    	// bottom
+    	14, 13, 12,
+    	12, 15, 14,
+    	// left
+    	18, 17, 16,
+    	16, 19, 18,
+    	// right
+    	22, 21, 20,
+    	20, 23, 22
+	};
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	vertex_PUN<GLfloat>::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PUN<GLfloat>) * 24, cube_vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+unit_cube_PUN_flipped_normals::~unit_cube_PUN_flipped_normals()
+{
+
+}
+
+void unit_cube_PUN_flipped_normals::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
 unit_cube_PUNTB::unit_cube_PUNTB()
 {
 	const vertex_PUNTB<GLfloat> cube_vertices[24] =
@@ -401,10 +487,10 @@ unit_cube_PUNTB::unit_cube_PUNTB()
     	{ 1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
     	// bottom face
     	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
-    	{ 1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
-    	{-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
-    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
+    	{ 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
+    	{ 1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
+    	{-1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
+    	{-1.0f, -1.0f, -1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
     	// left face
     	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
     	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
@@ -459,6 +545,92 @@ void unit_cube_PUNTB::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 }
 
 unit_cube_PUNTB::~unit_cube_PUNTB()
+{
+	/* Empty on purpose. */
+}
+
+unit_cube_PUNTB_flipped_normals::unit_cube_PUNTB_flipped_normals()
+{
+	const vertex_PUNTB<GLfloat> cube_vertices[24] =
+	{
+		// back face
+		// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{-1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
+    	{ 1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
+    	{ 1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
+    	{-1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
+    	// top face
+    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{-1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
+    	{ 1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
+    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
+    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
+    	// front face
+    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{ 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
+    	{-1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
+    	{-1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
+    	{ 1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
+    	// bottom face
+    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{ 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
+    	{ 1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
+    	{-1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
+    	{-1.0f, -1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
+    	// left face
+    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
+    	{-1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
+    	{-1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
+    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
+    	// right face
+    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
+    	{ 1.0f, -1.0f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f},
+    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f},
+    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f},
+    	{ 1.0f,  1.0f,  1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f}
+	};
+	BOOST_CONSTEXPR GLubyte cube_indices[36] =
+	{
+		// front
+     	 2,  1,  0,
+     	 0,  3,  2,
+    	// top
+    	 6,  5,  4,
+    	 4,  7,  6,
+    	// back
+    	10,  9,  8,
+    	 8, 11, 10,
+    	// bottom
+    	14, 13, 12,
+    	12, 15, 14,
+    	// left
+    	18, 17, 16,
+    	16, 19, 18,
+    	// right
+    	22, 21, 20,
+    	20, 23, 22
+	};
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	vertex_PUNTB<GLfloat>::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PUNTB<GLfloat>) * 24, cube_vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void unit_cube_PUNTB_flipped_normals::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+unit_cube_PUNTB_flipped_normals::~unit_cube_PUNTB_flipped_normals()
 {
 	/* Empty on purpose. */
 }

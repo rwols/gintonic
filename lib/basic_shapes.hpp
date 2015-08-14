@@ -128,11 +128,34 @@ private:
 	buffer_object m_vbo, m_ibo;
 };
 
+class unit_cube_PUN_flipped_normals : public basic_shape
+{
+public:
+	unit_cube_PUN_flipped_normals();
+	virtual ~unit_cube_PUN_flipped_normals();
+	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+private:
+	vertex_array_object m_vao;
+	buffer_object m_vbo, m_ibo;
+};
+
 class unit_cube_PUNTB : public basic_shape
 {
 public:
 	unit_cube_PUNTB();
 	virtual ~unit_cube_PUNTB();
+	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+private:
+	vertex_array_object m_vao;
+	buffer_object m_vbo;
+	buffer_object m_ibo;
+};
+
+class unit_cube_PUNTB_flipped_normals : public basic_shape
+{
+public:
+	unit_cube_PUNTB_flipped_normals();
+	virtual ~unit_cube_PUNTB_flipped_normals();
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
 private:
 	vertex_array_object m_vao;

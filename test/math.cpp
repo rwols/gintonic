@@ -77,3 +77,32 @@ BOOST_AUTO_TEST_CASE ( quaternion_test )
 	BOOST_CHECK_CLOSE(dir[1], 1.0f, 0.001f);
 	BOOST_CHECK_CLOSE(dir[2], 0.0f, 0.001f);
 }
+
+BOOST_AUTO_TEST_CASE ( mat4f_unproject_perspective )
+{
+	const float fieldofview = deg_to_rad(60.0f);
+	const float aspectratio = 1440.0f / 900.0f; // typical resolution
+	const float nearplane = 0.1f;
+	const float farplane = 100.0f;
+
+	float recovered_fieldofview;
+	float recovered_aspectratio;
+	float recovered_nearplane;
+	float recovered_farplane;
+
+	mat4f P(fieldofview, aspectratio, nearplane, farplane);
+
+	std::cout << "The projection matrix is given by:\n";
+	std::cout << P << "\n\n";
+
+	P.unproject_perspective(
+		recovered_fieldofview,
+		recovered_aspectratio,
+		recovered_nearplane,
+		recovered_farplane);
+
+	BOOST_CHECK_CLOSE(fieldofview, recovered_fieldofview, 0.001f);
+	BOOST_CHECK_CLOSE(aspectratio, recovered_aspectratio, 0.001f);
+	BOOST_CHECK_CLOSE(nearplane, recovered_nearplane, 0.001f);
+	BOOST_CHECK_CLOSE(farplane, recovered_farplane, 0.001f);
+}

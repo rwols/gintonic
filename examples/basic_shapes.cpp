@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 			gt::vec4f(0.3f, 0.3f, 0.3f, 20.0f) // specular color
 		);
 
-		float curtime, dt, yaxis, zaxis, cursin;
+		float curtime, dt, yaxis, zaxis, cursin, fieldofview = M_PI / 2.0f, aspectratio = 1.0f;
 		gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
 		gt::sqt_transformf shape_transform;
@@ -105,6 +105,14 @@ int main(int argc, char* argv[])
 			{
 				show_gbuffer = !show_gbuffer;
 			}
+			if (gintonic::renderer::key(SDL_SCANCODE_MINUS))
+			{
+				fieldofview -= dt;
+			}
+			if (gintonic::renderer::key(SDL_SCANCODE_EQUALS))
+			{
+				fieldofview += dt;
+			}
 
 			mousedelta = gintonic::renderer::mouse_delta();
 			mousedelta[0] = -gintonic::deg_to_rad(mousedelta[0]) / 4.0f;
@@ -140,6 +148,16 @@ int main(int argc, char* argv[])
 			flat_material.bind();
 			cone.draw();
 
+			shape_transform.translation[0] += 3.0f;
+			shape_transform.translation[1] += 4.0f;
+
+			const auto frustummatrix = gt::mat4f::frustum(fieldofview, aspectratio, 1.0f, 2.0f);
+			gt::renderer::set_model_matrix(shape_transform.get_matrix() * frustummatrix);
+			brick_with_normal_material.bind();
+			// glDisable(GL_CULL_FACE);
+			cube.draw();
+			// glEnable(GL_CULL_FACE);
+
 			if (show_gbuffer)
 			{
 				stream.open(font_inconsolata);
@@ -167,6 +185,7 @@ int main(int argc, char* argv[])
 				stream << "Move around with WASD.\n"
 					<< "Look around with the mouse.\n"
 					<< "Go up by holding the spacebar.\n"
+					<< "FOV for the frustum: " << fieldofview << '\n'
 					<< "Press G to view the geometry buffer.\n"
 					<< "Press Q to quit.\n"
 					<< the_light << '\n';

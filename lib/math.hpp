@@ -1436,29 +1436,45 @@ template <class T> struct mat<T,4> : ::std::array<vec<T,4>,4>
 		#undef m
 	}
 
+	void unproject_perspective(T& fov, T& aspectratio, T& nearplane, T& farplane)
+	const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		#define m(i,j) (*this)(i,j)
+		fov = T(2) * std::atan(1 / m(1,1));
+		aspectratio = m(1,1) / m(0,0);
+		nearplane = m(2,3) / (m(2,2) - T(1));
+		farplane = m(2,3) / (m(2,2) + T(1));
+		#undef m
+	}
+
 	// Orthographic projection constructor
 	mat(const T left, const T right, const T bottom, const T top, const T nearVal, const T farVal)
 	{
 		PROFILE("mat(const T left, const T right, const T bottom, const T top, const T nearVal, const T farVal)")
 		#define m(i,j) (*this)(i,j)
-		m(0,0) = T(2) / (right - left);
+
+		const auto rl = right - left;
+		const auto tp = top - bottom;
+		const auto fn = farVal - nearVal;
+
+		m(0,0) = T(2) * nearVal / rl;
 		m(1,0) = 0;
 		m(2,0) = 0;
 		m(3,0) = 0;
 
 		m(0,1) = 0;
-		m(1,1) = T(2) / (top - bottom);
+		m(1,1) = T(2) * nearVal / tp;
 		m(2,1) = 0;
 		m(3,1) = 0;
 
-		m(0,2) = 0;
-		m(1,2) = 0;
-		m(2,2) = -T(2) / (farVal - nearVal);
+		m(0,2) = (right + left) / rl;
+		m(1,2) = (top + bottom) / tp;
+		m(2,2) = -(farVal + nearVal) / fn;
 		m(3,2) = 0;
 
-		m(0,3) = -(right + left) / (right - left);
-		m(1,3) = -(top + bottom) / (top - bottom);
-		m(2,3) = -(farVal + nearVal) / (farVal - nearVal);
+		m(0,3) = 0;
+		m(1,3) = 0;
+		m(2,3) = -(T(2) * farVal * nearVal) / fn;
 		m(3,3) = 1;
 		#undef m
 	}
@@ -1471,6 +1487,19 @@ template <class T> struct mat<T,4> : ::std::array<vec<T,4>,4>
 			0, T(1) / height, 0, 0,
 			0, 0, T(-2) / (far_val - near_val), -(far_val + near_val) / (far_val - near_val),
 			0, 0, 0, 1
+		);
+	}
+
+	static mat frustum(const T fieldofview, const T aspectratio, const T nearplane, const T farplane)
+	{
+		const T b = T(1) / std::tan(fieldofview / T(2));
+		const T nf2 = T(2) * nearplane * farplane;
+		return mat
+		(
+			aspectratio / b, 0, 0, 0,
+			0, 1.0f / b, 0, 0,
+			0, 0, 0, 1,
+			0, 0, (nearplane - farplane) / nf2, (nearplane + farplane) / nf2
 		);
 	}
 
