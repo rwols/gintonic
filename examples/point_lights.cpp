@@ -225,7 +225,7 @@ int main(int argc, char* argv[])
 				{
 					// Draw a grid of (2*numobjects + 1)^2 rotating cubes/spheres :-)
 
-					shape_transform.translation = {4.0f * i, std::sin(i+j+curtime), 4.0f * j};
+					shape_transform.translation = {3.0f * i, std::sin(i+j+curtime), 3.0f * j};
 					gt::renderer::set_model_matrix(shape_transform.get_matrix());
 					the_material.bind();
 

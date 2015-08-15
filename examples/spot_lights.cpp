@@ -45,9 +45,7 @@ int main(int argc, char* argv[])
 
 		gt::fontstream stream;
 
-		const int max_objects = 30;
-
-		int numobjects = std::min(std::atoi(argv[1]), max_objects);
+		const int numobjects = std::atoi(argv[1]);
 		const int numlights = std::atoi(argv[2]);
 
 		if (numobjects < 0)
@@ -58,20 +56,7 @@ int main(int argc, char* argv[])
 		{
 			throw std::runtime_error("Cannot have zero or less point lights.");
 		}
-
-		std::srand((int)std::clock()); // random number generator seed
-		// Generate a random boolean matrix
-		std::vector<std::vector<bool>> boolmatrix;
-		for (int i = -max_objects; i <= max_objects; ++i)
-		{
-			boolmatrix.push_back(std::vector<bool>(2 * max_objects + 1));
-			for (int j  = -max_objects; j <= max_objects; ++j)
-			{
-				boolmatrix[i + max_objects][j + max_objects] = static_cast<bool>(rand() % 2);
-			}
-		}
 		
-		gt::opengl::unit_cube_PUNTB a_cube;
 		gt::opengl::unit_sphere_PUN a_sphere(16);
 		
 		std::vector<gt::spot_light> lights;
@@ -102,7 +87,9 @@ int main(int argc, char* argv[])
 			light_materials.emplace_back(intensity, specularity);
 			light_transforms.emplace_back(gt::sqt_transformf());
 			light_transforms.back().scale = 0.1f;
-			light_transforms.back().rotation = gt::quatf::from_angle_axis(-static_cast<float>(M_PI) / 2.0, gt::vec3f(1.0f, 0.0f, 0.0f));
+			light_transforms.back().rotation = gt::quatf::from_angle_axis(
+				-static_cast<float>(M_PI) / 2.0, 
+				gt::vec3f(1.0f, 0.0f, 0.0f));
 		}
 
 		shape_transform.scale = 1.0f;
@@ -111,8 +98,7 @@ int main(int argc, char* argv[])
 			gt::vec4f(1.0f, 1.0f, 1.0f,  1.0f), // base diffuse color
 			gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f), // base specular color
 			"../examples/bricks_COLOR.png",     // diffuse texture
-			"../examples/bricks_SPEC.png",      // specular texture
-			"../examples/bricks_NRM.png");      // normal texture
+			"../examples/bricks_SPEC.png");     // specular texture
 
 		// Orient the camera
 		gt::get_default_camera().position = {0.0f, 2.0f, 4.0f};
@@ -228,17 +214,6 @@ int main(int argc, char* argv[])
 			mousedelta[1] = -gt::deg_to_rad(mousedelta[1]) / 4.0f;
 			
 			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
-
-			// numobjects = 1.0f / dt < 40.0f ? std::max(numobjects - 1, 1) : std::min(numobjects + 1, max_objects);
-
-			// if (1.0f / dt < 40.0f)
-			// {
-			// 	numobjects = std::max(numobjects - 1, 1);
-			// }
-			// else if (1.0f / dt > 50.0f)
-			// {
-			// 	numobjects = std::min(numobjects + 1, max_objects);
-			// }
 			
 			gt::renderer::begin_geometry_pass();
 			
@@ -258,15 +233,11 @@ int main(int argc, char* argv[])
 					gt::renderer::set_model_matrix(shape_transform.get_matrix());
 					the_material.bind();
 					a_sphere.draw();
-					// if (boolmatrix[i + numobjects][j + numobjects]) a_cube.draw();
-					// else a_sphere.draw();
 
 					shape_transform.translation = {2.0f * i, 10.0f + yval, 2.0f * j};
 					gt::renderer::set_model_matrix(shape_transform.get_matrix());
 					the_material.bind();
 					a_sphere.draw();
-					// if (boolmatrix[i + numobjects][j + numobjects]) a_cube.draw();
-					// else a_sphere.draw();
 				}
 			}
 

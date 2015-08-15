@@ -87,6 +87,12 @@ namespace gintonic
 			return s_mouse_delta;
 		}
 
+		inline static const mat4f& matrix_P() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			update_matrix_P();
+			return s_matrix_P;
+		}
+
 		inline static const mat4f& matrix_M() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return s_matrix_M;
@@ -327,10 +333,12 @@ namespace gintonic
 		static boost::circular_buffer<duration_type> s_circle_buffer;
 		static vec2f s_mouse_delta;
 
+		static bool s_matrix_P_dirty;
 		static bool s_matrix_VM_dirty;
 		static bool s_matrix_PVM_dirty;
 		static bool s_matrix_N_dirty;
 
+		static mat4f s_matrix_P;
 		static mat4f s_matrix_M;
 		static mat4f s_matrix_VM;
 		static mat4f s_matrix_PVM;
