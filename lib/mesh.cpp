@@ -99,7 +99,7 @@ namespace gintonic
 	void mesh::vec2f::enable_attribute(const GLuint index) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, sizeof(mesh::vec2f), nullptr);
 	}
 
 	mesh::vec3f::vec3f(const FbxVector4& v)
@@ -121,7 +121,7 @@ namespace gintonic
 	void mesh::vec3f::enable_attribute(const GLuint index) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, sizeof(mesh::vec3f), nullptr);
 	}
 
 	mesh::vec4f::vec4f(const FbxVector4& v)
@@ -145,7 +145,7 @@ namespace gintonic
 	void mesh::vec4f::enable_attribute(const GLuint index) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, sizeof(mesh::vec4f), nullptr);
 	}
 
 	void mesh::set_data(FbxMesh* m, const GLenum usagehint)
@@ -162,7 +162,7 @@ namespace gintonic
 		
 		std::vector<mesh::vec4f> positions;
 		std::vector<mesh::vec4f> uvs;
-		std::vector<mesh::vec4f> tangents;
+		std::vector<mesh::vec4f> normals;
 
 		FbxVector4 fbx_position;
 		FbxVector2 fbx_texcoord;
@@ -190,6 +190,8 @@ namespace gintonic
 
 		std::cerr << "UV set name: " << uvsetnames.GetStringAt(0) << '\n';
 
+		std::cerr << "Vertex data:\n";
+
 		// For each triangle ...
 		polygoncount = m->GetPolygonCount();
 		for (i = 0; i < polygoncount; ++i)
@@ -205,30 +207,42 @@ namespace gintonic
 
 				if (!get_element(fbx_normals, polyvertex, vertexid, fbx_normal))
 				{
-					fbx_normal[0] = fbx_normal[1] = fbx_normal[2] = fbx_normal[2] = 0.0f;
+					N[0] = N[1] = N[2] = 0.0f;
+				}
+				else
+				{
+					N = normalize(gintonic::vec3f(fbx_normal[0], fbx_normal[1], fbx_normal[2]));
 				}
 				if (!get_element(fbx_uvs, polyvertex, vertexid, fbx_texcoord))
 				{
 					fbx_texcoord[0] = fbx_texcoord[1] = 0.0f;
 				}
-				if (!get_element(fbx_tangents, polyvertex, vertexid, fbx_tangent)
+				if (!get_element(fbx_tangents, polyvertex, vertexid, fbx_tangent))
 				{
-					fbx_tangent[0] = fbx_tangent[1] = fbx_tangent[2] = fbx_tangent[2] = 0.0f;
+					T[0] = T[1] = T[2] = 0.0f;
 				}
-				if (!get_element(fbx_binormals, polyvertex, vertexid, fbx_bitangent)
+				else
 				{
-					fbx_bitangent[0] = fbx_bitangent[1] = fbx_bitangent[2] = fbx_bitangent[2] = 0.0f;
+					T = normalize(gintonic::vec3f(fbx_tangent[0], fbx_tangent[1], fbx_tangent[2]));
+				}
+				if (!get_element(fbx_binormals, polyvertex, vertexid, fbx_bitangent))
+				{
+					B[0] = B[1] = B[2] = 0.0f;
+				}
+				else
+				{
+					B = normalize(gintonic::vec3f(fbx_bitangent[0], fbx_bitangent[1], fbx_bitangent[2]));
 				}
 
-				N = normalize(gintonic::vec3f(fbx_normal[0], fbx_normal[1], fbx_normal[2]));
-				T = normalize(gintonic::vec3f(fbx_tangent[0], fbx_tangent[1], fbx_tangent[2]));
-				B = normalize(gintonic::vec3f(fbx_bitangent[0], fbx_bitangent[1], fbx_bitangent[2]));
-
-				handedness = distance(cross(N,T),B) < 0.01f ? 1.0f : -1.0f;
+				handedness = distance(N % T, B) < 0.01f ? 1.0f : -1.0f;
 
 				positions.emplace_back(fbx_position[0], fbx_position[1], fbx_position[2], N[0]);
 				uvs.emplace_back(fbx_texcoord[0], fbx_texcoord[1], N[1], N[2]);
 				normals.emplace_back(T[0], T[1], T[2], handedness);
+
+				std::cout << positions.back().x << ' ' << positions.back().y << ' ' << positions.back().z << ' ' << positions.back().w << '\n';
+				std::cout << uvs.back().x << ' ' << uvs.back().y << ' ' << uvs.back().z << ' ' << uvs.back().w << '\n';
+				std::cout << normals.back().x << ' ' << normals.back().y << ' ' << normals.back().z << ' ' << normals.back().w << "\n\n";
 
 				// In the vertex shader, to get the bitangent vector you do:
 				//
@@ -243,10 +257,16 @@ namespace gintonic
 		// Enable the Vertex Array Object.
 		glBindVertexArray(m_vao);
 
-		// Upload the indices for the arrays to the GPU and remember the count.
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[GT_MESH_INDEX]);
-		gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, usagehint);
-		m_count = static_cast<GLsizei>(indices.size());
+		std::cerr << "Indices data:\n";
+		for (const auto& i : indices)
+		{
+			std::cerr << i << ' ';
+		}
+		std::cerr << '\n';
+		std::cerr << "Num indices: " << m_count << '\n';
+		std::cerr << "Num positions: " << positions.size() << '\n';
+		std::cerr << "Num UVs: " << uvs.size() << '\n';
+
 
 		// Upload the (packed) vertex data in separate buffers to the GPU.
 		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_POSITION]);
@@ -274,13 +294,18 @@ namespace gintonic
 			glVertexAttribPointer(GT_VERTEX_LAYOUT_VM_MATRIX + i, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3 * 4, (const GLvoid*)(sizeof(GLfloat) * i * 4));
 			glVertexAttribDivisor(GT_VERTEX_LAYOUT_VM_MATRIX + i, 1);
 		}
-		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_N_MATRIX])
+		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_N_MATRIX]);
 		for (GLuint i = 0; i < 3; ++i)
 		{
 			glEnableVertexAttribArray(GT_VERTEX_LAYOUT_N_MATRIX + i);
-			glVertexAttribPointer(GT_VERTEX_LAYOUT_N_MATRIX + i, 3, GL_FLOAT, GL_FALSE, sizeof(GLFloat) * 3 * 3, (const GLvoid*)(sizeof(GLfloat) * i * 3));
+			glVertexAttribPointer(GT_VERTEX_LAYOUT_N_MATRIX + i, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3 * 3, (const GLvoid*)(sizeof(GLfloat) * i * 3));
 			glVertexAttribDivisor(GT_VERTEX_LAYOUT_N_MATRIX + i, 1);
 		}
+
+		// Upload the indices for the arrays to the GPU and remember the count.
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[GT_MESH_INDEX]);
+		gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, usagehint);
+		m_count = static_cast<GLsizei>(indices.size());
 
 		// if (uvs.empty())
 		// {
@@ -378,12 +403,39 @@ namespace gintonic
 	{
 		glBindVertexArray(m_vao);
 		glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, nullptr);
+		// glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_PVM_MATRIX]);
+		// glBindBuffer(GL_ARRAY_BUFFER, sizeof(mat4f), renderer::matrix_PVM(), GL_DYNAMIC_DRAW);
+		// glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_VM_MATRIX]);
+		// glBindBuffer(GL_ARRAY_BUFFER, sizeof(mat4f), renderer::matrix_VM(), GL_DYNAMIC_DRAW);
+		// glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_N_MATRIX]);
+		// gtBufferData(GL_ARRAY_BUFFER, sizeof(mat4f), renderer::matrix_N(), GL_DYNAMIC_DRAW);
+		// glDrawElementsInstanced(
+		// 	GL_TRIANGLES, 
+		// 	m_count,
+		// 	GL_UNSIGNED_INT,
+		// 	nullptr, 
+		// 	1);
 	}
 
-	void mesh::draw(const std::vector<mat4f>& PVM_matrices) BOOST_NOEXCEPT_OR_NOTHROW
+	void mesh::draw(
+		const std::vector<mat4f>& PVM_matrices,
+		const std::vector<mat4f>& VM_matrices,
+		const std::vector<mat3f>& N_matrices)
+		const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		glBindVertexArray(m_vao);
-
+		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_PVM_MATRIX]);
+		gtBufferData(GL_ARRAY_BUFFER, PVM_matrices, GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_VM_MATRIX]);
+		gtBufferData(GL_ARRAY_BUFFER, VM_matrices, GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_N_MATRIX]);
+		gtBufferData(GL_ARRAY_BUFFER, N_matrices, GL_DYNAMIC_DRAW);
+		glDrawElementsInstanced(
+			GL_TRIANGLES, 
+			m_count,
+			GL_UNSIGNED_INT,
+			nullptr, 
+			static_cast<GLsizei>(PVM_matrices.size()));
 	}
 
 	unsigned mesh::type() const BOOST_NOEXCEPT_OR_NOTHROW

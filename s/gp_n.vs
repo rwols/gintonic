@@ -22,11 +22,11 @@
 #define GINTONIC_VERTEX_LAYOUT_BITANGENT 4
 #define GINTONIC_VERTEX_LAYOUT_COLOR 5
 
-layout(location = GINTONIC_VERTEX_LAYOUT_POSITION) in vec3 in_position;
-layout(location = GINTONIC_VERTEX_LAYOUT_TEXCOORD) in vec2 in_texcoord;
-layout(location = GINTONIC_VERTEX_LAYOUT_NORMAL)   in vec3 in_normal;
-layout(location = GINTONIC_VERTEX_LAYOUT_TANGENT)  in vec3 in_tangent;
-layout(location = GINTONIC_VERTEX_LAYOUT_BITANGENT) in vec3 in_bitangent;
+layout(location = GINTONIC_VERTEX_LAYOUT_POSITION) in vec4 in_position;
+layout(location = GINTONIC_VERTEX_LAYOUT_TEXCOORD) in vec4 in_texcoord;
+layout(location = GINTONIC_VERTEX_LAYOUT_NORMAL) in vec4 in_normal;
+// layout(location = GINTONIC_VERTEX_LAYOUT_TANGENT)  in vec3 in_tangent;
+// layout(location = GINTONIC_VERTEX_LAYOUT_BITANGENT) in vec3 in_bitangent;
 
 uniform mat4 matrix_PVM;
 uniform mat4 matrix_VM;
@@ -38,16 +38,22 @@ out mat3 v_matrix_T; // TANGENT->VIEW matrix
 
 void main()
 {
+	// Retrieve the packed data.
+	vec4 P = vec4(in_position.xyz, 1.0f);
+	vec3 N = vec3(in_position.w, in_texcoord.zw);
+	vec3 T = in_normal.xyz;
+	vec3 B = in_normal.w * cross(N, T);
+
 	// Do the usual calculations
-	gl_Position = matrix_PVM * vec4(in_position, 1.0f);
-	v_position = (matrix_VM * vec4(in_position, 1.0f)).xyz;
-	v_texcoord = in_texcoord;
+	gl_Position = matrix_PVM * P;
+	v_position = (matrix_VM * P).xyz;
+	v_texcoord = in_texcoord.xy;
 
 	// Transform the normal, tangent and bitangent vectors
 	// from MODEL (or LOCAL) space to VIEW (or CAMERA) space
-	vec3 T = normalize(matrix_N * in_tangent);
-	vec3 B = normalize(matrix_N * in_bitangent);
-	vec3 N = normalize(matrix_N * in_normal);
+	T = matrix_N * T;
+	B = matrix_N * B;
+	N = matrix_N * N;
 
 	// Gramm-Schmidt orthonormalization
 	// Not sure if this is really necessary...

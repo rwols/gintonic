@@ -314,6 +314,7 @@ namespace gintonic
 
 	private:
 
+		static void update_matrix_P();
 		static void update_matrix_VM();
 		static void update_matrix_PVM();
 		static void update_matrix_N();

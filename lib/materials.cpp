@@ -255,6 +255,66 @@ material::~material() BOOST_NOEXCEPT_OR_NOTHROW
 	s_textures_lock.release();
 }
 
+material::material(const material& other)
+: diffuse_color(other.diffuse_color)
+, specular_color(other.specular_color)
+{
+	s_textures_lock.obtain();
+	m_diffuse_tex = other.m_diffuse_tex;
+	m_specular_tex = other.m_specular_tex;
+	m_normal_tex = other.m_normal_tex;
+	if (m_diffuse_tex != s_textures.end()) ++(std::get<1>(*m_diffuse_tex));
+	if (m_specular_tex != s_textures.end()) ++(std::get<1>(*m_specular_tex));
+	if (m_normal_tex != s_textures.end()) ++(std::get<1>(*m_normal_tex));
+	s_textures_lock.release();
+}
+
+material::material(material&& other) BOOST_NOEXCEPT_OR_NOTHROW
+: diffuse_color(other.diffuse_color)
+, specular_color(other.specular_color)
+{
+	s_textures_lock.obtain();
+	m_diffuse_tex = other.m_diffuse_tex;
+	m_specular_tex = other.m_specular_tex;
+	m_normal_tex = other.m_normal_tex;
+	other.m_diffuse_tex = s_textures.end();
+	other.m_specular_tex = s_textures.end();
+	other.m_normal_tex = s_textures.end();
+	s_textures_lock.release();
+}
+
+material::material& operator = (const material& other)
+{
+	s_textures_lock.obtain();
+	unsafe_release_texture(m_diffuse_tex);
+	unsafe_release_texture(m_specular_tex);
+	unsafe_release_texture(m_normal_tex);
+	m_diffuse_tex = other.m_diffuse_tex;
+	m_specular_tex = other.m_specular_tex;
+	m_normal_tex = other.m_normal_tex;
+	if (m_diffuse_tex != s_textures.end()) ++(std::get<1>(*m_diffuse_tex));
+	if (m_specular_tex != s_textures.end()) ++(std::get<1>(*m_specular_tex));
+	if (m_normal_tex != s_textures.end()) ++(std::get<1>(*m_normal_tex));
+	s_textures_lock.release();
+	return *this;
+}
+
+material::material& operator = (material&& other) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	s_textures_lock.obtain();
+	unsafe_release_texture(m_diffuse_tex);
+	unsafe_release_texture(m_specular_tex);
+	unsafe_release_texture(m_normal_tex);
+	m_diffuse_tex = other.m_diffuse_tex;
+	m_specular_tex = other.m_specular_tex;
+	m_normal_tex = other.m_normal_tex;
+	other.m_diffuse_tex = s_textures.end();
+	other.m_specular_tex = s_textures.end();
+	other.m_normal_tex = s_textures.end();
+	s_textures_lock.release();
+	return *this;
+}
+
 void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	s_textures_lock.obtain();

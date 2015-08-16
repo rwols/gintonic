@@ -27,13 +27,18 @@ int main(int argc, char* argv[])
 		#else
 			boost::filesystem::current_path(gt::get_executable_path() / "..");
 		#endif
-		gt::init_all("directional_light");
+		gt::init_all("geometry_buffer_showcase");
 		gt::renderer::set_freeform_cursor(true);
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
 		gt::fontstream stream;
 		gt::opengl::unit_cube_PUN the_shape;
-		std::unique_ptr<gt::material> the_material(new gt::material_cd(gt::vec4f(1.0f, 1.0f, 1.0f, 1.0f), "../examples/bricks.jpg"));
-		assert(the_material);
+		gt::material the_material(
+			gt::vec4f(1.0f, 1.0f, 1.0f, 1.0f),
+			gt::vec4f(0.2f, 0.2f, 0.2f, 0.2f),
+			"../examples/RuralBrickWall.jpg",
+			"../examples/RuralBrickWall_SPEC.png",
+			"../examples/RuralBrickWall_NRM.png"
+		);
 		gt::renderer::show();
 		float curtime, dt;
 		while (!gt::renderer::should_close())
@@ -81,7 +86,7 @@ int main(int argc, char* argv[])
 			
 			gt::renderer::set_model_matrix(-curtime / 4.0f, rotation_axis);
 			
-			the_material->bind();
+			the_material.bind();
 			
 			the_shape.draw();
 

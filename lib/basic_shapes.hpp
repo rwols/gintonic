@@ -125,7 +125,7 @@ public:
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
 private:
 	vertex_array_object m_vao;
-	buffer_object m_vbo, m_ibo;
+	buffer_object_array<3> m_buffer; // indices, positions, texcoords
 };
 
 class unit_cube_PUN_flipped_normals : public basic_shape
@@ -136,7 +136,7 @@ public:
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
 private:
 	vertex_array_object m_vao;
-	buffer_object m_vbo, m_ibo;
+	buffer_object_array<3> m_buffer; // indices, positions, texcoords
 };
 
 class unit_cube_PUNTB : public basic_shape
@@ -147,8 +147,7 @@ public:
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
 private:
 	vertex_array_object m_vao;
-	buffer_object m_vbo;
-	buffer_object m_ibo;
+	buffer_object_array<4> m_buffer; // indices, positions, texcoords, normals
 };
 
 class unit_cube_PUNTB_flipped_normals : public basic_shape
@@ -159,8 +158,7 @@ public:
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
 private:
 	vertex_array_object m_vao;
-	buffer_object m_vbo;
-	buffer_object m_ibo;
+	buffer_object_array<4> m_buffer; // indices, positions, texcoords, normals
 };
 
 class unit_sphere_P : public basic_shape
@@ -197,7 +195,7 @@ public:
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
 private:
 	vertex_array_object m_vao;
-	buffer_object m_vbo;
+	buffer_object_array<3> m_buffer; // indices, positions, texcoords
 	GLsizei m_count;
 };
 

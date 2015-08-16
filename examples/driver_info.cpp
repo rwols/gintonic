@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 	#endif
 	gt::init_all("driver_info");
 	std::cout << "Renderer: " << gt::renderer::name() << '\n';
-	std::cout << "Version: " gt::renderer::version() << '\n';
+	std::cout << "Version: " << gt::renderer::version() << '\n';
 
 	GLint num_extensions;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);

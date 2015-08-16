@@ -11,9 +11,9 @@
 #define GINTONIC_VERTEX_LAYOUT_BITANGENT 4
 #define GINTONIC_VERTEX_LAYOUT_COLOR 5
 
-layout(location = GINTONIC_VERTEX_LAYOUT_POSITION) in vec3 in_position;
-layout(location = GINTONIC_VERTEX_LAYOUT_TEXCOORD) in vec2 in_texcoord;
-layout(location = GINTONIC_VERTEX_LAYOUT_NORMAL) in vec3 in_normal;
+layout(location = 0) in vec4 in_position;
+layout(location = 1) in vec4 in_texcoord;
+// layout(location = 2) in vec4 in_tangent;
 
 uniform mat4 matrix_PVM;
 uniform mat4 matrix_VM;
@@ -25,8 +25,12 @@ out vec3 v_normal;
 
 void main()
 {
-	gl_Position = matrix_PVM * vec4(in_position, 1.0f);
-	v_position = (matrix_VM * vec4(in_position, 1.0f)).xyz;
-	v_normal = matrix_N * in_normal;
-	v_texcoord = in_texcoord;
+	vec4 P = vec4(in_position.xyz, 1.0f);
+	vec3 N = vec3(in_position.w, in_texcoord.zw);
+
+	gl_Position = matrix_PVM * P;
+	v_position = (matrix_VM * P).xyz;
+
+	v_normal = matrix_N * N;
+	v_texcoord = in_texcoord.xy;
 }

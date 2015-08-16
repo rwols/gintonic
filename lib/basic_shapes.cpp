@@ -1,5 +1,5 @@
 #include "basic_shapes.hpp"
-#include "vertices.hpp"
+#include "mesh.hpp"
 
 #ifndef DEBUG_PRINT
 #define DEBUG_PRINT_START std::cerr << __FILE__ << '(' << __LINE__ << ')'
@@ -293,45 +293,74 @@ void unit_cube_PU::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 
 unit_cube_PUN::unit_cube_PUN()
 {
-	const vertex_PUN<GLfloat> cube_vertices[24] =
+	const mesh::vec4f cube_positions[24] =
 	{
 		// front
-		// --positions------|---uvs-----|---normals-----------
-    	{-1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f},
-    	{ 1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  0.0f,  1.0f},
-    	{ 1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f},
-    	{-1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f,  1.0f},
-    	// top
-    	// --positions------|---uvs-----|---normals-----------
-    	{-1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  1.0f,  0.0f},
-    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f},
-    	// back
-    	// --positions------|---uvs-----|---normals-----------
-    	{ 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  0.0f, -1.0f},
-    	{-1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f},
-    	{-1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  0.0f, -1.0f},
-    	{ 1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f},
-    	// bottom
-    	// --positions------|---uvs-----|---normals-----------
-    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f},
-    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f},
-    	{ 1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f},
-    	{-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f},
-    	// left
-    	// --positions------|---uvs-----|---normals-----------
-    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f},
-    	{-1.0f, -1.0f,  1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f},
-    	{-1.0f,  1.0f,  1.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f},
-    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f},
-    	// right
-    	// --positions------|---uvs-----|---normals-----------
-    	{ 1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f},
-    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  1.0f,  0.0f,  0.0f},
-    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f},
-    	{ 1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f},
+		{-1.0f, -1.0f,  1.0f,  0.0f},
+		{ 1.0f, -1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f,  1.0f,  0.0f},
+		{-1.0f,  1.0f,  1.0f,  0.0f},
+		// top
+		{-1.0f,  1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f, -1.0f,  0.0f},
+		{-1.0f,  1.0f, -1.0f,  0.0f},
+		// back
+		{ 1.0f, -1.0f, -1.0f,  0.0f},
+		{-1.0f, -1.0f, -1.0f,  0.0f},
+		{-1.0f,  1.0f, -1.0f,  0.0f},
+		{ 1.0f,  1.0f, -1.0f,  0.0f},
+		// bottom
+		{-1.0f, -1.0f, -1.0f,  0.0f},
+		{ 1.0f, -1.0f, -1.0f,  0.0f},
+		{ 1.0f, -1.0f,  1.0f,  0.0f},
+		{-1.0f, -1.0f,  1.0f,  0.0f},
+		// left
+		{-1.0f, -1.0f, -1.0f, -1.0f},
+		{-1.0f, -1.0f,  1.0f, -1.0f},
+		{-1.0f,  1.0f,  1.0f, -1.0f},
+		{-1.0f,  1.0f, -1.0f, -1.0f},
+		// right
+		{ 1.0f, -1.0f,  1.0f,  1.0f},
+		{ 1.0f, -1.0f, -1.0f,  1.0f},
+		{ 1.0f,  1.0f, -1.0f,  1.0f},
+		{ 1.0f,  1.0f,  1.0f,  1.0f}
 	};
+
+	const mesh::vec4f cube_texcoords[24] =
+	{
+		// front
+		{0.0f, 0.0f,  0.0f,  1.0f},
+		{1.0f, 0.0f,  0.0f,  1.0f},
+		{1.0f, 1.0f,  0.0f,  1.0f},
+		{0.0f, 1.0f,  0.0f,  1.0f},
+		// top
+		{0.0f, 0.0f,  1.0f,  0.0f},
+		{1.0f, 0.0f,  1.0f,  0.0f},
+		{1.0f, 1.0f,  1.0f,  0.0f},
+		{0.0f, 1.0f,  1.0f,  0.0f},
+		// back
+		{0.0f, 0.0f,  0.0f, -1.0f},
+		{1.0f, 0.0f,  0.0f, -1.0f},
+		{1.0f, 1.0f,  0.0f, -1.0f},
+		{0.0f, 1.0f,  0.0f, -1.0f},
+		// bottom
+		{0.0f, 0.0f, -1.0f,  0.0f},
+		{1.0f, 0.0f, -1.0f,  0.0f},
+		{1.0f, 1.0f, -1.0f,  0.0f},
+		{0.0f, 1.0f, -1.0f,  0.0f},
+		// left
+		{0.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 1.0f,  0.0f,  0.0f},
+		{0.0f, 1.0f,  0.0f,  0.0f},
+		// right
+		{0.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 1.0f,  0.0f,  0.0f},
+		{0.0f, 1.0f,  0.0f,  0.0f},
+	};
+
 	BOOST_CONSTEXPR GLubyte cube_indices[36] =
 	{
 		// front
@@ -353,14 +382,19 @@ unit_cube_PUN::unit_cube_PUN()
     	20, 21, 22,
     	22, 23, 20
 	};
+
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_PUN<GLfloat>::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PUN<GLfloat>) * 24, cube_vertices, GL_STATIC_DRAW);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[2]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 }
 
 unit_cube_PUN::~unit_cube_PUN()
@@ -371,82 +405,112 @@ unit_cube_PUN::~unit_cube_PUN()
 void unit_cube_PUN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 }
 
 unit_cube_PUN_flipped_normals::unit_cube_PUN_flipped_normals()
 {
-	const vertex_PUN<GLfloat> cube_vertices[24] =
+	const mesh::vec4f cube_positions[24] =
 	{
 		// front
-		// --positions------|---uvs-----|---normals-----------
-    	{-1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f, -1.0f},
-    	{ 1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f},
-    	{ 1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f, -1.0f},
-    	{-1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f},
-    	// top
-    	// --positions------|---uvs-----|---normals-----------
-    	{-1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f},
-    	{ 1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f},
-    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f},
-    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f},
-    	// back
-    	// --positions------|---uvs-----|---normals-----------
-    	{ 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f},
-    	{-1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f,  1.0f},
-    	{-1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f},
-    	{ 1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f,  1.0f},
-    	// bottom
-    	// --positions------|---uvs-----|---normals-----------
-    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  1.0f,  0.0f},
-    	{-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f},
-    	// left
-    	// --positions------|---uvs-----|---normals-----------
-    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f},
-    	{-1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  1.0f,  0.0f,  0.0f},
-    	{-1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f},
-    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f},
-    	// right
-    	// --positions------|---uvs-----|---normals-----------
-    	{ 1.0f, -1.0f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f},
-    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f},
-    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f},
-    	{ 1.0f,  1.0f,  1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f},
+		{-1.0f, -1.0f,  1.0f,  0.0f},
+		{ 1.0f, -1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f,  1.0f,  0.0f},
+		{-1.0f,  1.0f,  1.0f,  0.0f},
+		// top
+		{-1.0f,  1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f, -1.0f,  0.0f},
+		{-1.0f,  1.0f, -1.0f,  0.0f},
+		// back
+		{ 1.0f, -1.0f, -1.0f,  0.0f},
+		{-1.0f, -1.0f, -1.0f,  0.0f},
+		{-1.0f,  1.0f, -1.0f,  0.0f},
+		{ 1.0f,  1.0f, -1.0f,  0.0f},
+		// bottom
+		{-1.0f, -1.0f, -1.0f,  0.0f},
+		{ 1.0f, -1.0f, -1.0f,  0.0f},
+		{ 1.0f, -1.0f,  1.0f,  0.0f},
+		{-1.0f, -1.0f,  1.0f,  0.0f},
+		// left
+		{-1.0f, -1.0f, -1.0f,  1.0f},
+		{-1.0f, -1.0f,  1.0f,  1.0f},
+		{-1.0f,  1.0f,  1.0f,  1.0f},
+		{-1.0f,  1.0f, -1.0f,  1.0f},
+		// right
+		{ 1.0f, -1.0f,  1.0f, -1.0f},
+		{ 1.0f, -1.0f, -1.0f, -1.0f},
+		{ 1.0f,  1.0f, -1.0f, -1.0f},
+		{ 1.0f,  1.0f,  1.0f, -1.0f}
+	};
+
+	const mesh::vec4f cube_texcoords[24] =
+	{
+		// front
+		{0.0f, 0.0f,  0.0f, -1.0f},
+		{1.0f, 0.0f,  0.0f, -1.0f},
+		{1.0f, 1.0f,  0.0f, -1.0f},
+		{0.0f, 1.0f,  0.0f, -1.0f},
+		// top
+		{0.0f, 0.0f, -1.0f,  0.0f},
+		{1.0f, 0.0f, -1.0f,  0.0f},
+		{1.0f, 1.0f, -1.0f,  0.0f},
+		{0.0f, 1.0f, -1.0f,  0.0f},
+		// back
+		{0.0f, 0.0f,  0.0f,  1.0f},
+		{1.0f, 0.0f,  0.0f,  1.0f},
+		{1.0f, 1.0f,  0.0f,  1.0f},
+		{0.0f, 1.0f,  0.0f,  1.0f},
+		// bottom
+		{0.0f, 0.0f,  1.0f,  0.0f},
+		{1.0f, 0.0f,  1.0f,  0.0f},
+		{1.0f, 1.0f,  1.0f,  0.0f},
+		{0.0f, 1.0f,  1.0f,  0.0f},
+		// left
+		{0.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 1.0f,  0.0f,  0.0f},
+		{0.0f, 1.0f,  0.0f,  0.0f},
+		// right
+		{0.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 1.0f,  0.0f,  0.0f},
+		{0.0f, 1.0f,  0.0f,  0.0f},
 	};
 	BOOST_CONSTEXPR GLubyte cube_indices[36] =
 	{
 		// front
-     	 2,  1,  0,
-     	 0,  3,  2,
-    	// top
-    	 6,  5,  4,
-    	 4,  7,  6,
-    	// back
-    	10,  9,  8,
-    	 8, 11, 10,
-    	// bottom
-    	14, 13, 12,
-    	12, 15, 14,
-    	// left
-    	18, 17, 16,
-    	16, 19, 18,
-    	// right
-    	22, 21, 20,
-    	20, 23, 22
+		2,  1,  0,
+		0,  3,  2,
+		// top
+		6,  5,  4,
+		4,  7,  6,
+		// back
+		10,  9,  8,
+		8, 11, 10,
+		// bottom
+		14, 13, 12,
+		12, 15, 14,
+		// left
+		18, 17, 16,
+		16, 19, 18,
+		// right
+		22, 21, 20,
+		20, 23, 22
 	};
+
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_PUN<GLfloat>::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PUN<GLfloat>) * 24, cube_vertices, GL_STATIC_DRAW);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[2]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 }
 
 unit_cube_PUN_flipped_normals::~unit_cube_PUN_flipped_normals()
@@ -457,91 +521,157 @@ unit_cube_PUN_flipped_normals::~unit_cube_PUN_flipped_normals()
 void unit_cube_PUN_flipped_normals::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 }
 
 unit_cube_PUNTB::unit_cube_PUNTB()
 {
-	const vertex_PUNTB<GLfloat> cube_vertices[24] =
+	const mesh::vec4f cube_positions[24] =
 	{
-		// back face
-		// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{-1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
-    	{-1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
-    	// top face
-    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{-1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
-    	{ 1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
-    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
-    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
-    	// front face
-    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{ 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
-    	{-1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
-    	{-1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
-    	{ 1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
-    	// bottom face
-    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{ 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
-    	{ 1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
-    	{-1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
-    	{-1.0f, -1.0f, -1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
-    	// left face
-    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
-    	{-1.0f, -1.0f,  1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
-    	{-1.0f,  1.0f,  1.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
-    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
-    	// right face
-    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{ 1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f}
+		// front
+		{-1.0f, -1.0f,  1.0f,  0.0f},
+		{ 1.0f, -1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f,  1.0f,  0.0f},
+		{-1.0f,  1.0f,  1.0f,  0.0f},
+		// top
+		{-1.0f,  1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f, -1.0f,  0.0f},
+		{-1.0f,  1.0f, -1.0f,  0.0f},
+		// back
+		{ 1.0f, -1.0f, -1.0f,  0.0f},
+		{-1.0f, -1.0f, -1.0f,  0.0f},
+		{-1.0f,  1.0f, -1.0f,  0.0f},
+		{ 1.0f,  1.0f, -1.0f,  0.0f},
+		// bottom
+		{-1.0f, -1.0f, -1.0f,  0.0f},
+		{ 1.0f, -1.0f, -1.0f,  0.0f},
+		{ 1.0f, -1.0f,  1.0f,  0.0f},
+		{-1.0f, -1.0f,  1.0f,  0.0f},
+		// left
+		{-1.0f, -1.0f, -1.0f, -1.0f},
+		{-1.0f, -1.0f,  1.0f, -1.0f},
+		{-1.0f,  1.0f,  1.0f, -1.0f},
+		{-1.0f,  1.0f, -1.0f, -1.0f},
+		// right
+		{ 1.0f, -1.0f,  1.0f,  1.0f},
+		{ 1.0f, -1.0f, -1.0f,  1.0f},
+		{ 1.0f,  1.0f, -1.0f,  1.0f},
+		{ 1.0f,  1.0f,  1.0f,  1.0f}
 	};
+
+	const mesh::vec4f cube_texcoords[24] =
+	{
+		// front
+		{0.0f, 0.0f,  0.0f,  1.0f},
+		{1.0f, 0.0f,  0.0f,  1.0f},
+		{1.0f, 1.0f,  0.0f,  1.0f},
+		{0.0f, 1.0f,  0.0f,  1.0f},
+		// top
+		{0.0f, 0.0f,  1.0f,  0.0f},
+		{1.0f, 0.0f,  1.0f,  0.0f},
+		{1.0f, 1.0f,  1.0f,  0.0f},
+		{0.0f, 1.0f,  1.0f,  0.0f},
+		// back
+		{0.0f, 0.0f,  0.0f, -1.0f},
+		{1.0f, 0.0f,  0.0f, -1.0f},
+		{1.0f, 1.0f,  0.0f, -1.0f},
+		{0.0f, 1.0f,  0.0f, -1.0f},
+		// bottom
+		{0.0f, 0.0f, -1.0f,  0.0f},
+		{1.0f, 0.0f, -1.0f,  0.0f},
+		{1.0f, 1.0f, -1.0f,  0.0f},
+		{0.0f, 1.0f, -1.0f,  0.0f},
+		// left
+		{0.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 1.0f,  0.0f,  0.0f},
+		{0.0f, 1.0f,  0.0f,  0.0f},
+		// right
+		{0.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 1.0f,  0.0f,  0.0f},
+		{0.0f, 1.0f,  0.0f,  0.0f},
+	};
+
+	const mesh::vec4f cube_normals[24] =
+	{
+		// front
+		{1.0f, 0.0f, 0.0f, 1.0f},
+		{1.0f, 0.0f, 0.0f, 1.0f},
+		{1.0f, 0.0f, 0.0f, 1.0f},
+		{1.0f, 0.0f, 0.0f, 1.0f},
+		// top
+		{1.0f, 0.0f, 0.0f,  1.0f},
+		{1.0f, 0.0f, 0.0f,  1.0f},
+		{1.0f, 0.0f, 0.0f,  1.0f},
+		{1.0f, 0.0f, 0.0f,  1.0f},
+		// back
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		// bottom
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		// left
+		{0.0f, 0.0f, 1.0f, 1.0f},
+		{0.0f, 0.0f, 1.0f, 1.0f},
+		{0.0f, 0.0f, 1.0f, 1.0f},
+		{0.0f, 0.0f, 1.0f, 1.0f},
+		// right
+		{0.0f, 0.0f, -1.0f, 1.0f},
+		{0.0f, 0.0f, -1.0f, 1.0f},
+		{0.0f, 0.0f, -1.0f, 1.0f},
+		{0.0f, 0.0f, -1.0f, 1.0f}
+	};
+
 	BOOST_CONSTEXPR GLubyte cube_indices[36] =
 	{
-		// back face
-     	0,  1,  2,
-     	2,  3,  0,
-    	// top face
-    	4,  5,  6,
-    	6,  7,  4,
-    	// front face
-    	8,  9, 10,
+		// front
+     	 0,  1,  2,
+     	 2,  3,  0,
+    	// top
+    	 4,  5,  6,
+    	 6,  7,  4,
+    	// back
+    	 8,  9, 10,
     	10, 11,  8,
-    	// bottom face
+    	// bottom
     	12, 13, 14,
     	14, 15, 12,
-    	// left face
+    	// left
     	16, 17, 18,
     	18, 19, 16,
-    	// right face
+    	// right
     	20, 21, 22,
     	22, 23, 20
 	};
+
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_PUNTB<GLfloat>::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PUNTB<GLfloat>) * 24, cube_vertices, GL_STATIC_DRAW);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_normals, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_NORMAL);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[3]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 }
 
 void unit_cube_PUNTB::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 }
 
 unit_cube_PUNTB::~unit_cube_PUNTB()
@@ -551,83 +681,152 @@ unit_cube_PUNTB::~unit_cube_PUNTB()
 
 unit_cube_PUNTB_flipped_normals::unit_cube_PUNTB_flipped_normals()
 {
-	const vertex_PUNTB<GLfloat> cube_vertices[24] =
+	const mesh::vec4f cube_positions[24] =
 	{
-		// back face
-		// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{-1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
-    	{-1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,  0.0f},
-    	// top face
-    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{-1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
-    	{ 1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
-    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
-    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f, -1.0f},
-    	// front face
-    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{ 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
-    	{-1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
-    	{-1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
-    	{ 1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f,  1.0f ,  1.0f,  0.0f,  0.0f,  0.0f, -1.0f,  0.0f},
-    	// bottom face
-    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{ 1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
-    	{ 1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
-    	{-1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
-    	{-1.0f, -1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f ,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,  1.0f},
-    	// left face
-    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
-    	{-1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
-    	{-1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
-    	{-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f ,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f},
-    	// right face
-    	// --positions------|---uvs-----|---normal------------|---tangent----------|-----bitangent-------
-    	{ 1.0f, -1.0f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f},
-    	{ 1.0f,  1.0f,  1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f ,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f}
+		// front
+		{-1.0f, -1.0f,  1.0f,  0.0f},
+		{ 1.0f, -1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f,  1.0f,  0.0f},
+		{-1.0f,  1.0f,  1.0f,  0.0f},
+		// top
+		{-1.0f,  1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f,  1.0f,  0.0f},
+		{ 1.0f,  1.0f, -1.0f,  0.0f},
+		{-1.0f,  1.0f, -1.0f,  0.0f},
+		// back
+		{ 1.0f, -1.0f, -1.0f,  0.0f},
+		{-1.0f, -1.0f, -1.0f,  0.0f},
+		{-1.0f,  1.0f, -1.0f,  0.0f},
+		{ 1.0f,  1.0f, -1.0f,  0.0f},
+		// bottom
+		{-1.0f, -1.0f, -1.0f,  0.0f},
+		{ 1.0f, -1.0f, -1.0f,  0.0f},
+		{ 1.0f, -1.0f,  1.0f,  0.0f},
+		{-1.0f, -1.0f,  1.0f,  0.0f},
+		// left
+		{-1.0f, -1.0f, -1.0f, -1.0f},
+		{-1.0f, -1.0f,  1.0f, -1.0f},
+		{-1.0f,  1.0f,  1.0f, -1.0f},
+		{-1.0f,  1.0f, -1.0f, -1.0f},
+		// right
+		{ 1.0f, -1.0f,  1.0f,  1.0f},
+		{ 1.0f, -1.0f, -1.0f,  1.0f},
+		{ 1.0f,  1.0f, -1.0f,  1.0f},
+		{ 1.0f,  1.0f,  1.0f,  1.0f}
 	};
+
+	const mesh::vec4f cube_texcoords[24] =
+	{
+		// front
+		{0.0f, 0.0f,  0.0f,  1.0f},
+		{1.0f, 0.0f,  0.0f,  1.0f},
+		{1.0f, 1.0f,  0.0f,  1.0f},
+		{0.0f, 1.0f,  0.0f,  1.0f},
+		// top
+		{0.0f, 0.0f,  1.0f,  0.0f},
+		{1.0f, 0.0f,  1.0f,  0.0f},
+		{1.0f, 1.0f,  1.0f,  0.0f},
+		{0.0f, 1.0f,  1.0f,  0.0f},
+		// back
+		{0.0f, 0.0f,  0.0f, -1.0f},
+		{1.0f, 0.0f,  0.0f, -1.0f},
+		{1.0f, 1.0f,  0.0f, -1.0f},
+		{0.0f, 1.0f,  0.0f, -1.0f},
+		// bottom
+		{0.0f, 0.0f, -1.0f,  0.0f},
+		{1.0f, 0.0f, -1.0f,  0.0f},
+		{1.0f, 1.0f, -1.0f,  0.0f},
+		{0.0f, 1.0f, -1.0f,  0.0f},
+		// left
+		{0.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 1.0f,  0.0f,  0.0f},
+		{0.0f, 1.0f,  0.0f,  0.0f},
+		// right
+		{0.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 0.0f,  0.0f,  0.0f},
+		{1.0f, 1.0f,  0.0f,  0.0f},
+		{0.0f, 1.0f,  0.0f,  0.0f},
+	};
+
+	const mesh::vec4f cube_normals[24] =
+	{
+		// front
+		{1.0f, 0.0f, 0.0f, 1.0f},
+		{1.0f, 0.0f, 0.0f, 1.0f},
+		{1.0f, 0.0f, 0.0f, 1.0f},
+		{1.0f, 0.0f, 0.0f, 1.0f},
+		// top
+		{1.0f, 0.0f, 0.0f,  1.0f},
+		{1.0f, 0.0f, 0.0f,  1.0f},
+		{1.0f, 0.0f, 0.0f,  1.0f},
+		{1.0f, 0.0f, 0.0f,  1.0f},
+		// back
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		// bottom
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, 0.0f, 0.0f, 1.0f},
+		// left
+		{0.0f, 0.0f, 1.0f, 1.0f},
+		{0.0f, 0.0f, 1.0f, 1.0f},
+		{0.0f, 0.0f, 1.0f, 1.0f},
+		{0.0f, 0.0f, 1.0f, 1.0f},
+		// right
+		{0.0f, 0.0f, -1.0f, 1.0f},
+		{0.0f, 0.0f, -1.0f, 1.0f},
+		{0.0f, 0.0f, -1.0f, 1.0f},
+		{0.0f, 0.0f, -1.0f, 1.0f}
+	};
+
 	BOOST_CONSTEXPR GLubyte cube_indices[36] =
 	{
 		// front
-     	 2,  1,  0,
-     	 0,  3,  2,
-    	// top
-    	 6,  5,  4,
-    	 4,  7,  6,
-    	// back
-    	10,  9,  8,
-    	 8, 11, 10,
-    	// bottom
-    	14, 13, 12,
-    	12, 15, 14,
-    	// left
-    	18, 17, 16,
-    	16, 19, 18,
-    	// right
-    	22, 21, 20,
-    	20, 23, 22
+		 2,  1,  0,
+		 0,  3,  2,
+		// top
+		 6,  5,  4,
+		 4,  7,  6,
+		// back
+		10,  9,  8,
+		 8, 11, 10,
+		// bottom
+		14, 13, 12,
+		12, 15, 14,
+		// left
+		18, 17, 16,
+		16, 19, 18,
+		// right
+		22, 21, 20,
+		20, 23, 22
 	};
+
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_PUNTB<GLfloat>::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PUNTB<GLfloat>) * 24, cube_vertices, GL_STATIC_DRAW);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_normals, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_NORMAL);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[3]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 }
 
 void unit_cube_PUNTB_flipped_normals::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 }
 
 unit_cube_PUNTB_flipped_normals::~unit_cube_PUNTB_flipped_normals()
@@ -884,7 +1083,13 @@ unit_sphere_PUN::unit_sphere_PUN(const unsigned short subdivisions)
 	vec3f pos;
 	vec2f uv;
 
-	std::vector<vertex_PUN<GLfloat>> vertices;
+	// std::vector<vertex_PUN<GLfloat>> vertices;
+
+	std::vector<mesh::vec4f> positions;
+	std::vector<mesh::vec4f> texcoords;
+	std::vector<GLuint> indices;
+
+	GLuint counter(0);
 
 	for (std::size_t f = 0; f < 6; ++f)
 	{
@@ -895,41 +1100,51 @@ unit_sphere_PUN::unit_sphere_PUN(const unsigned short subdivisions)
 				s = static_cast<float>(i) / subdivs;
 				t = static_cast<float>(j) / subdivs;
 				sphere_faces[f]->get(s, t, pos, uv);
-				vertices.emplace_back(pos, uv, pos);
+				positions.emplace_back(pos[0], pos[1], pos[2], pos[0]);
+				texcoords.emplace_back(uv[0], uv[1], pos[1], pos[2]);
 
 				s = static_cast<float>(i+1) / subdivs;
 				sphere_faces[f]->get(s, t, pos, uv);
-				vertices.emplace_back(pos, uv, pos);
+				positions.emplace_back(pos[0], pos[1], pos[2], pos[0]);
+				texcoords.emplace_back(uv[0], uv[1], pos[1], pos[2]);
+
+				t = static_cast<float>(j+1) / subdivs;
+				sphere_faces[f]->get(s, t, pos, uv);
+				positions.emplace_back(pos[0], pos[1], pos[2], pos[0]);
+				texcoords.emplace_back(uv[0], uv[1], pos[1], pos[2]);
 
 				s = static_cast<float>(i) / subdivs;
-				t = static_cast<float>(j+1) / subdivs;
 				sphere_faces[f]->get(s, t, pos, uv);
-				vertices.emplace_back(pos, uv, pos);
+				positions.emplace_back(pos[0], pos[1], pos[2], pos[0]);
+				texcoords.emplace_back(uv[0], uv[1], pos[1], pos[2]);
 
-				vertices.emplace_back(pos, uv, pos);
+				indices.push_back(counter + 0);
+				indices.push_back(counter + 1);
+				indices.push_back(counter + 2);
+				indices.push_back(counter + 2);
+				indices.push_back(counter + 3);
+				indices.push_back(counter + 0);
 
-				s = static_cast<float>(i+1) / subdivs;
-				t = static_cast<float>(j) / subdivs;
-				sphere_faces[f]->get(s, t, pos, uv);
-				vertices.emplace_back(pos, uv, pos);
-
-				s = static_cast<float>(i+1) / subdivs;
-				t = static_cast<float>(j+1) / subdivs;
-				sphere_faces[f]->get(s, t, pos, uv);
-				vertices.emplace_back(pos, uv, pos);
+				counter += 4;
 			}
 		}
 		delete sphere_faces[f];
 	}
 
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_PUN<GLfloat>::enable_attributes();
-	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 
-	m_count = static_cast<GLsizei>(vertices.size());
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[0]);
+	gtBufferData(GL_ARRAY_BUFFER, positions, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[1]);
+	gtBufferData(GL_ARRAY_BUFFER, texcoords, GL_STATIC_DRAW);
+	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[2]);
+	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
+
+	m_count = static_cast<GLsizei>(indices.size());
 }
 
 unit_sphere_PUN::~unit_sphere_PUN()
@@ -940,11 +1155,7 @@ unit_sphere_PUN::~unit_sphere_PUN()
 void unit_sphere_PUN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	glBindVertexArray(m_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	// glDisable(GL_CULL_FACE);
-	glDrawArrays(GL_TRIANGLES, 0, m_count);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, nullptr);
 }
 
 unit_cone_P::unit_cone_P(const GLsizei divs)

@@ -91,6 +91,18 @@ public:
 		const boost::filesystem::path& specular_texture,
 		const boost::filesystem::path& normal_texture);
 
+	// Copy constructor.
+	material(const material&);
+
+	// Move constructor.
+	material(material&&) BOOST_NOEXCEPT_OR_NOTHROW;
+
+	// Copy assignment operator.
+	material& operator = (const material&);
+
+	// Move assignment operator.
+	material& operator = (material&&) BOOST_NOEXCEPT_OR_NOTHROW;
+
 	// Static method that returns the default extension for a material.
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW
 	{

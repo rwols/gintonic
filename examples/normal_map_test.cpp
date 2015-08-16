@@ -65,10 +65,8 @@ int main(int argc, char* argv[])
 
 		float curtime = 0.0f, dt;
 		float current_cos, current_sin;
-		float yaxis, zaxis;
 		bool move_objects = true;
 		bool show_gbuffer = false;
-		gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
 		
 		while (!gt::renderer::should_close())
@@ -133,12 +131,6 @@ int main(int argc, char* argv[])
 			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
 			
 			gt::renderer::begin_geometry_pass();
-			
-			// yaxis = (1.0f + current_cos) / 2.0f;
-			
-			// zaxis = (1.0f + current_sin) / 2.0f;
-			
-			// rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
 			
 			gt::renderer::set_model_matrix(-curtime / 8.0f, gt::vec3f(0.0f, 1.0f, 0.0f));
 			the_material.bind();

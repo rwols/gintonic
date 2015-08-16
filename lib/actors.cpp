@@ -128,20 +128,21 @@ void static_model_actor::process_mesh(
 	const auto num_materials = fbx_mesh->GetNode()->GetSrcObjectCount<FbxSurfaceMaterial>();
 	if (num_materials)
 	{
-		const auto fbx_mat = fbx_mesh->GetNode()->GetSrcObject<FbxSurfaceMaterial>(0);
-		// const auto emissive_count = texture_count(fbx_mat, FbxSurfaceMaterial::sEmissive);
-		// const auto ambient_count = texture_count(fbx_mat, FbxSurfaceMaterial::sAmbient);
-		const auto diffuse_count = texture_count(fbx_mat, FbxSurfaceMaterial::sDiffuse);
-		const auto specular_count = texture_count(fbx_mat, FbxSurfaceMaterial::sSpecular);
-		const auto normal_count = texture_count(fbx_mat, FbxSurfaceMaterial::sNormalMap);
-		const auto diffuse_factor = get_texture_factor(fbx_mat, FbxSurfaceMaterial::sDiffuseFactor);
+		const auto fbx_mat         = fbx_mesh->GetNode()->GetSrcObject<FbxSurfaceMaterial>(0);
+		
+		const auto diffuse_count   = texture_count(fbx_mat, FbxSurfaceMaterial::sDiffuse);
+		const auto specular_count  = texture_count(fbx_mat, FbxSurfaceMaterial::sSpecular);
+		const auto normal_count    = texture_count(fbx_mat, FbxSurfaceMaterial::sNormalMap);
+		
+		const auto diffuse_factor  = get_texture_factor(fbx_mat, FbxSurfaceMaterial::sDiffuseFactor);
 		const auto specular_factor = get_texture_factor(fbx_mat, FbxSurfaceMaterial::sSpecularFactor);
-		const auto shininess = get_texture_factor(fbx_mat, FbxSurfaceMaterial::sShininess);
-		const auto diffuse_color = get_material_color(fbx_mat, FbxSurfaceMaterial::sDiffuse);
-		auto specular_color = get_material_color(fbx_mat, FbxSurfaceMaterial::sSpecular);
+		const auto shininess       = get_texture_factor(fbx_mat, FbxSurfaceMaterial::sShininess);
 
-		mat.diffuse_color = vec4f(diffuse_color[0], diffuse_color[1], diffuse_color[2], diffuse_factor);
-		specular_color *= specular_factor;
+		const auto diffuse_color   = get_material_color(fbx_mat, FbxSurfaceMaterial::sDiffuse);
+		auto specular_color        = get_material_color(fbx_mat, FbxSurfaceMaterial::sSpecular);
+
+		specular_color    *= specular_factor;
+		mat.diffuse_color  = vec4f(diffuse_color[0],  diffuse_color[1],  diffuse_color[2],  diffuse_factor);
 		mat.specular_color = vec4f(specular_color[0], specular_color[1], specular_color[2], shininess);
 
 		boost::filesystem::path tex_filename;
@@ -165,10 +166,10 @@ void static_model_actor::process_mesh(
 	{
 		// make a material that does nothing
 		std::cerr << fbx_mesh->GetNode()->GetName() << ": Constructing null material.\n";
-		mat.diffuse_color = vec4f(0.8f, 0.8f, 0.8f, 0.9f);
-		mat.specular_color = vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+		mat.diffuse_color  = vec4f(0.8f, 0.8f, 0.8f,  0.9f);
+		mat.specular_color = vec4f(0.2f, 0.2f, 0.2f, 20.0f);
 	}
-	std::shared_ptr<mesh> m = std::make_shared<mesh>(fbx_mesh);
+	const auto m = std::make_shared<mesh>(fbx_mesh);
 	model.emplace_back(t, m, mat);
 }
 
@@ -209,8 +210,7 @@ void static_model_actor::process_light(
 				}
 				case FbxLight::eCubic:
 				{
-					attenuation[3] = 1.0f;
-					break;
+					throw std::runtime_error("There's not support for cubic falloff.");
 				}
 				default:
 				{

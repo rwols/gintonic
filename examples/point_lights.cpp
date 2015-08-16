@@ -104,12 +104,20 @@ int main(int argc, char* argv[])
 
 		shape_transform.scale = 1.0f;
 		
-		gt::material the_material(
+		gt::material cube_material(
 			gt::vec4f(1.0f, 1.0f, 1.0f,  1.0f), // base diffuse color
 			gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f), // base specular color
 			"../examples/bricks_COLOR.png",     // diffuse texture
 			"../examples/bricks_SPEC.png",      // specular texture
-			"../examples/bricks_NRM.png");      // normal texture
+			"../examples/bricks_NRM.png"        // normal texture
+		);      
+
+		gt::material sphere_material(
+			gt::vec4f(1.0f, 1.0f, 1.0f,  1.0f), // base diffuse color
+			gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f), // base specular color
+			"../examples/bricks_COLOR.png",     // diffuse texture
+			"../examples/bricks_SPEC.png"       // specular texture
+		);
 
 		// Orient the camera
 		gt::get_default_camera().position = {0.0f, 20.0f, 0.0f};
@@ -227,10 +235,17 @@ int main(int argc, char* argv[])
 
 					shape_transform.translation = {3.0f * i, std::sin(i+j+curtime), 3.0f * j};
 					gt::renderer::set_model_matrix(shape_transform.get_matrix());
-					the_material.bind();
-
-					if (boolmatrix[i + numobjects][j + numobjects]) a_cube.draw();
-					else a_sphere.draw();
+					
+					if (boolmatrix[i + numobjects][j + numobjects])
+					{
+						cube_material.bind();
+						a_cube.draw();
+					}
+					else
+					{
+						sphere_material.bind();
+						a_sphere.draw();
+					}
 				}
 			}
 

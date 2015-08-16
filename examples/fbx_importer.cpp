@@ -57,15 +57,38 @@ int main(int argc, char* argv[])
 
 		gt::fontstream stream;
 
+		boost::filesystem::current_path(gt::get_executable_path());
+
 		std::unique_ptr<gt::actor> the_actor;
 		{
 			auto manager = FbxManager::Create();
 			auto scene = FbxScene::Create(manager, "");
 			auto importer = FbxImporter::Create(manager, "");
-			const auto status = importer->Initialize(argv[1], -1, manager->GetIOSettings());
+			const boost::filesystem::path filename(argv[1]);
+			if (!boost::filesystem::is_regular_file(filename))
+			{
+				std::cerr << filename << " is not a regular file.\n";
+				importer->Destroy();
+				scene->Destroy();
+				manager->Destroy();
+				return EXIT_FAILURE;
+			}
+			else if (filename.extension() != ".fbx" && filename.extension() != ".FBX")
+			{
+				std::cerr << filename << " is not an FBX file.\n";
+				importer->Destroy();
+				scene->Destroy();
+				manager->Destroy();
+				return EXIT_FAILURE;
+			}
+			const auto status = importer->Initialize(filename.c_str(), -1, manager->GetIOSettings());
 			if (!status)
 			{
-				std::cerr << "Could not import file.\n";
+				std::cerr << importer->GetFileName().Buffer() << '\n';
+				std::cerr << importer->GetStatus().GetErrorString() << '\n';
+				importer->Destroy();
+				scene->Destroy();
+				manager->Destroy();
 				return EXIT_FAILURE;
 			}
 			importer->Import(scene);

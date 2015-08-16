@@ -37,10 +37,12 @@ namespace gintonic {
 	const Uint8* s_key_state = nullptr;
 	int s_key_state_count;
 
+	bool renderer::s_matrix_P_dirty = true;
 	bool renderer::s_matrix_VM_dirty = true;
 	bool renderer::s_matrix_PVM_dirty = true;
 	bool renderer::s_matrix_N_dirty = true;
 
+	mat4f renderer::s_matrix_P = mat4f();
 	mat4f renderer::s_matrix_M = mat4f();
 	mat4f renderer::s_matrix_VM = mat4f();
 	mat4f renderer::s_matrix_PVM = mat4f();
@@ -494,6 +496,7 @@ namespace gintonic {
 		s_width = width;
 		s_height = height;
 		s_aspect_ratio = (float)s_width / (float)s_height;
+		s_matrix_P_dirty = true;
 		glViewport(0, 0, s_width, s_height);
 
 		//
@@ -678,9 +681,8 @@ namespace gintonic {
 			case SDL_KEYUP:
 				break;
 			case SDL_MOUSEMOTION:
-				s_mouse_delta[0] = (float)s_event.motion.xrel;
-				s_mouse_delta[1] = (float)s_event.motion.yrel;
-				mouse_moved(s_mouse_delta[0], s_mouse_delta[1]);
+				s_mouse_delta[0] += (float)s_event.motion.xrel;
+				s_mouse_delta[1] += (float)s_event.motion.yrel;
 				break;
 			case SDL_QUIT:
 				close();
@@ -688,6 +690,10 @@ namespace gintonic {
 			default:
 				break;
 			}
+		}
+		if (s_mouse_delta[0] != 0.0f || s_mouse_delta[1] != 0.0f)
+		{
+			mouse_moved(s_mouse_delta[0], s_mouse_delta[1]);
 		}
 	}
 
@@ -819,6 +825,15 @@ namespace gintonic {
 		get_unit_quad_P().draw();
 	}
 
+	void renderer::update_matrix_P()
+	{
+		if (s_matrix_P_dirty)
+		{
+			s_matrix_P = camera().matrix_P(width(), height());
+			s_matrix_P_dirty = false;
+		}
+	}
+
 	void renderer::update_matrix_VM()
 	{
 		if (s_matrix_VM_dirty)
@@ -830,10 +845,11 @@ namespace gintonic {
 
 	void renderer::update_matrix_PVM()
 	{
+		update_matrix_P();
 		update_matrix_VM();
 		if (s_matrix_PVM_dirty)
 		{
-			s_matrix_PVM = camera().matrix_P(width(), height()) * s_matrix_VM;
+			s_matrix_PVM = s_matrix_P * s_matrix_VM;
 			s_matrix_PVM_dirty = false;
 		}
 	}
