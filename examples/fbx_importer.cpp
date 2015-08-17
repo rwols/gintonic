@@ -211,13 +211,13 @@ int main(int argc, char* argv[])
 
 			the_actor->draw_geometry();
 			
-			yaxis = (1.0f + current_cos) / 2.0f;
+			// yaxis = (1.0f + current_cos) / 2.0f;
 			
-			zaxis = (1.0f + current_sin) / 2.0f;
+			// zaxis = (1.0f + current_sin) / 2.0f;
 			
-			rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
+			// rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
 			
-			gt::renderer::set_model_matrix(-curtime / 4.0f, rotation_axis);
+			// gt::renderer::set_model_matrix(-curtime / 4.0f, rotation_axis);
 			// the_material->bind();
 			// the_shape.draw();
 
@@ -253,6 +253,8 @@ int main(int argc, char* argv[])
 				gt::renderer::begin_light_pass();
 
 				gt::renderer::null_light_pass();
+
+				the_actor->draw_lights();
 
 				for (std::size_t i = 0; i < lights.size(); ++i)
 				{

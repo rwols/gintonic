@@ -129,6 +129,8 @@ void static_model_actor::process_mesh(
 	if (num_materials)
 	{
 		const auto fbx_mat         = fbx_mesh->GetNode()->GetSrcObject<FbxSurfaceMaterial>(0);
+
+		std::cout << "\tFound material: " << fbx_mat->GetName() << '\n';
 		
 		const auto diffuse_count   = texture_count(fbx_mat, FbxSurfaceMaterial::sDiffuse);
 		const auto specular_count  = texture_count(fbx_mat, FbxSurfaceMaterial::sSpecular);
@@ -145,21 +147,27 @@ void static_model_actor::process_mesh(
 		mat.diffuse_color  = vec4f(diffuse_color[0],  diffuse_color[1],  diffuse_color[2],  diffuse_factor);
 		mat.specular_color = vec4f(specular_color[0], specular_color[1], specular_color[2], shininess);
 
+		std::cout << "\tDiffuse color: " << mat.diffuse_color << '\n';
+		std::cout << "\tSpecular color: " << mat.specular_color << '\n';
+
 		boost::filesystem::path tex_filename;
 		if (diffuse_count)
 		{
 			tex_filename = get_texture_filename(fbx_mat, FbxSurfaceMaterial::sDiffuse, 0);
 			mat.set_diffuse_texture(tex_filename);
+			std::cout << "\tDiffuse texture: " << tex_filename << '\n';
 		}
 		if (specular_count)
 		{
 			tex_filename = get_texture_filename(fbx_mat, FbxSurfaceMaterial::sSpecular, 0);
-			mat.set_diffuse_texture(tex_filename);
+			mat.set_specular_texture(tex_filename);
+			std::cout << "\tSpecular texture: " << tex_filename << '\n';
 		}
 		if (normal_count)
 		{
 			tex_filename = get_texture_filename(fbx_mat, FbxSurfaceMaterial::sNormalMap, 0);
 			mat.set_normal_texture(tex_filename);
+			std::cout << "\tNormal texture: " << tex_filename << '\n';
 		}
 	}
 	else
@@ -170,6 +178,7 @@ void static_model_actor::process_mesh(
 		mat.specular_color = vec4f(0.2f, 0.2f, 0.2f, 20.0f);
 	}
 	const auto m = std::make_shared<mesh>(fbx_mesh);
+
 	model.emplace_back(t, m, mat);
 }
 
@@ -183,12 +192,12 @@ void static_model_actor::process_light(
 		static_cast<float>(fbx_color[1]), 
 		static_cast<float>(fbx_color[2]), 
 		intensity);
-	std::cerr << "Color: " << color << '\n';
+	std::cerr << "\tColor: " << color << '\n';
 	switch (fbx_light->LightType.Get())
 	{
 		case FbxLight::ePoint:
 		{
-			std::cerr << "Point light\n";
+			std::cerr << "\tPoint light\n";
 			vec4f attenuation(0.0f, 0.0f, 0.0f, 0.0f);
 
 			switch (fbx_light->DecayType.Get())
@@ -217,34 +226,34 @@ void static_model_actor::process_light(
 					attenuation[2] = 1.0f; // quadratic is default
 				}
 			}
-			std::cerr << "Attenuation: " << attenuation << '\n';
+			std::cerr << "\tAttenuation: " << attenuation << '\n';
 			break;
 		}
 		case FbxLight::eDirectional:
 		{
-			std::cerr << "Directional light\n";
+			std::cerr << "\tDirectional light\n";
 			const vec3f direction = t.rotation.direction();
-			std::cerr << "Direction: " << direction << '\n';
+			std::cerr << "\tDirection: " << direction << '\n';
 			break;
 		}
 		case FbxLight::eSpot:
 		{
-			std::cerr << "Spot light\n";
+			std::cerr << "\tSpot light\n";
 			break;
 		}
 		case FbxLight::eArea:
 		{
-			std::cerr << "Area light\n";
+			std::cerr << "\tArea light\n";
 			break;
 		}
 		case FbxLight::eVolume:
 		{
-			std::cerr << "Volume light\n";
+			std::cerr << "\tVolume light\n";
 			break;
 		}
 		default:
 		{
-			std::cerr << "Unknown light\n";
+			std::cerr << "\tUnknown light\n";
 			break;
 		}
 	}
@@ -257,9 +266,9 @@ void static_model_actor::draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW
 	std::shared_ptr<const mesh> m;
 	material mat;
 	
-	for (const auto& tup : model)
+	for (const auto& tuple : model)
 	{
-		std::tie(t, m, mat) = tup;
+		t = std::get<0>(tuple);
 
 		t.scale *= transform.scale;
 		t.rotation *= transform.rotation;
@@ -267,15 +276,9 @@ void static_model_actor::draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW
 
 		renderer::set_model_matrix(t.get_matrix());
 
-		// mat->program->activate();
+		std::get<2>(tuple).bind();
 
-		// mat->program->bind_matrices();
-
-		// mat->program->bind_material(mat);
-
-		mat.bind();
-
-		m->draw();
+		std::get<1>(tuple)->draw();
 	}
 }
 

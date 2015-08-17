@@ -270,8 +270,8 @@ material::material(const material& other)
 }
 
 material::material(material&& other) BOOST_NOEXCEPT_OR_NOTHROW
-: diffuse_color(other.diffuse_color)
-, specular_color(other.specular_color)
+: diffuse_color(std::move(other.diffuse_color))
+, specular_color(std::move(other.specular_color))
 {
 	s_textures_lock.obtain();
 	m_diffuse_tex = other.m_diffuse_tex;
@@ -283,8 +283,10 @@ material::material(material&& other) BOOST_NOEXCEPT_OR_NOTHROW
 	s_textures_lock.release();
 }
 
-material::material& operator = (const material& other)
+material& material::operator = (const material& other)
 {
+	diffuse_color = other.diffuse_color;
+	specular_color = other.specular_color;
 	s_textures_lock.obtain();
 	unsafe_release_texture(m_diffuse_tex);
 	unsafe_release_texture(m_specular_tex);
@@ -299,8 +301,10 @@ material::material& operator = (const material& other)
 	return *this;
 }
 
-material::material& operator = (material&& other) BOOST_NOEXCEPT_OR_NOTHROW
+material& material::operator = (material&& other) BOOST_NOEXCEPT_OR_NOTHROW
 {
+	diffuse_color = std::move(other.diffuse_color);
+	specular_color = std::move(other.specular_color);
 	s_textures_lock.obtain();
 	unsafe_release_texture(m_diffuse_tex);
 	unsafe_release_texture(m_specular_tex);
