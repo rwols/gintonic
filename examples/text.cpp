@@ -14,11 +14,11 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-		#ifdef BOOST_MSVC
-			boost::filesystem::current_path(gt::get_executable_path());
-		#else
+		// #ifdef BOOST_MSVC
+		// 	boost::filesystem::current_path(gt::get_executable_path());
+		// #else
 			boost::filesystem::current_path(gt::get_executable_path() / "..");
-		#endif
+		// #endif
 		gt::init_all("text");
 		gt::font::flyweight font_scriptin60("../examples/SCRIPTIN.ttf", 60);
 		gt::fontstream stream;

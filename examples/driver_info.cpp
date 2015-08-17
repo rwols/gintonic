@@ -4,11 +4,11 @@ namespace gt = gintonic;
 
 int main(int argc, char** argv)
 {
-	#ifdef BOOST_MSVC
-		boost::filesystem::current_path(gt::get_executable_path());
-	#else
+	// #ifdef BOOST_MSVC
+	// 	boost::filesystem::current_path(gt::get_executable_path());
+	// #else
 		boost::filesystem::current_path(gt::get_executable_path() / "..");
-	#endif
+	// #endif
 	gt::init_all("driver_info");
 	std::cout << "\nRenderer: " << gt::renderer::name() << '\n';
 	std::cout << "Version: " << gt::renderer::version() << '\n';

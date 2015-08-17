@@ -71,7 +71,7 @@ inline static void operator delete(void* ptr, std::size_t count)             \
 inline static void operator delete[](void* ptr, std::size_t count)           \
 {                                                                            \
 	_mm_free(ptr);                                                           \
-}                                                                            \
+}
 
 /*****************************************************************************
  * We include the FBX SDK at this point. The header file has a bunch of      *
@@ -120,6 +120,7 @@ public:
 	{
 		return std::addressof(t);
 	}
+
 	inline const T * address(const T& t) const
 	{
 		return std::addressof(t);
@@ -664,9 +665,9 @@ template <class T> struct vec<T,3> : public ::std::array<T,3>
 
 	vec(const FbxVector4& v)
 	{
-		(*this)[0] = v[0];
-		(*this)[1] = v[1];
-		(*this)[2] = v[2];
+		(*this)[0] = static_cast<T>(v[0]);
+		(*this)[1] = static_cast<T>(v[1]);
+		(*this)[2] = static_cast<T>(v[2]);
 	}
 
 

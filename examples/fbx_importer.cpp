@@ -40,11 +40,11 @@ int main(int argc, char* argv[])
 	}
 	try
 	{
-		#ifdef BOOST_MSVC
-			boost::filesystem::current_path(gt::get_executable_path());
-		#else
+		// #ifdef BOOST_MSVC
+		// 	boost::filesystem::current_path(gt::get_executable_path());
+		// #else
 			boost::filesystem::current_path(gt::get_executable_path() / "..");
-		#endif
+		// #endif
 		gt::init_all("fbx_importer");
 
 		bool view_gbuffers = false;
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 				manager->Destroy();
 				return EXIT_FAILURE;
 			}
-			const auto status = importer->Initialize(filename.c_str(), -1, manager->GetIOSettings());
+			const auto status = importer->Initialize(argv[1], -1, manager->GetIOSettings());
 			if (!status)
 			{
 				std::cerr << importer->GetFileName().Buffer() << '\n';
@@ -105,8 +105,6 @@ int main(int argc, char* argv[])
 			scene->Destroy();
 			manager->Destroy();
 		}
-		
-		// gt::opengl::unit_cube_PUN the_shape;
 		
 		std::vector<std::unique_ptr<gt::light>> lights;
 		std::vector<gt::sqt_transformf> light_transforms(4);
@@ -137,19 +135,24 @@ int main(int argc, char* argv[])
 			+ static_cast<float>(-M_PI) / 2.0f, 
 			gt::vec3f(1.0f, 0.0f, 0.0f));
 
-		// std::unique_ptr<gt::material> the_material(
-		// 	new gt::material_cd(
-		// 		gt::vec4f(1.0f,1.0f,1.0f,0.9f), 
-		// 		"../examples/bricks.jpg"));
+		gt::opengl::unit_cube_PUNTB cube;
+		gt::sqt_transformf cube_transform;
+		cube_transform.scale = 0.5f;
+		gt::material cube_material
+		(
+			{1.0f, 1.0f, 1.0f, 1.0f},
+			{1.0f, 1.0f, 1.0f, 2.0f},
+			"../../examples/RuralBrickWall.jpg",
+			"../../examples/RuralBrickWall_SPEC.png",
+			"../../examples/RuralBrickWall_NRM.png"
+		);
 
 		gt::renderer::show();
 
 		float curtime, dt;
-		float current_cos, current_sin;
-		float yaxis, zaxis;
 		float speed = 1.0f;
 		float addspeed = 0.0f;
-		gt::vec3f rotation_axis;
+		// gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
 		
 		while (!gt::renderer::should_close())
@@ -157,42 +160,39 @@ int main(int argc, char* argv[])
 			curtime = get_elapsed_time<float>();
 			dt = get_dt<float>();
 			
-			current_cos = std::cos(curtime);
-			current_sin = std::sin(curtime);
-			
-			if (gintonic::renderer::key_toggle_press(SDL_SCANCODE_G))
+			if (gt::renderer::key_toggle_press(SDL_SCANCODE_G))
 			{
 				view_gbuffers = !view_gbuffers;
 			}
-			if (gintonic::renderer::key_toggle_press(SDL_SCANCODE_Q))
+			if (gt::renderer::key_toggle_press(SDL_SCANCODE_Q))
 			{
-				gintonic::renderer::close();
+				gt::renderer::close();
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_W))
+			if (gt::renderer::key(SDL_SCANCODE_W))
 			{
 				gt::get_default_camera().move_forward(MOVE_SPEED * dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_A))
+			if (gt::renderer::key(SDL_SCANCODE_A))
 			{
 				gt::get_default_camera().move_left(MOVE_SPEED * dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_S))
+			if (gt::renderer::key(SDL_SCANCODE_S))
 			{
 				gt::get_default_camera().move_backward(MOVE_SPEED * dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_D))
+			if (gt::renderer::key(SDL_SCANCODE_D))
 			{
 				gt::get_default_camera().move_right(MOVE_SPEED * dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_SPACE))
+			if (gt::renderer::key(SDL_SCANCODE_SPACE))
 			{
 				gt::get_default_camera().move_up(MOVE_SPEED * dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_EQUALS))
+			if (gt::renderer::key(SDL_SCANCODE_EQUALS))
 			{
 				addspeed = 0.01f;
 			}
-			else if (gintonic::renderer::key(SDL_SCANCODE_MINUS))
+			else if (gt::renderer::key(SDL_SCANCODE_MINUS))
 			{
 				addspeed = -0.01f;
 			}
@@ -201,15 +201,19 @@ int main(int argc, char* argv[])
 				addspeed = 0.0f;
 			}
 
-			mousedelta = gintonic::renderer::mouse_delta();
-			mousedelta[0] = -gintonic::deg_to_rad(mousedelta[0]) / 4.0f;
-			mousedelta[1] = -gintonic::deg_to_rad(mousedelta[1]) / 4.0f;
+			mousedelta = gt::renderer::mouse_delta();
+			mousedelta[0] = -gt::deg_to_rad(mousedelta[0]) / 4.0f;
+			mousedelta[1] = -gt::deg_to_rad(mousedelta[1]) / 4.0f;
 			
 			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
 			
 			gt::renderer::begin_geometry_pass();
 
 			the_actor->draw_geometry();
+
+			gt::renderer::set_model_matrix(cube_transform.get_matrix());
+			cube_material.bind();
+			cube.draw();
 			
 			// yaxis = (1.0f + current_cos) / 2.0f;
 			
@@ -254,7 +258,7 @@ int main(int argc, char* argv[])
 
 				gt::renderer::null_light_pass();
 
-				the_actor->draw_lights();
+				// the_actor->draw_lights();
 
 				for (std::size_t i = 0; i < lights.size(); ++i)
 				{
@@ -269,9 +273,6 @@ int main(int argc, char* argv[])
 					<< "Press Q to quit.\n"
 					<< "Camera position: " << std::fixed << std::setprecision(1) 
 					<< gt::renderer::camera().position << '\n';
-					// << "Light intensity: " << red_light->intensity << '\n'
-					// << "Light position:  " << red_light_transform.translation 
-					// << '\n';
 				#endif
 			}
 

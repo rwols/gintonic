@@ -195,9 +195,9 @@ namespace gintonic
 		std::vector<mesh::vec4f> uvs;
 		std::vector<mesh::vec4f> normals;
 
-		mesh::vec4f position;
-		mesh::vec4f texcoord;
-		mesh::vec4f normal(0.0f, 0.0f, 0.0f, 1.0f);
+		gintonic::mesh::vec4f position;
+		gintonic::mesh::vec4f texcoord;
+		gintonic::mesh::vec4f normal{0.0f, 0.0f, 0.0f, 1.0f};
 
 		FbxVector4 fbx_position;
 		FbxVector2 fbx_texcoord;
@@ -205,7 +205,9 @@ namespace gintonic
 		FbxVector4 fbx_tangent;
 		FbxVector4 fbx_bitangent;
 
-		gintonic::vec3f N, T, B;
+		gintonic::vec3f N;
+		gintonic::vec3f T;
+		gintonic::vec3f B;
 
 		GLfloat handedness;
 
@@ -248,10 +250,8 @@ namespace gintonic
 				}
 				else
 				{
-					N = normalize(gintonic::vec3f(
-						static_cast<GLfloat>(fbx_normal[0]),
-						static_cast<GLfloat>(fbx_normal[1]),
-						static_cast<GLfloat>(fbx_normal[2])));
+					N = gintonic::vec3f(fbx_normal);
+					N = normalize(N);
 				}
 				if (!get_element(fbx_uvs, polyvertex, vertexid, fbx_texcoord))
 				{
@@ -264,10 +264,8 @@ namespace gintonic
 				}
 				else
 				{
-					T = normalize(gintonic::vec3f(
-						static_cast<GLfloat>(fbx_tangent[0]), 
-						static_cast<GLfloat>(fbx_tangent[1]),
-						static_cast<GLfloat>(fbx_tangent[2])));
+					T = gintonic::vec3f(fbx_tangent);
+					T = normalize(T);
 					has_tangents = true;
 				}
 				if (!get_element(fbx_binormals, polyvertex, vertexid, fbx_bitangent))
@@ -276,13 +274,11 @@ namespace gintonic
 				}
 				else
 				{
-					B = normalize(gintonic::vec3f(
-						static_cast<GLfloat>(fbx_bitangent[0]),
-						static_cast<GLfloat>(fbx_bitangent[1]),
-						static_cast<GLfloat>(fbx_bitangent[2])));
+					B = gintonic::vec3f(fbx_bitangent);
+					B = normalize(B);
 				}
 
-				handedness = distance(N % T, B) < 0.01f ? 1.0f : -1.0f;
+				handedness = gintonic::distance(N % T, B) < 0.01f ? 1.0f : -1.0f;
 
 				position =
 				{
