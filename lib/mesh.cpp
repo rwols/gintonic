@@ -4,14 +4,15 @@
 #include <boost/serialization/vector.hpp>
 #include "portable_oarchive.hpp"
 #include "portable_iarchive.hpp"
+#include "renderer.hpp"
 
 #define GT_MESH_INDEX 0
 #define GT_MESH_POSITION 1
 #define GT_MESH_TEXCOORD 2
 #define GT_MESH_NORMAL 3
-#define GT_MESH_PVM_MATRIX 6
-#define GT_MESH_VM_MATRIX 7
-#define GT_MESH_N_MATRIX 8
+#define GT_MESH_PVM_MATRIX 4
+#define GT_MESH_VM_MATRIX 5
+#define GT_MESH_N_MATRIX 6
 
 namespace { // begin anonymous namespace
 
@@ -247,7 +248,10 @@ namespace gintonic
 				}
 				else
 				{
-					N = normalize(gintonic::vec3f(fbx_normal[0], fbx_normal[1], fbx_normal[2]));
+					N = normalize(gintonic::vec3f(
+						static_cast<GLfloat>(fbx_normal[0]),
+						static_cast<GLfloat>(fbx_normal[1]),
+						static_cast<GLfloat>(fbx_normal[2])));
 				}
 				if (!get_element(fbx_uvs, polyvertex, vertexid, fbx_texcoord))
 				{
@@ -367,27 +371,27 @@ namespace gintonic
 		}
 
 		// Set up the matrix attributes for instanced rendering.
-		// glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_PVM_MATRIX]);
-		// for (GLuint i = 0; i < 4; ++i)
-		// {
-		// 	glEnableVertexAttribArray(GT_VERTEX_LAYOUT_PVM_MATRIX + i);
-		// 	glVertexAttribPointer(GT_VERTEX_LAYOUT_PVM_MATRIX + i, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (const GLvoid*)(sizeof(GLfloat) * i * 4));
-		// 	glVertexAttribDivisor(GT_VERTEX_LAYOUT_PVM_MATRIX + i, 1);
-		// }
-		// glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_VM_MATRIX]);
-		// for (GLuint i = 0; i < 3; ++i)
-		// {
-		// 	glEnableVertexAttribArray(GT_VERTEX_LAYOUT_VM_MATRIX + i);
-		// 	glVertexAttribPointer(GT_VERTEX_LAYOUT_VM_MATRIX + i, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3 * 4, (const GLvoid*)(sizeof(GLfloat) * i * 4));
-		// 	glVertexAttribDivisor(GT_VERTEX_LAYOUT_VM_MATRIX + i, 1);
-		// }
-		// glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_N_MATRIX]);
-		// for (GLuint i = 0; i < 3; ++i)
-		// {
-		// 	glEnableVertexAttribArray(GT_VERTEX_LAYOUT_N_MATRIX + i);
-		// 	glVertexAttribPointer(GT_VERTEX_LAYOUT_N_MATRIX + i, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3 * 3, (const GLvoid*)(sizeof(GLfloat) * i * 3));
-		// 	glVertexAttribDivisor(GT_VERTEX_LAYOUT_N_MATRIX + i, 1);
-		// }
+		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_PVM_MATRIX]);
+		for (GLuint i = 0; i < 4; ++i)
+		{
+			glEnableVertexAttribArray(GT_VERTEX_LAYOUT_PVM_MATRIX + i);
+			glVertexAttribPointer(GT_VERTEX_LAYOUT_PVM_MATRIX + i, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (const GLvoid*)(sizeof(GLfloat) * i * 4));
+			glVertexAttribDivisor(GT_VERTEX_LAYOUT_PVM_MATRIX + i, 1);
+		}
+		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_VM_MATRIX]);
+		for (GLuint i = 0; i < 3; ++i)
+		{
+			glEnableVertexAttribArray(GT_VERTEX_LAYOUT_VM_MATRIX + i);
+			glVertexAttribPointer(GT_VERTEX_LAYOUT_VM_MATRIX + i, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3 * 4, (const GLvoid*)(sizeof(GLfloat) * i * 4));
+			glVertexAttribDivisor(GT_VERTEX_LAYOUT_VM_MATRIX + i, 1);
+		}
+		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_N_MATRIX]);
+		for (GLuint i = 0; i < 3; ++i)
+		{
+			glEnableVertexAttribArray(GT_VERTEX_LAYOUT_N_MATRIX + i);
+			glVertexAttribPointer(GT_VERTEX_LAYOUT_N_MATRIX + i, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3 * 3, (const GLvoid*)(sizeof(GLfloat) * i * 3));
+			glVertexAttribDivisor(GT_VERTEX_LAYOUT_N_MATRIX + i, 1);
+		}
 
 		// Upload the indices for the arrays to the GPU and remember the count.
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[GT_MESH_INDEX]);
@@ -402,20 +406,52 @@ namespace gintonic
 
 	void mesh::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	{
+		GLfloat PVM[16];
+		GLfloat VM[12];
+		GLfloat N[9];
+
+		const auto& rPVM = renderer::matrix_PVM();
+		const auto& rVM = renderer::matrix_VM();
+		const auto& rN = renderer::matrix_N();
+
+		for (int i = 0; i < 4; ++i)
+		{
+			for (int j = 0; j < 4; ++j)
+			{
+				PVM[i + 4 * j] = rPVM(i,j);
+			}
+		}
+
+		for (int i = 0; i < 3; ++i)
+		{
+			for (int j = 0; j < 4; ++j)
+			{
+				VM[3 * i + j] = rVM(i,j);
+			}
+		}
+
+		for (int i = 0; i < 3; ++i)
+		{
+			for (int j = 0; j < 3; ++j)
+			{
+				N[i + 3 * j] = rN(i,j);
+			}
+		}
+
 		glBindVertexArray(m_vao);
-		glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, nullptr);
-		// glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_PVM_MATRIX]);
-		// glBindBuffer(GL_ARRAY_BUFFER, sizeof(mat4f), renderer::matrix_PVM(), GL_DYNAMIC_DRAW);
-		// glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_VM_MATRIX]);
-		// glBindBuffer(GL_ARRAY_BUFFER, sizeof(mat4f), renderer::matrix_VM(), GL_DYNAMIC_DRAW);
-		// glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_N_MATRIX]);
-		// gtBufferData(GL_ARRAY_BUFFER, sizeof(mat4f), renderer::matrix_N(), GL_DYNAMIC_DRAW);
-		// glDrawElementsInstanced(
-		// 	GL_TRIANGLES, 
-		// 	m_count,
-		// 	GL_UNSIGNED_INT,
-		// 	nullptr, 
-		// 	1);
+		// glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, nullptr);
+		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_PVM_MATRIX]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 16, PVM, GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_VM_MATRIX]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 12, VM, GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_N_MATRIX]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 9, N, GL_DYNAMIC_DRAW);
+		glDrawElementsInstanced(
+			GL_TRIANGLES, 
+			m_count,
+			GL_UNSIGNED_INT,
+			nullptr, 
+			1);
 	}
 
 	void mesh::draw(
