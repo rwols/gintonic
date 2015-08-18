@@ -105,6 +105,27 @@ int main(int argc, char* argv[])
 			scene->Destroy();
 			manager->Destroy();
 		}
+
+		// Test instanced rendering
+
+		const int instancebound = 1;
+
+		#define DO_INSTANCED_RENDERING
+		#ifdef DO_INSTANCED_RENDERING
+		for (int i = -instancebound; i < instancebound; ++i)
+		{
+			for (int j = -instancebound; j < instancebound; ++j)
+			{
+				gt::sqt_transformf t;
+				t.scale = 1.0f;
+				t.translation = {static_cast<float>(i), 0.0f, static_cast<float>(j)};
+
+				the_actor->transforms.push_back(t);
+			}
+		}
+		#else
+		the_actor->transforms.emplace_back(gt::sqt_transformf());
+		#endif
 		
 		std::vector<std::unique_ptr<gt::light>> lights;
 		std::vector<gt::sqt_transformf> light_transforms(4);
@@ -209,11 +230,23 @@ int main(int argc, char* argv[])
 			
 			gt::renderer::begin_geometry_pass();
 
+			#ifdef DO_INSTANCED_RENDERING
 			the_actor->draw_geometry();
+			#else
+			for (int i = -instancebound; i < instancebound; ++i)
+			{
+				for (int j = -instancebound; j < instancebound; ++j)
+				{
+					the_actor->transforms[0].translation = {static_cast<float>(i), 0.0f, static_cast<float>(j)};
+					the_actor->draw_geometry();
+				}
+			}
+			#endif
+			
 
-			gt::renderer::set_model_matrix(cube_transform.get_matrix());
-			cube_material.bind();
-			cube.draw();
+			// gt::renderer::set_model_matrix(cube_transform.get_matrix());
+			// cube_material.bind();
+			// cube.draw();
 			
 			// yaxis = (1.0f + current_cos) / 2.0f;
 			

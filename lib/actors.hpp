@@ -20,7 +20,9 @@ public:
 	virtual void draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW;
 	virtual void draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW;
 
-	sqt_transformf transform;
+	// sqt_transformf transform;
+
+	std::vector<sqt_transformf> transforms;
 
 	virtual ~actor() BOOST_NOEXCEPT_OR_NOTHROW;
 

@@ -15,9 +15,9 @@ namespace gintonic {
 		void draw() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 		void draw(
-			const std::vector<mat4f>& PVM_matrices,
-			const std::vector<mat4f>& VM_matrices,
-			const std::vector<mat3f>& N_matrices)
+			const std::vector<mat4f>& PVM_matrices_transposed,
+			const std::vector<mat4f>& VM_matrices_transposed,
+			const std::vector<mat3f>& N_matrices_transposed)
 			const BOOST_NOEXCEPT_OR_NOTHROW;
 
 		struct vec2f

@@ -331,9 +331,9 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 				// diffuse, specular, normal textures
 				const auto& s = renderer::get_gp_dsn_shader();
 				s.activate();
-				s.set_matrix_PVM(renderer::matrix_PVM());
-				s.set_matrix_VM(renderer::matrix_VM());
-				s.set_matrix_N(renderer::matrix_N());
+				// s.set_matrix_PVM(renderer::matrix_PVM());
+				// s.set_matrix_VM(renderer::matrix_VM());
+				// s.set_matrix_N(renderer::matrix_N());
 				s.set_diffuse_color(diffuse_color);
 				s.set_specular_color(specular_color);
 				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
@@ -348,9 +348,9 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 				// diffuse and specular textures
 				const auto& s = renderer::get_gp_ds_shader();
 				s.activate();
-				s.set_matrix_PVM(renderer::matrix_PVM());
-				s.set_matrix_VM(renderer::matrix_VM());
-				s.set_matrix_N(renderer::matrix_N());
+				// s.set_matrix_PVM(renderer::matrix_PVM());
+				// s.set_matrix_VM(renderer::matrix_VM());
+				// s.set_matrix_N(renderer::matrix_N());
 				s.set_diffuse_color(diffuse_color);
 				s.set_specular_color(specular_color);
 				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
@@ -364,9 +364,9 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 			// diffuse and normal textures
 			const auto& s = renderer::get_gp_dn_shader();
 			s.activate();
-			s.set_matrix_PVM(renderer::matrix_PVM());
-			s.set_matrix_VM(renderer::matrix_VM());
-			s.set_matrix_N(renderer::matrix_N());
+			// s.set_matrix_PVM(renderer::matrix_PVM());
+			// s.set_matrix_VM(renderer::matrix_VM());
+			// s.set_matrix_N(renderer::matrix_N());
 			s.set_diffuse_color(diffuse_color);
 			s.set_specular_color(specular_color);
 			s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
@@ -379,9 +379,9 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 			// diffuse texture
 			const auto& s = renderer::get_gp_d_shader();
 			s.activate();
-			s.set_matrix_PVM(renderer::matrix_PVM());
-			s.set_matrix_VM(renderer::matrix_VM());
-			s.set_matrix_N(renderer::matrix_N());
+			// s.set_matrix_PVM(renderer::matrix_PVM());
+			// s.set_matrix_VM(renderer::matrix_VM());
+			// s.set_matrix_N(renderer::matrix_N());
 			s.set_diffuse_color(diffuse_color);
 			s.set_specular_color(specular_color);
 			s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
@@ -395,9 +395,9 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 			// specular and normal textures
 			const auto& s = renderer::get_gp_sn_shader();
 			s.activate();
-			s.set_matrix_PVM(renderer::matrix_PVM());
-			s.set_matrix_VM(renderer::matrix_VM());
-			s.set_matrix_N(renderer::matrix_N());
+			// s.set_matrix_PVM(renderer::matrix_PVM());
+			// s.set_matrix_VM(renderer::matrix_VM());
+			// s.set_matrix_N(renderer::matrix_N());
 			s.set_diffuse_color(diffuse_color);
 			s.set_specular_color(specular_color);
 			s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
@@ -410,9 +410,9 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 			// specular texture
 			const auto& s = renderer::get_gp_s_shader();
 			s.activate();
-			s.set_matrix_PVM(renderer::matrix_PVM());
-			s.set_matrix_VM(renderer::matrix_VM());
-			s.set_matrix_N(renderer::matrix_N());
+			// s.set_matrix_PVM(renderer::matrix_PVM());
+			// s.set_matrix_VM(renderer::matrix_VM());
+			// s.set_matrix_N(renderer::matrix_N());
 			s.set_diffuse_color(diffuse_color);
 			s.set_specular_color(specular_color);
 			s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
@@ -424,9 +424,9 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 		// normal texture
 		const auto& s = renderer::get_gp_n_shader();
 		s.activate();
-		s.set_matrix_PVM(renderer::matrix_PVM());
-		s.set_matrix_VM(renderer::matrix_VM());
-		s.set_matrix_N(renderer::matrix_N());
+		// s.set_matrix_PVM(renderer::matrix_PVM());
+		// s.set_matrix_VM(renderer::matrix_VM());
+		// s.set_matrix_N(renderer::matrix_N());
 		s.set_diffuse_color(diffuse_color);
 		s.set_specular_color(specular_color);
 		s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
@@ -437,9 +437,9 @@ void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
 		// no textures at all
 		const auto& s = renderer::get_gp_shader();
 		s.activate();
-		s.set_matrix_PVM(renderer::matrix_PVM());
-		s.set_matrix_VM(renderer::matrix_VM());
-		s.set_matrix_N(renderer::matrix_N());
+		// s.set_matrix_PVM(renderer::matrix_PVM());
+		// s.set_matrix_VM(renderer::matrix_VM());
+		// s.set_matrix_N(renderer::matrix_N());
 		s.set_diffuse_color(diffuse_color);
 		s.set_specular_color(specular_color);
 	}

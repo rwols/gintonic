@@ -13,6 +13,7 @@
 #define GT_MESH_PVM_MATRIX 4
 #define GT_MESH_VM_MATRIX 5
 #define GT_MESH_N_MATRIX 6
+#define GT_MESH_MAX_INSTANCES 1024 * 1024
 
 namespace { // begin anonymous namespace
 
@@ -368,6 +369,7 @@ namespace gintonic
 
 		// Set up the matrix attributes for instanced rendering.
 		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_PVM_MATRIX]);
+		glBufferData(GL_ARRAY_BUFFER, GT_MESH_MAX_INSTANCES * sizeof(mat4f), nullptr, GL_DYNAMIC_DRAW);
 		for (GLuint i = 0; i < 4; ++i)
 		{
 			glEnableVertexAttribArray(GT_VERTEX_LAYOUT_PVM_MATRIX + i);
@@ -375,6 +377,7 @@ namespace gintonic
 			glVertexAttribDivisor(GT_VERTEX_LAYOUT_PVM_MATRIX + i, 1);
 		}
 		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_VM_MATRIX]);
+		glBufferData(GL_ARRAY_BUFFER, GT_MESH_MAX_INSTANCES * sizeof(mat4f), nullptr, GL_DYNAMIC_DRAW);
 		for (GLuint i = 0; i < 3; ++i)
 		{
 			glEnableVertexAttribArray(GT_VERTEX_LAYOUT_VM_MATRIX + i);
@@ -382,6 +385,7 @@ namespace gintonic
 			glVertexAttribDivisor(GT_VERTEX_LAYOUT_VM_MATRIX + i, 1);
 		}
 		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_N_MATRIX]);
+		glBufferData(GL_ARRAY_BUFFER, GT_MESH_MAX_INSTANCES * sizeof(mat3f), nullptr, GL_DYNAMIC_DRAW);
 		for (GLuint i = 0; i < 3; ++i)
 		{
 			glEnableVertexAttribArray(GT_VERTEX_LAYOUT_N_MATRIX + i);
@@ -402,46 +406,57 @@ namespace gintonic
 
 	void mesh::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		GLfloat PVM[16];
-		GLfloat VM[12];
-		GLfloat N[9];
 
-		const auto& rPVM = renderer::matrix_PVM();
-		const auto& rVM = renderer::matrix_VM();
-		const auto& rN = renderer::matrix_N();
-
-		for (int i = 0; i < 4; ++i)
-		{
-			for (int j = 0; j < 4; ++j)
-			{
-				PVM[i + 4 * j] = rPVM(i,j);
-			}
-		}
-
-		for (int i = 0; i < 3; ++i)
-		{
-			for (int j = 0; j < 4; ++j)
-			{
-				VM[3 * i + j] = rVM(i,j);
-			}
-		}
-
-		for (int i = 0; i < 3; ++i)
-		{
-			for (int j = 0; j < 3; ++j)
-			{
-				N[i + 3 * j] = rN(i,j);
-			}
-		}
 
 		glBindVertexArray(m_vao);
 		// glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, nullptr);
+
+		// GLfloat PVM[16];
+		// GLfloat VM[16];
+		// GLfloat N[9];
+
+		// const auto& rPVM = renderer::matrix_PVM();
+		// const auto& rVM = renderer::matrix_VM();
+		// const auto& rN = renderer::matrix_N();
+
+		// for (int i = 0; i < 4; ++i)
+		// {
+		// 	for (int j = 0; j < 4; ++j)
+		// 	{
+		// 		PVM[i + 4 * j] = rPVM(i,j);
+		// 	}
+		// }
+
+		// for (int i = 0; i < 4; ++i)
+		// {
+		// 	for (int j = 0; j < 4; ++j)
+		// 	{
+		// 		VM[i + 4 * j] = rVM(i,j);
+		// 	}
+		// }
+
+		// for (int i = 0; i < 3; ++i)
+		// {
+		// 	for (int j = 0; j < 3; ++j)
+		// 	{
+		// 		N[i + 3 * j] = rN(i,j);
+		// 	}
+		// }
+
+		auto PVM = renderer::matrix_PVM();
+		auto VM = renderer::matrix_VM();
+		auto N = renderer::matrix_N();
+
+		PVM.transpose();
+		VM.transpose();
+		N.transpose();
+
 		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_PVM_MATRIX]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 16, PVM, GL_DYNAMIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(mat4f), &PVM(0,0));
 		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_VM_MATRIX]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 12, VM, GL_DYNAMIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(mat4f), &VM(0,0));
 		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_N_MATRIX]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 9, N, GL_DYNAMIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(mat3f), &N(0,0));
 		glDrawElementsInstanced(
 			GL_TRIANGLES, 
 			m_count,
@@ -451,24 +466,24 @@ namespace gintonic
 	}
 
 	void mesh::draw(
-		const std::vector<mat4f>& PVM_matrices,
-		const std::vector<mat4f>& VM_matrices,
-		const std::vector<mat3f>& N_matrices)
+		const std::vector<mat4f>& PVM_matrices_transposed,
+		const std::vector<mat4f>& VM_matrices_transposed,
+		const std::vector<mat3f>& N_matrices_transposed)
 		const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		glBindVertexArray(m_vao);
 		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_PVM_MATRIX]);
-		gtBufferData(GL_ARRAY_BUFFER, PVM_matrices, GL_DYNAMIC_DRAW);
+		gtBufferSubData(GL_ARRAY_BUFFER, 0, std::min((size_t)(GT_MESH_MAX_INSTANCES), PVM_matrices_transposed.size()), PVM_matrices_transposed);
 		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_VM_MATRIX]);
-		gtBufferData(GL_ARRAY_BUFFER, VM_matrices, GL_DYNAMIC_DRAW);
+		gtBufferSubData(GL_ARRAY_BUFFER, 0, std::min((size_t)(GT_MESH_MAX_INSTANCES), VM_matrices_transposed.size()), VM_matrices_transposed);
 		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_N_MATRIX]);
-		gtBufferData(GL_ARRAY_BUFFER, N_matrices, GL_DYNAMIC_DRAW);
+		gtBufferSubData(GL_ARRAY_BUFFER, 0, std::min((size_t)(GT_MESH_MAX_INSTANCES), N_matrices_transposed.size()), N_matrices_transposed);
 		glDrawElementsInstanced(
 			GL_TRIANGLES, 
 			m_count,
 			GL_UNSIGNED_INT,
 			nullptr, 
-			static_cast<GLsizei>(PVM_matrices.size()));
+			static_cast<GLsizei>(PVM_matrices_transposed.size()));
 	}
 
 	unsigned mesh::type() const BOOST_NOEXCEPT_OR_NOTHROW

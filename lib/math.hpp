@@ -1591,6 +1591,19 @@ template <class T> struct mat<T,4> : ::std::array<vec<T,4>,4>
 		return r;
 	}
 
+	inline mat<T,4>& transpose()
+	{
+		#define m(i,j) (*this)(i,j)
+		std::swap(m(0,1), m(1,0));
+		std::swap(m(0,2), m(2,0));
+		std::swap(m(0,3), m(3,0));
+		std::swap(m(1,2), m(2,1));
+		std::swap(m(1,3), m(3,1));
+		std::swap(m(2,3), m(3,2));
+		#undef m
+		return *this;
+	}
+
 	inline static mat identity()
 	{
 		std::size_t i,j;

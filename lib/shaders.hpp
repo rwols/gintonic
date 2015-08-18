@@ -73,7 +73,7 @@ private:
  * gintonic::gp_shader                                                       *
  ****************************************************************************/
 
-class gp_shader : public matrix_PVM_VM_N_shader
+class gp_shader : public opengl::shader
 {
 public:
 	gp_shader();

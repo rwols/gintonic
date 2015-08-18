@@ -4,6 +4,7 @@
 #include "opengl.hpp"
 
 namespace gintonic {
+
 namespace opengl {
 
 /*****************************************************************************

@@ -106,7 +106,7 @@ void matrix_PVM_VM_N_shader::set_matrix_N(const mat3f& m) const BOOST_NOEXCEPT_O
  ****************************************************************************/
 
 gp_shader::gp_shader()
-: matrix_PVM_VM_N_shader("../s/gp.vs", "../s/gp.fs")
+: opengl::shader("../s/gp.vs", "../s/gp.fs")
 {
 	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_specular_color = get_uniform_location("material.specular_color");
@@ -129,7 +129,7 @@ void gp_shader::set_specular_color(const vec4f& color) const BOOST_NOEXCEPT_OR_N
 gp_shader::gp_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(fragment_shader))
+: opengl::shader(std::move(vertex_shader), std::move(fragment_shader))
 {
 	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_specular_color = get_uniform_location("material.specular_color");
@@ -139,7 +139,7 @@ gp_shader::gp_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: opengl::shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
 	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_specular_color = get_uniform_location("material.specular_color");

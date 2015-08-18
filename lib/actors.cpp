@@ -157,17 +157,29 @@ void static_model_actor::process_mesh(
 			mat.set_diffuse_texture(tex_filename);
 			std::cout << "\tDiffuse texture: " << tex_filename << '\n';
 		}
+		else
+		{
+			std::cout << "\tNo diffuse texture present.\n";
+		}
 		if (specular_count)
 		{
 			tex_filename = get_texture_filename(fbx_mat, FbxSurfaceMaterial::sSpecular, 0);
 			mat.set_specular_texture(tex_filename);
 			std::cout << "\tSpecular texture: " << tex_filename << '\n';
 		}
+		else
+		{
+			std::cout << "\tNo specular texture present.\n";
+		}
 		if (normal_count)
 		{
 			tex_filename = get_texture_filename(fbx_mat, FbxSurfaceMaterial::sNormalMap, 0);
 			mat.set_normal_texture(tex_filename);
 			std::cout << "\tNormal texture: " << tex_filename << '\n';
+		}
+		else
+		{
+			std::cout << "\tNo normal map present.\n";
 		}
 	}
 	else
@@ -263,38 +275,57 @@ void static_model_actor::process_light(
 void static_model_actor::draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	sqt_transformf t;
-	std::shared_ptr<const mesh> m;
-	material mat;
-	
+	// std::shared_ptr<const mesh> m;
+	// material mat;
+
+	std::vector<mat4f> PVM_matrices;
+	std::vector<mat4f> VM_matrices;
+	std::vector<mat3f> N_matrices;
+
+	const mat4f matrix_V = renderer::camera().matrix_V();
+	mat4f matrix_P = renderer::matrix_P();
+	mat4f matrix_VM;
+
 	for (const auto& tuple : model)
 	{
-		t = std::get<0>(tuple);
+		for (const auto& transform : transforms)
+		{
+			t = std::get<0>(tuple);
+			t.scale *= transform.scale;
+			t.rotation *= transform.rotation;
+			t.translation += transform.translation;
 
-		t.scale *= transform.scale;
-		t.rotation *= transform.rotation;
-		t.translation += transform.translation;
+			matrix_VM = matrix_V * t.get_matrix();
 
-		renderer::set_model_matrix(t.get_matrix());
+			PVM_matrices.emplace_back((matrix_P * matrix_VM).transpose());
+			N_matrices.emplace_back(matrix_VM.upper_left_33().invert());
+			VM_matrices.emplace_back(matrix_VM.transpose());
+		}
 
+		// Bind the material
 		std::get<2>(tuple).bind();
 
-		std::get<1>(tuple)->draw();
+		// Draw the mesh
+		std::get<1>(tuple)->draw(PVM_matrices, VM_matrices, N_matrices);
 	}
 }
 
 void static_model_actor::draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	sqt_transformf t;
-	std::shared_ptr<const light> l;
-	for (const auto& tup : lights)
+
+	for (const auto& tuple : lights)
 	{
-		std::tie(t, l) = tup;
+		for (const auto& transform : transforms)
+		{
+			t = std::get<0>(tuple);
+			t.scale *= transform.scale;
+			t.rotation *= transform.rotation;
+			t.translation += transform.translation;
 
-		t.scale *= transform.scale;
-		t.rotation *= transform.rotation;
-		t.translation += transform.translation;
-
-		l->shine(t);
+			// Shine the light given the transform.
+			std::get<1>(tuple)->shine(t);
+		}
 	}
 }
 
