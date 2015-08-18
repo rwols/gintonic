@@ -108,24 +108,7 @@ int main(int argc, char* argv[])
 
 		// Test instanced rendering
 
-		const int instancebound = 1;
-
-		#define DO_INSTANCED_RENDERING
-		#ifdef DO_INSTANCED_RENDERING
-		for (int i = -instancebound; i < instancebound; ++i)
-		{
-			for (int j = -instancebound; j < instancebound; ++j)
-			{
-				gt::sqt_transformf t;
-				t.scale = 1.0f;
-				t.translation = {static_cast<float>(i), 0.0f, static_cast<float>(j)};
-
-				the_actor->transforms.push_back(t);
-			}
-		}
-		#else
 		the_actor->transforms.emplace_back(gt::sqt_transformf());
-		#endif
 		
 		std::vector<std::unique_ptr<gt::light>> lights;
 		std::vector<gt::sqt_transformf> light_transforms(4);
@@ -139,9 +122,9 @@ int main(int argc, char* argv[])
 			lights.emplace_back(new gt::point_light(gt::vec4f(0.0f, 0.0f, 1.0f, 1.0f), attenuation));
 			lights.emplace_back(new gt::directional_light(gt::vec4f(0.8f, 0.8f, 0.8f, 1.0f)));
 
-			light_materials.emplace_back(new gt::material_c(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f)));
-			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 1.0f, 0.0f, 0.0f)));
-			light_materials.emplace_back(new gt::material_c(gt::vec4f(0.0f, 0.0f, 1.0f, 0.0f)));
+			light_materials.emplace_back(new gt::material(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f)));
+			light_materials.emplace_back(new gt::material(gt::vec4f(0.0f, 1.0f, 0.0f, 0.0f)));
+			light_materials.emplace_back(new gt::material(gt::vec4f(0.0f, 0.0f, 1.0f, 0.0f)));
 		}
 		
 		light_transforms[0].scale = 0.1f;
@@ -230,34 +213,8 @@ int main(int argc, char* argv[])
 			
 			gt::renderer::begin_geometry_pass();
 
-			#ifdef DO_INSTANCED_RENDERING
 			the_actor->draw_geometry();
-			#else
-			for (int i = -instancebound; i < instancebound; ++i)
-			{
-				for (int j = -instancebound; j < instancebound; ++j)
-				{
-					the_actor->transforms[0].translation = {static_cast<float>(i), 0.0f, static_cast<float>(j)};
-					the_actor->draw_geometry();
-				}
-			}
-			#endif
 			
-
-			// gt::renderer::set_model_matrix(cube_transform.get_matrix());
-			// cube_material.bind();
-			// cube.draw();
-			
-			// yaxis = (1.0f + current_cos) / 2.0f;
-			
-			// zaxis = (1.0f + current_sin) / 2.0f;
-			
-			// rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
-			
-			// gt::renderer::set_model_matrix(-curtime / 4.0f, rotation_axis);
-			// the_material->bind();
-			// the_shape.draw();
-
 			for (std::size_t i = 0; i < light_materials.size(); ++i)
 			{
 				const auto numlights = static_cast<float>(light_materials.size());
@@ -291,7 +248,7 @@ int main(int argc, char* argv[])
 
 				gt::renderer::null_light_pass();
 
-				// the_actor->draw_lights();
+				the_actor->draw_lights();
 
 				for (std::size_t i = 0; i < lights.size(); ++i)
 				{

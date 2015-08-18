@@ -7,7 +7,7 @@ namespace gintonic {
  ****************************************************************************/
 
 matrix_PVM_shader::matrix_PVM_shader()
-: opengl::shader("../s/null.vs", "../s/null.fs")
+: opengl::shader("../s/lp_pvm.vs", "../s/null.fs")
 {
 	loc_matrix_PVM = get_uniform_location("matrix_PVM");
 }
@@ -106,7 +106,7 @@ void matrix_PVM_VM_N_shader::set_matrix_N(const mat3f& m) const BOOST_NOEXCEPT_O
  ****************************************************************************/
 
 gp_shader::gp_shader()
-: opengl::shader("../s/gp.vs", "../s/gp.fs")
+: matrix_PVM_VM_N_shader("../s/gp.vs", "../s/gp.fs")
 {
 	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_specular_color = get_uniform_location("material.specular_color");
@@ -129,7 +129,7 @@ void gp_shader::set_specular_color(const vec4f& color) const BOOST_NOEXCEPT_OR_N
 gp_shader::gp_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: opengl::shader(std::move(vertex_shader), std::move(fragment_shader))
+: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(fragment_shader))
 {
 	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_specular_color = get_uniform_location("material.specular_color");
@@ -139,7 +139,7 @@ gp_shader::gp_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: opengl::shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
 	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_specular_color = get_uniform_location("material.specular_color");
@@ -403,364 +403,304 @@ gp_dsn_shader::gp_dsn_shader(
 }
 
 /*****************************************************************************
- * gintonic::geometry_null_shader                                            *
+ * gintonic::gpi_shader                                                      *
  ****************************************************************************/
 
-geometry_null_shader::geometry_null_shader()
-: matrix_PVM_VM_N_shader("../s/gp_null.vs", "../s/gp_null.fs")
-{
-	/* Empty on purpose. */
-}
-
-geometry_null_shader::~geometry_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	/* Empty on purpose. */
-}
-
-/*****************************************************************************
- * gintonic::gp_dc_shader                                                    *
- ****************************************************************************/
-
-gp_dc_shader::gp_dc_shader()
-: matrix_PVM_VM_N_shader("../s/gp_dc.vs", "../s/gp_dc.fs")
+gpi_shader::gpi_shader()
+: opengl::shader("../s/gpi.vs", "../s/gp.fs")
 {
 	loc_diffuse_color = get_uniform_location("material.diffuse_color");
+	loc_specular_color = get_uniform_location("material.specular_color");
 }
-
-gp_dc_shader::~gp_dc_shader() BOOST_NOEXCEPT_OR_NOTHROW
+gpi_shader::~gpi_shader() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }
-void gp_dc_shader::set_diffuse_color(const vec4f& color) const BOOST_NOEXCEPT_OR_NOTHROW
+
+void gpi_shader::set_diffuse_color(const vec4f& color) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_diffuse_color, color);
 }
 
-gp_dc_shader::gp_dc_shader(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(fragment_shader))
-{
-	loc_diffuse_color = get_uniform_location("material.diffuse_color");
-}
-
-gp_dc_shader::gp_dc_shader( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	loc_diffuse_color = get_uniform_location("material.diffuse_color");
-}
-
-/*****************************************************************************
- * gintonic::gp_dcsc_shader                                                  *
- ****************************************************************************/
-
-gp_dcsc_shader::gp_dcsc_shader()
-: matrix_PVM_VM_N_shader("../s/gp_dcsc.vs", "../s/gp_dcsc.fs")
-, gp_dc_shader("../s/gp_dcsc.vs", "../s/gp_dcsc.fs")
-{
-	loc_specular_color = get_uniform_location("material.specular_color");
-}
-
-gp_dcsc_shader::~gp_dcsc_shader() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	/* Empty on purpose. */
-}
-
-void gp_dcsc_shader::set_specular_color(const vec4f& color) const BOOST_NOEXCEPT_OR_NOTHROW
+void gpi_shader::set_specular_color(const vec4f& color) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_specular_color, color);
 }
 
-gp_dcsc_shader::gp_dcsc_shader(
+gpi_shader::gpi_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(fragment_shader))
-, gp_dc_shader(std::move(vertex_shader), std::move(fragment_shader))
+: opengl::shader(std::move(vertex_shader), std::move(fragment_shader))
 {
+	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_specular_color = get_uniform_location("material.specular_color");
 }
 
-gp_dcsc_shader::gp_dcsc_shader( 
+gpi_shader::gpi_shader( 
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-, gp_dc_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: opengl::shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
+	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_specular_color = get_uniform_location("material.specular_color");
 }
 
 /*****************************************************************************
- * gintonic::gp_dt_shader                                                    *
+ * gintonic::gpi_d_shader                                                    *
  ****************************************************************************/
 
-gp_dt_shader::gp_dt_shader()
-: matrix_PVM_VM_N_shader("../s/gp_dt.vs", "../s/gp_dt.fs")
+gpi_d_shader::gpi_d_shader()
+: gpi_shader("../s/gpi.vs", "../s/gp_d.fs")
 {
 	loc_diffuse_texture = get_uniform_location("material.diffuse_texture");
 }
 
-gp_dt_shader::~gp_dt_shader() BOOST_NOEXCEPT_OR_NOTHROW
+gpi_d_shader::~gpi_d_shader() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }
 
-void gp_dt_shader::set_diffuse_texture(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+void gpi_d_shader::set_diffuse_texture(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	set_uniform(loc_diffuse_texture, texture_unit);
 }
 
-gp_dt_shader::gp_dt_shader(
+gpi_d_shader::gpi_d_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(fragment_shader))
+: gpi_shader(std::move(vertex_shader), std::move(fragment_shader))
+{
+	loc_diffuse_texture = get_uniform_location("material.diffuse_texture");
+}
+gpi_d_shader::gpi_d_shader( 
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path geometry_shader,
+	boost::filesystem::path fragment_shader)
+: gpi_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
 	loc_diffuse_texture = get_uniform_location("material.diffuse_texture");
 }
 
-gp_dt_shader::gp_dt_shader( 
+/*****************************************************************************
+ * gintonic::gpi_s_shader                                                    *
+ ****************************************************************************/
+
+gpi_s_shader::gpi_s_shader()
+: gpi_shader("../s/gpi.vs", "../s/gp_s.fs")
+{
+	loc_specular_texture = get_uniform_location("material.specular_texture");
+}
+
+gpi_s_shader::~gpi_s_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
+void gpi_s_shader::set_specular_texture(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_specular_texture, texture_unit);
+}
+
+gpi_s_shader::gpi_s_shader(
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path fragment_shader)
+: gpi_shader(std::move(vertex_shader), std::move(fragment_shader))
+{
+	loc_specular_texture = get_uniform_location("material.specular_texture");
+}
+
+gpi_s_shader::gpi_s_shader( 
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: gpi_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
-	loc_diffuse_texture = get_uniform_location("material.diffuse_texture");
+	loc_specular_texture = get_uniform_location("material.specular_texture");
 }
 
 /*****************************************************************************
- * gintonic::gp_dcdt_shader                                                  *
+ * gintonic::gpi_n_shader                                                    *
  ****************************************************************************/
 
-gp_dcdt_shader::gp_dcdt_shader()
-: matrix_PVM_VM_N_shader("../s/gp_dcdt.vs", "../s/gp_dcdt.fs")
-, gp_dc_shader("../s/gp_dcdt.vs", "../s/gp_dcdt.fs")
-, gp_dt_shader("../s/gp_dcdt.vs", "../s/gp_dcdt.fs")
+gpi_n_shader::gpi_n_shader()
+: gpi_shader("../s/gpi_n.vs", "../s/gp_n.fs")
+{
+	loc_normal_texture = get_uniform_location("material.normal_texture");
+}
+
+gpi_n_shader::~gpi_n_shader() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }
 
-gp_dcdt_shader::~gp_dcdt_shader() BOOST_NOEXCEPT_OR_NOTHROW
+void gpi_n_shader::set_normal_texture(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	/* Empty on purpose. */
+	set_uniform(loc_normal_texture, texture_unit);
 }
 
-gp_dcdt_shader::gp_dcdt_shader(
+gpi_n_shader::gpi_n_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(fragment_shader))
-, gp_dc_shader(std::move(vertex_shader), std::move(fragment_shader))
-, gp_dt_shader(std::move(vertex_shader), std::move(fragment_shader))
+: gpi_shader(std::move(vertex_shader), std::move(fragment_shader))
 {
-	/* Empty on purpose. */
+	loc_normal_texture = get_uniform_location("material.normal_texture");
 }
 
-gp_dcdt_shader::gp_dcdt_shader( 
+gpi_n_shader::gpi_n_shader( 
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-, gp_dc_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-, gp_dt_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: gpi_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+{
+	loc_normal_texture = get_uniform_location("material.normal_texture");
+}
+
+/*****************************************************************************
+ * gintonic::gpi_ds_shader                                                   *
+ ****************************************************************************/
+
+gpi_ds_shader::gpi_ds_shader()
+: gpi_d_shader("../s/gpi.vs", "../s/gp_ds.fs")
+{
+	loc_specular_texture = get_uniform_location("material.specular_texture");
+}
+
+gpi_ds_shader::~gpi_ds_shader() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }
 
-/*****************************************************************************
- * gintonic::gp_c_shader                                                     *
- ****************************************************************************/
-
-gp_c_shader::gp_c_shader()
-: matrix_PVM_VM_N_shader("../s/gp_c.vs", "../s/gp_c.fs")
+void gpi_ds_shader::set_specular_texture(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	loc_color = get_uniform_location("material.color");
+	set_uniform(loc_specular_texture, texture_unit);
 }
 
-gp_c_shader::gp_c_shader(
+gpi_ds_shader::gpi_ds_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(fragment_shader))
+: gpi_d_shader(std::move(vertex_shader), std::move(fragment_shader))
 {
-	loc_color = get_uniform_location("material.color");
+	loc_specular_texture = get_uniform_location("material.specular_texture");
 }
-gp_c_shader::gp_c_shader( 
+
+gpi_ds_shader::gpi_ds_shader( 
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_VM_N_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: gpi_d_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
-	loc_color = get_uniform_location("material.color");
+	loc_specular_texture = get_uniform_location("material.specular_texture");
 }
 
-gp_c_shader::~gp_c_shader() BOOST_NOEXCEPT_OR_NOTHROW
+/*****************************************************************************
+ * gintonic::gpi_dn_shader                                                   *
+ ****************************************************************************/
+
+gpi_dn_shader::gpi_dn_shader()
+: gpi_d_shader("../s/gpi_n.vs", "../s/gp_dn.fs")
+{
+	loc_normal_texture = get_uniform_location("material.normal_texture");
+}
+
+gpi_dn_shader::~gpi_dn_shader() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }
 
-void gp_c_shader::set_color(const vec4f& color) const BOOST_NOEXCEPT_OR_NOTHROW
+void gpi_dn_shader::set_normal_texture(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	set_uniform(loc_color, color);
+	set_uniform(loc_normal_texture, texture_unit);
 }
 
-/*****************************************************************************
- * gintonic::gp_cd_shader                                                    *
- ****************************************************************************/
-
-gp_cd_shader::gp_cd_shader()
-: gp_c_shader("../s/gp_cd.vs", "../s/gp_cd.fs")
-{
-	loc_diffuse = get_uniform_location("material.diffuse");
-}
-
-void gp_cd_shader::set_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_diffuse, texture_unit);
-}
-
-gp_cd_shader::gp_cd_shader(
+gpi_dn_shader::gpi_dn_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: gp_c_shader(std::move(vertex_shader), std::move(fragment_shader))
+: gpi_d_shader(std::move(vertex_shader), std::move(fragment_shader))
 {
-	loc_diffuse = get_uniform_location("material.diffuse");
+	loc_normal_texture = get_uniform_location("material.normal_texture");
 }
 
-gp_cd_shader::gp_cd_shader( 
+gpi_dn_shader::gpi_dn_shader( 
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: gp_c_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: gpi_d_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
-	loc_diffuse = get_uniform_location("material.diffuse");
+	loc_normal_texture = get_uniform_location("material.normal_texture");
 }
 
-gp_cd_shader::~gp_cd_shader() BOOST_NOEXCEPT_OR_NOTHROW
+/*****************************************************************************
+ * gintonic::gpi_sn_shader                                                   *
+ ****************************************************************************/
+
+gpi_sn_shader::gpi_sn_shader()
+: gpi_s_shader("../s/gpi_n.vs", "../s/gp_sn.fs")
+{
+	loc_normal_texture = get_uniform_location("material.normal_texture");
+}
+
+gpi_sn_shader::~gpi_sn_shader() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }
 
-/*****************************************************************************
- * gintonic::gp_cds_shader                                                   *
- ****************************************************************************/
-
-gp_cds_shader::gp_cds_shader()
-: gp_cd_shader("../s/gp_cds.vs", "../s/gp_cds.fs")
+void gpi_sn_shader::set_normal_texture(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	loc_specular = get_uniform_location("material.specular");
+	set_uniform(loc_normal_texture, texture_unit);
 }
 
-void gp_cds_shader::set_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_specular, texture_unit);
-}
-
-gp_cds_shader::gp_cds_shader(
-	boost::filesystem::path vertex_shader,
-	boost::filesystem::path fragment_shader)
-: gp_cd_shader(std::move(vertex_shader), std::move(fragment_shader))
-{
-	loc_specular = get_uniform_location("material.specular");
-}
-
-gp_cds_shader::gp_cds_shader(
-	boost::filesystem::path vertex_shader,
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: gp_cd_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	loc_specular = get_uniform_location("material.specular");
-}
-
-gp_cds_shader::~gp_cds_shader() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	/* Empty on purpose. */
-}
-
-/*****************************************************************************
- * gintonic::gp_cdn_shader                                                   *
- ****************************************************************************/
-
-gp_cdn_shader::gp_cdn_shader()
-: matrix_PVM_shader("../s/gp_cdn.vs", "../s/gp_cdn.fs")
-{
-	loc_color = get_uniform_location("material.color");
-	loc_diffuse = get_uniform_location("material.diffuse");
-	loc_normal = get_uniform_location("material.normal");
-}
-
-void gp_cdn_shader::set_color(const vec4f& color) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_color, color);
-}
-
-void gp_cdn_shader::set_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_diffuse, texture_unit);
-}
-
-void gp_cdn_shader::set_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_normal, texture_unit);
-}
-
-gp_cdn_shader::gp_cdn_shader(
+gpi_sn_shader::gpi_sn_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_shader(std::move(vertex_shader), std::move(fragment_shader))
+: gpi_s_shader(std::move(vertex_shader), std::move(fragment_shader))
 {
-	loc_color = get_uniform_location("material.color");
-	loc_diffuse = get_uniform_location("material.diffuse");
-	loc_normal = get_uniform_location("material.normal");
+	loc_normal_texture = get_uniform_location("material.normal_texture");
 }
 
-gp_cdn_shader::gp_cdn_shader( 
+gpi_sn_shader::gpi_sn_shader( 
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: matrix_PVM_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: gpi_s_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
-	loc_color = get_uniform_location("material.color");
-	loc_diffuse = get_uniform_location("material.diffuse");
-	loc_normal = get_uniform_location("material.normal");
-}
-
-gp_cdn_shader::~gp_cdn_shader() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	/* Empty on purpose. */
+	loc_normal_texture = get_uniform_location("material.normal_texture");
 }
 
 /*****************************************************************************
- * gintonic::geometry_pass_shader                                            *
+ * gintonic::gpi_dsn_shader                                                  *
  ****************************************************************************/
 
-geometry_pass_shader::geometry_pass_shader()
-: matrix_PVM_VM_N_shader("../s/geometry_pass.vs", "../s/geometry_pass.fs")
+gpi_dsn_shader::gpi_dsn_shader()
+: gpi_ds_shader("../s/gpi_n.vs", "../s/gp_dsn.fs")
 {
-	loc_diffuse_color = get_uniform_location("material.diffuse_color");
-	loc_diffuse = get_uniform_location("material.diffuse");
-	loc_diffuse_factor = get_uniform_location("material.diffuse_factor");
+	loc_normal_texture = get_uniform_location("material.normal_texture");
 }
 
-geometry_pass_shader::~geometry_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
+gpi_dsn_shader::~gpi_dsn_shader() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }
 
-void geometry_pass_shader::set_diffuse_color(const vec4f& diffuse_color) const BOOST_NOEXCEPT_OR_NOTHROW
+void gpi_dsn_shader::set_normal_texture(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	set_uniform(loc_diffuse_color, diffuse_color);
+	set_uniform(loc_normal_texture, texture_unit);
 }
 
-void geometry_pass_shader::set_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+gpi_dsn_shader::gpi_dsn_shader(
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path fragment_shader)
 {
-	set_uniform(loc_diffuse, texture_unit);
+	loc_normal_texture = get_uniform_location("material.normal_texture");
 }
 
-void geometry_pass_shader::set_diffuse_factor(const GLfloat factor) const BOOST_NOEXCEPT_OR_NOTHROW
+gpi_dsn_shader::gpi_dsn_shader( 
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path geometry_shader,
+	boost::filesystem::path fragment_shader)
+: gpi_ds_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
-	set_uniform(loc_diffuse_factor, factor);
+	loc_normal_texture = get_uniform_location("material.normal_texture");
 }
 
 /*****************************************************************************
@@ -809,11 +749,48 @@ lp_null_shader::lp_null_shader(
 }
 
 /*****************************************************************************
+ * gintonic::lp_ambient_shader                                               *
+ ****************************************************************************/
+
+lp_ambient_shader::lp_ambient_shader()
+: lp_null_shader("../s/lp.vs", "../s/lp_ambient.fs")
+{
+	loc_light_intensity = get_uniform_location("light.intensity");
+}
+
+lp_ambient_shader::~lp_ambient_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
+void lp_ambient_shader::set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_light_intensity, intensity);
+}
+
+lp_ambient_shader::lp_ambient_shader(
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path fragment_shader)
+: lp_null_shader(std::move(vertex_shader), std::move(fragment_shader))
+{
+	loc_light_intensity = get_uniform_location("light.intensity");
+}
+
+lp_ambient_shader::lp_ambient_shader( 
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path geometry_shader,
+	boost::filesystem::path fragment_shader)
+: lp_null_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+{
+	loc_light_intensity = get_uniform_location("light.intensity");
+}
+
+/*****************************************************************************
  * gintonic::lp_directional_shader                                           *
  ****************************************************************************/
 
 lp_directional_shader::lp_directional_shader()
-: lp_null_shader("../s/lp_directional.vs", "../s/lp_directional.fs")
+: lp_null_shader("../s/lp.vs", "../s/lp_directional.fs")
 {
 	loc_gbuffer_position = get_uniform_location("gbuffer.position");
 	loc_gbuffer_specular = get_uniform_location("gbuffer.specular");
@@ -882,7 +859,7 @@ lp_directional_shader::lp_directional_shader(
  ****************************************************************************/
 
 lp_point_shader::lp_point_shader()
-: matrix_PVM_shader("../s/lp_point.vs", "../s/lp_point.fs")
+: matrix_PVM_shader("../s/lp_pvm.vs", "../s/lp_point.fs")
 {
 	loc_viewport_size = get_uniform_location("viewport_size");
 	loc_gbuffer_position = get_uniform_location("gbuffer.position");
@@ -975,7 +952,7 @@ lp_point_shader::lp_point_shader(
  ****************************************************************************/
 
 lp_spot_shader::lp_spot_shader()
-: matrix_PVM_shader("../s/lp_spot.vs", "../s/lp_spot.fs")
+: matrix_PVM_shader("../s/lp_pvm.vs", "../s/lp_spot.fs")
 {
 	loc_viewport_size = get_uniform_location("viewport_size");
 	loc_gbuffer_position = get_uniform_location("gbuffer.position");
@@ -1069,120 +1046,6 @@ lp_spot_shader::lp_spot_shader(
 	loc_light_position = get_uniform_location("light.position");
 	loc_light_direction = get_uniform_location("light.direction");
 	loc_light_attenuation = get_uniform_location("light.attenuation");
-}
-
-/*****************************************************************************
- * gintonic::light_pass_shader                                               *
- ****************************************************************************/
-
-light_pass_shader::light_pass_shader(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: matrix_PVM_shader(std::move(vertex_shader), std::move(fragment_shader))
-{
-	loc_viewport_size = get_uniform_location("viewport_size");
-	loc_light_intensity = get_uniform_location("light.intensity");
-}
-
-light_pass_shader::~light_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	/* Empty on purpose .*/
-}
-
-light_pass_shader::light_pass_shader( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: matrix_PVM_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	loc_viewport_size = get_uniform_location("viewport_size");
-	loc_light_intensity = get_uniform_location("light.intensity");
-}
-
-void light_pass_shader::set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_viewport_size, size);
-}
-
-void light_pass_shader::set_light_intensity(const vec3f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_light_intensity, intensity);
-}
-
-/*****************************************************************************
- * gintonic::directional_light_pass_shader                                   *
- ****************************************************************************/
-
-directional_light_pass_shader::directional_light_pass_shader()
-: light_pass_shader("../s/light_pass.vs", "../s/directional_light_pass.fs")
-{
-	loc_light_direction = get_uniform_location("light.direction");
-	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
-	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
-}
-
-directional_light_pass_shader::~directional_light_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	/* Empty on purpose. */
-}
-
-void directional_light_pass_shader::set_light_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_light_direction, direction);
-}
-
-void directional_light_pass_shader::set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_gbuffer_diffuse, texture_unit);
-}
-
-void directional_light_pass_shader::set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_gbuffer_normal, texture_unit);
-}
-
-/*****************************************************************************
- * gintonic::point_light_pass_shader                                         *
- ****************************************************************************/
-
-point_light_pass_shader::point_light_pass_shader()
-: light_pass_shader("../s/light_pass.vs", "../s/point_light_pass.fs")
-{
-	loc_light_position = get_uniform_location("light.position");
-	loc_light_attenuation = get_uniform_location("light.attenuation");
-	loc_gbuffer_position = get_uniform_location("gbuffer.position");
-	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
-	loc_gbuffer_normal = get_uniform_location("gbuffer.normal");
-}
-
-point_light_pass_shader::~point_light_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	/* Empty on purpose. */
-}
-
-void point_light_pass_shader::set_light_position(const vec3f& position) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_light_position, position);
-}
-
-void point_light_pass_shader::set_light_attenuation(const vec3f& attenuation) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_light_attenuation, attenuation);
-}
-
-void point_light_pass_shader::set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_gbuffer_position, texture_unit);
-}
-
-void point_light_pass_shader::set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_gbuffer_diffuse, texture_unit);
-}
-
-void point_light_pass_shader::set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	set_uniform(loc_gbuffer_normal, texture_unit);
 }
 
 /*****************************************************************************

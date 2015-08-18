@@ -13,6 +13,8 @@
 
 namespace gintonic 
 {
+
+
 	namespace opengl
 	{
 		class unit_quad_P;
@@ -20,17 +22,7 @@ namespace gintonic
 		class unit_cone_P;
 	}
 
-	class geometry_null_shader;
 	class matrix_PVM_shader;
-	class gp_c_shader;
-	class gp_cd_shader;
-	class gp_cds_shader;
-	class gp_cdn_shader;
-
-	class gp_dc_shader;
-	class gp_dcsc_shader;
-	class gp_dt_shader;
-	class gp_dcdt_shader;
 
 	class gp_shader;
 	class gp_d_shader;
@@ -40,13 +32,21 @@ namespace gintonic
 	class gp_dn_shader;
 	class gp_sn_shader;
 	class gp_dsn_shader;
+	
+	class gpi_shader;
+	class gpi_d_shader;
+	class gpi_s_shader;
+	class gpi_n_shader;
+	class gpi_ds_shader;
+	class gpi_dn_shader;
+	class gpi_sn_shader;
+	class gpi_dsn_shader;
 
-	class geometry_pass_shader;
-	class lp_null_shader;
+	class lp_ambient_shader;
 	class lp_directional_shader;
 	class lp_point_shader;
 	class lp_spot_shader;
-	class directional_light_pass_shader;
+
 	class text_shader;
 
 	class renderer
@@ -174,52 +174,9 @@ namespace gintonic
 		static void blit_drawbuffers_to_screen(fontstream&);
 		static void null_light_pass() BOOST_NOEXCEPT_OR_NOTHROW;
 
-		inline static geometry_null_shader* get_geometry_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return s_geometry_null_shader;
-		}
 		inline static const matrix_PVM_shader& get_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_matrix_PVM_shader;
-		}
-		inline static gp_c_shader* get_gp_c_shader() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return s_gp_c_shader;
-		}
-
-		inline static const gp_cd_shader& get_gp_cd_shader() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return *s_gp_cd_shader;
-		}
-
-		inline static const gp_cds_shader& get_gp_cds_shader() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return *s_gp_cds_shader;
-		}
-
-		inline static const gp_cdn_shader& get_gp_cdn_shader() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return *s_gp_cdn_shader;
-		}
-
-		inline static const gp_dc_shader& get_gp_dc_shader() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return *s_gp_dc_shader;
-		}
-
-		inline static const gp_dcsc_shader& get_gp_dcsc_shader() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return *s_gp_dcsc_shader;
-		}
-
-		inline static const gp_dt_shader& get_gp_dt_shader() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return *s_gp_dt_shader;
-		}
-
-		inline static const gp_dcdt_shader& get_gp_dcdt_shader() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return *s_gp_dcdt_shader;
 		}
 	
 		inline static const gp_shader& get_gp_shader() BOOST_NOEXCEPT_OR_NOTHROW
@@ -262,14 +219,49 @@ namespace gintonic
 			return *s_gp_dsn_shader;
 		}
 
-		inline static geometry_pass_shader* get_geometry_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		inline static const gpi_shader& get_gpi_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
-			return s_geometry_pass_shader;
+			return *s_gpi_shader;
 		}
 
-		inline static const lp_null_shader& get_lp_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		inline static const gpi_d_shader& get_gpi_d_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
-			return *s_lp_null_shader;
+			return *s_gpi_d_shader;
+		}
+
+		inline static const gpi_s_shader& get_gpi_s_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gpi_s_shader;
+		}
+
+		inline static const gpi_n_shader& get_gpi_n_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gpi_n_shader;
+		}
+
+		inline static const gpi_ds_shader& get_gpi_ds_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gpi_ds_shader;
+		}
+
+		inline static const gpi_dn_shader& get_gpi_dn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gpi_dn_shader;
+		}
+
+		inline static const gpi_sn_shader& get_gpi_sn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gpi_sn_shader;
+		}
+
+		inline static const gpi_dsn_shader& get_gpi_dsn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_gpi_dsn_shader;
+		}
+
+		inline static const lp_ambient_shader& get_lp_ambient_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_lp_ambient_shader;
 		}
 
 		inline static const lp_directional_shader& get_lp_directional_shader() BOOST_NOEXCEPT_OR_NOTHROW
@@ -285,11 +277,6 @@ namespace gintonic
 		inline static const lp_spot_shader& get_lp_spot_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_lp_spot_shader;
-		}
-
-		inline static directional_light_pass_shader* get_directional_light_pass_shader() BOOST_NOEXCEPT_OR_NOTHROW
-		{
-			return s_directional_light_pass_shader;
 		}
 
 		inline static text_shader* get_text_shader() BOOST_NOEXCEPT_OR_NOTHROW
@@ -351,17 +338,7 @@ namespace gintonic
 
 		static const camera_transform<float>* s_camera;
 
-		static geometry_null_shader* s_geometry_null_shader;
 		static matrix_PVM_shader* s_matrix_PVM_shader;
-		static gp_c_shader* s_gp_c_shader;
-		static gp_cd_shader* s_gp_cd_shader;
-		static gp_cds_shader* s_gp_cds_shader;
-		static gp_cdn_shader* s_gp_cdn_shader;
-
-		static gp_dc_shader* s_gp_dc_shader;
-		static gp_dcsc_shader* s_gp_dcsc_shader;
-		static gp_dt_shader* s_gp_dt_shader;
-		static gp_dcdt_shader* s_gp_dcdt_shader;
 
 		static gp_shader* s_gp_shader;
 		static gp_d_shader* s_gp_d_shader;
@@ -371,13 +348,21 @@ namespace gintonic
 		static gp_dn_shader* s_gp_dn_shader;
 		static gp_sn_shader* s_gp_sn_shader;
 		static gp_dsn_shader* s_gp_dsn_shader;
+		
+		static gpi_shader* s_gpi_shader;
+		static gpi_d_shader* s_gpi_d_shader;
+		static gpi_s_shader* s_gpi_s_shader;
+		static gpi_n_shader* s_gpi_n_shader;
+		static gpi_ds_shader* s_gpi_ds_shader;
+		static gpi_dn_shader* s_gpi_dn_shader;
+		static gpi_sn_shader* s_gpi_sn_shader;
+		static gpi_dsn_shader* s_gpi_dsn_shader;
 
-		static geometry_pass_shader* s_geometry_pass_shader;
-		static lp_null_shader* s_lp_null_shader;
+		static lp_ambient_shader* s_lp_ambient_shader;
 		static lp_directional_shader* s_lp_directional_shader;
 		static lp_point_shader* s_lp_point_shader;
 		static lp_spot_shader* s_lp_spot_shader;
-		static directional_light_pass_shader* s_directional_light_pass_shader;
+
 		static text_shader* s_text_shader;
 
 		static opengl::unit_quad_P* s_unit_quad_P;

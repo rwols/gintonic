@@ -54,17 +54,7 @@ namespace gintonic {
 
 	const camera_transform<float>* renderer::s_camera = nullptr;
 
-	geometry_null_shader* renderer::s_geometry_null_shader = nullptr;
 	matrix_PVM_shader* renderer::s_matrix_PVM_shader = nullptr;
-	gp_c_shader* renderer::s_gp_c_shader = nullptr;
-	gp_cd_shader* renderer::s_gp_cd_shader = nullptr;
-	gp_cds_shader* renderer::s_gp_cds_shader = nullptr;
-	gp_cdn_shader* renderer::s_gp_cdn_shader = nullptr;
-
-	gp_dc_shader* renderer::s_gp_dc_shader = nullptr;
-	gp_dcsc_shader* renderer::s_gp_dcsc_shader = nullptr;
-	gp_dt_shader* renderer::s_gp_dt_shader = nullptr;
-	gp_dcdt_shader* renderer::s_gp_dcdt_shader = nullptr;
 
 	gp_shader* renderer::s_gp_shader = nullptr;
 	gp_d_shader* renderer::s_gp_d_shader = nullptr;
@@ -74,13 +64,21 @@ namespace gintonic {
 	gp_dn_shader* renderer::s_gp_dn_shader = nullptr;
 	gp_sn_shader* renderer::s_gp_sn_shader = nullptr;
 	gp_dsn_shader* renderer::s_gp_dsn_shader = nullptr;
+	
+	gpi_shader* renderer::s_gpi_shader = nullptr;
+	gpi_d_shader* renderer::s_gpi_d_shader = nullptr;
+	gpi_s_shader* renderer::s_gpi_s_shader = nullptr;
+	gpi_n_shader* renderer::s_gpi_n_shader = nullptr;
+	gpi_ds_shader* renderer::s_gpi_ds_shader = nullptr;
+	gpi_dn_shader* renderer::s_gpi_dn_shader = nullptr;
+	gpi_sn_shader* renderer::s_gpi_sn_shader = nullptr;
+	gpi_dsn_shader* renderer::s_gpi_dsn_shader = nullptr;
 
-	geometry_pass_shader* renderer::s_geometry_pass_shader = nullptr;
-	lp_null_shader* renderer::s_lp_null_shader = nullptr;
+	lp_ambient_shader* renderer::s_lp_ambient_shader = nullptr;
 	lp_directional_shader* renderer::s_lp_directional_shader = nullptr;
 	lp_point_shader* renderer::s_lp_point_shader = nullptr;
 	lp_spot_shader* renderer::s_lp_spot_shader = nullptr;
-	directional_light_pass_shader* renderer::s_directional_light_pass_shader = nullptr;
+
 	text_shader* renderer::s_text_shader = nullptr;
 
 	opengl::unit_quad_P* renderer::s_unit_quad_P = nullptr;
@@ -222,100 +220,11 @@ namespace gintonic {
 		//
 		try
 		{
-			s_geometry_null_shader = new geometry_null_shader();
-		}
-		catch (exception& e)
-		{
-			e.prepend(": Failed to load geometry null shader: ");
-			e.prepend(name());
-			throw;
-		}
-		try
-		{
 			s_matrix_PVM_shader = new matrix_PVM_shader();
 		}
 		catch (exception& e)
 		{
 			e.prepend(": Failed to load matrix_PVM_shader: ");
-			e.prepend(name());
-			throw;
-		}
-		try
-		{
-			s_gp_c_shader = new gp_c_shader();
-		}
-		catch (exception& e)
-		{
-			e.prepend(": Failed to load gp_c_shader: ");
-			e.prepend(name());
-			throw;
-		}
-		try
-		{
-			s_gp_cd_shader = new gp_cd_shader();
-		}
-		catch (exception& e)
-		{
-			e.prepend(": Failed to load gp_cd_shader: ");
-			e.prepend(name());
-			throw;
-		}
-		try
-		{
-			s_gp_cds_shader = new gp_cds_shader();
-		}
-		catch (exception& e)
-		{
-			e.prepend(": Failed to load gp_cds_shader: ");
-			e.prepend(name());
-			throw;
-		}
-		try
-		{
-			s_gp_cds_shader = new gp_cds_shader();
-		}
-		catch (exception& e)
-		{
-			e.prepend(": Failed to load gp_cdn_shader: ");
-			e.prepend(name());
-			throw;
-		}
-		try
-		{
-			s_gp_dc_shader = new gp_dc_shader();
-		}
-		catch (exception& e)
-		{
-			e.prepend(": Failed to load gp_dc_shader: ");
-			e.prepend(name());
-			throw;
-		}
-		try
-		{
-			s_gp_dcsc_shader = new gp_dcsc_shader();
-		}
-		catch (exception& e)
-		{
-			e.prepend(": Failed to load gp_dcsc_shader: ");
-			e.prepend(name());
-		}
-		try
-		{
-			s_gp_dt_shader = new gp_dt_shader();
-		}
-		catch (exception& e)
-		{
-			e.prepend(": Failed to load gp_dt_shader: ");
-			e.prepend(name());
-			throw;
-		}
-		try
-		{
-			s_gp_dcdt_shader = new gp_dcdt_shader();
-		}
-		catch (exception& e)
-		{
-			e.prepend(": Failed to load gp_dcdt_shader: ");
 			e.prepend(name());
 			throw;
 		}
@@ -401,21 +310,91 @@ namespace gintonic {
 		}
 		try
 		{
-			s_geometry_pass_shader = new geometry_pass_shader();
+			s_gpi_shader = new gpi_shader();
 		}
 		catch (exception& e)
 		{
-			e.prepend(": Failed to load geometry shader: ");
+			e.prepend(": Failed to load gpi_shader: ");
 			e.prepend(name());
 			throw;
 		}
 		try
 		{
-			s_lp_null_shader = new lp_null_shader();	
+			s_gpi_d_shader = new gpi_d_shader();
 		}
 		catch (exception& e)
 		{
-			e.prepend(": Failed to load lp_null_shader: ");
+			e.prepend(": Failed to load gpi_d_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gpi_s_shader = new gpi_s_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gpi_s_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gpi_n_shader = new gpi_n_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gpi_n_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gpi_ds_shader = new gpi_ds_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gpi_ds_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gpi_dn_shader = new gpi_dn_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gpi_dn_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gpi_sn_shader = new gpi_sn_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gpi_sn_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_gpi_dsn_shader = new gpi_dsn_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load gpi_dsn_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_lp_ambient_shader = new lp_ambient_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load lp_ambient_shader: ");
 			e.prepend(name());
 			throw;
 		}
@@ -446,16 +425,6 @@ namespace gintonic {
 		catch (exception& e)
 		{
 			e.prepend(": Failed to load lp_spot_shader: ");
-			e.prepend(name());
-			throw;
-		}
-		try
-		{
-			s_directional_light_pass_shader = new directional_light_pass_shader();	
-		}
-		catch (exception& e)
-		{
-			e.prepend(": Failed to load directional light pass shader: ");
 			e.prepend(name());
 			throw;
 		}
@@ -818,10 +787,11 @@ namespace gintonic {
 
 	void renderer::null_light_pass() BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		const auto& s = get_lp_null_shader();
+		const auto& s = get_lp_ambient_shader();
 		s.activate();
 		s.set_gbuffer_diffuse(GBUFFER_DIFFUSE);
 		s.set_viewport_size(vec2f(static_cast<float>(width()), static_cast<float>(height())));
+		s.set_light_intensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 		get_unit_quad_P().draw();
 	}
 

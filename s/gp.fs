@@ -1,7 +1,7 @@
 //
 // gp.fs
 //
-// Uses gp.vs as vertex shader
+// Uses gp.vs OR gpi.vs as vertex shader
 
 #version 330
 
@@ -16,9 +16,9 @@ in vec2 v_texcoord;
 in vec3 v_normal;
 
 layout (location = GBUFFER_POSITION) out vec3 out_position;
-layout (location = GBUFFER_DIFFUSE) out vec4 out_diffuse;
+layout (location = GBUFFER_DIFFUSE)  out vec4 out_diffuse;
 layout (location = GBUFFER_SPECULAR) out vec4 out_specular;
-layout (location = GBUFFER_NORMAL) out vec3 out_normal;
+layout (location = GBUFFER_NORMAL)   out vec3 out_normal;
 
 uniform struct Material 
 {

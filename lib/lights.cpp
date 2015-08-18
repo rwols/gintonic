@@ -20,15 +20,6 @@ light::~light() BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-void light::shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	const auto& s = renderer::get_lp_null_shader();
-	s.activate();
-	s.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
-	s.set_viewport_size(vec2f(static_cast<float>(renderer::width()), static_cast<float>(renderer::height())));
-	renderer::get_unit_quad_P().draw();
-}
-
 void light::set_brightness(const float brightness)
 {
 	intensity[3] = brightness;
@@ -64,8 +55,38 @@ std::ostream& light::pretty_print(std::ostream& os) const BOOST_NOEXCEPT_OR_NOTH
 	return os << "{ (light) intensity: " << intensity << " }";
 }
 
-directional_light::directional_light(const vec4f& intensity)
+ambient_light::ambient_light(const vec4f& intensity)
 : light(intensity)
+{
+	/* Empty on purpose. */
+}
+
+ambient_light::~ambient_light() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
+void ambient_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	const auto& s = renderer::get_lp_ambient_shader();
+	s.activate();
+	s.set_viewport_size(vec2f(static_cast<float>(renderer::width()), static_cast<float>(renderer::height())));
+	s.set_light_intensity(intensity);
+	renderer::get_unit_quad_P().draw();
+}
+
+std::ostream& operator << (std::ostream& os, const ambient_light& l)
+{
+	return l.pretty_print(os);
+}
+
+std::ostream& ambient_light::pretty_print(std::ostream& os) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return os << "{ (ambient_light) intensity: " << intensity << " }";
+}
+
+directional_light::directional_light(const vec4f& intensity)
+: ambient_light(intensity)
 {
 	/* Empty on purpose. */
 }
@@ -74,7 +95,6 @@ directional_light::~directional_light() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }
-
 
 void directional_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {

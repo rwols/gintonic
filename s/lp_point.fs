@@ -1,7 +1,7 @@
 //
 // lp_point.fs
 //
-// Point lighting
+// Uses lp_pvm.vs
 //
 
 #version 330 core

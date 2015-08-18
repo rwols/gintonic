@@ -1,14 +1,12 @@
 //
-// lp_point.fs
+// lp_spot.fs
 //
-// Point lighting
+// Uses lp_pvm.fs
 //
 
 #version 330 core
 
 uniform vec2 viewport_size;
-
-uniform vec3 eye_position;
 
 uniform struct GeometryBuffer
 {

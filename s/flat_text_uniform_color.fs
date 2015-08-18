@@ -2,15 +2,17 @@
 // flat_text_uniform_color.fs
 //
 
-#version 330 core
+#version 330
 
-in vec2 texcoord;
-uniform sampler2D tex;
+in vec2 v_texcoord;
+
 uniform vec3 color;
+uniform sampler2D tex;
 
 out vec4 final_color;
 
 void main()
 {
-	final_color = vec4(color.r, color.g, color.b, texture(tex, texcoord).r);
+	float alpha = texture(tex, v_texcoord).r;
+	final_color = vec4(alpha * color, alpha);
 }

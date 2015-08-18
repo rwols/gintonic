@@ -319,129 +319,232 @@ material& material::operator = (material&& other) BOOST_NOEXCEPT_OR_NOTHROW
 	return *this;
 }
 
-void material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
+void material::bind(const bool instanced) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	s_textures_lock.obtain();
-	if (m_diffuse_tex != s_textures.end())
+	if (instanced)
 	{
-		if (m_specular_tex != s_textures.end())
+		if (m_diffuse_tex != s_textures.end())
 		{
-			if (m_normal_tex != s_textures.end())
+			if (m_specular_tex != s_textures.end())
 			{
-				// diffuse, specular, normal textures
-				const auto& s = renderer::get_gp_dsn_shader();
+				if (m_normal_tex != s_textures.end())
+				{
+					// diffuse, specular, normal textures
+					const auto& s = renderer::get_gpi_dsn_shader();
+					s.activate();
+					s.set_diffuse_color(diffuse_color);
+					s.set_specular_color(specular_color);
+					s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
+					s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
+					s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
+					std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+					std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+					std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+				}
+				else
+				{
+					// diffuse and specular textures
+					const auto& s = renderer::get_gpi_ds_shader();
+					s.activate();
+					s.set_diffuse_color(diffuse_color);
+					s.set_specular_color(specular_color);
+					s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
+					s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
+					std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+					std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+				}
+			}
+			else if (m_normal_tex != s_textures.end())
+			{
+				// diffuse and normal textures
+				const auto& s = renderer::get_gpi_dn_shader();
 				s.activate();
-				// s.set_matrix_PVM(renderer::matrix_PVM());
-				// s.set_matrix_VM(renderer::matrix_VM());
-				// s.set_matrix_N(renderer::matrix_N());
 				s.set_diffuse_color(diffuse_color);
 				s.set_specular_color(specular_color);
 				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
-				s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
 				s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
 				std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+				std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+			}
+			else
+			{
+				// diffuse texture
+				const auto& s = renderer::get_gpi_d_shader();
+				s.activate();
+				s.set_diffuse_color(diffuse_color);
+				s.set_specular_color(specular_color);
+				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
+				std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+			}
+		}
+		else if (m_specular_tex != s_textures.end())
+		{
+			if (m_normal_tex != s_textures.end())
+			{
+				// specular and normal textures
+				const auto& s = renderer::get_gpi_sn_shader();
+				s.activate();
+				s.set_diffuse_color(diffuse_color);
+				s.set_specular_color(specular_color);
+				s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
+				s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
 				std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
 				std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
 			}
 			else
 			{
-				// diffuse and specular textures
-				const auto& s = renderer::get_gp_ds_shader();
+				// specular texture
+				const auto& s = renderer::get_gpi_s_shader();
 				s.activate();
-				// s.set_matrix_PVM(renderer::matrix_PVM());
-				// s.set_matrix_VM(renderer::matrix_VM());
-				// s.set_matrix_N(renderer::matrix_N());
 				s.set_diffuse_color(diffuse_color);
 				s.set_specular_color(specular_color);
-				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
 				s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
-				std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
 				std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
 			}
 		}
 		else if (m_normal_tex != s_textures.end())
 		{
-			// diffuse and normal textures
-			const auto& s = renderer::get_gp_dn_shader();
+			// normal texture
+			const auto& s = renderer::get_gpi_n_shader();
 			s.activate();
-			// s.set_matrix_PVM(renderer::matrix_PVM());
-			// s.set_matrix_VM(renderer::matrix_VM());
-			// s.set_matrix_N(renderer::matrix_N());
 			s.set_diffuse_color(diffuse_color);
 			s.set_specular_color(specular_color);
-			s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
 			s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-			std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
 			std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
 		}
 		else
 		{
-			// diffuse texture
-			const auto& s = renderer::get_gp_d_shader();
+			// no textures at all
+			const auto& s = renderer::get_gpi_shader();
 			s.activate();
-			// s.set_matrix_PVM(renderer::matrix_PVM());
-			// s.set_matrix_VM(renderer::matrix_VM());
-			// s.set_matrix_N(renderer::matrix_N());
 			s.set_diffuse_color(diffuse_color);
 			s.set_specular_color(specular_color);
-			s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
-			std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
 		}
 	}
-	else if (m_specular_tex != s_textures.end())
+	else // non-instanced rendering
 	{
-		if (m_normal_tex != s_textures.end())
+		if (m_diffuse_tex != s_textures.end())
 		{
-			// specular and normal textures
-			const auto& s = renderer::get_gp_sn_shader();
+			if (m_specular_tex != s_textures.end())
+			{
+				if (m_normal_tex != s_textures.end())
+				{
+					// diffuse, specular, normal textures
+					const auto& s = renderer::get_gp_dsn_shader();
+					s.activate();
+					s.set_matrix_PVM(renderer::matrix_PVM());
+					s.set_matrix_VM(renderer::matrix_VM());
+					s.set_matrix_N(renderer::matrix_N());
+					s.set_diffuse_color(diffuse_color);
+					s.set_specular_color(specular_color);
+					s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
+					s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
+					s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
+					std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+					std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+					std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+				}
+				else
+				{
+					// diffuse and specular textures
+					const auto& s = renderer::get_gp_ds_shader();
+					s.activate();
+					s.set_matrix_PVM(renderer::matrix_PVM());
+					s.set_matrix_VM(renderer::matrix_VM());
+					s.set_matrix_N(renderer::matrix_N());
+					s.set_diffuse_color(diffuse_color);
+					s.set_specular_color(specular_color);
+					s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
+					s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
+					std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+					std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+				}
+			}
+			else if (m_normal_tex != s_textures.end())
+			{
+				// diffuse and normal textures
+				const auto& s = renderer::get_gp_dn_shader();
+				s.activate();
+				s.set_matrix_PVM(renderer::matrix_PVM());
+				s.set_matrix_VM(renderer::matrix_VM());
+				s.set_matrix_N(renderer::matrix_N());
+				s.set_diffuse_color(diffuse_color);
+				s.set_specular_color(specular_color);
+				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
+				s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
+				std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+				std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+			}
+			else
+			{
+				// diffuse texture
+				const auto& s = renderer::get_gp_d_shader();
+				s.activate();
+				s.set_matrix_PVM(renderer::matrix_PVM());
+				s.set_matrix_VM(renderer::matrix_VM());
+				s.set_matrix_N(renderer::matrix_N());
+				s.set_diffuse_color(diffuse_color);
+				s.set_specular_color(specular_color);
+				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
+				std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+			}
+		}
+		else if (m_specular_tex != s_textures.end())
+		{
+			if (m_normal_tex != s_textures.end())
+			{
+				// specular and normal textures
+				const auto& s = renderer::get_gp_sn_shader();
+				s.activate();
+				s.set_matrix_PVM(renderer::matrix_PVM());
+				s.set_matrix_VM(renderer::matrix_VM());
+				s.set_matrix_N(renderer::matrix_N());
+				s.set_diffuse_color(diffuse_color);
+				s.set_specular_color(specular_color);
+				s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
+				s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
+				std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+				std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+			}
+			else
+			{
+				// specular texture
+				const auto& s = renderer::get_gp_s_shader();
+				s.activate();
+				s.set_matrix_PVM(renderer::matrix_PVM());
+				s.set_matrix_VM(renderer::matrix_VM());
+				s.set_matrix_N(renderer::matrix_N());
+				s.set_diffuse_color(diffuse_color);
+				s.set_specular_color(specular_color);
+				s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
+				std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+			}
+		}
+		else if (m_normal_tex != s_textures.end())
+		{
+			// normal texture
+			const auto& s = renderer::get_gp_n_shader();
 			s.activate();
-			// s.set_matrix_PVM(renderer::matrix_PVM());
-			// s.set_matrix_VM(renderer::matrix_VM());
-			// s.set_matrix_N(renderer::matrix_N());
+			s.set_matrix_PVM(renderer::matrix_PVM());
+			s.set_matrix_VM(renderer::matrix_VM());
+			s.set_matrix_N(renderer::matrix_N());
 			s.set_diffuse_color(diffuse_color);
 			s.set_specular_color(specular_color);
-			s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
 			s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-			std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
 			std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
 		}
 		else
 		{
-			// specular texture
-			const auto& s = renderer::get_gp_s_shader();
+			// no textures at all
+			const auto& s = renderer::get_gp_shader();
 			s.activate();
-			// s.set_matrix_PVM(renderer::matrix_PVM());
-			// s.set_matrix_VM(renderer::matrix_VM());
-			// s.set_matrix_N(renderer::matrix_N());
+			s.set_matrix_PVM(renderer::matrix_PVM());
+			s.set_matrix_VM(renderer::matrix_VM());
+			s.set_matrix_N(renderer::matrix_N());
 			s.set_diffuse_color(diffuse_color);
 			s.set_specular_color(specular_color);
-			s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
-			std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
 		}
-	}
-	else if (m_normal_tex != s_textures.end())
-	{
-		// normal texture
-		const auto& s = renderer::get_gp_n_shader();
-		s.activate();
-		// s.set_matrix_PVM(renderer::matrix_PVM());
-		// s.set_matrix_VM(renderer::matrix_VM());
-		// s.set_matrix_N(renderer::matrix_N());
-		s.set_diffuse_color(diffuse_color);
-		s.set_specular_color(specular_color);
-		s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-		std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
-	}
-	else
-	{
-		// no textures at all
-		const auto& s = renderer::get_gp_shader();
-		s.activate();
-		// s.set_matrix_PVM(renderer::matrix_PVM());
-		// s.set_matrix_VM(renderer::matrix_VM());
-		// s.set_matrix_N(renderer::matrix_N());
-		s.set_diffuse_color(diffuse_color);
-		s.set_specular_color(specular_color);
 	}
 	s_textures_lock.release();
 }
@@ -565,366 +668,4 @@ std::ostream& operator << (std::ostream& os, const material& mat)
 	return os;
 }
 
-/*****************************************************************************
- * gintonic::material_dc (diffuse color)                                     *
- ****************************************************************************/
-
-material_dc::material_dc(const vec4f& diffuse_color)
-: diffuse_color(diffuse_color)
-{
-	/* Empty on purpose. */
-}
-
-material_dc::~material_dc() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	/* Empty on purpose. */
-}
-
-void material_dc::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	const auto& s = renderer::get_gp_dc_shader();
-	s.activate();
-	s.set_matrix_PVM(renderer::matrix_PVM());
-	s.set_matrix_VM(renderer::matrix_VM());
-	s.set_matrix_N(renderer::matrix_N());
-	s.set_diffuse_color(diffuse_color);
-}
-
-/*****************************************************************************
- * gintonic::material_dcsc (diffuse color, specular color)                   *
- ****************************************************************************/
-
-material_dcsc::material_dcsc(const vec4f& diffuse_color, const vec4f& specular_color)
-: material_dc(diffuse_color)
-, specular_color(specular_color)
-{
-	/* Empty on purpose. */
-}
-
-material_dcsc::~material_dcsc() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	/* Empty on purpose. */
-}
-
-void material_dcsc::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	const auto& s = renderer::get_gp_dcsc_shader();
-	s.activate();
-	s.set_matrix_PVM(renderer::matrix_PVM());
-	s.set_matrix_VM(renderer::matrix_VM());
-	s.set_matrix_N(renderer::matrix_N());
-	s.set_diffuse_color(diffuse_color);
-	s.set_specular_color(specular_color);
-}
-
-/*****************************************************************************
- * gintonic::material_dt (diffuse texture)                                   *
- ****************************************************************************/
-
-material_dt::material_dt()
-{
-	safe_set_null_texture(m_diffuse);
-}
-
-material_dt::material_dt(boost::filesystem::path diffuse_filename)
-{
-	safe_obtain_texture(diffuse_filename, m_diffuse);
-}
-
-material_dt::~material_dt() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	safe_release_texture(m_diffuse);
-}
-
-void material_dt::set_diffuse_texture(const boost::filesystem::path& filename)
-{
-	safe_release_texture(m_diffuse);
-	safe_obtain_texture(filename, m_diffuse);
-}
-
-const opengl::texture2d& material_dt::diffuse_texture() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	return std::get<2>(*m_diffuse);
-}
-
-void material_dt::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	const auto& s = renderer::get_gp_dt_shader();
-	s.activate();
-	s.set_matrix_PVM(renderer::matrix_PVM());
-	s.set_matrix_VM(renderer::matrix_VM());
-	s.set_matrix_N(renderer::matrix_N());
-	s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
-	diffuse_texture().bind(renderer::GBUFFER_TEX_DIFFUSE);
-}
-
-/*****************************************************************************
- * gintonic::material_dcdt (diffuse color+texture)                           *
- ****************************************************************************/
-
-material_dcdt::material_dcdt(const vec4f& diffuse_color, boost::filesystem::path diffuse_filename)
-: material_dt(std::move(diffuse_filename))
-, diffuse_color(diffuse_color)
-{
-	/* Empty on purpose. */
-}
-
-material_dcdt::~material_dcdt() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	/* Empty on purpose. */
-}
-
-void material_dcdt::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	const auto& s = renderer::get_gp_dcdt_shader();
-	s.activate();
-	s.set_matrix_PVM(renderer::matrix_PVM());
-	s.set_matrix_VM(renderer::matrix_VM());
-	s.set_matrix_N(renderer::matrix_N());
-	s.set_diffuse_color(diffuse_color);
-	s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
-	diffuse_texture().bind(renderer::GBUFFER_TEX_DIFFUSE);
-}
-
-/*****************************************************************************
- * gintonic::material_c (color)                                              *
- ****************************************************************************/
-
-material_c::material_c(const vec4f& diffuse_color)
-: diffuse_color(diffuse_color)
-{
-	/* Empty on purpose. */
-}
-
-material_c::~material_c() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	/* Empty on purpose. */
-}
-
-void material_c::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	const auto s = renderer::get_gp_c_shader();
-	s->activate();
-	s->set_matrix_PVM(renderer::matrix_PVM());
-	s->set_matrix_VM(renderer::matrix_VM());
-	s->set_matrix_N(renderer::matrix_N());
-	s->set_color(diffuse_color);
-}
-
-diffuse_material::diffuse_material(
-	boost::filesystem::path diffuse_filename,
-	const float diffuse_factor)
-: diffuse_factor(diffuse_factor)
-{
-	safe_obtain_texture(diffuse_filename, m_diffuse);
-}
-
-diffuse_material::~diffuse_material() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	safe_release_texture(m_diffuse);
-}
-
-const opengl::texture2d& diffuse_material::diffuse() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	return std::get<2>(*m_diffuse);
-}
-
-void diffuse_material::set_diffuse(const boost::filesystem::path& filename)
-{
-	safe_release_texture(m_diffuse);
-	safe_obtain_texture(filename, m_diffuse);
-}
-
-void diffuse_material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	const auto s = renderer::get_geometry_pass_shader();
-	s->activate();
-	s->set_matrix_PVM(renderer::matrix_PVM());
-	s->set_matrix_VM(renderer::matrix_VM());
-	s->set_matrix_N(renderer::matrix_N());
-	s->set_diffuse(0);
-	s->set_diffuse_factor(diffuse_factor);
-	diffuse().bind(0);
-}
-
-/*****************************************************************************
- * gintonic::material_cd (color, diffuse)                                    *
- ****************************************************************************/
-
-material_cd::material_cd()
-{
-	safe_set_null_texture(m_diffuse);
-}
-
-const opengl::texture2d& material_cd::diffuse() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	return std::get<2>(*m_diffuse);
-}
-
-void material_cd::set_diffuse(const boost::filesystem::path& filename)
-{
-	safe_release_texture(m_diffuse);
-	safe_obtain_texture(filename, m_diffuse);
-}
-
-material_cd::material_cd(
-	const vec4f& color,
-	boost::filesystem::path diffuse_filename)
-: material_c(color)
-{
-	safe_obtain_texture(diffuse_filename, m_diffuse);
-}
-
-void material_cd::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	const auto& s = renderer::get_gp_cd_shader();
-	s.activate();
-	s.set_matrix_PVM(renderer::matrix_PVM());
-	s.set_matrix_VM(renderer::matrix_VM());
-	s.set_matrix_N(renderer::matrix_N());
-	s.set_diffuse(renderer::GBUFFER_TEX_DIFFUSE);
-	s.set_color(diffuse_color);
-	diffuse().bind(renderer::GBUFFER_TEX_DIFFUSE);
-}
-
-material_cd::~material_cd() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	safe_release_texture(m_diffuse);
-}
-
-/*****************************************************************************
- * gintonic::material_cds (color, diffuse, specular)                         *
- ****************************************************************************/
-
-material_cds::material_cds()
-{
-	safe_set_null_texture(m_specular);
-}
-
-const opengl::texture2d& material_cds::specular() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	return std::get<2>(*m_specular);
-}
-
-void material_cds::set_specular(const boost::filesystem::path& filename)
-{
-	safe_release_texture(m_specular);
-	safe_obtain_texture(filename, m_specular);
-}
-
-material_cds::material_cds(
-	const vec4f& color,
-	boost::filesystem::path diffuse_filename,
-	boost::filesystem::path specular_filename)
-: material_cd(color, std::move(diffuse_filename))
-{
-	safe_obtain_texture(specular_filename, m_specular);
-}
-
-void material_cds::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	const auto& s = renderer::get_gp_cds_shader();
-	s.activate();
-	s.set_matrix_PVM(renderer::matrix_PVM());
-	s.set_matrix_VM(renderer::matrix_VM());
-	s.set_matrix_N(renderer::matrix_N());
-	s.set_color(diffuse_color);
-	s.set_diffuse(renderer::GBUFFER_TEX_DIFFUSE);
-	s.set_specular(renderer::GBUFFER_TEX_SPECULAR);
-	diffuse().bind(renderer::GBUFFER_TEX_DIFFUSE);
-	specular().bind(renderer::GBUFFER_TEX_SPECULAR);
-}
-
-material_cds::~material_cds() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	safe_release_texture(m_specular);
-}
-
-/*****************************************************************************
- * gintonic::material_cdn (color, diffuse, normal map)                       *
- ****************************************************************************/
-
-const opengl::texture2d& material_cdn::normal() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	return std::get<2>(*m_normal);
-}
-
-material_cdn::material_cdn()
-{
-	safe_set_null_texture(m_normal);
-}
-
-void material_cdn::set_normal(const boost::filesystem::path& filename)
-{
-	safe_release_texture(m_normal);
-	safe_obtain_texture(filename, m_normal);
-}
-
-material_cdn::material_cdn(
-	const vec4f& color,
-	boost::filesystem::path diffuse_filename,
-	boost::filesystem::path normal_filename)
-: material_cd(color, std::move(diffuse_filename))
-{
-	safe_obtain_texture(normal_filename, m_normal);
-}
-
-void material_cdn::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	const auto& s = renderer::get_gp_cdn_shader();
-	s.activate();
-	s.set_matrix_PVM(renderer::matrix_PVM());
-	s.set_color(diffuse_color);
-	s.set_diffuse(renderer::GBUFFER_TEX_DIFFUSE);
-	s.set_normal(renderer::GBUFFER_TEX_NORMAL);
-	diffuse().bind(renderer::GBUFFER_TEX_DIFFUSE);
-	normal().bind(renderer::GBUFFER_TEX_NORMAL);
-}
-
-material_cdn::~material_cdn() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	safe_release_texture(m_normal);
-}
-
-const opengl::texture2d& specular_diffuse_material::specular() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	return std::get<2>(*m_specular);
-}
-
-void specular_diffuse_material::set_specular(const boost::filesystem::path& filename)
-{
-	safe_release_texture(m_specular);
-	safe_obtain_texture(filename, m_specular);
-}
-
-specular_diffuse_material::specular_diffuse_material(
-	boost::filesystem::path diffuse_filename,
-	boost::filesystem::path specular_filename,
-	const float diffuse_factor,
-	const float shininess)
-: diffuse_material(std::move(diffuse_filename), diffuse_factor), shininess(shininess)
-{
-	safe_obtain_texture(specular_filename, m_specular);
-}
-
-void specular_diffuse_material::bind() const BOOST_NOEXCEPT_OR_NOTHROW
-{
-	// TODO
-}
-
-specular_diffuse_material::~specular_diffuse_material() BOOST_NOEXCEPT_OR_NOTHROW
-{
-	safe_release_texture(m_specular);
-}
-
 } // namespace gintonic
-
-BOOST_CLASS_TRACKING(gintonic::material, boost::serialization::track_always)
-BOOST_CLASS_EXPORT(gintonic::material_dc)
-BOOST_CLASS_EXPORT(gintonic::material_dcsc)
-BOOST_CLASS_EXPORT(gintonic::material_dt)
-BOOST_CLASS_EXPORT(gintonic::material_dcdt)
-BOOST_CLASS_EXPORT(gintonic::material_c)
-BOOST_CLASS_EXPORT(gintonic::material_cd)
-BOOST_CLASS_EXPORT(gintonic::material_cds)
-BOOST_CLASS_EXPORT(gintonic::material_cdn)

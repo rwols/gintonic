@@ -70,6 +70,9 @@ private:
 	void process_mesh(FbxMesh*, const sqt_transformf&);
 
 	void process_light(FbxLight*, const sqt_transformf&);
+
+	void draw_geometry_instanced() const BOOST_NOEXCEPT_OR_NOTHROW;
+	void draw_geometry_non_instanced() const BOOST_NOEXCEPT_OR_NOTHROW;
 };
 
 class animated_model_actor : public actor

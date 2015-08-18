@@ -8,9 +8,9 @@
 
 namespace gintonic {
 
-// Forward declarations
-class directional_light_pass_shader;
-class point_light_pass_shader;
+/*****************************************************************************
+* gintonic::light                                                            *
+*****************************************************************************/
 
 class light : public std::enable_shared_from_this<light>
 {
@@ -29,7 +29,7 @@ public:
 	virtual ~light() BOOST_NOEXCEPT_OR_NOTHROW;
 	
 	// Shine the light given the SQT transform.
-	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
 
 	virtual void set_brightness(const float brightness);
 	float brightness() const BOOST_NOEXCEPT_OR_NOTHROW;
@@ -60,7 +60,54 @@ private:
 	}
 };
 
-class directional_light : public light
+/*****************************************************************************
+* gintonic::ambient_light                                                    *
+*****************************************************************************/
+
+class ambient_light : public light
+{
+public:
+
+	// Default constructor.
+	ambient_light() = default;
+
+	// Constructor that takes an intensity value.
+	ambient_light(const vec4f& intensity);
+
+	// Destructor.
+	virtual ~ambient_light() BOOST_NOEXCEPT_OR_NOTHROW;
+	
+	// Shine the ambient light. Note that an ambient
+	// light doesn't do anything with the supplied SQT transform
+	// at all, it just lights all objects uniformly.
+	virtual void shine(const sqt_transformf&) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	// Stream output support for a ambient light.
+	friend std::ostream& operator << (std::ostream&, const ambient_light&);
+
+	// Needed because a light carries one or more vec4f's.
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+
+private:
+
+	// Reimplement this method to support output streams.
+	virtual std::ostream& pretty_print(std::ostream&) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	// Serialization support.
+	friend boost::serialization::access;
+
+	template <class Archive> 
+	void serialize(Archive& ar, const unsigned /*version*/)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(light);
+	}
+};
+
+/*****************************************************************************
+* gintonic::directional_light                                                *
+*****************************************************************************/
+
+class directional_light : public ambient_light
 {
 public:
 
@@ -95,9 +142,13 @@ private:
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(light);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ambient_light);
 	}
 };
+
+/*****************************************************************************
+* gintonic::point_light                                                      *
+*****************************************************************************/
 
 class point_light : public light
 {
@@ -171,6 +222,10 @@ private:
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
+
+/*****************************************************************************
+* gintonic::spot_light                                                       *
+*****************************************************************************/
 
 class spot_light : public point_light
 {

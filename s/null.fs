@@ -2,6 +2,7 @@
 // null.fs
 //
 // Does absolutely nothing. Useful for stencil operations.
+// Uses lp_pvm.vs
 //
 
 #version 330

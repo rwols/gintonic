@@ -1,7 +1,7 @@
 //
 // lp_directional.fs
 //
-// Directional lighting
+// Uses lp.vs
 //
 
 #version 330 core

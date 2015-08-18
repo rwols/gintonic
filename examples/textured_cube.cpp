@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
 		gt::fontstream stream;
 		gt::opengl::unit_cube_PUN the_shape;
-		std::unique_ptr<gt::material> the_material(new gt::material_cd(gt::vec4f(1.0f, 1.0f, 1.0f, 0.0f), "../examples/bricks.jpg"));
+		std::unique_ptr<gt::material> the_material(new gt::material(gt::vec4f(1.0f, 1.0f, 1.0f, 0.0f), gt::vec4f(0.0f, 0.0f, 0.0f, 1.0f), "../examples/bricks.jpg"));
 		assert(the_material);
 		gt::renderer::show();
 		float curtime, dt;

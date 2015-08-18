@@ -274,39 +274,11 @@ void static_model_actor::process_light(
 
 void static_model_actor::draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	sqt_transformf t;
-	// std::shared_ptr<const mesh> m;
-	// material mat;
-
-	std::vector<mat4f> PVM_matrices;
-	std::vector<mat4f> VM_matrices;
-	std::vector<mat3f> N_matrices;
-
-	const mat4f matrix_V = renderer::camera().matrix_V();
-	mat4f matrix_P = renderer::matrix_P();
-	mat4f matrix_VM;
-
-	for (const auto& tuple : model)
+	switch (transforms.size())
 	{
-		for (const auto& transform : transforms)
-		{
-			t = std::get<0>(tuple);
-			t.scale *= transform.scale;
-			t.rotation *= transform.rotation;
-			t.translation += transform.translation;
-
-			matrix_VM = matrix_V * t.get_matrix();
-
-			PVM_matrices.emplace_back((matrix_P * matrix_VM).transpose());
-			N_matrices.emplace_back(matrix_VM.upper_left_33().invert());
-			VM_matrices.emplace_back(matrix_VM.transpose());
-		}
-
-		// Bind the material
-		std::get<2>(tuple).bind();
-
-		// Draw the mesh
-		std::get<1>(tuple)->draw(PVM_matrices, VM_matrices, N_matrices);
+		case 0: return;
+		case 1: draw_geometry_non_instanced(); break;
+		default: draw_geometry_instanced();
 	}
 }
 
@@ -326,6 +298,67 @@ void static_model_actor::draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW
 			// Shine the light given the transform.
 			std::get<1>(tuple)->shine(t);
 		}
+	}
+}
+
+void static_model_actor::draw_geometry_instanced() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	sqt_transformf t;
+
+	std::vector<mat4f> PVM_matrices;
+	std::vector<mat4f> VM_matrices;
+	std::vector<mat3f> N_matrices;
+
+	const mat4f matrix_V = renderer::camera().matrix_V();
+	const mat4f matrix_P = renderer::matrix_P();
+	mat4f matrix_VM;
+
+	for (const auto& tuple : model)
+	{
+		PVM_matrices.clear();
+		VM_matrices.clear();
+		N_matrices.clear();
+		
+		for (const auto& transform : transforms)
+		{
+			t = std::get<0>(tuple);
+			t.scale *= transform.scale;
+			t.rotation *= transform.rotation;
+			t.translation += transform.translation;
+
+			matrix_VM = matrix_V * t.get_matrix();
+
+			PVM_matrices.emplace_back((matrix_P * matrix_VM).transpose());
+			N_matrices.emplace_back(matrix_VM.upper_left_33().invert());
+			VM_matrices.emplace_back(matrix_VM.transpose());
+		}
+
+		// Bind the material
+		std::get<2>(tuple).bind(true);
+
+		// Draw the mesh
+		std::get<1>(tuple)->draw(PVM_matrices, VM_matrices, N_matrices);
+	}
+}
+
+void static_model_actor::draw_geometry_non_instanced() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	sqt_transformf t;
+
+	for (const auto& tuple : model)
+	{
+		t = std::get<0>(tuple);
+		t.scale *= transforms[0].scale;
+		t.rotation *= transforms[0].rotation;
+		t.translation += transforms[0].translation;
+
+		renderer::set_model_matrix(t.get_matrix());
+
+		// Bind the material
+		std::get<2>(tuple).bind(false);
+
+		// Draw the mesh
+		std::get<1>(tuple)->draw();
 	}
 }
 
