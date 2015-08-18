@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 			gt::vec4f(1.0f, 1.0f, 1.0f, 0.0f), 
 			gt::vec4f(0.0f, 0.0f, 0.0f, 1.0f), 
 			"../examples/bricks.jpg"
-		));
+		);
 		gt::renderer::show();
 		float curtime, dt;
 		while (!gt::renderer::should_close())
