@@ -1,17 +1,15 @@
 #ifndef textures_hpp
 #define textures_hpp
 
-// #include <boost/serialization/string.hpp>
-// #include <boost/serialization/version.hpp>
-// #include <boost/serialization/split_member.hpp>
-// #include <boost/serialization/base_object.hpp>
-#include "glad.hpp"
-#include "exception.hpp"
-#include "filesystem.hpp"
-#include <array>
+// #include "glad.hpp"
+// #include "exception.hpp"
+// #include "filesystem.hpp"
+// #include <array>
+// #include <vector>
+
+#include "opengl.hpp"
 #include <vector>
-// #include <list>
-// #include <mutex>
+#include <array>
 
 namespace gintonic {
 namespace opengl {
@@ -214,19 +212,22 @@ struct texture_parameters
 	texture_parameters();
 };
 
-class texture2d : public std::enable_shared_from_this<texture2d>
+class texture : public std::enable_shared_from_this<texture>
 {
 public:
 
-	texture2d(boost::filesystem::path filename);
-	virtual ~texture2d();
-
 	static void init();
 
-	texture2d(const texture2d&) = delete;
-	texture2d& operator = (const texture2d&) = delete;
-	texture2d(texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW;
-	texture2d& operator = (texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW;
+	static texture_parameters parameter;
+
+	virtual void bind(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+
+	virtual ~texture();
+
+	texture(const texture&) = default;
+	texture& operator = (const texture&) = default;
+	texture(texture&&);
+	texture& operator = (texture&&);
 
 	struct error : virtual exception {};
 	struct empty_filename_error : virtual error {};
@@ -246,9 +247,44 @@ public:
 	typedef boost::error_info<struct tag_wic_errorcode, HRESULT> errinfo_wic;
 	#endif
 
-	static texture_parameters parameter;
+protected:
 
-	void bind(const GLint active_texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+	texture() = default;
+
+	static void init_tga_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	#ifdef BOOST_MSVC
+	static void init_wic_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	#elif defined __APPLE__
+	static void init_png_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	static void init_jpeg_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	#elif defined __linux__
+	static void init_png_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	static void init_jpeg_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	#else
+	#error Platform not supported.
+	#endif
+	static void init_generic_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+
+private:
+
+	static void release();
+};
+
+class texture2d : public texture
+{
+public:
+
+	texture2d(const boost::filesystem::path& filename);
+
+	virtual ~texture2d();
+
+	texture2d(const texture2d&) = default;
+	texture2d& operator = (const texture2d&) = default;
+	texture2d(texture2d&&);
+	texture2d& operator = (texture2d&&);
+
+	virtual void bind(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW final;
+
 	GLint width(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
 	GLint height(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
 	GLint depth(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
@@ -256,26 +292,37 @@ public:
 	bool is_compressed(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
 	GLint format(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
 	GLint compressed_size(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
-	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW { return m_buffer; }
+	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW { return m_tex; }
 
 private:
 
-	void init(const GLsizei width, const GLsizei height, const GLenum format, const GLenum type, const std::vector<char>& data);
-	void init_tga_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	#ifdef BOOST_MSVC
-	void init_wic_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	#elif defined __APPLE__
-	void init_png_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	void init_jpeg_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	#elif defined __linux__
-	void init_png_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	void init_jpeg_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	#else
-	#error Platform not supported.
-	#endif
-	GLuint m_buffer;
+	texture_object m_tex;
+};
 
-	static void release_static();
+class cube_texture : public texture
+{
+public:
+
+	cube_texture(
+		const boost::filesystem::path& positive_X_file,
+		const boost::filesystem::path& negative_X_file,
+		const boost::filesystem::path& positive_Y_file,
+		const boost::filesystem::path& negative_Y_file,
+		const boost::filesystem::path& positive_Z_file,
+		const boost::filesystem::path& negative_Z_file);
+
+	virtual ~cube_texture();
+
+	cube_texture(const cube_texture&) = default;
+	cube_texture& operator = (const cube_texture&) = default;
+	cube_texture(cube_texture&&);
+	cube_texture& operator = (cube_texture&&);
+
+	virtual void bind(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW final;
+
+private:
+
+	texture_object m_tex;
 };
 
 } // end of namespace opengl

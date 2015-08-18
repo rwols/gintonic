@@ -17,7 +17,7 @@ class actor : std::enable_shared_from_this<actor>
 public:
 	virtual void think();
 
-	virtual void draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void draw_geometry();
 	virtual void draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	// sqt_transformf transform;
@@ -43,7 +43,7 @@ public:
 
 	virtual ~static_model_actor() BOOST_NOEXCEPT_OR_NOTHROW;
 
-	virtual void draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void draw_geometry();
 	virtual void draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	std::vector
@@ -71,7 +71,7 @@ private:
 
 	void process_light(FbxLight*, const sqt_transformf&);
 
-	void draw_geometry_instanced() const BOOST_NOEXCEPT_OR_NOTHROW;
+	void draw_geometry_instanced();
 	void draw_geometry_non_instanced() const BOOST_NOEXCEPT_OR_NOTHROW;
 };
 
@@ -82,7 +82,7 @@ class animated_model_actor : public actor
 
 	virtual ~animated_model_actor() BOOST_NOEXCEPT_OR_NOTHROW;
 
-	virtual void draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void draw_geometry();
 	virtual void draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW;
 };
 

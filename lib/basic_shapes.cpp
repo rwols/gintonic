@@ -211,6 +211,46 @@ void unit_cube_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glBindVertexArray(0);
 }
 
+unit_cube_P_flipped::unit_cube_P_flipped() : basic_shape()
+{
+	const vertex_P<GLfloat> cube_vertices[NUM_CUBE_VERTICES] =
+	{
+		{ 1.0f,  1.0f, -1.0f}, // 0
+		{-1.0f,  1.0f, -1.0f}, // 1
+		{ 1.0f, -1.0f, -1.0f}, // 2
+		{-1.0f, -1.0f, -1.0f}, // 3
+		{ 1.0f,  1.0f,  1.0f}, // 4
+		{-1.0f,  1.0f,  1.0f}, // 5
+		{-1.0f, -1.0f,  1.0f}, // 6
+		{ 1.0f, -1.0f,  1.0f}, // 7
+	};
+	// BOOST_CONSTEXPR GLubyte cube_indices[NUM_CUBE_INDICES] = {3,2,6,7,4,2,0,3,1,6,5,4,1,0};
+	BOOST_CONSTEXPR GLubyte cube_indices[NUM_CUBE_INDICES] = {0,1,4,5,6,1,3,0,2,4,7,6,2,3};
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+	vertex_P<GLfloat>::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P<GLfloat>) * NUM_CUBE_VERTICES, cube_vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * NUM_CUBE_INDICES, cube_indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+unit_cube_P_flipped::~unit_cube_P_flipped()
+{
+
+}
+
+void unit_cube_P_flipped::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	glBindVertexArray(m_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glDrawElements(GL_TRIANGLE_STRIP, NUM_CUBE_INDICES, GL_UNSIGNED_BYTE, nullptr);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+
 unit_cube_PU::unit_cube_PU() : basic_shape()
 {
 	const vertex_PU<GLfloat> cube_vertices[24] =

@@ -1049,6 +1049,51 @@ lp_spot_shader::lp_spot_shader(
 }
 
 /*****************************************************************************
+ * gintonic::skybox_shader                                                   *
+ ****************************************************************************/
+
+skybox_shader::skybox_shader()
+: opengl::shader("../s/skybox.vs", "../s/skybox.fs")
+{
+	loc_matrix_PV = get_uniform_location("matrix_PV");
+	loc_skybox_diffuse = get_uniform_location("skybox.diffuse_texture");
+}
+
+skybox_shader::~skybox_shader() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	/* Empty on purpose. */
+}
+
+void skybox_shader::set_matrix_PV(const mat4f& matrix_PV) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_matrix_PV, matrix_PV);
+}
+
+void skybox_shader::set_skybox_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	set_uniform(loc_skybox_diffuse, texture_unit);
+}
+
+skybox_shader::skybox_shader(
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path fragment_shader)
+: opengl::shader(std::move(vertex_shader), std::move(fragment_shader))
+{
+	loc_matrix_PV = get_uniform_location("matrix_PV");
+	loc_skybox_diffuse = get_uniform_location("skybox.diffuse_texture");
+}
+
+skybox_shader::skybox_shader( 
+	boost::filesystem::path vertex_shader, 
+	boost::filesystem::path geometry_shader,
+	boost::filesystem::path fragment_shader)
+: opengl::shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+{
+	loc_matrix_PV = get_uniform_location("matrix_PV");
+	loc_skybox_diffuse = get_uniform_location("skybox.diffuse_texture");
+}
+
+/*****************************************************************************
  * gintonic::text_shader                                                     *
  ****************************************************************************/
 

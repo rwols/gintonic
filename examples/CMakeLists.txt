@@ -10,6 +10,7 @@ set(executables basic_shapes
 	point_lights
 	quadtree_console
 	rotating_square
+	skybox
 	spot_lights
 	square
 	text

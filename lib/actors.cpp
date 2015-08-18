@@ -51,7 +51,7 @@ void actor::think()
 	/* Empty on purpose. */
 }
 
-void actor::draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW
+void actor::draw_geometry()
 {
 	/* Empty on purpose. */
 }
@@ -272,7 +272,7 @@ void static_model_actor::process_light(
 	// throw std::runtime_error("static_model_actor::process_light: not yet implemented.");
 }
 
-void static_model_actor::draw_geometry() const BOOST_NOEXCEPT_OR_NOTHROW
+void static_model_actor::draw_geometry()
 {
 	switch (transforms.size())
 	{
@@ -301,7 +301,7 @@ void static_model_actor::draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW
 	}
 }
 
-void static_model_actor::draw_geometry_instanced() const BOOST_NOEXCEPT_OR_NOTHROW
+void static_model_actor::draw_geometry_instanced()
 {
 	sqt_transformf t;
 

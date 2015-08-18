@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 		// #else
 			boost::filesystem::current_path(gt::get_executable_path() / "..");
 		// #endif
-		gt::init_all("textured_cube");
+		gt::init_all("skybox");
 		gt::renderer::set_freeform_cursor(true);
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
 		gt::fontstream stream;
@@ -35,7 +35,23 @@ int main(int argc, char* argv[])
 		gt::material the_material(
 			gt::vec4f(1.0f, 1.0f, 1.0f, 0.0f), 
 			gt::vec4f(0.0f, 0.0f, 0.0f, 1.0f), 
-			"../examples/bricks.jpg"
+			"../examples/DaVinci.jpg"
+		);
+
+		// Remark: To get aligned textures, you need to
+		// play around with ImageMagick. The commands
+		// that worked for this particular example were:
+		// $ convert -flip, for +X, -X, +Z, -Z
+		// $ convert -flip -rotate 90, for +Y
+		// $ convert -flop -rotate 90, for -Y
+
+		gt::skybox the_skybox(gt::opengl::cube_texture(
+			"../resources/skybox/siege_rt_flipped.tga", // positive X
+			"../resources/skybox/siege_lf_flipped.tga", // negative X
+			"../resources/skybox/siege_up_flipped.tga", // positive Y
+			"../resources/skybox/siege_dn_flipped.tga", // negative Y
+			"../resources/skybox/siege_bk_flipped.tga", // positive Z
+			"../resources/skybox/siege_ft_flipped.tga"  // negative Z
 		));
 		gt::renderer::show();
 		float curtime, dt;
@@ -77,12 +93,20 @@ int main(int argc, char* argv[])
 			const auto rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
 			gt::renderer::set_model_matrix(-curtime / 4.0f, rotation_axis);
 			the_material.bind();
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
 			the_shape.draw();
+			
 			gt::renderer::begin_light_pass();
 			gt::renderer::null_light_pass();
+
+			glCullFace(GL_FRONT);
+			the_skybox.draw();
+
 			gt::renderer::get_text_shader()->activate();
 			gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
-			glDisable(GL_CULL_FACE);
+
+			glDisable(GL_CULL_FACE);			
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			stream.open(font_inconsolata);
 			stream << "Move around with WASD.\n"
@@ -95,7 +119,7 @@ int main(int argc, char* argv[])
 				<< "Camera up:       " << gt::get_default_camera().up << '\n'
 				<< "Camera right:    " << gt::get_default_camera().right << std::endl;
 			stream.close();
-			glEnable(GL_CULL_FACE);
+			
 			gt::renderer::update();
 		}
 	}

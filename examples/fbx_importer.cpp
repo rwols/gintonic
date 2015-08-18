@@ -107,8 +107,19 @@ int main(int argc, char* argv[])
 		}
 
 		// Test instanced rendering
+		const int instancebound = 30;
+		for (int i = -instancebound; i <= instancebound; ++i)
+		{
+			for (int j = -instancebound; j <= instancebound; ++j)
+			{
+				gt::sqt_transformf t;
+				t.scale = 1.0f;
+				t.translation = { static_cast<float>(i), 0.0f, static_cast<float>(j) };
+				the_actor->transforms.push_back(t);
+			}
+		}
 
-		the_actor->transforms.emplace_back(gt::sqt_transformf());
+		// the_actor->transforms.emplace_back(gt::sqt_transformf());
 		
 		std::vector<std::unique_ptr<gt::light>> lights;
 		std::vector<gt::sqt_transformf> light_transforms(4);

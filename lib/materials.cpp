@@ -18,8 +18,8 @@ namespace gintonic {
  * gintonic::material (base class for inheritance)                           *
  ****************************************************************************/
 
-material::datastructure_type material::s_textures 
-	= material::datastructure_type();
+material::datastructure_type material::s_textures ;
+	// = material::datastructure_type();
 
 write_lock material::s_textures_lock;
 

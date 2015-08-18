@@ -18,6 +18,8 @@ namespace gintonic
 	namespace opengl
 	{
 		class unit_quad_P;
+		class unit_cube_P;
+		class unit_cube_P_flipped;
 		class unit_sphere_P;
 		class unit_cone_P;
 	}
@@ -46,6 +48,8 @@ namespace gintonic
 	class lp_directional_shader;
 	class lp_point_shader;
 	class lp_spot_shader;
+
+	class skybox_shader;
 
 	class text_shader;
 
@@ -279,6 +283,11 @@ namespace gintonic
 			return *s_lp_spot_shader;
 		}
 
+		inline static const skybox_shader& get_skybox_shader() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_skybox_shader;
+		}
+
 		inline static text_shader* get_text_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return s_text_shader;
@@ -287,6 +296,16 @@ namespace gintonic
 		inline static const opengl::unit_quad_P& get_unit_quad_P() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_unit_quad_P;
+		}
+
+		inline static const opengl::unit_cube_P& get_unit_cube_P() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_unit_cube_P;
+		}
+
+		inline static const opengl::unit_cube_P_flipped& get_unit_cube_P_flipped() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return *s_unit_cube_P_flipped;
 		}
 
 		inline static const opengl::unit_sphere_P& get_unit_sphere_P() BOOST_NOEXCEPT_OR_NOTHROW
@@ -363,9 +382,13 @@ namespace gintonic
 		static lp_point_shader* s_lp_point_shader;
 		static lp_spot_shader* s_lp_spot_shader;
 
+		static skybox_shader* s_skybox_shader;
+
 		static text_shader* s_text_shader;
 
 		static opengl::unit_quad_P* s_unit_quad_P;
+		static opengl::unit_cube_P* s_unit_cube_P;
+		static opengl::unit_cube_P_flipped* s_unit_cube_P_flipped;
 		static opengl::unit_sphere_P* s_unit_sphere_P;
 		static opengl::unit_cone_P* s_unit_cone_P;
 	};

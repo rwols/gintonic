@@ -2,6 +2,7 @@
 #define gintonic_mesh_hpp
 
 #include "vertices.hpp"
+#include "vector.hpp"
 
 namespace gintonic {
 	
@@ -9,7 +10,7 @@ namespace gintonic {
 	{
 	public:
 
-		mesh() = default;
+		mesh();
 		mesh(FbxMesh*, const GLenum usagehint = GL_STATIC_DRAW);
 
 		void draw() const BOOST_NOEXCEPT_OR_NOTHROW;
@@ -17,8 +18,7 @@ namespace gintonic {
 		void draw(
 			const std::vector<mat4f>& PVM_matrices_transposed,
 			const std::vector<mat4f>& VM_matrices_transposed,
-			const std::vector<mat3f>& N_matrices_transposed)
-			const BOOST_NOEXCEPT_OR_NOTHROW;
+			const std::vector<mat3f>& N_matrices_transposed);
 
 		struct vec2f
 		{
@@ -83,8 +83,13 @@ namespace gintonic {
 
 		opengl::vertex_array_object m_vao;
 
-		// indices, positions, uvs, normals, matrix_PVM, matrix_VM, matrix_N
-		opengl::buffer_object_array<7> m_buffer;
+		// indices, positions, uvs, normals
+		opengl::buffer_object_array<4> m_buffer;
+		
+		// matrix_PVM, matrix_VM, matrix_N
+		opengl::vector_array<GL_ARRAY_BUFFER, mat4f, 2> m_matrix_buffer;
+		opengl::vector<GL_ARRAY_BUFFER, mat3f> m_matrix_N_buffer;
+		
 		GLsizei m_count = 0;
 		unsigned m_type = 0;
 	};

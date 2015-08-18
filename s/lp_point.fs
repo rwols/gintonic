@@ -86,31 +86,4 @@ void main()
 	float sc = dc > 0.0f ? clamppowmaxdot(R,E, specular.a) : 0.0f;
 
 	final_color = light.intensity.a * att * diffuse.a * light.intensity.rgb * (dc * diffuse.rgb + sc * specular.rgb);
-
-	// if (light.intensity.a == 0.0f)
-	// {
-	// 	final_color = vec3(0, 0, 0);
-	// }
-	// else if (att == 0.0f)
-	// {
-	// 	final_color = vec3(0, 1, 0);
-	// }
-	// else if (diffuse.a == 0.0f)
-	// {
-	// 	final_color = vec3(0, 0, 1);
-	// }
-	// else if (dc == 0.0f)
-	// {
-	// 	final_color = vec3(0, 0, 0);
-	// }
-	// else if (light.intensity.rgb == vec3(0,0,0))
-	// {
-	// 	final_color = vec3(0, 1, 1);
-	// }
-	// else
-	// {
-	// 	final_color += light.intensity.rgb;
-	// }
-
-	// final_color.r += 0.1f;
 }

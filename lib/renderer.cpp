@@ -79,9 +79,13 @@ namespace gintonic {
 	lp_point_shader* renderer::s_lp_point_shader = nullptr;
 	lp_spot_shader* renderer::s_lp_spot_shader = nullptr;
 
+	skybox_shader* renderer::s_skybox_shader = nullptr;
+
 	text_shader* renderer::s_text_shader = nullptr;
 
 	opengl::unit_quad_P* renderer::s_unit_quad_P = nullptr;
+	opengl::unit_cube_P* renderer::s_unit_cube_P = nullptr;
+	opengl::unit_cube_P_flipped* renderer::s_unit_cube_P_flipped = nullptr;
 	opengl::unit_sphere_P* renderer::s_unit_sphere_P = nullptr;
 	opengl::unit_cone_P* renderer::s_unit_cone_P = nullptr;
 
@@ -430,6 +434,16 @@ namespace gintonic {
 		}
 		try
 		{
+			s_skybox_shader = new skybox_shader();	
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load skybox_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
 			s_text_shader = new text_shader();
 		}
 		catch (exception& e)
@@ -443,6 +457,8 @@ namespace gintonic {
 		// Initialize basic shapes
 		//
 		s_unit_quad_P = new opengl::unit_quad_P();
+		s_unit_cube_P = new opengl::unit_cube_P();
+		s_unit_cube_P_flipped = new opengl::unit_cube_P_flipped();
 		s_unit_sphere_P = new opengl::unit_sphere_P(64, 64);
 		s_unit_cone_P = new opengl::unit_cone_P(16);
 

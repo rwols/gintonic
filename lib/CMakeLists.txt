@@ -16,6 +16,7 @@ set(src_files actors.cpp
 	profiler.cpp
 	renderer.cpp
 	shaders.cpp
+	skybox.cpp
 	textures.cpp
 	timers.cpp
 	vec2.cpp)

@@ -20,9 +20,10 @@ public:
 	// Destructor.
 	virtual ~basic_shape();
 
-	// Draw the basic shape. This methods requires
-	// an implementation from a derived class.
+	// Draw the basic shape.
+	// This method requires an implementation from a derived class.
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+	
 };
 
 /*****************************************************************************
@@ -101,6 +102,17 @@ class unit_cube_P : public basic_shape
 public:
 	unit_cube_P();
 	virtual ~unit_cube_P();
+	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+private:
+	vertex_array_object m_vao;
+	buffer_object m_vbo, m_ibo;
+};
+
+class unit_cube_P_flipped : public basic_shape
+{
+public:
+	unit_cube_P_flipped();
+	virtual ~unit_cube_P_flipped();
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
 private:
 	vertex_array_object m_vao;

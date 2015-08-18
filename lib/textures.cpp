@@ -122,29 +122,26 @@ texture_parameters::texture_parameters()
 	// nothing
 }
 
-texture_parameters texture2d::parameter = texture_parameters();
-// texture2d texture2d::nil = texture2d();
+texture_parameters texture::parameter = texture_parameters();
 
-texture2d::texture2d(texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW
-: m_buffer(other.m_buffer)
-{
-	other.m_buffer = 0;
-}
+// texture2d::texture2d(texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW
+// : m_tex(other.m_tex)
+// {
+// 	other.m_tex = 0;
+// }
 
-texture2d& texture2d::operator = (texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	glDeleteTextures(1, &m_buffer);
-	m_buffer = other.m_buffer;
-	other.m_buffer = 0;
-	return *this;
-}
+// texture2d& texture2d::operator = (texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW
+// {
+// 	glDeleteTextures(1, &m_tex);
+// 	m_tex = other.m_tex;
+// 	other.m_tex = 0;
+// 	return *this;
+// }
 
-void texture2d::init()
+void texture::init()
 {
-	
 	if (!s_is_initialized)
 	{
-		s_is_initialized = true;
 		#ifdef BOOST_MSVC
 		// we assume COM has been initialized at this point
 		const auto hr = CoCreateInstance(
@@ -157,14 +154,14 @@ void texture2d::init()
 		if (!SUCCEEDED(hr))
 		{
 			throw exception("Failed to load image factory.");
-			// BOOST_THROW_EXCEPTION(wic_initialization_error());
 		}
 		#endif
-		std::atexit(texture2d::release_static);
+		s_is_initialized = true;
+		std::atexit(texture::release);
 	}
 }
 
-void texture2d::release_static()
+void texture::release()
 {
 	#ifdef BOOST_MSVC
 	if (s_wic_factory)
@@ -175,63 +172,51 @@ void texture2d::release_static()
 	#endif
 }
 
-texture2d::~texture2d()
+texture::~texture()
 {
-	glDeleteTextures(1, &m_buffer);	
+	/* Empty on purpose. */
 }
 
-texture2d::texture2d(boost::filesystem::path filename)
+texture2d::texture2d(const boost::filesystem::path& filename)
 {
 	GLsizei width;
 	GLsizei height;
 	GLenum format;
 	GLenum type;
 	std::vector<char> data;
-	const auto ext = filename.extension();
 
-	#ifdef BOOST_MSVC
+	init_generic_image(filename, width, height, format, type, data);
 
-		if (ext == ".tga" || ext == ".TGA")
-		{
-			init_tga_image(filename, width, height, format, type, data);
-		}
-		else
-		{
-			init_wic_image(filename, width, height, format, type, data);
-		}
-		// else
-		// {
-		// 	throw exception(filename.c_str() + std::string(": Unknown file extension."));
-		// }
-
-	#else
-
-		if (ext == ".tga" || ext == ".TGA")
-		{
-			init_tga_image(filename, width, height, format, type, data);
-		}
-		else if (ext == ".png" || ext == ".PNG")
-		{
-			init_png_image(filename, width, height, format, type, data);
-		}
-		else if (ext == ".jpg" || ext == ".jpeg" || ext == ".JPG" || ext == ".JPEG")
-		{
-			init_jpeg_image(filename, width, height, format, type, data);
-		}
-		else
-		{
-			throw exception(filename.c_str() + std::string(": Unknown file extension."));
-		}
-
-	#endif
-
-	init(width, height, format, type, data);
+	glBindTexture(GL_TEXTURE_2D, m_tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, type, (const GLvoid*)data.data());
+	glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now!!!
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 }
 
-void texture2d::bind(const GLint active_texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+texture2d::~texture2d()
 {
-	glActiveTexture(GL_TEXTURE0 + active_texture_unit);
-	glBindTexture(GL_TEXTURE_2D, m_buffer);
+	/* Empty on purpose. */
+}
+
+texture2d::texture2d(texture2d&& other)
+: m_tex(std::move(other.m_tex))
+{
+	/* Empty on purpose. */
+}
+
+texture2d& texture2d::operator = (texture2d&& other)
+{
+	m_tex = std::move(other.m_tex);
+	return *this;
+}
+
+void texture2d::bind(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	glActiveTexture(GL_TEXTURE0 + texture_unit);
+	glBindTexture(GL_TEXTURE_2D, m_tex);
 }
 
 GLint texture2d::width(const GLint level) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -271,41 +256,78 @@ GLint texture2d::compressed_size(const GLint level) const BOOST_NOEXCEPT_OR_NOTH
 	return r;
 }
 
-void texture2d::init(
-	const GLsizei width, 
-	const GLsizei height, 
-	const GLenum format, 
-	const GLenum type, 
-	const std::vector<char>& data)
+cube_texture::cube_texture(
+	const boost::filesystem::path& positive_X_file,
+	const boost::filesystem::path& negative_X_file,
+	const boost::filesystem::path& positive_Y_file,
+	const boost::filesystem::path& negative_Y_file,
+	const boost::filesystem::path& positive_Z_file,
+	const boost::filesystem::path& negative_Z_file)
 {
-	glGenTextures(1, &m_buffer);
-	if (m_buffer == 0) throw std::bad_alloc();
-	glBindTexture(GL_TEXTURE_2D, m_buffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, type, (const GLvoid*)data.data());
-	glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now!!!
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, parameter.base_level);
-	// glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, parameter.border_color);
-	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, parameter.compare_func);
-	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, parameter.compare_mode);
-	// glTexParameterf (GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, parameter.lod_bias);
-	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, parameter.minification_filter);
-	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, parameter.magnification_filter);
-	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_LOD, parameter.minimum_lod);
-	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, parameter.maximum_lod);
-	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, parameter.max_level);
-	// glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, parameter.swizzle);
-	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, parameter.wrap[0]);
-	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, parameter.wrap[1]);
-	// glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, parameter.wrap[2]);
-	// glTexImage2D(GL_TEXTURE_2D, parameter.mipmaps, GL_RGBA, m_image);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	BOOST_CONSTEXPR GLenum types[6] =
+	{
+		GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+	};
+
+	const boost::filesystem::path* filenames[6] =
+	{
+		&positive_X_file,
+		&negative_X_file,
+		&positive_Y_file,
+		&negative_Y_file,
+		&positive_Z_file,
+		&negative_Z_file
+	};
+
+	GLsizei width;
+	GLsizei height;
+	GLenum format;
+	GLenum type;
+	std::vector<char> data;
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_tex);
+	for (int i = 0; i < 6; ++i)
+	{
+		init_generic_image(*(filenames[i]), width, height, format, type, data);
+		glTexImage2D(types[i], 0, GL_RGBA8, width, height, 0, format, type, (const GLvoid*)data.data());
+	}
+	// glGenerateMipmap(GL_TEXTURE_CUBE_MAP);  //Generate mipmaps now!!!
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
-void texture2d::init_tga_image(
+cube_texture::~cube_texture()
+{
+	/* Empty on purpose. */
+}
+
+cube_texture::cube_texture(cube_texture&& other)
+: m_tex(std::move(other.m_tex))
+{
+	/* Empty on purpose. */
+}
+
+cube_texture& cube_texture::operator = (cube_texture&& other)
+{
+	m_tex = std::move(other.m_tex);
+	return *this;
+}
+
+void cube_texture::bind(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	glActiveTexture(GL_TEXTURE0 + texture_unit);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_tex);
+}
+
+void texture::init_tga_image(
 	const boost::filesystem::path& filename, 
 	GLsizei& m_width, 
 	GLsizei& m_height, 
@@ -313,14 +335,14 @@ void texture2d::init_tga_image(
 	GLenum& m_type, 
 	std::vector<char>& m_data)
 {
-	std::ifstream lInput(filename.c_str());
+	std::ifstream input(filename.c_str());
 	uint8_t depth;
 	uint16_t width, height;
-	lInput.seekg(12, std::ios::beg);
-	lInput.read((char*)&width, 2);
-	lInput.read((char*)&height, 2);
-	lInput.read((char*)&depth,  1);
-	lInput.seekg(18, std::ios::beg);
+	input.seekg(12, std::ios::beg);
+	input.read((char*)&width, 2);
+	input.read((char*)&height, 2);
+	input.read((char*)&depth,  1);
+	input.seekg(18, std::ios::beg);
 	m_width = static_cast<std::remove_reference<decltype(m_width)>::type>(width);
 	m_height = static_cast<std::remove_reference<decltype(m_height)>::type>(height);
 	switch (depth)
@@ -331,12 +353,12 @@ void texture2d::init_tga_image(
 	}
 	const std::size_t size = (depth / 8) * m_width * m_height;
 	m_data.resize(size);
-	lInput.read(m_data.data(), size);
+	input.read(m_data.data(), size);
 	m_type = GL_UNSIGNED_BYTE;
 }
 
 #ifdef BOOST_MSVC
-void texture2d::init_wic_image(
+void texture::init_wic_image(
 	const boost::filesystem::path& filename, 
 	GLsizei& m_width, 
 	GLsizei& m_height, 
@@ -433,7 +455,7 @@ wic_error_label:
 
 #elif defined(__APPLE__)
 
-void texture2d::init_png_image(
+void texture::init_png_image(
 	const boost::filesystem::path& filename,
 	GLsizei& width, 
 	GLsizei& height, 
@@ -516,7 +538,7 @@ void texture2d::init_png_image(
 	type = GL_UNSIGNED_BYTE;
 }
 
-void texture2d::init_jpeg_image(
+void texture::init_jpeg_image(
 	const boost::filesystem::path& filename,
 	GLsizei& width,
 	GLsizei& height, 
@@ -584,7 +606,7 @@ void texture2d::init_jpeg_image(
 
 #elif defined __linux__
 
-void texture2d::init_png_image(
+void texture::init_png_image(
 	const boost::filesystem::path& filename,
 	GLsizei& width, 
 	GLsizei& height, 
@@ -667,7 +689,7 @@ void texture2d::init_png_image(
 	type = GL_UNSIGNED_BYTE;
 }
 
-void texture2d::init_jpeg_image(
+void texture::init_jpeg_image(
 	const boost::filesystem::path& filename,
 	GLsizei& width,
 	GLsizei& height, 
@@ -736,6 +758,43 @@ void texture2d::init_jpeg_image(
 #else
 #error Platform not supported.
 #endif
+
+void texture::init_generic_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data)
+{
+	const auto ext = filename.extension();
+
+	#ifdef BOOST_MSVC
+
+		if (ext == ".tga" || ext == ".TGA")
+		{
+			init_tga_image(filename, width, height, format, type, data);
+		}
+		else
+		{
+			init_wic_image(filename, width, height, format, type, data);
+		}
+
+	#else
+
+		if (ext == ".tga" || ext == ".TGA")
+		{
+			init_tga_image(filename, width, height, format, type, data);
+		}
+		else if (ext == ".png" || ext == ".PNG")
+		{
+			init_png_image(filename, width, height, format, type, data);
+		}
+		else if (ext == ".jpg" || ext == ".jpeg" || ext == ".JPG" || ext == ".JPEG")
+		{
+			init_jpeg_image(filename, width, height, format, type, data);
+		}
+		else
+		{
+			throw exception(filename.c_str() + std::string(": Unknown file extension."));
+		}
+
+	#endif
+}
 
 } // end of namespace opengl
 } // end of namespace gintonic

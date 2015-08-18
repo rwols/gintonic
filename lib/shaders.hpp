@@ -586,6 +586,30 @@ private:
 };
 
 /*****************************************************************************
+ * gintonic::skybox_shader                                                   *
+ ****************************************************************************/
+
+class skybox_shader : public opengl::shader
+{
+public:
+	skybox_shader();
+	virtual ~skybox_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_matrix_PV(const mat4f& rotation_matrix) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_skybox_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+protected:
+	skybox_shader(
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path fragment_shader);
+	skybox_shader( 
+		boost::filesystem::path vertex_shader, 
+		boost::filesystem::path geometry_shader,
+		boost::filesystem::path fragment_shader);
+private:
+	GLuint loc_matrix_PV;
+	GLuint loc_skybox_diffuse;
+};
+
+/*****************************************************************************
  * gintonic::text_shader                                                     *
  ****************************************************************************/
 
