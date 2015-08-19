@@ -51,6 +51,7 @@ namespace gintonic {
 	GLuint renderer::s_fbo;
 	GLuint renderer::s_textures[renderer::GBUFFER_COUNT];
 	GLuint renderer::s_depth_texture;
+	GLuint renderer::s_shadow_texture;
 
 	const camera_transform<float>* renderer::s_camera = nullptr;
 
@@ -201,6 +202,7 @@ namespace gintonic {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		glGenTextures(GBUFFER_COUNT, s_textures);
 		glGenTextures(1, &s_depth_texture);
+		glGenTextures(1, &s_shadow_texture);
 		for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
 		{
 			glBindTexture(GL_TEXTURE_2D, s_textures[i]);

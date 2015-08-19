@@ -1741,6 +1741,29 @@ template <class T> struct quat
 		return result;
 	}
 
+	static quat look_at(const vec<T,3>& eye, const vec<T,3>& center, const vec<T,3>& up)
+	{
+		const T dotproduct = dot(normalize(eye), normalize(center));
+
+		if (almost_equal(dotproduct, T(-1), 5))
+		{
+			// The eye and the subject point in opposite directions.
+			return from_angle_axis(deg_to_rad(T(180)), up);
+		}
+		else if (almost_equal(dotproduct, T(1), 5))
+		{
+			// The eye already looks at the subject.
+			return quat(1, 0, 0, 0);
+		}
+		else
+		{
+			// Do calculations as usual.
+			const T angle = std::acos(dotproduct);
+			const vec<T,3> rotation_axis = normalize(center % up);
+			return from_angle_axis(angle, rotation_axis);
+		}
+	}
+
 	quat& operator = (const vec<T,3>& v)
 	{
 		w = T(0);

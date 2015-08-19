@@ -354,6 +354,7 @@ namespace gintonic
 		static GLuint s_fbo;
 		static GLuint s_textures[GBUFFER_COUNT];
 		static GLuint s_depth_texture;
+		static GLuint s_shadow_texture;
 
 		static const camera_transform<float>* s_camera;
 
