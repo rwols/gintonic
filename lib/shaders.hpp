@@ -1,7 +1,7 @@
 #ifndef gintonic_shaders_hpp
 #define gintonic_shaders_hpp
 
-#include "opengl.hpp"
+#include "opengl/shader_program.hpp"
 
 namespace gintonic {
 
@@ -9,7 +9,7 @@ namespace gintonic {
  * gintonic::matrix_PVM_shader                                               *
  ****************************************************************************/
 
-class matrix_PVM_shader : public opengl::shader
+class matrix_PVM_shader : public opengl::shader_program
 {
 public:
 	matrix_PVM_shader();
@@ -250,7 +250,7 @@ private:
  * gintonic::gpi_shader                                                      *
  ****************************************************************************/
 
-class gpi_shader : public opengl::shader
+class gpi_shader : public opengl::shader_program
 {
 public:
 	gpi_shader();
@@ -439,7 +439,7 @@ public:
  * gintonic::lp_null_shader                                                  *
  ****************************************************************************/
 
-class lp_null_shader : public opengl::shader
+class lp_null_shader : public opengl::shader_program
 {
 public:
 	lp_null_shader();
@@ -589,7 +589,7 @@ private:
  * gintonic::skybox_shader                                                   *
  ****************************************************************************/
 
-class skybox_shader : public opengl::shader
+class skybox_shader : public opengl::shader_program
 {
 public:
 	skybox_shader();
@@ -613,7 +613,7 @@ private:
  * gintonic::text_shader                                                     *
  ****************************************************************************/
 
-class text_shader : public opengl::shader
+class text_shader : public opengl::shader_program
 {
 public:
 	text_shader();

@@ -1,23 +1,9 @@
-/*!
-\file vertices.hpp
-\author Raoul Wols
-\date 17/09/2014
-\brief A collection of vertex classes.
-*/
-
 #ifndef vertices_hpp
 #define vertices_hpp
 
-// // Include the FBX SDK.
-// #pragma clang diagnostic push
-// #pragma clang diagnostic ignored "-Wgnu"
-// #pragma clang diagnostic ignored "-Wextra-semi"
-// #define FBXSDK_NEW_API
-// #include <fbxsdk.h>
-// #pragma clang diagnostic pop
-
-#include "opengl.hpp"
-// #include "Serializable.hpp"
+#include "vec2f.hpp"
+#include "vec3f.hpp"
+#include "vec4f.hpp"
 
 #ifdef __clang__
 	#pragma clang diagnostic push

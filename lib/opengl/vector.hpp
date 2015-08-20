@@ -1,7 +1,11 @@
-#ifndef gintonic_vector_hpp
-#define gintonic_vector_hpp
+#ifndef gintonic_opengl_vector_hpp
+#define gintonic_opengl_vector_hpp
 
-namespace gintonic  { namespace opengl {
+#include "buffer_object.hpp"
+#include "buffer_object_array.hpp"
+
+namespace gintonic {
+namespace opengl {
 
 template <GLenum Target, class T> class vector
 {

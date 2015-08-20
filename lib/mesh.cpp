@@ -6,6 +6,7 @@
 #include "portable_oarchive.hpp"
 #include "portable_iarchive.hpp"
 #include "renderer.hpp"
+#include "exception.hpp"
 
 #define GT_MESH_INDEX 0
 #define GT_MESH_POSITION 1

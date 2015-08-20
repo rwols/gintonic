@@ -1,5 +1,7 @@
 #include "basic_shapes.hpp"
 #include "mesh.hpp"
+#include "vec2f.hpp"
+#include "vec3f.hpp"
 
 #ifndef DEBUG_PRINT
 #define DEBUG_PRINT_START std::cerr << __FILE__ << '(' << __LINE__ << ')'

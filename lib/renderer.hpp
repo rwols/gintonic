@@ -1,12 +1,14 @@
-#ifndef gintonic_renderer_linux_hpp
-#define gintonic_renderer_linux_hpp
+#ifndef gintonic_renderer_hpp
+#define gintonic_renderer_hpp
 
 #include <chrono>
 #include <boost/circular_buffer.hpp>
 #include <boost/signals2.hpp>
-#include "opengl.hpp"
+#include "opengl/khrplatform.hpp"
 #include "camera.hpp"
 #include "fonts.hpp"
+#include "mat3f.hpp"
+#include "mat4f.hpp"
 
 namespace gintonic 
 {

@@ -7,7 +7,7 @@ namespace gintonic {
  ****************************************************************************/
 
 matrix_PVM_shader::matrix_PVM_shader()
-: opengl::shader("../s/lp_pvm.vs", "../s/null.fs")
+: opengl::shader_program("../s/lp_pvm.vs", "../s/null.fs")
 {
 	loc_matrix_PVM = get_uniform_location("matrix_PVM");
 }
@@ -15,7 +15,7 @@ matrix_PVM_shader::matrix_PVM_shader()
 matrix_PVM_shader::matrix_PVM_shader( 
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: opengl::shader(std::move(vertex_shader), std::move(fragment_shader))
+: opengl::shader_program(std::move(vertex_shader), std::move(fragment_shader))
 {
 	loc_matrix_PVM = get_uniform_location("matrix_PVM");
 }
@@ -24,7 +24,7 @@ matrix_PVM_shader::matrix_PVM_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: opengl::shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: opengl::shader_program(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
 	loc_matrix_PVM = get_uniform_location("matrix_PVM");
 }
@@ -407,7 +407,7 @@ gp_dsn_shader::gp_dsn_shader(
  ****************************************************************************/
 
 gpi_shader::gpi_shader()
-: opengl::shader("../s/gpi.vs", "../s/gp.fs")
+: opengl::shader_program("../s/gpi.vs", "../s/gp.fs")
 {
 	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_specular_color = get_uniform_location("material.specular_color");
@@ -430,7 +430,7 @@ void gpi_shader::set_specular_color(const vec4f& color) const BOOST_NOEXCEPT_OR_
 gpi_shader::gpi_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: opengl::shader(std::move(vertex_shader), std::move(fragment_shader))
+: opengl::shader_program(std::move(vertex_shader), std::move(fragment_shader))
 {
 	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_specular_color = get_uniform_location("material.specular_color");
@@ -440,7 +440,7 @@ gpi_shader::gpi_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: opengl::shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: opengl::shader_program(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
 	loc_diffuse_color = get_uniform_location("material.diffuse_color");
 	loc_specular_color = get_uniform_location("material.specular_color");
@@ -708,7 +708,7 @@ gpi_dsn_shader::gpi_dsn_shader(
  ****************************************************************************/
 
 lp_null_shader::lp_null_shader()
-: opengl::shader("../s/lp_null.vs", "../s/lp_null.fs")
+: opengl::shader_program("../s/lp_null.vs", "../s/lp_null.fs")
 {
 	loc_viewport_size = get_uniform_location("viewport_size");
 	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
@@ -732,7 +732,7 @@ void lp_null_shader::set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_O
 lp_null_shader::lp_null_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: opengl::shader(std::move(vertex_shader), std::move(fragment_shader))
+: opengl::shader_program(std::move(vertex_shader), std::move(fragment_shader))
 {
 	loc_viewport_size = get_uniform_location("viewport_size");
 	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
@@ -742,7 +742,7 @@ lp_null_shader::lp_null_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: opengl::shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: opengl::shader_program(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
 	loc_viewport_size = get_uniform_location("viewport_size");
 	loc_gbuffer_diffuse = get_uniform_location("gbuffer.diffuse");
@@ -1053,7 +1053,7 @@ lp_spot_shader::lp_spot_shader(
  ****************************************************************************/
 
 skybox_shader::skybox_shader()
-: opengl::shader("../s/skybox.vs", "../s/skybox.fs")
+: opengl::shader_program("../s/skybox.vs", "../s/skybox.fs")
 {
 	loc_matrix_PV = get_uniform_location("matrix_PV");
 	loc_skybox_diffuse = get_uniform_location("skybox.diffuse_texture");
@@ -1077,7 +1077,7 @@ void skybox_shader::set_skybox_diffuse(const GLint texture_unit) const BOOST_NOE
 skybox_shader::skybox_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
-: opengl::shader(std::move(vertex_shader), std::move(fragment_shader))
+: opengl::shader_program(std::move(vertex_shader), std::move(fragment_shader))
 {
 	loc_matrix_PV = get_uniform_location("matrix_PV");
 	loc_skybox_diffuse = get_uniform_location("skybox.diffuse_texture");
@@ -1087,7 +1087,7 @@ skybox_shader::skybox_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path geometry_shader,
 	boost::filesystem::path fragment_shader)
-: opengl::shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+: opengl::shader_program(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
 	loc_matrix_PV = get_uniform_location("matrix_PV");
 	loc_skybox_diffuse = get_uniform_location("skybox.diffuse_texture");
@@ -1098,7 +1098,7 @@ skybox_shader::skybox_shader(
  ****************************************************************************/
 
 text_shader::text_shader()
-: opengl::shader("../s/flat_text_uniform_color.vs", "../s/flat_text_uniform_color.fs")
+: opengl::shader_program("../s/flat_text_uniform_color.vs", "../s/flat_text_uniform_color.fs")
 {
 	loc_color = get_uniform_location("color");
 	loc_texture = get_uniform_location("tex");

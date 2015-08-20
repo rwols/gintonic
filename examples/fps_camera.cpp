@@ -1,5 +1,7 @@
 #include "gintonic.hpp"
 
+#include <iomanip>
+
 namespace gt = gintonic;
 
 template <class FloatType> FloatType get_elapsed_time()

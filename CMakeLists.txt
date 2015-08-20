@@ -152,9 +152,6 @@ mark_as_advanced(SDL2_LIBRARY)
 mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 mark_as_advanced(CMAKE_INSTALL_PREFIX)
 
-
-
-
 add_subdirectory (lib)
 add_subdirectory (examples)
 add_subdirectory (test)

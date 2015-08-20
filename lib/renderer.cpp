@@ -2,6 +2,8 @@
 #include "basic_shapes.hpp"
 #include "shaders.hpp"
 #include "fonts.hpp"
+#include "exception.hpp"
+#include "vec4f.hpp"
 #include <iostream>
 #include <SDL.h>
 

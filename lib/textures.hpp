@@ -7,9 +7,10 @@
 // #include <array>
 // #include <vector>
 
-#include "opengl.hpp"
-#include <vector>
-#include <array>
+#include "opengl/texture_object.hpp"
+#include "filesystem.hpp"
+// #include <vector>
+// #include <array>
 
 namespace gintonic {
 namespace opengl {
@@ -229,23 +230,23 @@ public:
 	texture(texture&&);
 	texture& operator = (texture&&);
 
-	struct error : virtual exception {};
-	struct empty_filename_error : virtual error {};
-	struct not_a_regular_file_error : virtual error {};
-	struct file_extension_error : virtual error {};
-	struct handle_error : virtual error {};
-	struct unknown_tga_format_error : virtual error {};
-	struct png_ran_out_of_memory_error : virtual error {};
-	struct png_read_error : virtual error {};
-	struct png_invalid_signature_error : virtual error {};
-	struct png_unknown_color_format_error : virtual error {};
-	struct jpeg_read_error : virtual error {};
+	// struct error : virtual exception {};
+	// struct empty_filename_error : virtual error {};
+	// struct not_a_regular_file_error : virtual error {};
+	// struct file_extension_error : virtual error {};
+	// struct handle_error : virtual error {};
+	// struct unknown_tga_format_error : virtual error {};
+	// struct png_ran_out_of_memory_error : virtual error {};
+	// struct png_read_error : virtual error {};
+	// struct png_invalid_signature_error : virtual error {};
+	// struct png_unknown_color_format_error : virtual error {};
+	// struct jpeg_read_error : virtual error {};
 
-	#ifdef BOOST_MSVC
-	struct wic_error : virtual error {};
-	struct wic_initialization_error : virtual error {};
-	typedef boost::error_info<struct tag_wic_errorcode, HRESULT> errinfo_wic;
-	#endif
+	// #ifdef BOOST_MSVC
+	// struct wic_error : virtual error {};
+	// struct wic_initialization_error : virtual error {};
+	// typedef boost::error_info<struct tag_wic_errorcode, HRESULT> errinfo_wic;
+	// #endif
 
 protected:
 

@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
 
 set(src_files
+	opengl/buffer_object.cpp
+	opengl/framebuffer.cpp
+	opengl/glad.cpp
+	opengl/shader_program.cpp
+	opengl/source_code.cpp
+	opengl/texture_object.cpp
+	opengl/vertex_array_object.cpp
 	SQT.cpp
 	actors.cpp
 	basic_shapes.cpp
@@ -11,16 +18,15 @@ set(src_files
 	filesystem.cpp
 	fonts.cpp
 	gintonic.cpp
-	glad.cpp
 	lights.cpp
 	locks.cpp
 	mat2f.cpp
 	mat3f.cpp
 	mat4f.cpp
 	materials.cpp
-	math.cpp
+	# math.cpp
 	mesh.cpp
-	opengl.cpp
+	# opengl.cpp
 	profiler.cpp
 	quatf.cpp
 	renderer.cpp
@@ -48,6 +54,8 @@ endif ()
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(ENABLE_DEBUG_TRACE ON CACHE BOOL "Enable debug tracing via the renderer.")	
 endif ()
+
+add_subdirectory(opengl)
 
 add_library(gintonic ${src_files})
 

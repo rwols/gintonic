@@ -7,7 +7,8 @@
 	#include <jpeglib.h> // The JPEG library.
 #endif
 #include <fstream>
-#include "opengl.hpp"
+#include "opengl/utilities.hpp"
+#include "exception.hpp"
 
 namespace gintonic {
 namespace opengl {

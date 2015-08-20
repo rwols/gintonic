@@ -1,5 +1,7 @@
 #include "gintonic.hpp"
 
+#include <iomanip>
+
 namespace gt = gintonic;
 
 #define MOVE_SPEED 2.77778f // 10 km/s

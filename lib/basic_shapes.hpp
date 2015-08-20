@@ -1,9 +1,13 @@
 #ifndef basic_shapes_hpp
 #define basic_shapes_hpp
 
-#include "opengl.hpp"
+#include "opengl/buffer_object.hpp"
+#include "opengl/buffer_object_array.hpp"
+#include "opengl/vertex_array_object.hpp"
 
 namespace gintonic {
+
+union vec3f; // Forward declaration.
 
 namespace opengl {
 

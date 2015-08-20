@@ -1,6 +1,7 @@
 #include "materials.hpp"
 #include "shaders.hpp"
 #include "renderer.hpp"
+#include "exception.hpp"
 #include "portable_iarchive.hpp"
 #include "portable_oarchive.hpp"
 #include <boost/archive/text_iarchive.hpp>

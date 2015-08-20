@@ -1,5 +1,5 @@
 #include "vertices.hpp"
-
+#include "opengl/utilities.hpp"
 #include <fbxsdk.h>
 
 namespace gintonic {

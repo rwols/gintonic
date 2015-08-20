@@ -1,9 +1,12 @@
 #ifndef gintonic_fonts_hpp
 #define gintonic_fonts_hpp
 
-#include "opengl.hpp"
+#include "opengl/buffer_object.hpp"
+#include "opengl/vertex_array_object.hpp"
 #include "object.hpp"
 #include "tuple.hpp"
+#include "filesystem.hpp"
+#include "vec2f.hpp"
 #include <iosfwd>
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/stream.hpp>
@@ -20,8 +23,8 @@ namespace gintonic {
 
 		typedef char char_type;
 
-		struct error : virtual exception {};
-		struct font_not_found : virtual error {};
+		// struct error : virtual exception {};
+		// struct font_not_found : virtual error {};
 
 		static void init();
 		virtual ~font();

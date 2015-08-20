@@ -2,7 +2,10 @@
 #define gintonic_mesh_hpp
 
 #include "vertices.hpp"
-#include "vector.hpp"
+#include "mat3f.hpp"
+#include "mat4f.hpp"
+#include "opengl/vertex_array_object.hpp"
+#include "opengl/vector.hpp"
 
 namespace gintonic {
 	
