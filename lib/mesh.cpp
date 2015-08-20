@@ -379,7 +379,7 @@ void mesh::set_data(FbxMesh* m, const GLenum usagehint)
 		glEnableVertexAttribArray(GT_VERTEX_LAYOUT_PVM_MATRIX + i);
 
 		glVertexAttribPointer(GT_VERTEX_LAYOUT_PVM_MATRIX + i, 4, 
-			GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (const GLvoid*)(sizeof(GLfloat) * i * 4));
+			GL_FLOAT, GL_FALSE, sizeof(mat4f), (const GLvoid*)(sizeof(GLfloat) * i * 4));
 		
 		glVertexAttribDivisor(GT_VERTEX_LAYOUT_PVM_MATRIX + i, 1);
 	}
@@ -389,7 +389,7 @@ void mesh::set_data(FbxMesh* m, const GLenum usagehint)
 		glEnableVertexAttribArray(GT_VERTEX_LAYOUT_VM_MATRIX + i);
 		
 		glVertexAttribPointer(GT_VERTEX_LAYOUT_VM_MATRIX + i, 4, 
-			GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4 * 4, (const GLvoid*)(sizeof(GLfloat) * i * 4));
+			GL_FLOAT, GL_FALSE, sizeof(mat4f), (const GLvoid*)(sizeof(GLfloat) * i * 4));
 		
 		glVertexAttribDivisor(GT_VERTEX_LAYOUT_VM_MATRIX + i, 1);
 	}
@@ -398,8 +398,8 @@ void mesh::set_data(FbxMesh* m, const GLenum usagehint)
 	{
 		glEnableVertexAttribArray(GT_VERTEX_LAYOUT_N_MATRIX + i);
 		
-		glVertexAttribPointer(GT_VERTEX_LAYOUT_N_MATRIX + i, 3, 
-			GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3 * 3, (const GLvoid*)(sizeof(GLfloat) * i * 3));
+		glVertexAttribPointer(GT_VERTEX_LAYOUT_N_MATRIX + i, 3,
+			GL_FLOAT, GL_FALSE, sizeof(mat3f), (const GLvoid*)(sizeof(GLfloat) * i * 3));
 		
 		glVertexAttribDivisor(GT_VERTEX_LAYOUT_N_MATRIX + i, 1);
 	}
@@ -446,8 +446,6 @@ void mesh::draw(
 		nullptr, 
 		m_matrix_buffer.size(GT_MESH_PVM_MATRIX)
 	);
-
-
 }
 
 unsigned mesh::type() const BOOST_NOEXCEPT_OR_NOTHROW

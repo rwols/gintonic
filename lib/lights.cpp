@@ -106,7 +106,6 @@ void directional_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	s.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
 	s.set_light_intensity(intensity);
-	// s.set_light_direction(renderer::camera().matrix_V().upper_left_33() * vec3f(0, -1, 0));
 	s.set_light_direction(renderer::camera().matrix_V().upper_left_33() * t.rotation.direction());
 	renderer::get_unit_quad_P().draw();
 }

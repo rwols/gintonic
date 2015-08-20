@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE ( operators_test )
 	BOOST_CHECK_EQUAL(d.y, -1.0f);
 }
 
-BOOST_AUTO_TEST_CASE ( performance_of_get_and_set )
+BOOST_AUTO_TEST_CASE ( various_functions_test )
 {
 	std::cout << "Generating array...\n";
 	const int count = 4 * 10000000;

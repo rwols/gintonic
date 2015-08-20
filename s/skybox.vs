@@ -14,7 +14,7 @@ out vec3 v_texcoord;
 
 void main()
 {
-	vec4 P = matrix_PV * vec4(in_position, 1.0f);
+	vec4 P = matrix_PV * vec4(in_position, 0.0f);
 	gl_Position = P.xyww;
 	v_texcoord = in_position.xyz;
 }

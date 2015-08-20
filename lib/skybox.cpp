@@ -27,7 +27,7 @@ void skybox::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	const auto& s = renderer::get_skybox_shader();
 	s.activate();
-	s.set_matrix_PV(renderer::matrix_P() * mat4f(renderer::camera().matrix_V().upper_left_33()));
+	s.set_matrix_PV(renderer::matrix_P() * renderer::camera().matrix_V());
 	s.set_skybox_diffuse(0);
 	diffuse_texture.bind(0);
 

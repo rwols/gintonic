@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 
-set(executables mat2f
+set(executables 
+	SQT
+	mat2f
 	mat3f
 	mat4f
 	materials
-	math
 	quatf
 	vec2f
 	vec3f

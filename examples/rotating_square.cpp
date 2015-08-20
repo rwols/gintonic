@@ -31,8 +31,8 @@ int main(int argc, char* argv[])
 			}
 			gt::renderer::begin_geometry_pass();
 
-			// angle-axis constructor for mat4f
-			gt::renderer::set_model_matrix(get_elapsed_time<float>(), gt::vec3f(0.0f, 0.0f, 1.0f));
+			// axis-angle constructor for mat4f
+			gt::renderer::set_model_matrix(gt::vec3f(0.0f, 0.0f, 1.0f), get_elapsed_time<float>());
 
 			the_material.bind();
 			the_shape.draw();

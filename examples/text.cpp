@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 				gt::renderer::close();
 			}
 			gt::renderer::begin_geometry_pass();
-			gt::renderer::set_model_matrix(-curtime, gt::vec3f(0.0f, 0.0f, 1.0f));
+			gt::renderer::set_model_matrix(gt::vec3f(0.0f, 0.0f, 1.0f), -curtime);
 			the_material.bind();
 			the_shape.draw();
 			gt::renderer::begin_light_pass();
@@ -46,8 +46,8 @@ int main(int argc, char* argv[])
 			glDisable(GL_DEPTH_TEST);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			stream.open(font_scriptin60);
-			stream->position[0] = (std::cos(curtime / 4.0f) / 2.0f) - 0.25f;
-			stream->position[1] = std::sin(curtime / 4.0f) / 2.0f;
+			stream->position.x = (std::cos(curtime / 4.0f) / 2.0f) - 0.25f;
+			stream->position.y = std::sin(curtime / 4.0f) / 2.0f;
 			stream << "Hello world!\n"
 				<< "Elapsed time: " << std::fixed << std::setprecision(1) 
 				<< curtime << " seconds" << std::endl;

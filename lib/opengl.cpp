@@ -552,21 +552,21 @@ void shader::set_uniform(const char* uniformName, const vec4f& v) const
 }
 void shader::set_uniform(const char* uniformName, const mat3f& m) const
 {
-	float temp[9];
-	const float* ptr = m.value_ptr();
-	temp[0] = ptr[0];
-	temp[1] = ptr[1];
-	temp[2] = ptr[2];
+	// float temp[9];
+	// const float* ptr = m.value_ptr();
+	// temp[0] = ptr[0];
+	// temp[1] = ptr[1];
+	// temp[2] = ptr[2];
 
-	temp[3] = ptr[4];
-	temp[4] = ptr[5];
-	temp[5] = ptr[6];
+	// temp[3] = ptr[4];
+	// temp[4] = ptr[5];
+	// temp[5] = ptr[6];
 	
-	temp[6] = ptr[8];
-	temp[7] = ptr[9];
-	temp[8] = ptr[10];
+	// temp[6] = ptr[8];
+	// temp[7] = ptr[9];
+	// temp[8] = ptr[10];
 	
-	glUniformMatrix3fv(get_uniform_location(uniformName), 1, GL_FALSE, temp);
+	glUniformMatrix3fv(get_uniform_location(uniformName), 1, GL_FALSE, m.value_ptr());
 }
 void shader::set_uniform(const char* uniformName, const mat4f& m) const
 {
@@ -594,21 +594,21 @@ void shader::set_uniform(const GLint location, const vec4f& v) BOOST_NOEXCEPT_OR
 }
 void shader::set_uniform(const GLint location, const mat3f& m) BOOST_NOEXCEPT_OR_NOTHROW
 {
-	float temp[9];
-	const float* ptr = m.value_ptr();
-	temp[0] = ptr[0];
-	temp[1] = ptr[1];
-	temp[2] = ptr[2];
+	// float temp[9];
+	// const float* ptr = m.value_ptr();
+	// temp[0] = ptr[0];
+	// temp[1] = ptr[1];
+	// temp[2] = ptr[2];
 
-	temp[3] = ptr[4];
-	temp[4] = ptr[5];
-	temp[5] = ptr[6];
+	// temp[3] = ptr[4];
+	// temp[4] = ptr[5];
+	// temp[5] = ptr[6];
 	
-	temp[6] = ptr[8];
-	temp[7] = ptr[9];
-	temp[8] = ptr[10];
+	// temp[6] = ptr[8];
+	// temp[7] = ptr[9];
+	// temp[8] = ptr[10];
 
-	glUniformMatrix3fv(location, 1, GL_FALSE, temp);
+	glUniformMatrix3fv(location, 1, GL_FALSE, m.value_ptr());
 }
 void shader::set_uniform(const GLint location, const mat4f& m) BOOST_NOEXCEPT_OR_NOTHROW
 {

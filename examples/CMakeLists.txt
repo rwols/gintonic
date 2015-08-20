@@ -8,7 +8,7 @@ set(executables basic_shapes
 	geometry_buffer_showcase
 	normal_map_test
 	point_lights
-	quadtree_console
+	# quadtree_console
 	rotating_square
 	skybox
 	spot_lights

@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 			{
 				FbxAxisSystem axis_system(FbxAxisSystem::EUpVector::eYAxis,
     				FbxAxisSystem::EFrontVector::eParityEven,
-    				FbxAxisSystem::eLeftHanded);
+    				FbxAxisSystem::eRightHanded);
 				axis_system.ConvertScene(scene);
 				FbxGeometryConverter converter(manager);
 				converter.Triangulate(scene, true);
@@ -274,7 +274,6 @@ int main(int argc, char* argv[])
 					<< gt::renderer::camera().position << '\n';
 				#endif
 			}
-
 			gt::renderer::update();
 		}
 	}

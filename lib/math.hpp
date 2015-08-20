@@ -1,14 +1,21 @@
 /**
  * REMARKS
- *
- * This file has become waaay to big. Worse, I wrote this a long time ago and
- * now feel that most of the interface and design totally sucks. Everything
- * should be rewritten from the ground up with SIMD in mind. The FBX SDK
- * should not be included here. The basic vector class is templated, but I
- * don't think there's ever a use for a vec<long long, 6>, to name something
- * pointless.
- * The basic types should be limited to vec2, vec3, vec4, mat2, mat3, mat4,
- * quat and optionally perhaps integer variants if we're going to rewrite.
+ * 
+ * DON'T USE THIS FILE ANYMORE -- IT IS OLD AND ANCIENT.
+ * 
+ * It's only here if we ever need some ancient functionality.
+ * 
+ * If you need vector/matrix/quaternion classes, use one of the following
+ * headers:
+ * 
+ * vec2f.hpp -- Two dimensional vector.
+ * vec3f.hpp -- Three dimensional vector.
+ * vec4f.hpp -- Four dimensional (homogeneous) vector.
+ * mat2f.hpp -- 2x2 matrix.
+ * mat3f.hpp -- 3x3 matrix.
+ * mat4f.hpp -- 4x4 matrix, optimized for SIMD. Try to use mat4f as much as possible.
+ * quatf.hpp -- quaternion class for rotations.
+ * SQT.hpp   -- scale+quaternion+translation container.
  */
 
 #ifndef math_hpp

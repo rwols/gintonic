@@ -22,4 +22,9 @@
 	#include <spe.h>
 #endif
 
+#define _mm_replicate_x_ps(v) _mm_shuffle_ps((v), (v), _MM_SHUFFLE(0,0,0,0))
+#define _mm_replicate_y_ps(v) _mm_shuffle_ps((v), (v), _MM_SHUFFLE(1,1,1,1))
+#define _mm_replicate_z_ps(v) _mm_shuffle_ps((v), (v), _MM_SHUFFLE(2,2,2,2))
+#define _mm_replicate_w_ps(v) _mm_shuffle_ps((v), (v), _MM_SHUFFLE(3,3,3,3))
+
 #endif

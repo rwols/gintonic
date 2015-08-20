@@ -114,10 +114,8 @@ int main(int argc, char* argv[])
 				fieldofview += dt;
 			}
 
-			mousedelta = gintonic::renderer::mouse_delta();
-			mousedelta.x = -gintonic::deg2rad(mousedelta.x) / 4.0f;
-			mousedelta.y = -gintonic::deg2rad(mousedelta.y) / 4.0f;
-			
+			mousedelta = gt::renderer::mouse_delta();
+			mousedelta = -gt::deg2rad(mousedelta) / 4.0f;
 			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
 
 			gt::renderer::begin_geometry_pass();
@@ -189,7 +187,8 @@ int main(int argc, char* argv[])
 					<< "FOV for the frustum: " << fieldofview << '\n'
 					<< "Press G to view the geometry buffer.\n"
 					<< "Press Q to quit.\n"
-					<< the_light << '\n';
+					<< the_light << '\n'
+					<< gt::renderer::camera().position << '\n';
 				stream.close();
 				
 				glEnable(GL_CULL_FACE);

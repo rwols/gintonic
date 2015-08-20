@@ -4,66 +4,6 @@
 #include "box2f.hpp"
 #include "exception.hpp"
 
-Nu worden alle mogelijke materials, shaders en welke shader bij welke material hoort gehardcode in shaders.cpp. Dit is super inflexible en vooral veelste veel duplicate code(al veel inconsistente naamgeving gevonden hierdoor)
-
-Mee eens :-)
-De properties die een material altijd heeft (in dit model) zijn
-
-* diffuse_color
-* specular_color
-
-Dit zijn simpele vectortjes, dus niet erg dat iedere material ze altijd draagt. De optionele properties zijn:
-
-* diffuse_texture
-* specular_texture
-* normal_texture
-
-Er zijn nog wat oude materials & bijbehorende shaders die niet meer in dit model passen, die heb ik in de laatste commit eruit gehaald als het goed is...
-
-Dus wat we willen is een functie:
-
-Set_van_mogelijke_eigenschappen -> shadermethodes.
-
-Ik snap niet zo goed wat een "eigenschap" hier is, en wat een "shadermethode" hier is. Zijn dit klassen? :-)
-De standard library van c++ bevat een std::map, het c# equivalent zou een System.Collections.SortedDictionary zijn.
-Hoe werkt registratie van nieuwe eigenschappen?
-
-Als dan elke material een member heeft die een lijst van eigenschappen is, dan hebben alleen nog een 'fold' functie nodig die over deze lijst heen loopt en alle shader methodes aan elkaar rijgt om de perfecte shader op te leveren specifiek voor deze material.
-
-Ik weet niet wat een fold functie is, kun je dat uitleggen? Ik heb er wel een idee bij.
-Het creeeren van een shader "on the fly" is wel iets wat ooit nodig gaat worden.
-Maar zoiets implementeren is niet geheel triviaal.
-Ik denk aan een klasse waar je wat properties "aan zet", die dan vervolgens een material shader geeft.
-Zoiets als dit?
-
-material_shader_builder builder;
-
-// Eerste argument is wat de naam wordt in de shader,
-// tweede argument is welke color buffer de property beinvloedt.
-// Is maar een idee.
-builder.add_material_property("diffuse_color", GBUFFER_DIFFUSE);
-builder.add_material_property("diffuse_texture", GBUFFER_DIFFUSE);
-builder.add_material_property("normal_texture", GBUFFER_NORMAL);
-
-// Hoe moet de shader builder nu weten wat ie met de matrix_PVM moet doen?
-// Zijn sommige uniform variables altijd standaard aanwezig?
-builder.add_uniform("matrix_PVM");
-
-// Deze method compiled ofwel een nieuwe shader, ofwel
-// geeft er eentje van een centrale repo die er al op lijkt.
-// Dus je gaat ook reference counting nodig hebben, mocht
-// je dit pad betreden.
-auto* my_cool_ptr = builder.get_shader();
-
-// Nog een probleem: hoe kan ik nu bij de uniform locations
-// van de properties die ik heb gemaakt?
-
-Is de volgorde van belang denk je?
-
-Nee, zolang alle geometry maar gerenderd wordt voordat de lichten worden gerenderd.
-
-Ik ben het wel met je eens dat shaders.cpp een grote clusterfuck wordt als er niet iets aan wordt gedaan, alleen ik ben nog niet helemaal overtuigd van je verhaal.
-
 namespace gintonic {
 
 #define GINTONIC_SPATIALTREE_ERR "Template type T must have a method called "\

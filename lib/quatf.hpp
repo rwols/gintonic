@@ -64,7 +64,7 @@ public:
 		/* znxwy  = (xb - ya, zb - wa, wd - zc, yd - xc) */
 		auto ZnXWY = _mm_hsub_ps(_mm_mul_ps(data, baba), _mm_mul_ps(wzyx, dcdc));
 
-		/* xzynw  = (xd + yc, zd + wc, wb + za, yb + xa) */
+		/* xzynw  = (xd + yc, zd + wc, wb + za, yb + xa) */ 
 		auto XZYnW = _mm_hadd_ps(_mm_mul_ps(data, dcdc), _mm_mul_ps(wzyx, baba));
 
 		/* _mm_shuffle_ps(XZYnW, ZnXWY, _MM_SHUFFLE(3,2,1,0)) */
@@ -82,7 +82,7 @@ public:
 		return _mm_shuffle_ps(XZWY, XZWY, _MM_SHUFFLE(2,1,3,0));
 
 		/* operations: 6 shuffles, 4 multiplications, 3 compound additions/subtractions   */
-		// SIMDify this...
+		// This is the old way of multiplying two quaternions
 		// return quatf(
 		// 	w * b.w - x * b.x - y * b.y - z * b.z,
 		// 	w * b.x + x * b.w + y * b.z - z * b.y,
@@ -122,6 +122,16 @@ public:
 	inline float length() const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		return std::sqrt(length2());
+	}
+
+	inline bool operator == (const quatf& other) const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return x == other.x && y == other.y && z == other.z && w == other.w;
+	}
+
+	inline bool operator != (const quatf& other) const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return !operator==(other);
 	}
 
 	static quatf axis_angle(const vec3f& rotation_axis, const float rotation_angle);

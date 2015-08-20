@@ -321,15 +321,13 @@ void static_model_actor::draw_geometry_instanced()
 		for (const auto& transform : transforms)
 		{
 			t = std::get<0>(tuple);
-			t.scale *= transform.scale;
-			t.rotation *= transform.rotation;
-			t.translation += transform.translation;
+			t %= transform;
 
 			matrix_VM = matrix_V * mat4f(t);
 
-			PVM_matrices.emplace_back((matrix_P * matrix_VM).transpose());
-			N_matrices.emplace_back(matrix_VM.upper_left_33().invert());
-			VM_matrices.emplace_back(matrix_VM.transpose());
+			VM_matrices.emplace_back(matrix_VM);
+			PVM_matrices.emplace_back(matrix_P * matrix_VM);
+			N_matrices.emplace_back(matrix_VM.upper_left_33().invert().transpose());
 		}
 
 		// Bind the material

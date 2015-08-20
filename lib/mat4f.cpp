@@ -30,18 +30,22 @@ mat4f::mat4f(const quatf& rotation)
 	const auto yy = s * rotation.y * rotation.y;
 	const auto yz = s * rotation.y * rotation.z;
 	const auto zz = s * rotation.z * rotation.z;
+	
 	m00 = 1.0f - (yy + zz);
-	m10 = xy - wz;
+	m10 = xy + wz;
 	m20 = xz - wy;
 	m30 = 0.0f;
+
 	m01 = xy - wz;
 	m11 = 1.0f - (xx + zz);
 	m21 = yz + wx;
 	m31 = 0.0f;
+	
 	m02 = xz + wy;
 	m12 = yz - wx;
 	m22 = 1.0f - (xx + yy);
 	m32 = 0.0f;
+	
 	m03 = 0.0f;
 	m13 = 0.0f;
 	m23 = 0.0f;
@@ -54,13 +58,14 @@ mat4f::mat4f(const SQT& transform) : mat4f(transform.rotation)
 	data[1] = _mm_mul_ps(data[1], transform.scale.data);
 	data[2] = _mm_mul_ps(data[2], transform.scale.data);
 	data[3] = transform.translation.data;
+	m33 = 1.0f;
 }
 
 mat4f::mat4f(const mat3f& rotation_part)
 {
-	data[0] = rotation_part.data[0];
-	data[1] = rotation_part.data[1];
-	data[2] = rotation_part.data[2];
+	data[0] = _mm_set_ps(rotation_part.data[0], rotation_part.data[1], rotation_part.data[2], 0.0f);
+	data[1] = _mm_set_ps(rotation_part.data[3], rotation_part.data[4], rotation_part.data[5], 0.0f);
+	data[2] = _mm_set_ps(rotation_part.data[6], rotation_part.data[7], rotation_part.data[8], 0.0f);
 
 	m30 = 0.0f;
 	m31 = 0.0f;
@@ -80,13 +85,11 @@ mat4f::mat4f(const vec4f& column0, const vec4f& column1, const vec4f& column2, c
 
 vec4f mat4f::operator * (const vec4f& v) const
 {
-	const auto m0 = _mm_mul_ps(data[0], v.data);
-	const auto m1 = _mm_mul_ps(data[1], v.data);
-	const auto m2 = _mm_mul_ps(data[2], v.data);
-	const auto m3 = _mm_mul_ps(data[3], v.data);
+	const auto m0 = _mm_mul_ps(data[0], _mm_replicate_x_ps(v.data));
+	const auto m1 = _mm_mul_ps(data[1], _mm_replicate_y_ps(v.data));
+	const auto m2 = _mm_mul_ps(data[2], _mm_replicate_z_ps(v.data));
+	const auto m3 = _mm_mul_ps(data[3], _mm_replicate_w_ps(v.data));
 	return _mm_add_ps(_mm_add_ps(m0, m1), _mm_add_ps(m2, m3));
-	// return vec4f(dot(m.data[0], v.data), dot(m.data[1], v.data), 
-	// 	dot(m.data[2], v.data), dot(m.data[3], v.data));
 }
 
 mat4f mat4f::operator * (const mat4f& other) const
@@ -94,28 +97,28 @@ mat4f mat4f::operator * (const mat4f& other) const
 	mat4f r;
 	__m128 m0, m1, m2, m3;
 
-	m0 = _mm_mul_ps(data[0], other.data[0]);
-	m1 = _mm_mul_ps(data[1], other.data[0]);
-	m2 = _mm_mul_ps(data[2], other.data[0]);
-	m3 = _mm_mul_ps(data[3], other.data[0]);
+	m0 = _mm_mul_ps(data[0], _mm_replicate_x_ps(other.data[0]));
+	m1 = _mm_mul_ps(data[1], _mm_replicate_y_ps(other.data[0]));
+	m2 = _mm_mul_ps(data[2], _mm_replicate_z_ps(other.data[0]));
+	m3 = _mm_mul_ps(data[3], _mm_replicate_w_ps(other.data[0]));
 	r.data[0] = _mm_add_ps(_mm_add_ps(m0, m1), _mm_add_ps(m2, m3));
 
-	m0 = _mm_mul_ps(data[0], other.data[1]);
-	m1 = _mm_mul_ps(data[1], other.data[1]);
-	m2 = _mm_mul_ps(data[2], other.data[1]);
-	m3 = _mm_mul_ps(data[3], other.data[1]);
+	m0 = _mm_mul_ps(data[0], _mm_replicate_x_ps(other.data[1]));
+	m1 = _mm_mul_ps(data[1], _mm_replicate_y_ps(other.data[1]));
+	m2 = _mm_mul_ps(data[2], _mm_replicate_z_ps(other.data[1]));
+	m3 = _mm_mul_ps(data[3], _mm_replicate_w_ps(other.data[1]));
 	r.data[1] = _mm_add_ps(_mm_add_ps(m0, m1), _mm_add_ps(m2, m3));
 
-	m0 = _mm_mul_ps(data[0], other.data[2]);
-	m1 = _mm_mul_ps(data[1], other.data[2]);
-	m2 = _mm_mul_ps(data[2], other.data[2]);
-	m3 = _mm_mul_ps(data[3], other.data[2]);
+	m0 = _mm_mul_ps(data[0], _mm_replicate_x_ps(other.data[2]));
+	m1 = _mm_mul_ps(data[1], _mm_replicate_y_ps(other.data[2]));
+	m2 = _mm_mul_ps(data[2], _mm_replicate_z_ps(other.data[2]));
+	m3 = _mm_mul_ps(data[3], _mm_replicate_w_ps(other.data[2]));
 	r.data[2] = _mm_add_ps(_mm_add_ps(m0, m1), _mm_add_ps(m2, m3));
 
-	m0 = _mm_mul_ps(data[0], other.data[3]);
-	m1 = _mm_mul_ps(data[1], other.data[3]);
-	m2 = _mm_mul_ps(data[2], other.data[3]);
-	m3 = _mm_mul_ps(data[3], other.data[3]);
+	m0 = _mm_mul_ps(data[0], _mm_replicate_x_ps(other.data[3]));
+	m1 = _mm_mul_ps(data[1], _mm_replicate_y_ps(other.data[3]));
+	m2 = _mm_mul_ps(data[2], _mm_replicate_z_ps(other.data[3]));
+	m3 = _mm_mul_ps(data[3], _mm_replicate_w_ps(other.data[3]));
 	r.data[3] = _mm_add_ps(_mm_add_ps(m0, m1), _mm_add_ps(m2, m3));
 
 	return r;
@@ -133,23 +136,23 @@ mat4f::mat4f(const vec3f& axis, const float rotation_angle)
 	v.z = axis.x * axis.z * omcos + axis.y * sin;
 	v.normalize();
 
-	m00 = v.x; m01 = v.y; m02 = v.z; m03 = 0;
+	m00 = v.x; m01 = v.y; m02 = v.z; m03 = 0.0f;
 
 	v.x = axis.x * axis.y * omcos + axis.z * sin;
 	v.y = cos + axis.y * axis.y * omcos;
 	v.z = axis.y * axis.z * omcos - axis.x * sin;
 	v.normalize();
 
-	m10 = v.x; m11 = v.y; m12 = v.z; m13 = 0;
+	m10 = v.x; m11 = v.y; m12 = v.z; m13 = 0.0f;
 
 	v.x = axis.x * axis.z * omcos - axis.y * sin;
 	v.y = axis.y * axis.z * omcos + axis.x * sin;
 	v.z = cos + axis.z * axis.z * omcos;
 	v.normalize();
 
-	m20 = v.x; m21 = v.y; m22 = v.z; m23 = 0;
+	m20 = v.x; m21 = v.y; m22 = v.z; m23 = 0.0f;
 
-	m30 = m31 = m32 = 0; m33 = 1;
+	m30 = m31 = m32 = 0.0f; m33 = 1.0f;
 	#undef m
 }
 
@@ -272,6 +275,11 @@ void mat4f::unproject_perspective(float& fieldofview, float& aspectratio, float&
 	aspectratio = m11 / m00;
 	nearplane = m23 / (m22 - 1.0f);
 	farplane = m23 / (m22 + 1.0f);
+
+		// fov = T(2) * std::atan(1 / m(1,1));
+		// aspectratio = m(1,1) / m(0,0);
+		// nearplane = m(2,3) / (m(2,2) - T(1));
+		// farplane = m(2,3) / (m(2,2) + T(1));
 }
 
 vec3f mat4f::apply_to_point(const vec3f& point) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -288,7 +296,7 @@ vec3f mat4f::apply_to_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_
 
 mat3f mat4f::upper_left_33() const
 {
-	return mat3f(data[0], data[1], data[2]);
+	return mat3f(vec3f(data[0]), vec3f(data[1]), vec3f(data[2]));
 }
 
 } // namespace gintonic

@@ -46,10 +46,10 @@ int main(int argc, char* argv[])
 		std::vector<gt::material> light_materials;
 
 		{
-			const gt::vec4f attenuation(0.0f, 0.0f, 1.0f, 0.0f);
+			const gt::vec4f attenuation(1.0f, 1.0f, 1.0f, 0.0f);
 			const gt::vec4f specularity(1.0f, 1.0f, 1.0f, 1.0f);
 
-			lights.emplace_back(gt::vec4f(1.0f, 1.0f, 1.0f, 0.8f), attenuation);
+			lights.emplace_back(gt::vec4f(1.0f, 1.0f, 1.0f, 4.0f), attenuation);
 
 			light_materials.emplace_back(gt::vec4f(1.0f, 1.0f, 1.0f, 0.0f), specularity);
 		}

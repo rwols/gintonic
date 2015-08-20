@@ -67,15 +67,13 @@ int main(int argc, char* argv[])
 			{
 				gt::get_default_camera().move_up(dt);
 			}
-			auto mousedelta = gintonic::renderer::mouse_delta();
-			mousedelta[0] = -gintonic::deg_to_rad(mousedelta[0]) / 4.0f;
-			mousedelta[1] = -gintonic::deg_to_rad(mousedelta[1]) / 4.0f;
-			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
+			auto mousedelta = -gt::deg2rad(gt::renderer::mouse_delta()) / 4.0f;
+			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
 			gt::renderer::begin_geometry_pass();
 			const auto yaxis = (1.0f + std::cos(curtime)) / 2.0f;
 			const auto zaxis = (1.0f + std::sin(curtime)) / 2.0f;
-			const auto rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
-			gt::renderer::set_model_matrix(-curtime / 4.0f, rotation_axis);
+			const auto rotation_axis = gt::vec3f(0.0f, yaxis, zaxis).normalize();
+			gt::renderer::set_model_matrix(rotation_axis, -curtime / 4.0f);
 			the_material.bind();
 			the_shape.draw();
 			gt::renderer::begin_light_pass();
