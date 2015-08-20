@@ -1,7 +1,7 @@
-#define BOOST_TEST_MODULE math test
+#define BOOST_TEST_MODULE vec2f test
 #include <boost/test/unit_test.hpp>
 
-#include "vec2.hpp"
+#include "vec2f.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>
@@ -11,8 +11,8 @@ using namespace gintonic;
 
 BOOST_AUTO_TEST_CASE( constructor_test )
 {
-	vec2 a(1.0f, 0.0f);
-	vec2 b(0.0f, 1.0f);
+	vec2f a(1.0f, 0.0f);
+	vec2f b(0.0f, 1.0f);
 
 	std::cout << a << '\n';
 	std::cout << b << '\n';
@@ -25,10 +25,10 @@ BOOST_AUTO_TEST_CASE( constructor_test )
 
 BOOST_AUTO_TEST_CASE ( operators_test )
 {
-	vec2 a(1.0f, 2.0f);
-	vec2 b(2.0f, 3.0f);
-	vec2 c = a + b;
-	vec2 d = a - b;
+	vec2f a(1.0f, 2.0f);
+	vec2f b(2.0f, 3.0f);
+	vec2f c = a + b;
+	vec2f d = a - b;
 
 	std::cout << c << '\n';
 	std::cout << d << '\n';
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE ( performance_of_get_and_set )
 	std::vector<float> result_array2(count / 2);
 	std::generate(array.begin(), array.end(), std::rand);
 	
-	vec2 test_vec1, test_vec2, test_vec3;
+	vec2f test_vec1, test_vec2, test_vec3;
 	// float x, y;
 
 	// auto now = std::chrono::high_resolution_clock::now();

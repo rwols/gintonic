@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 
-set(src_files actors.cpp
+set(src_files
+	SQT.cpp
+	actors.cpp
 	basic_shapes.cpp
+	box2f.cpp
+	box3f.cpp
+	camera.cpp
 	exception.cpp
 	filesystem.cpp
 	fonts.cpp
@@ -9,17 +14,24 @@ set(src_files actors.cpp
 	glad.cpp
 	lights.cpp
 	locks.cpp
+	mat2f.cpp
+	mat3f.cpp
+	mat4f.cpp
 	materials.cpp
 	math.cpp
 	mesh.cpp
 	opengl.cpp
 	profiler.cpp
+	quatf.cpp
 	renderer.cpp
 	shaders.cpp
 	skybox.cpp
 	textures.cpp
 	timers.cpp
-	vec2.cpp)
+	vec2f.cpp
+	vec3f.cpp
+	vec4f.cpp
+	vertices.cpp)
 
 option(WITH_PROFILING "Profile various math functions. Does nothing at the moment." OFF)
 option(WITH_PROFILING "Profile various math functions." OFF)

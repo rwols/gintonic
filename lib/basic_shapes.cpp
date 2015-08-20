@@ -19,10 +19,10 @@ unit_quad_P::unit_quad_P() : basic_shape()
 {
 	#ifdef BOOST_MSVC
 	const int num_vertices = 4;
-	static const vertex_P<GLfloat> quad[4] =
+	static const vertex_P quad[4] =
 	#else
 	BOOST_CONSTEXPR int num_vertices = 4;
-	static const vertex_P<GLfloat> quad[num_vertices] =
+	static const vertex_P quad[num_vertices] =
 	#endif
 	{
 		{-1.0f, -1.0f, 0.0f},
@@ -32,8 +32,8 @@ unit_quad_P::unit_quad_P() : basic_shape()
 	};
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_P<GLfloat>::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P<GLfloat>) * num_vertices, quad, GL_STATIC_DRAW);
+	vertex_P::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P) * num_vertices, quad, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -54,7 +54,7 @@ unit_quad_P::~unit_quad_P()
 
 unit_quad_PN::unit_quad_PN()
 {
-	const vertex_PN<GLfloat> quad[4] =
+	const vertex_PN quad[4] =
 	{
 		// --positions-----|---normals--------
 		{-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f},
@@ -64,8 +64,8 @@ unit_quad_PN::unit_quad_PN()
 	};
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_PN<GLfloat>::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PN<GLfloat>) * 4, quad, GL_STATIC_DRAW);
+	vertex_PN::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PN) * 4, quad, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -88,38 +88,38 @@ unit_quad_PC::unit_quad_PC(
 const vec3f& color_topleft, const vec3f& color_topright,
 const vec3f& color_bottomleft, const vec3f& color_bottomright)
 {
-	std::vector<vertex_PC<GLfloat>> quad(4);
+	std::vector<vertex_PC> quad(4);
 	quad[0].position[0] = -1.0f;
 	quad[0].position[1] = -1.0f;
 	quad[0].position[2] =  0.0f;
-	quad[0].color[0] = color_bottomleft[0];
-	quad[0].color[1] = color_bottomleft[1];
-	quad[0].color[2] = color_bottomleft[2];
+	quad[0].color[0] = color_bottomleft.x;
+	quad[0].color[1] = color_bottomleft.y;
+	quad[0].color[2] = color_bottomleft.z;
 	quad[0].color[3] = 1.0f;
 	quad[0].position[0] =  1.0f;
 	quad[0].position[1] = -1.0f;
 	quad[0].position[2] =  0.0f;
-	quad[0].color[0] = color_bottomright[0];
-	quad[0].color[1] = color_bottomright[1];
-	quad[0].color[2] = color_bottomright[2];
+	quad[0].color[0] = color_bottomright.x;
+	quad[0].color[1] = color_bottomright.y;
+	quad[0].color[2] = color_bottomright.z;
 	quad[0].color[3] = 1.0f;
 	quad[0].position[0] = -1.0f;
 	quad[0].position[1] =  1.0f;
 	quad[0].position[2] =  0.0f;
-	quad[0].color[0] = color_topleft[0];
-	quad[0].color[1] = color_topleft[1];
-	quad[0].color[2] = color_topleft[2];
+	quad[0].color[0] = color_topleft.x;
+	quad[0].color[1] = color_topleft.y;
+	quad[0].color[2] = color_topleft.z;
 	quad[0].color[3] = 1.0f;
 	quad[0].position[0] = 1.0f;
 	quad[0].position[1] = 1.0f;
 	quad[0].position[2] = 0.0f;
-	quad[0].color[0] = color_topright[0];
-	quad[0].color[1] = color_topright[1];
-	quad[0].color[2] = color_topright[2];
+	quad[0].color[0] = color_topright.x;
+	quad[0].color[1] = color_topright.y;
+	quad[0].color[2] = color_topright.z;
 	quad[0].color[3] = 1.0f;
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_PC<GLfloat>::enable_attributes();
+	vertex_PC::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, quad, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -140,10 +140,10 @@ unit_quad_PU::unit_quad_PU()
 {
 	#ifdef BOOST_MSVC
 	const int num_vertices = 4;
-	static const vertex_PU<GLfloat> quad[4] =
+	static const vertex_PU quad[4] =
 	#else
 	BOOST_CONSTEXPR int num_vertices = 4;
-	static const vertex_PU<GLfloat> quad[num_vertices] =
+	static const vertex_PU quad[num_vertices] =
 	#endif
 	{
 		{-1.0f, -1.0f, 0.0f, -1.0f, -1.0f},
@@ -153,8 +153,8 @@ unit_quad_PU::unit_quad_PU()
 	};
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_PU<GLfloat>::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PU<GLfloat>) * num_vertices, quad, GL_STATIC_DRAW);
+	vertex_PU::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PU) * num_vertices, quad, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -175,7 +175,7 @@ void unit_quad_PU::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 
 unit_cube_P::unit_cube_P() : basic_shape()
 {
-	const vertex_P<GLfloat> cube_vertices[NUM_CUBE_VERTICES] =
+	const vertex_P cube_vertices[NUM_CUBE_VERTICES] =
 	{
 		{ 1.0f,  1.0f, -1.0f}, // 0
 		{-1.0f,  1.0f, -1.0f}, // 1
@@ -190,8 +190,8 @@ unit_cube_P::unit_cube_P() : basic_shape()
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_P<GLfloat>::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P<GLfloat>) * NUM_CUBE_VERTICES, cube_vertices, GL_STATIC_DRAW);
+	vertex_P::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P) * NUM_CUBE_VERTICES, cube_vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * NUM_CUBE_INDICES, cube_indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -213,7 +213,7 @@ void unit_cube_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 
 unit_cube_P_flipped::unit_cube_P_flipped() : basic_shape()
 {
-	const vertex_P<GLfloat> cube_vertices[NUM_CUBE_VERTICES] =
+	const vertex_P cube_vertices[NUM_CUBE_VERTICES] =
 	{
 		{ 1.0f,  1.0f, -1.0f}, // 0
 		{-1.0f,  1.0f, -1.0f}, // 1
@@ -229,8 +229,8 @@ unit_cube_P_flipped::unit_cube_P_flipped() : basic_shape()
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_P<GLfloat>::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P<GLfloat>) * NUM_CUBE_VERTICES, cube_vertices, GL_STATIC_DRAW);
+	vertex_P::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P) * NUM_CUBE_VERTICES, cube_vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * NUM_CUBE_INDICES, cube_indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -253,7 +253,7 @@ void unit_cube_P_flipped::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 
 unit_cube_PU::unit_cube_PU() : basic_shape()
 {
-	const vertex_PU<GLfloat> cube_vertices[24] =
+	const vertex_PU cube_vertices[24] =
 	{
 		// front
     	{-1.0f, -1.0f,  1.0f, 0.0f, 0.0f},
@@ -310,8 +310,8 @@ unit_cube_PU::unit_cube_PU() : basic_shape()
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_PU<GLfloat>::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PU<GLfloat>) * 24, cube_vertices, GL_STATIC_DRAW);
+	vertex_PU::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PU) * 24, cube_vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -876,7 +876,7 @@ unit_cube_PUNTB_flipped_normals::~unit_cube_PUNTB_flipped_normals()
 
 unit_sphere_P::unit_sphere_P(const unsigned short stacks, const unsigned short slices) 
 {
-	std::vector<vertex_P<GLfloat>> vertices;
+	std::vector<vertex_P> vertices;
 	std::vector<unsigned short> indices;
 	float theta, phi, sin_theta, sin_phi, cos_theta, cos_phi;
 
@@ -907,7 +907,7 @@ unit_sphere_P::unit_sphere_P(const unsigned short stacks, const unsigned short s
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_P<GLfloat>::enable_attributes();
+	vertex_P::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 }
@@ -928,7 +928,7 @@ unit_sphere_P::~unit_sphere_P()
 
 unit_sphere_PU::unit_sphere_PU(const unsigned short stacks, const unsigned short slices)
 {
-	std::vector<vertex_PU<GLfloat>> vertices;
+	std::vector<vertex_PU> vertices;
 	std::vector<unsigned short> indices;
 	float theta, phi, sin_theta, sin_phi, cos_theta, cos_phi;
 
@@ -963,7 +963,7 @@ unit_sphere_PU::unit_sphere_PU(const unsigned short stacks, const unsigned short
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_PU<GLfloat>::enable_attributes();
+	vertex_PU::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 }
@@ -1001,12 +1001,12 @@ struct sphere_front_face : public sphere_face
 		vec3f& pos, 
 		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
-		pos[0] = 2.0f * s - 1.0f;
-		pos[1] = 2.0f * t - 1.0f;
-		pos[2] = 1.0f;
-		uv[0] = s;
-		uv[1] = t;
-		pos = normalize(pos);
+		pos.x = 2.0f * s - 1.0f;
+		pos.y = 2.0f * t - 1.0f;
+		pos.z = 1.0f;
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
 	}
 };
 
@@ -1019,12 +1019,12 @@ struct sphere_back_face : public sphere_face
 		vec3f& pos, 
 		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
-		pos[0] = 2.0f * s - 1.0f;
-		pos[1] = -(2.0f * t - 1.0f);
-		pos[2] = -1.0f;
-		uv[0] = s;
-		uv[1] = t;
-		pos = normalize(pos);
+		pos.x = 2.0f * s - 1.0f;
+		pos.y = -(2.0f * t - 1.0f);
+		pos.z = -1.0f;
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
 	}
 };
 
@@ -1037,12 +1037,12 @@ struct sphere_top_face : public sphere_face
 		vec3f& pos, 
 		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
-		pos[0] = 2.0f * s - 1.0f;
-		pos[1] = 1.0f;
-		pos[2] = -(2.0f * t - 1.0f);
-		uv[0] = s;
-		uv[1] = t;
-		pos = normalize(pos);
+		pos.x = 2.0f * s - 1.0f;
+		pos.y = 1.0f;
+		pos.z = -(2.0f * t - 1.0f);
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
 	}
 };
 
@@ -1055,12 +1055,12 @@ struct sphere_bottom_face : public sphere_face
 		vec3f& pos, 
 		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
-		pos[0] = 2.0f * s - 1.0f;
-		pos[1] = -1.0f;
-		pos[2] = 2.0f * t - 1.0f;
-		uv[0] = s;
-		uv[1] = t;
-		pos = normalize(pos);
+		pos.x = 2.0f * s - 1.0f;
+		pos.y = -1.0f;
+		pos.z = 2.0f * t - 1.0f;
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
 	}
 };
 
@@ -1073,12 +1073,12 @@ struct sphere_left_face : public sphere_face
 		vec3f& pos, 
 		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
-		pos[0] = -1.0f;
-		pos[1] = 2.0f * s - 1.0f;
-		pos[2] = -(2.0f * t - 1.0f);
-		uv[0] = s;
-		uv[1] = t;
-		pos = normalize(pos);
+		pos.x = -1.0f;
+		pos.y = 2.0f * s - 1.0f;
+		pos.z = -(2.0f * t - 1.0f);
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
 	}
 };
 
@@ -1091,12 +1091,12 @@ struct sphere_right_face : public sphere_face
 		vec3f& pos, 
 		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
-		pos[0] = 1.0f;
-		pos[1] = 2.0f * s - 1.0f;
-		pos[2] = 2.0f * t - 1.0f;
-		uv[0] = s;
-		uv[1] = t;
-		pos = normalize(pos);
+		pos.x = 1.0f;
+		pos.y = 2.0f * s - 1.0f;
+		pos.z = 2.0f * t - 1.0f;
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
 	}
 };
 
@@ -1123,7 +1123,7 @@ unit_sphere_PUN::unit_sphere_PUN(const unsigned short subdivisions)
 	vec3f pos;
 	vec2f uv;
 
-	// std::vector<vertex_PUN<GLfloat>> vertices;
+	// std::vector<vertex_PUN> vertices;
 
 	std::vector<mesh::vec4f> positions;
 	std::vector<mesh::vec4f> texcoords;
@@ -1140,23 +1140,23 @@ unit_sphere_PUN::unit_sphere_PUN(const unsigned short subdivisions)
 				s = static_cast<float>(i) / subdivs;
 				t = static_cast<float>(j) / subdivs;
 				sphere_faces[f]->get(s, t, pos, uv);
-				positions.emplace_back(pos[0], pos[1], pos[2], pos[0]);
-				texcoords.emplace_back(uv[0], uv[1], pos[1], pos[2]);
+				positions.emplace_back(pos.x, pos.y, pos.z, pos.x);
+				texcoords.emplace_back(uv.x, uv.y, pos.y, pos.z);
 
 				s = static_cast<float>(i+1) / subdivs;
 				sphere_faces[f]->get(s, t, pos, uv);
-				positions.emplace_back(pos[0], pos[1], pos[2], pos[0]);
-				texcoords.emplace_back(uv[0], uv[1], pos[1], pos[2]);
+				positions.emplace_back(pos.x, pos.y, pos.z, pos.x);
+				texcoords.emplace_back(uv.x, uv.y, pos.y, pos.z);
 
 				t = static_cast<float>(j+1) / subdivs;
 				sphere_faces[f]->get(s, t, pos, uv);
-				positions.emplace_back(pos[0], pos[1], pos[2], pos[0]);
-				texcoords.emplace_back(uv[0], uv[1], pos[1], pos[2]);
+				positions.emplace_back(pos.x, pos.y, pos.z, pos.x);
+				texcoords.emplace_back(uv.x, uv.y, pos.y, pos.z);
 
 				s = static_cast<float>(i) / subdivs;
 				sphere_faces[f]->get(s, t, pos, uv);
-				positions.emplace_back(pos[0], pos[1], pos[2], pos[0]);
-				texcoords.emplace_back(uv[0], uv[1], pos[1], pos[2]);
+				positions.emplace_back(pos.x, pos.y, pos.z, pos.x);
+				texcoords.emplace_back(uv.x, uv.y, pos.y, pos.z);
 
 				indices.push_back(counter + 0);
 				indices.push_back(counter + 1);
@@ -1202,9 +1202,9 @@ unit_cone_P::unit_cone_P(const GLsizei divs)
 : basic_shape()
 , divisions(divs+2)
 {
-	std::vector<vertex_P<GLfloat>> vertices(2 * divisions);
+	std::vector<vertex_P> vertices(2 * divisions);
 	GLfloat s, c;
-	const GLfloat angle = 2.0f * static_cast<GLfloat>(M_PI) / static_cast<GLfloat>(divs);
+	const GLfloat angle = 2.0f * static_cast<float>(M_PI) / static_cast<float>(divs);
 
 	vertices[0].position[0] = 0;
 	vertices[0].position[1] = -1;
@@ -1214,8 +1214,8 @@ unit_cone_P::unit_cone_P(const GLsizei divs)
 	vertices[divisions].position[2] = 0;
 	for (GLsizei div = 1; div < divisions; ++div)
 	{
-		c = cos(static_cast<GLfloat>(div-1) * angle);
-		s = sin(static_cast<GLfloat>(div-1) * angle);
+		c = cos(static_cast<float>(div-1) * angle);
+		s = sin(static_cast<float>(div-1) * angle);
 		vertices[div].position[0] = c;
 		vertices[div].position[1] = -1.0f;
 		vertices[div].position[2] = s;
@@ -1225,7 +1225,7 @@ unit_cone_P::unit_cone_P(const GLsizei divs)
 	}
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertices);
-	vertex_P<GLfloat>::enable_attributes();
+	vertex_P::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -1252,9 +1252,9 @@ unit_cone_PN::unit_cone_PN(const GLsizei divs)
 : basic_shape()
 , divisions(divs+2)
 {
-	std::vector<vertex_PN<GLfloat>> vertices(2 * divisions);
+	std::vector<vertex_PN> vertices(2 * divisions);
 	GLfloat s, c, next_s, next_c;
-	const GLfloat angle = 2.0f * static_cast<GLfloat>(M_PI) / static_cast<GLfloat>(divs);
+	const GLfloat angle = 2.0f * static_cast<float>(M_PI) / static_cast<float>(divs);
 
 	vertices[0].position[0] =  0.0f;
 	vertices[0].position[1] = -1.0f;
@@ -1272,17 +1272,16 @@ unit_cone_PN::unit_cone_PN(const GLsizei divs)
 	
 	for (GLsizei div = 1; div < divisions; ++div)
 	{
-		c = cos(static_cast<GLfloat>(div-1) * angle);
-		s = sin(static_cast<GLfloat>(div-1) * angle);
-		next_c = cos(static_cast<GLfloat>(div) * angle);
-		next_s = sin(static_cast<GLfloat>(div) * angle);
+		c = cos(static_cast<float>(div-1) * angle);
+		s = sin(static_cast<float>(div-1) * angle);
+		next_c = cos(static_cast<float>(div) * angle);
+		next_s = sin(static_cast<float>(div) * angle);
 
 		vec3f P0(0.0f, 1.0f, 0.0f);
 		vec3f P1(c, -1.0f, s);
 		vec3f P2(next_c, -1.0f, next_s);
 
-		auto N = (P2 - P0) % (P1 - P0); // cross product
-		N = normalize(N);
+		auto N = cross(P2 - P0, P1 - P0).normalize();
 
 		vertices[div].position[0] = c;
 		vertices[div].position[1] = -1.0f;
@@ -1294,13 +1293,13 @@ unit_cone_PN::unit_cone_PN(const GLsizei divs)
 		vertices[divisions+div].position[0] = c;
 		vertices[divisions+div].position[1] = -1.0f;
 		vertices[divisions+div].position[2] = s;
-		vertices[divisions+div].normal[0] = N[0];
-		vertices[divisions+div].normal[1] = N[1];
-		vertices[divisions+div].normal[2] = N[2];
+		vertices[divisions+div].normal[0] = N.x;
+		vertices[divisions+div].normal[1] = N.y;
+		vertices[divisions+div].normal[2] = N.z;
 	}
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_PN<GLfloat>::enable_attributes();
+	vertex_PN::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -1325,18 +1324,18 @@ void unit_cone_PN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 
 unit_cylinder_P::unit_cylinder_P(const GLsizei divs) : basic_shape(), divisions(divs+2)
 {
-	std::vector<vertex_P<GLfloat>> vertices(4 * divisions);
+	std::vector<vertex_P> vertices(4 * divisions);
 	GLfloat s_current, c_current, s_next, c_next;
-	const GLfloat angle = 2.0f * static_cast<GLfloat>(M_PI) / static_cast<GLfloat>(divs);
+	const GLfloat angle = 2.0f * static_cast<float>(M_PI) / static_cast<float>(divs);
 
 	c_current = 1.0f; // cos(0) = 1
 	s_current = 0.0f; // sin(0) = 0
 	for (GLsizei div = 0; div < divisions; ++div)
 	{
-		// c_current = cos(static_cast<GLfloat>(div)   * angle);
-		// s_current = sin(static_cast<GLfloat>(div)   * angle);
-		c_next    = cos(static_cast<GLfloat>(div+1) * angle);
-		s_next    = sin(static_cast<GLfloat>(div+1) * angle);
+		// c_current = cos(static_cast<float>(div)   * angle);
+		// s_current = sin(static_cast<float>(div)   * angle);
+		c_next    = cos(static_cast<float>(div+1) * angle);
+		s_next    = sin(static_cast<float>(div+1) * angle);
 
 		vertices[div].position[0] = c_current;
 		vertices[div].position[1] = -1.0f;
@@ -1358,7 +1357,7 @@ unit_cylinder_P::unit_cylinder_P(const GLsizei divs) : basic_shape(), divisions(
 	}
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertices);
-	vertex_P<GLfloat>::enable_attributes();
+	vertex_P::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);

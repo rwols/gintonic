@@ -17,7 +17,7 @@
 
 namespace gintonic {
 
-camera_transform<float>& get_default_camera() BOOST_NOEXCEPT_OR_NOTHROW;
+camera& get_default_camera() BOOST_NOEXCEPT_OR_NOTHROW;
 
 void init_all(const char* window_title);
 

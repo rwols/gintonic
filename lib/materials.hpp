@@ -1,7 +1,8 @@
 #ifndef gintonic_materials_hpp
 #define gintonic_materials_hpp
 
-#include "math.hpp"
+// #include "math.hpp"
+#include "vec4f.hpp"
 #include "locks.hpp"
 #include "textures.hpp"
 #include <list>
@@ -164,7 +165,7 @@ private:
 	
 	static write_lock s_textures_lock;
 
-	friend boost::serialization::access;
+	friend class boost::serialization::access;
 	
 	template <class Archive> 
 	void save(Archive& ar, const unsigned /*version*/) const

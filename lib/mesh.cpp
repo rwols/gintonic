@@ -1,4 +1,5 @@
 #include "mesh.hpp"
+#include <fbxsdk.h>
 #include <fstream>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/vector.hpp>
@@ -255,12 +256,11 @@ void mesh::set_data(FbxMesh* m, const GLenum usagehint)
 
 			if (!get_element(fbx_normals, polyvertex, vertexid, fbx_normal))
 			{
-				N[0] = N[1] = N[2] = 0.0f;
+				N = 0.0f;
 			}
 			else
 			{
-				N = gintonic::vec3f(fbx_normal);
-				N = normalize(N);
+				N = gintonic::vec3f(fbx_normal).normalize();
 			}
 			if (!get_element(fbx_uvs, polyvertex, vertexid, fbx_texcoord))
 			{
@@ -268,44 +268,42 @@ void mesh::set_data(FbxMesh* m, const GLenum usagehint)
 			}
 			if (!get_element(fbx_tangents, polyvertex, vertexid, fbx_tangent))
 			{
-				T[0] = T[1] = T[2] = 0.0f;
+				T = 0.0f;
 				has_tangents = false;
 			}
 			else
 			{
-				T = gintonic::vec3f(fbx_tangent);
-				T = normalize(T);
+				T = gintonic::vec3f(fbx_tangent).normalize();
 				has_tangents = true;
 			}
 			if (!get_element(fbx_binormals, polyvertex, vertexid, fbx_bitangent))
 			{
-				B[0] = B[1] = B[2] = 0.0f;
+				B = 0.0f;
 			}
 			else
 			{
-				B = gintonic::vec3f(fbx_bitangent);
-				B = normalize(B);
+				B = gintonic::vec3f(fbx_bitangent).normalize();
 			}
 
-			handedness = gintonic::distance(N % T, B) < 0.01f ? 1.0f : -1.0f;
+			handedness = gintonic::distance(cross(N,T), B) < 0.01f ? 1.0f : -1.0f;
 
 			position =
 			{
 				static_cast<GLfloat>(fbx_position[0]),
 				static_cast<GLfloat>(fbx_position[1]),
 				static_cast<GLfloat>(fbx_position[2]),
-				N[0]
+				N.x
 			};
 
 			texcoord =
 			{
 				static_cast<GLfloat>(fbx_texcoord[0]),
 				static_cast<GLfloat>(fbx_texcoord[1]),
-				N[1],
-				N[2]
+				N.y,
+				N.z
 			};
 
-			if (has_tangents) normal = {T[0], T[1], T[2], handedness};
+			if (has_tangents) normal = {T.x, T.y, T.z, handedness};
 
 			// At this point, we could simply add
 			// the position, texcoord and optionally normal

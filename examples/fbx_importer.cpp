@@ -112,17 +112,17 @@ int main(int argc, char* argv[])
 		{
 			for (int j = -instancebound; j <= instancebound; ++j)
 			{
-				gt::sqt_transformf t;
+				gt::SQT t;
 				t.scale = 1.0f;
 				t.translation = { static_cast<float>(i), 0.0f, static_cast<float>(j) };
 				the_actor->transforms.push_back(t);
 			}
 		}
 
-		// the_actor->transforms.emplace_back(gt::sqt_transformf());
+		// the_actor->transforms.emplace_back(gt::SQT());
 		
 		std::vector<std::unique_ptr<gt::light>> lights;
-		std::vector<gt::sqt_transformf> light_transforms(4);
+		std::vector<gt::SQT> light_transforms(4);
 		std::vector<std::unique_ptr<gt::material>> light_materials;
 
 		{
@@ -145,13 +145,12 @@ int main(int argc, char* argv[])
 		light_transforms[0].translation = gt::vec3f( 0.0f, 2.0f, 0.0f);
 		light_transforms[1].translation = gt::vec3f( 1.0f, 1.2f, 0.0f);
 		light_transforms[2].translation = gt::vec3f(-1.0f, 1.2f, 0.0f);
-		light_transforms[3].rotation = gt::quatf::from_angle_axis(
-			gt::deg_to_rad(10) 
-			+ static_cast<float>(-M_PI) / 2.0f, 
-			gt::vec3f(1.0f, 0.0f, 0.0f));
+		light_transforms[3].rotation = gt::quatf::axis_angle(
+			gt::vec3f(1.0f, 0.0f, 0.0f),
+			gt::deg2rad(10) + static_cast<float>(-M_PI) / 2.0f);
 
 		gt::opengl::unit_cube_PUNTB cube;
-		gt::sqt_transformf cube_transform;
+		gt::SQT cube_transform;
 		cube_transform.scale = 0.5f;
 		gt::material cube_material
 		(
@@ -217,10 +216,9 @@ int main(int argc, char* argv[])
 			}
 
 			mousedelta = gt::renderer::mouse_delta();
-			mousedelta[0] = -gt::deg_to_rad(mousedelta[0]) / 4.0f;
-			mousedelta[1] = -gt::deg_to_rad(mousedelta[1]) / 4.0f;
+			mousedelta = -gt::deg2rad(mousedelta) / 4.0f;
 			
-			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
+			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
 			
 			gt::renderer::begin_geometry_pass();
 
@@ -232,15 +230,15 @@ int main(int argc, char* argv[])
 				const auto radius = 3.0f;
 				const auto elevation = 0.0f;
 				
-				light_transforms[i].translation[0] = radius 
+				light_transforms[i].translation.x = radius 
 					* std::cos(speed * curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
 				
-				light_transforms[i].translation[1] = elevation;
+				light_transforms[i].translation.y = elevation;
 				
-				light_transforms[i].translation[2] = radius 
+				light_transforms[i].translation.z = radius 
 					* std::sin(speed * curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
 				
-				gt::renderer::set_model_matrix(light_transforms[i].get_matrix());
+				gt::renderer::set_model_matrix(light_transforms[i]);
 				
 				light_materials[i]->bind();
 				

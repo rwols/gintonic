@@ -41,8 +41,8 @@ int main(int argc, char* argv[])
 		gt::opengl::unit_cone_PN cone(32);
 		
 		std::unique_ptr<gt::light> the_light(new gt::directional_light(gt::vec4f(1.0f, 1.0f, 1.0f, 1.0f)));
-		gt::sqt_transformf the_light_transform;
-		the_light_transform.rotation = gt::quatf::from_angle_axis(static_cast<float>(-M_PI) / 2.0f, gt::vec3f(1.0f, 0.0f, 0.0f));
+		gt::SQT the_light_transform;
+		the_light_transform.rotation = gt::quatf::axis_angle(gt::vec3f(1.0f, 0.0f, 0.0f), static_cast<float>(-M_PI) / 2.0f);
 		
 		gt::material brick_material(
 			gt::vec4f(0.8f, 0.8f, 0.8f,  0.9f), // diffuse color. 4th component is diffuse contribution
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 		float curtime, dt, yaxis, zaxis, cursin, fieldofview = M_PI / 2.0f, aspectratio = 1.0f;
 		gt::vec3f rotation_axis;
 		gt::vec2f mousedelta;
-		gt::sqt_transformf shape_transform;
+		gt::SQT shape_transform;
 		shape_transform.scale = 1.0f;
 		bool show_gbuffer = false;
 
@@ -115,10 +115,10 @@ int main(int argc, char* argv[])
 			}
 
 			mousedelta = gintonic::renderer::mouse_delta();
-			mousedelta[0] = -gintonic::deg_to_rad(mousedelta[0]) / 4.0f;
-			mousedelta[1] = -gintonic::deg_to_rad(mousedelta[1]) / 4.0f;
+			mousedelta.x = -gintonic::deg2rad(mousedelta.x) / 4.0f;
+			mousedelta.y = -gintonic::deg2rad(mousedelta.y) / 4.0f;
 			
-			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
+			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
 
 			gt::renderer::begin_geometry_pass();
 			
@@ -127,32 +127,33 @@ int main(int argc, char* argv[])
 			// rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
 			yaxis = 1.0f;
 			zaxis = 0.0f;
-			rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
+			rotation_axis = gt::vec3f(0.0f, yaxis, zaxis).normalize();
 
-			shape_transform.rotation = gt::quatf::from_angle_axis(
-				-curtime / 8.0f, // angle
-				rotation_axis);  // rotation axis
+			shape_transform.rotation = gt::quatf::axis_angle(
+				rotation_axis,
+				-curtime / 8.0f);
 			shape_transform.translation = { 0.0f, 0.0f, 0.0f };
 			
-			gt::renderer::set_model_matrix(shape_transform.get_matrix());
+			gt::renderer::set_model_matrix(shape_transform);
 			brick_with_normal_material.bind();
 			cube.draw();
 
-			shape_transform.translation[0] += 3.0f;
-			gt::renderer::set_model_matrix(shape_transform.get_matrix());
+			shape_transform.translation.x += 3.0f;
+			gt::renderer::set_model_matrix(shape_transform);
 			brick_material.bind();
 			sphere.draw();
 
-			shape_transform.translation[0] -= 6.0f;
-			gt::renderer::set_model_matrix(shape_transform.get_matrix());
+			shape_transform.translation.x -= 6.0f;
+			gt::renderer::set_model_matrix(shape_transform);
 			flat_material.bind();
 			cone.draw();
 
-			shape_transform.translation[0] += 3.0f;
-			shape_transform.translation[1] += 4.0f;
+			shape_transform.translation.x += 3.0f;
+			shape_transform.translation.y += 4.0f;
 
-			const auto frustummatrix = gt::mat4f::frustum(fieldofview, aspectratio, 1.0f, 2.0f);
-			gt::renderer::set_model_matrix(shape_transform.get_matrix() * frustummatrix);
+			gt::mat4f frustummatrix;
+			frustummatrix.set_inverse_perspective(fieldofview, aspectratio, 1.0f, 2.0f);
+			gt::renderer::set_model_matrix(gt::mat4f(shape_transform) * frustummatrix);
 			brick_with_normal_material.bind();
 			// glDisable(GL_CULL_FACE);
 			cube.draw();
@@ -168,11 +169,11 @@ int main(int argc, char* argv[])
 			{
 				gt::renderer::begin_light_pass();
 
-				cursin = gt::sin(curtime) / 2.0f;
+				cursin = std::sin(curtime) / 2.0f;
 
-				the_light_transform.rotation = gt::quatf::from_angle_axis(
-					cursin + static_cast<float>(-M_PI) / 2.0f, // angle
-					gt::vec3f(1.0f, 0.0f, 0.0f));              // rotation axis
+				the_light_transform.rotation = gt::quatf::axis_angle(
+					gt::vec3f(1.0f, 0.0f, 0.0f),
+					cursin + static_cast<float>(-M_PI) / 2.0f);
 				the_light->shine(the_light_transform);
 
 				gt::renderer::get_text_shader()->activate();

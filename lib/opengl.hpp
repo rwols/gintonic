@@ -17,7 +17,14 @@
 #include <stdexcept>
 #include <cassert>
 
-#include "math.hpp"
+// #include "math.hpp"
+#include "vec2f.hpp"
+#include "vec3f.hpp"
+#include "vec4f.hpp"
+#include "mat2f.hpp"
+#include "mat3f.hpp"
+#include "mat4f.hpp"
+
 #include "exception.hpp"
 #include "object.hpp"
 #include "tuple.hpp"
@@ -1510,11 +1517,11 @@ protected:
 	}
 
 	static void set_uniform(const GLint location, const GLfloat value) BOOST_NOEXCEPT_OR_NOTHROW;
-	static void set_uniform(const GLint location, const vec2<GLfloat>& v) BOOST_NOEXCEPT_OR_NOTHROW;
-	static void set_uniform(const GLint location, const vec3<GLfloat>& v) BOOST_NOEXCEPT_OR_NOTHROW;
-	static void set_uniform(const GLint location, const vec4<GLfloat>& v) BOOST_NOEXCEPT_OR_NOTHROW;
-	static void set_uniform(const GLint location, const mat3<GLfloat>& m) BOOST_NOEXCEPT_OR_NOTHROW;
-	static void set_uniform(const GLint location, const mat4<GLfloat>& m) BOOST_NOEXCEPT_OR_NOTHROW;
+	static void set_uniform(const GLint location, const vec2f& v) BOOST_NOEXCEPT_OR_NOTHROW;
+	static void set_uniform(const GLint location, const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW;
+	static void set_uniform(const GLint location, const vec4f& v) BOOST_NOEXCEPT_OR_NOTHROW;
+	static void set_uniform(const GLint location, const mat3f& m) BOOST_NOEXCEPT_OR_NOTHROW;
+	static void set_uniform(const GLint location, const mat4f& m) BOOST_NOEXCEPT_OR_NOTHROW;
 	static void set_uniform(const GLint location, const GLint i) BOOST_NOEXCEPT_OR_NOTHROW;
 	
 	static void set_uniform(const GLint location, const std::vector<GLfloat>& values) BOOST_NOEXCEPT_OR_NOTHROW;

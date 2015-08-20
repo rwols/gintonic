@@ -1,8 +1,18 @@
 #ifndef gintonic_actors_hpp
 #define gintonic_actors_hpp
 
-#include "mesh.hpp"
 #include <vector>
+#include "mesh.hpp"
+#include "SQT.hpp"
+#include "box3f.hpp"
+
+namespace GINTONIC_NAMESPACE_FBX
+{
+	class FbxNode;
+	class FbxScene;
+	class FbxMesh;
+	class FbxLight;
+}
 
 namespace gintonic {
 
@@ -20,9 +30,9 @@ public:
 	virtual void draw_geometry();
 	virtual void draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW;
 
-	// sqt_transformf transform;
+	// SQT transform;
 
-	std::vector<sqt_transformf> transforms;
+	std::vector<SQT> transforms;
 
 	virtual ~actor() BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -39,7 +49,7 @@ class static_model_actor : public actor
 {
 public:
 	static_model_actor() = default;
-	static_model_actor(FbxScene*);
+	static_model_actor(GINTONIC_NAMESPACE_FBX::FbxScene*);
 
 	virtual ~static_model_actor() BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -50,7 +60,7 @@ public:
 	<
 		std::tuple
 		<
-			sqt_transformf,
+			SQT,
 			std::shared_ptr<mesh>, 
 			material
 		>
@@ -60,16 +70,16 @@ public:
 	<
 		std::tuple
 		<
-			sqt_transformf,
+			SQT,
 			std::shared_ptr<light>
 		>
 	> lights;
 private:
-	void traverse_graph(FbxNode*);
+	void traverse_graph(GINTONIC_NAMESPACE_FBX::FbxNode*);
 
-	void process_mesh(FbxMesh*, const sqt_transformf&);
+	void process_mesh(GINTONIC_NAMESPACE_FBX::FbxMesh*, const SQT&);
 
-	void process_light(FbxLight*, const sqt_transformf&);
+	void process_light(GINTONIC_NAMESPACE_FBX::FbxLight*, const SQT&);
 
 	void draw_geometry_instanced();
 	void draw_geometry_non_instanced() const BOOST_NOEXCEPT_OR_NOTHROW;
@@ -78,7 +88,7 @@ private:
 class animated_model_actor : public actor
 {
 	animated_model_actor() = default;
-	animated_model_actor(FbxScene*);
+	animated_model_actor(GINTONIC_NAMESPACE_FBX::FbxScene*);
 
 	virtual ~animated_model_actor() BOOST_NOEXCEPT_OR_NOTHROW;
 

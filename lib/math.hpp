@@ -2118,44 +2118,44 @@ template <typename T> using linestring4 = linestring<T,4>;
 // template <typename T> using multi_polygon3 = multi_polygon<T,3>;
 // template <typename T> using multi_polygon4 = multi_polygon<T,4>;
 
-using vec2f = vec2<float>;
-using vec3f = vec3<float>;
-using vec4f = vec4<float>;
-using vec2d = vec2<double>;
-using vec3d = vec3<double>;
-using vec4d = vec4<double>;
-using vec2i = vec2<int>;
-using vec3i = vec3<int>;
-using vec4i = vec4<int>;
-using vec2st = vec2<std::size_t>;
-using vec3st = vec3<std::size_t>;
-using vec4st = vec4<std::size_t>;
+// using vec2f = vec2<float>;
+// using vec3f = vec3<float>;
+// using vec4f = vec4<float>;
+// using vec2d = vec2<double>;
+// using vec3d = vec3<double>;
+// using vec4d = vec4<double>;
+// using vec2i = vec2<int>;
+// using vec3i = vec3<int>;
+// using vec4i = vec4<int>;
+// using vec2st = vec2<std::size_t>;
+// using vec3st = vec3<std::size_t>;
+// using vec4st = vec4<std::size_t>;
 
-using mat2f = mat2<float>;
-using mat3f = mat3<float>;
-using mat4f = mat4<float>;
-using mat2d = mat2<double>;
-using mat3d = mat3<double>;
-using mat4d = mat4<double>;
-using mat2i = mat2<int>;
-using mat3i = mat3<int>;
-using mat4i = mat4<int>;
-using mat2st = mat2<std::size_t>;
-using mat3st = mat3<std::size_t>;
-using mat4st = mat4<std::size_t>;
+// using mat2f = mat2<float>;
+// using mat3f = mat3<float>;
+// using mat4f = mat4<float>;
+// using mat2d = mat2<double>;
+// using mat3d = mat3<double>;
+// using mat4d = mat4<double>;
+// using mat2i = mat2<int>;
+// using mat3i = mat3<int>;
+// using mat4i = mat4<int>;
+// using mat2st = mat2<std::size_t>;
+// using mat3st = mat3<std::size_t>;
+// using mat4st = mat4<std::size_t>;
 
-using box2f = box2<float>;
-using box3f = box3<float>;
-using box4f = box4<float>;
-using box2d = box2<double>;
-using box3d = box3<double>;
-using box4d = box4<double>;
-using box2i = box2<int>;
-using box3i = box3<int>;
-using box4i = box4<int>;
-using box2st = box2<std::size_t>;
-using box3st = box3<std::size_t>;
-using box4st = box4<std::size_t>;
+// using box2f = box2<float>;
+// using box3f = box3<float>;
+// using box4f = box4<float>;
+// using box2d = box2<double>;
+// using box3d = box3<double>;
+// using box4d = box4<double>;
+// using box2i = box2<int>;
+// using box3i = box3<int>;
+// using box4i = box4<int>;
+// using box2st = box2<std::size_t>;
+// using box3st = box3<std::size_t>;
+// using box4st = box4<std::size_t>;
 
 // typedef mat<float,2>   mat2f;
 // typedef mat<float,3>   mat3f;
@@ -2163,12 +2163,12 @@ using box4st = box4<std::size_t>;
 // typedef mat<double,2>  mat2d;
 // typedef mat<double,3>  mat3d;
 // typedef mat<double,4>  mat4d;
-typedef quat<float>    quatf;
-typedef quat<double>   quatd;
-typedef line<float,2>  line2f;
-typedef line<float,3>  line3f;
-typedef line<double,2> line2d;
-typedef line<double,3> line3d;
+// typedef quat<float>    quatf;
+// typedef quat<double>   quatd;
+// typedef line<float,2>  line2f;
+// typedef line<float,3>  line3f;
+// typedef line<double,2> line2d;
+// typedef line<double,3> line3d;
 
 template <class T> struct sqt_transform
 {
@@ -2346,80 +2346,80 @@ template <class T> struct camera_transform
 	}
 };
 
-struct SQT
-{
-	float scale;
-	quatf rotation;
-	vec3f translation;
+// struct SQT
+// {
+// 	float scale;
+// 	quatf rotation;
+// 	vec3f translation;
 
-	SQT() = default;
+// 	SQT() = default;
 
-	SQT(const float scale, const quatf& rotation, const vec3f& translation)
-	: scale(scale), rotation(rotation), translation(translation) {}
+// 	SQT(const float scale, const quatf& rotation, const vec3f& translation)
+// 	: scale(scale), rotation(rotation), translation(translation) {}
 
-	mat4f get_matrix() const BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		mat4f r = rotation.to_rotation_matrix();
-		r(0,0) *= scale;
-		r(0,1) *= scale;
-		r(0,2) *= scale;
-		r(1,0) *= scale;
-		r(1,1) *= scale;
-		r(1,2) *= scale;
-		r(2,0) *= scale;
-		r(2,1) *= scale;
-		r(2,2) *= scale;
-		r(0,3) = translation[0];
-		r(1,3) = translation[1];
-		r(2,3) = translation[2];
-		return r;
-	}
+// 	mat4f get_matrix() const BOOST_NOEXCEPT_OR_NOTHROW
+// 	{
+// 		mat4f r = rotation.to_rotation_matrix();
+// 		r(0,0) *= scale;
+// 		r(0,1) *= scale;
+// 		r(0,2) *= scale;
+// 		r(1,0) *= scale;
+// 		r(1,1) *= scale;
+// 		r(1,2) *= scale;
+// 		r(2,0) *= scale;
+// 		r(2,1) *= scale;
+// 		r(2,2) *= scale;
+// 		r(0,3) = translation[0];
+// 		r(1,3) = translation[1];
+// 		r(2,3) = translation[2];
+// 		return r;
+// 	}
 
-	SQT operator & (const SQT& other) const BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return SQT(scale * other.scale, rotation * other.rotation, translation + other.translation);
-	}
+// 	SQT operator & (const SQT& other) const BOOST_NOEXCEPT_OR_NOTHROW
+// 	{
+// 		return SQT(scale * other.scale, rotation * other.rotation, translation + other.translation);
+// 	}
 
-	SQT& operator &= (const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		scale *= other.scale;
-		rotation *= other.rotation;
-		translation += other.translation;
-		return *this;
-	}
-	// Example:
-	//
-	// SQT a, b;
-	//
-	// a.scale = 1;
-	// a.rotation = quatf::from_angle_axis(M_PI, vec3f(0,1,0));
-	// a.translation = vec3f(10,20,-40);
-	//
-	// b.scale = 0.5f;
-	// b.rotation = quatf(0,1,0,0);
-	// b.translation = vec3f(1,5,-19);
-	//
-	// SQT c = a & b;
-};
+// 	SQT& operator &= (const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW
+// 	{
+// 		scale *= other.scale;
+// 		rotation *= other.rotation;
+// 		translation += other.translation;
+// 		return *this;
+// 	}
+// 	// Example:
+// 	//
+// 	// SQT a, b;
+// 	//
+// 	// a.scale = 1;
+// 	// a.rotation = quatf::from_angle_axis(M_PI, vec3f(0,1,0));
+// 	// a.translation = vec3f(10,20,-40);
+// 	//
+// 	// b.scale = 0.5f;
+// 	// b.rotation = quatf(0,1,0,0);
+// 	// b.translation = vec3f(1,5,-19);
+// 	//
+// 	// SQT c = a & b;
+// };
 
-struct SQT_camera : public SQT
-{
-	enum class e_projection_type : char { orthographic, projective };
-	e_projection_type projection_type;
-	float horizontal_angle;
-	float vertical_angle;
-	float fake_zoom;
-	float orthographic_zoom;
-	float field_of_view;
-	float near_plane;
-	float far_plane;
+// struct SQT_camera : public SQT
+// {
+// 	enum class e_projection_type : char { orthographic, projective };
+// 	e_projection_type projection_type;
+// 	float horizontal_angle;
+// 	float vertical_angle;
+// 	float fake_zoom;
+// 	float orthographic_zoom;
+// 	float field_of_view;
+// 	float near_plane;
+// 	float far_plane;
 
-	mat4f get_projection_matrix(const int width, const int height) 
-		const BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return mat4f(1.0f);
-	}
-};
+// 	mat4f get_projection_matrix(const int width, const int height) 
+// 		const BOOST_NOEXCEPT_OR_NOTHROW
+// 	{
+// 		return mat4f(1.0f);
+// 	}
+// };
 
 template <class T, std::size_t N> struct sphere
 {

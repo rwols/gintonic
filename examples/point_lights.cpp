@@ -73,9 +73,9 @@ int main(int argc, char* argv[])
 		gt::opengl::unit_sphere_PUN a_sphere(16);
 		
 		std::vector<gt::point_light> lights;
-		std::vector<gt::sqt_transformf> light_transforms;
+		std::vector<gt::SQT> light_transforms;
 		std::vector<gt::material> light_materials;
-		gt::sqt_transformf shape_transform;
+		gt::SQT shape_transform;
 
 		// Generate the lights
 		for (int i = 0; i < numlights; ++i)
@@ -85,20 +85,20 @@ int main(int argc, char* argv[])
 			gt::vec4f intensity;
 			gt::vec3f color;
 			float ceiling;
-			color[0] = std::rand() % 1000;
-			color[1] = std::rand() % 1000;
-			color[2] = std::rand() % 1000;
-			color = normalize(color);
-			ceiling = std::max(std::max(color[0], color[1]), color[2]);
+			color.x = std::rand() % 1000;
+			color.y = std::rand() % 1000;
+			color.z = std::rand() % 1000;
+			color.normalize();
+			ceiling = std::max(std::max(color.x, color.y), color.z);
 			ceiling = 1.0f - ceiling;
-			color[0] += ceiling;
-			color[1] += ceiling;
-			color[2] += ceiling;
-			intensity = {color[0], color[1], color[2], 9.0f};
+			color.x += ceiling;
+			color.y += ceiling;
+			color.z += ceiling;
+			intensity = {color.x, color.y, color.z, 9.0f};
 			lights.emplace_back(intensity, attenuation);
-			intensity[3] = 0.0f;
+			intensity.w = 0.0f;
 			light_materials.emplace_back(intensity, specularity);
-			light_transforms.emplace_back(gt::sqt_transformf());
+			light_transforms.emplace_back(gt::SQT());
 			light_transforms.back().scale = 0.1f;
 		}
 
@@ -214,18 +214,16 @@ int main(int argc, char* argv[])
 				light_elevation -= dt;
 			}
 
-			mousedelta = gt::renderer::mouse_delta();
-			mousedelta[0] = -gt::deg_to_rad(mousedelta[0]) / 4.0f;
-			mousedelta[1] = -gt::deg_to_rad(mousedelta[1]) / 4.0f;
-			
-			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
+			auto mousedelta = gt::renderer::mouse_delta();
+			mousedelta = -gt::deg2rad(mousedelta) / 2.0f;
+			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
 			
 			gt::renderer::begin_geometry_pass();
 			
 			yaxis = (1.0f + current_cos) / 2.0f;
 			zaxis = (1.0f + current_sin) / 2.0f;
-			rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
-			shape_transform.rotation = gt::quatf::from_angle_axis(-curtime / 4.0f, rotation_axis);
+			rotation_axis = gt::vec3f(0.0f, yaxis, zaxis).normalize();
+			shape_transform.rotation = gt::quatf::axis_angle(rotation_axis, -curtime / 4.0f);
 
 			for (int i = -numobjects; i <= numobjects; ++i)
 			{
@@ -234,7 +232,7 @@ int main(int argc, char* argv[])
 					// Draw a grid of (2*numobjects + 1)^2 rotating cubes/spheres :-)
 
 					shape_transform.translation = {3.0f * i, std::sin(i+j+curtime), 3.0f * j};
-					gt::renderer::set_model_matrix(shape_transform.get_matrix());
+					gt::renderer::set_model_matrix(shape_transform);
 					
 					if (boolmatrix[i + numobjects][j + numobjects])
 					{
@@ -255,15 +253,15 @@ int main(int argc, char* argv[])
 				const auto numlights = static_cast<float>(lights.size());
 				const auto radius = static_cast<float>(numlights);
 				
-				light_transforms[i].translation[0] = radius 
+				light_transforms[i].translation.x = radius 
 					* std::cos(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
 				
-				light_transforms[i].translation[1] = light_elevation;
+				light_transforms[i].translation.y = light_elevation;
 				
-				light_transforms[i].translation[2] = radius 
+				light_transforms[i].translation.z = radius 
 					* std::sin(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
 				
-				gt::renderer::set_model_matrix(light_transforms[i].get_matrix());
+				gt::renderer::set_model_matrix(light_transforms[i]);
 				
 				light_materials[i].bind();
 				

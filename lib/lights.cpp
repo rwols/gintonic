@@ -22,12 +22,12 @@ light::~light() BOOST_NOEXCEPT_OR_NOTHROW
 
 void light::set_brightness(const float brightness)
 {
-	intensity[3] = brightness;
+	intensity.w = brightness;
 }
 
 float light::brightness() const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	return intensity[3];
+	return intensity.w;
 }
 
 std::ostream& operator << (std::ostream& os, const light* l)
@@ -66,7 +66,7 @@ ambient_light::~ambient_light() BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-void ambient_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
+void ambient_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	const auto& s = renderer::get_lp_ambient_shader();
 	s.activate();
@@ -96,7 +96,7 @@ directional_light::~directional_light() BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-void directional_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
+void directional_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	const auto& s = renderer::get_lp_directional_shader();
 	s.activate();
@@ -154,15 +154,15 @@ float point_light::cutoff_point() const BOOST_NOEXCEPT_OR_NOTHROW
 	return m_cutoff_point;
 }
 
-void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
+void point_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	// The transformation data is delivered in WORLD coordinates.
 
-	sqt_transformf sphere_transform;
+	SQT sphere_transform;
 	sphere_transform.scale = m_cutoff_point;
 	sphere_transform.translation = t.translation;
 
-	renderer::set_model_matrix(sphere_transform.get_matrix());
+	renderer::set_model_matrix(sphere_transform);
 
 	const auto& nullshader = renderer::get_null_shader();
 	const auto& pointshader = renderer::get_lp_point_shader();
@@ -207,14 +207,14 @@ void point_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
 
 void point_light::set_brightness(const float brightness)
 {
-	intensity[3] = brightness;
+	intensity.w = brightness;
 	calculate_cutoff_radius();
 }
 
 void point_light::calculate_cutoff_radius() BOOST_NOEXCEPT_OR_NOTHROW
 {
 
-	// Let c be equal to intensity[3] * max(intensity[0], intensity[1], intensity[2])
+	// Let c be equal to intensity.w * max(intensity[0], intensity[1], intensity[2])
 	// Let a be the attenuation
 	// Let d be the cutoff radius
 	// There are 256 possible values in an 8-bit color channel
@@ -229,11 +229,11 @@ void point_light::calculate_cutoff_radius() BOOST_NOEXCEPT_OR_NOTHROW
 	#define att m_attenuation
 	#define in intensity
 
-	const float c = in[3] * std::max(in[0], std::max(in[1], in[2]));
+	const float c = in.w * std::max(in.x, std::max(in.x, in.y));
 
-	m_cutoff_point = (-att[1] + std::sqrt(att[1] * att[1] 
-		- 4.0f * att[2] * (att[0] - 256.0f * c))) 
-	/ (2 * att[2]);
+	m_cutoff_point = (-att.x + std::sqrt(att.x * att.x 
+		- 4.0f * att.y * (att.x - 256.0f * c))) 
+	/ (2 * att.y);
 
 	#undef in
 	#undef att
@@ -272,16 +272,16 @@ spot_light::~spot_light() BOOST_NOEXCEPT_OR_NOTHROW
 	 /* Empty on purpose. */
 }
 
-void spot_light::shine(const sqt_transformf& t) const BOOST_NOEXCEPT_OR_NOTHROW
+void spot_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	// The transformation data is delivered in WORLD coordinates.
 
-	sqt_transformf sphere_transform;
+	SQT sphere_transform;
 	sphere_transform.scale = cutoff_point();
 	// sphere_transform.rotation = t.rotation;
 	sphere_transform.translation = t.translation;
 
-	renderer::set_model_matrix(sphere_transform.get_matrix());
+	renderer::set_model_matrix(sphere_transform);
 
 	const auto& nullshader = renderer::get_null_shader();
 	const auto& spotshader = renderer::get_lp_spot_shader();

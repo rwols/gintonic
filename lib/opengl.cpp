@@ -540,23 +540,37 @@ void shader::set_uniform(const char* uniformName, const GLfloat value) const
 }
 void shader::set_uniform(const char* uniformName, const vec2f& v) const
 {
-	glUniform2f(get_uniform_location(uniformName), v[0], v[1]);
+	glUniform2f(get_uniform_location(uniformName), v.x, v.y);
 }
 void shader::set_uniform(const char* uniformName, const vec3f& v) const
 {
-	glUniform3f(get_uniform_location(uniformName), v[0], v[1], v[2]);
+	glUniform3f(get_uniform_location(uniformName), v.x, v.y, v.z);
 }
 void shader::set_uniform(const char* uniformName, const vec4f& v) const
 {
-	glUniform4f(get_uniform_location(uniformName), v[0], v[1], v[2], v[3]);
+	glUniform4f(get_uniform_location(uniformName), v.x, v.y, v.z, v.w);
 }
 void shader::set_uniform(const char* uniformName, const mat3f& m) const
 {
-	glUniformMatrix3fv(get_uniform_location(uniformName), 1, GL_TRUE, &m(0,0));
+	float temp[9];
+	const float* ptr = m.value_ptr();
+	temp[0] = ptr[0];
+	temp[1] = ptr[1];
+	temp[2] = ptr[2];
+
+	temp[3] = ptr[4];
+	temp[4] = ptr[5];
+	temp[5] = ptr[6];
+	
+	temp[6] = ptr[8];
+	temp[7] = ptr[9];
+	temp[8] = ptr[10];
+	
+	glUniformMatrix3fv(get_uniform_location(uniformName), 1, GL_FALSE, temp);
 }
 void shader::set_uniform(const char* uniformName, const mat4f& m) const
 {
-	glUniformMatrix4fv(get_uniform_location(uniformName), 1, GL_TRUE, &m(0,0));
+	glUniformMatrix4fv(get_uniform_location(uniformName), 1, GL_FALSE, m.value_ptr());
 }
 void shader::set_uniform(const char* uniformName, const GLint i) const
 {
@@ -566,25 +580,39 @@ void shader::set_uniform(const GLint location, const GLfloat value) BOOST_NOEXCE
 {
 	glUniform1f(location, value);
 }
-void shader::set_uniform(const GLint location, const vec2<GLfloat>& v) BOOST_NOEXCEPT_OR_NOTHROW
+void shader::set_uniform(const GLint location, const vec2f& v) BOOST_NOEXCEPT_OR_NOTHROW
 {
-	glUniform2f(location, v[0], v[1]);
+	glUniform2f(location, v.x, v.y);
 }
-void shader::set_uniform(const GLint location, const vec3<GLfloat>& v) BOOST_NOEXCEPT_OR_NOTHROW
+void shader::set_uniform(const GLint location, const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
 {
-	glUniform3f(location, v[0], v[1], v[2]);
+	glUniform3f(location, v.x, v.y, v.z);
 }
-void shader::set_uniform(const GLint location, const vec4<GLfloat>& v) BOOST_NOEXCEPT_OR_NOTHROW
+void shader::set_uniform(const GLint location, const vec4f& v) BOOST_NOEXCEPT_OR_NOTHROW
 {
-	glUniform4f(location, v[0], v[1], v[2], v[3]);
+	glUniform4f(location, v.x, v.y, v.z, v.w);
 }
-void shader::set_uniform(const GLint location, const mat3<GLfloat>& m) BOOST_NOEXCEPT_OR_NOTHROW
+void shader::set_uniform(const GLint location, const mat3f& m) BOOST_NOEXCEPT_OR_NOTHROW
 {
-	glUniformMatrix3fv(location, 1, GL_TRUE, &m(0,0));
+	float temp[9];
+	const float* ptr = m.value_ptr();
+	temp[0] = ptr[0];
+	temp[1] = ptr[1];
+	temp[2] = ptr[2];
+
+	temp[3] = ptr[4];
+	temp[4] = ptr[5];
+	temp[5] = ptr[6];
+	
+	temp[6] = ptr[8];
+	temp[7] = ptr[9];
+	temp[8] = ptr[10];
+
+	glUniformMatrix3fv(location, 1, GL_FALSE, temp);
 }
-void shader::set_uniform(const GLint location, const mat4<GLfloat>& m) BOOST_NOEXCEPT_OR_NOTHROW
+void shader::set_uniform(const GLint location, const mat4f& m) BOOST_NOEXCEPT_OR_NOTHROW
 {
-	glUniformMatrix4fv(location, 1, GL_TRUE, &m(0,0));
+	glUniformMatrix4fv(location, 1, GL_FALSE, m.value_ptr());
 }
 void shader::set_uniform(const GLint location, const GLint i) BOOST_NOEXCEPT_OR_NOTHROW
 {

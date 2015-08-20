@@ -53,7 +53,7 @@ namespace gintonic {
 	GLuint renderer::s_depth_texture;
 	GLuint renderer::s_shadow_texture;
 
-	const camera_transform<float>* renderer::s_camera = nullptr;
+	const camera* renderer::s_camera = nullptr;
 
 	matrix_PVM_shader* renderer::s_matrix_PVM_shader = nullptr;
 
@@ -121,7 +121,7 @@ namespace gintonic {
 	fontstream& renderer::cerr() { return *debug_stream; }
 	#endif
 
-	void renderer::init(const char* title, const camera_transform<float>& cam, const bool fullscreen, const int width, const int height)
+	void renderer::init(const char* title, const struct camera& cam, const bool fullscreen, const int width, const int height)
 	{
 		bool was_already_initialized;
 		if (is_initialized())
@@ -643,7 +643,7 @@ namespace gintonic {
 		std::memcpy(s_key_prev_state, s_key_state, sizeof(Uint8) * s_key_state_count);
 		s_key_state = SDL_GetKeyboardState(nullptr);
 
-		s_mouse_delta[0] = s_mouse_delta[1] = 0.0f;
+		s_mouse_delta = 0.0f;
 		while (SDL_PollEvent(&s_event))
 		{
 			switch (s_event.type)
@@ -668,8 +668,8 @@ namespace gintonic {
 			case SDL_KEYUP:
 				break;
 			case SDL_MOUSEMOTION:
-				s_mouse_delta[0] += (float)s_event.motion.xrel;
-				s_mouse_delta[1] += (float)s_event.motion.yrel;
+				s_mouse_delta.x += (float)s_event.motion.xrel;
+				s_mouse_delta.y += (float)s_event.motion.yrel;
 				break;
 			case SDL_QUIT:
 				close();
@@ -678,9 +678,9 @@ namespace gintonic {
 				break;
 			}
 		}
-		if (s_mouse_delta[0] != 0.0f || s_mouse_delta[1] != 0.0f)
+		if (s_mouse_delta.x != 0.0f || s_mouse_delta.y != 0.0f)
 		{
-			mouse_moved(s_mouse_delta[0], s_mouse_delta[1]);
+			mouse_moved(s_mouse_delta.x, s_mouse_delta.y);
 		}
 	}
 
@@ -793,11 +793,11 @@ namespace gintonic {
 		get_text_shader()->set_color(vec3f(1.0f, 1.0f, 1.0f));
 
 		stream << "GBUFFER_NORMAL" << std::endl;
-		stream->position[0] += 1.0f;
+		stream->position.x += 1.0f;
 		stream << "GBUFFER_DIFFUSE" << std::endl;
-		stream->position[1] -= 1.0f;
+		stream->position.y -= 1.0f;
 		stream << "GBUFFER_SPECULAR" << std::endl;
-		stream->position[0] -= 1.0f;
+		stream->position.x -= 1.0f;
 		stream << "GBUFFER_POSITION" << std::endl;
 
 		glEnable(GL_CULL_FACE);

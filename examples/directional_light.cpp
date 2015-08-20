@@ -33,8 +33,8 @@ int main(int argc, char* argv[])
 		gt::fontstream stream;
 		gt::opengl::unit_cube_PUNTB the_shape;
 		std::unique_ptr<gt::light> the_light(new gt::directional_light(gt::vec4f(1.0f, 0.8f, 0.8f, 1.0f)));
-		gt::sqt_transformf the_light_transform;
-		the_light_transform.rotation = gt::quatf::from_angle_axis(static_cast<float>(-M_PI) / 2.0f, gt::vec3f(1.0f, 0.0f, 0.0f));
+		gt::SQT the_light_transform;
+		the_light_transform.rotation = gt::quatf::axis_angle(gt::vec3f(1.0f, 0.0f, 0.0f), static_cast<float>(-M_PI) / 2.0f);
 		gt::material the_material(
 			gt::vec4f(1.0f, 1.0f, 1.0f,  0.9f), // diffuse color. 4th component is diffuse contribution
 			gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f), // specular color. 4th component is shininess
@@ -76,11 +76,10 @@ int main(int argc, char* argv[])
 				gt::get_default_camera().move_up(dt);
 			}
 
-			mousedelta = gintonic::renderer::mouse_delta();
-			mousedelta[0] = -gintonic::deg_to_rad(mousedelta[0]) / 4.0f;
-			mousedelta[1] = -gintonic::deg_to_rad(mousedelta[1]) / 4.0f;
+			mousedelta = gt::renderer::mouse_delta();
+			mousedelta = -gt::deg2rad(mousedelta) / 4.0f;
 			
-			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta[0], mousedelta[1]);
+			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
 			
 			gt::renderer::begin_geometry_pass();
 			
@@ -88,9 +87,9 @@ int main(int argc, char* argv[])
 			
 			const auto zaxis = (1.0f + std::sin(curtime)) / 2.0f;
 			
-			const auto rotation_axis = gt::normalize(gt::vec3f(0.0f, yaxis, zaxis));
+			const auto rotation_axis = gt::vec3f(0.0f, yaxis, zaxis).normalize();
 			
-			gt::renderer::set_model_matrix(-curtime / 4.0f, rotation_axis);
+			gt::renderer::set_model_matrix(rotation_axis, -curtime / 4.0f);
 			
 			the_material.bind();
 			

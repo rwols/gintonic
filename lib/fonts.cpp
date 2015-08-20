@@ -96,7 +96,7 @@ namespace gintonic {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindVertexArray(m_vao);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		opengl::vertex_text2d<GLfloat>::enable_attributes();
+		opengl::vertex_text2d::enable_attributes();
 
 		for (int i = 32; i < 128; ++i)
 		{
@@ -135,12 +135,12 @@ namespace gintonic {
 
 	void font::draw(const char* text, const std::size_t length, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		using vert = opengl::vertex_text2d<GLfloat>;
+		using vert = opengl::vertex_text2d;
 
 		GLsizei n = 0;
 		const auto aw = static_cast<GLfloat>(m_atlas_width);
 		const auto ah = static_cast<GLfloat>(m_atlas_height);
-		const auto original_x_position = position[0];
+		const auto original_x_position = position.x;
 		std::size_t j, i;
 		GLfloat x2, y2, w, h;
 		std::vector<vert> coords(6 * length);
@@ -149,21 +149,21 @@ namespace gintonic {
 		{
 			if (text[j] == '\n')
 			{
-				position[0] = original_x_position;
-				position[1] -= static_cast<GLfloat>(std::get<1>(key()) * scale[1]);
+				position.x = original_x_position;
+				position.y -= static_cast<GLfloat>(std::get<1>(key()) * scale.y);
 				continue;
 			}
 
 			i = static_cast<std::size_t>(text[j]);
 
-			x2 = position[0] + m_c[i-32].bl * scale[0];
-			y2 = position[1] + m_c[i-32].bt * scale[1];
+			x2 = position.x + m_c[i-32].bl * scale.x;
+			y2 = position.y + m_c[i-32].bt * scale.y;
 
-			w  =  m_c[i-32].bw * scale[0];
-			h  =  m_c[i-32].bh * scale[1];
+			w  =  m_c[i-32].bw * scale.x;
+			h  =  m_c[i-32].bh * scale.y;
 
-			position[0] += m_c[i-32].ax * scale[0];
-			position[1] += m_c[i-32].ay * scale[1];
+			position.x += m_c[i-32].ax * scale.x;
+			position.y += m_c[i-32].ay * scale.y;
 
 			if (!w || !h) continue;
 			
@@ -207,17 +207,17 @@ namespace gintonic {
 	{
 		fontstream::fontstream(const font::flyweight& f) : underlying_font(f)
 		{
-			scale[0] = 2.0f / static_cast<GLfloat>(renderer::width());
-			scale[1] = 2.0f / static_cast<GLfloat>(renderer::height());
-			position[0] = -1.0f;
-			position[1] = 1.0f - scale[1] * static_cast<GLfloat>(std::get<1>(underlying_font.get_key()));
+			scale.x = 2.0f / static_cast<GLfloat>(renderer::width());
+			scale.y = 2.0f / static_cast<GLfloat>(renderer::height());
+			position.x = -1.0f;
+			position.y = 1.0f - scale.y * static_cast<GLfloat>(std::get<1>(underlying_font.get_key()));
 		}
 		fontstream::fontstream(font::flyweight&& f) : underlying_font(std::move(f))
 		{
-			scale[0] = 2.0f / static_cast<GLfloat>(renderer::width());
-			scale[1] = 2.0f / static_cast<GLfloat>(renderer::height());
-			position[0] = -1.0f;
-			position[1] = 1.0f - scale[1] * static_cast<GLfloat>(std::get<1>(underlying_font.get_key()));	
+			scale.x = 2.0f / static_cast<GLfloat>(renderer::width());
+			scale.y = 2.0f / static_cast<GLfloat>(renderer::height());
+			position.x = -1.0f;
+			position.y = 1.0f - scale.y * static_cast<GLfloat>(std::get<1>(underlying_font.get_key()));	
 		}
 
 		std::streamsize fontstream::write(const char* text, const std::streamsize length) const BOOST_NOEXCEPT_OR_NOTHROW

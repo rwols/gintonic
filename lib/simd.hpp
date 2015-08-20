@@ -1,8 +1,6 @@
 #ifndef gintonic_simd_hpp
 #define gintonic_simd_hpp
 
-#include <boost/config.hpp>
-
 #if defined(_MSC_VER)
 	/* Microsoft C/C++-compatible compiler */
 	#include <intrin.h>

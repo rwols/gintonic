@@ -5,6 +5,7 @@
 #include "lights.hpp"
 #include "renderer.hpp"
 #include "textures.hpp"
+#include <fbxsdk.h>
 
 namespace
 {
@@ -88,15 +89,13 @@ void static_model_actor::traverse_graph(
 	const auto fbx_scale = fbx_transform.GetS();
 	const auto fbx_rotation = fbx_transform.GetQ();
 	const auto fbx_translation = fbx_transform.GetT();
-	sqt_transformf t;
-	t.scale = static_cast<float>(fbx_scale[0]);
+	SQT t;
+	t.scale = fbx_scale;
 	t.rotation.w = static_cast<float>(fbx_rotation[3]);
 	t.rotation.x = static_cast<float>(fbx_rotation[0]);
 	t.rotation.y = static_cast<float>(fbx_rotation[1]);
 	t.rotation.z = static_cast<float>(fbx_rotation[2]);
-	t.translation[0] = static_cast<float>(fbx_translation[0]);
-	t.translation[1] = static_cast<float>(fbx_translation[1]);
-	t.translation[2] = static_cast<float>(fbx_translation[2]);
+	t.translation = fbx_translation;
 	if (FbxCast<FbxMesh>(node->GetNodeAttribute()))
 	{
 		std::cerr << "Found mesh: " << node->GetName() << '\n';
@@ -122,7 +121,7 @@ void static_model_actor::traverse_graph(
 
 void static_model_actor::process_mesh(
 	FbxMesh* fbx_mesh, 
-	const sqt_transformf& t)
+	const SQT& t)
 {
 	material mat;
 	const auto num_materials = fbx_mesh->GetNode()->GetSrcObjectCount<FbxSurfaceMaterial>();
@@ -144,8 +143,8 @@ void static_model_actor::process_mesh(
 		auto specular_color        = get_material_color(fbx_mat, FbxSurfaceMaterial::sSpecular);
 
 		specular_color    *= specular_factor;
-		mat.diffuse_color  = vec4f(diffuse_color[0],  diffuse_color[1],  diffuse_color[2],  diffuse_factor);
-		mat.specular_color = vec4f(specular_color[0], specular_color[1], specular_color[2], shininess);
+		mat.diffuse_color  = vec4f(diffuse_color.x,  diffuse_color.y,  diffuse_color.z,  diffuse_factor);
+		mat.specular_color = vec4f(specular_color.x, specular_color.y, specular_color.z, shininess);
 
 		std::cout << "\tDiffuse color: " << mat.diffuse_color << '\n';
 		std::cout << "\tSpecular color: " << mat.specular_color << '\n';
@@ -196,7 +195,7 @@ void static_model_actor::process_mesh(
 
 void static_model_actor::process_light( 
 	FbxLight* fbx_light,
-	const sqt_transformf& t)
+	const SQT& t)
 {
 	const auto intensity = static_cast<float>(fbx_light->Intensity.Get());
 	const auto fbx_color = fbx_light->Color.Get();
@@ -216,17 +215,17 @@ void static_model_actor::process_light(
 			{
 				case FbxLight::eNone:
 				{
-					attenuation[0] = 1.0f;
+					attenuation.x = 1.0f;
 					break;
 				}
 				case FbxLight::eLinear:
 				{
-					attenuation[1] = 1.0f;
+					attenuation.y = 1.0f;
 					break;
 				}
 				case FbxLight::eQuadratic:
 				{
-					attenuation[2] = 1.0f;
+					attenuation.z = 1.0f;
 					break;
 				}
 				case FbxLight::eCubic:
@@ -235,7 +234,7 @@ void static_model_actor::process_light(
 				}
 				default:
 				{
-					attenuation[2] = 1.0f; // quadratic is default
+					attenuation.z = 1.0f; // quadratic is default
 				}
 			}
 			std::cerr << "\tAttenuation: " << attenuation << '\n';
@@ -284,7 +283,7 @@ void static_model_actor::draw_geometry()
 
 void static_model_actor::draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	sqt_transformf t;
+	SQT t;
 
 	for (const auto& tuple : lights)
 	{
@@ -303,7 +302,7 @@ void static_model_actor::draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW
 
 void static_model_actor::draw_geometry_instanced()
 {
-	sqt_transformf t;
+	SQT t;
 
 	std::vector<mat4f> PVM_matrices;
 	std::vector<mat4f> VM_matrices;
@@ -326,7 +325,7 @@ void static_model_actor::draw_geometry_instanced()
 			t.rotation *= transform.rotation;
 			t.translation += transform.translation;
 
-			matrix_VM = matrix_V * t.get_matrix();
+			matrix_VM = matrix_V * mat4f(t);
 
 			PVM_matrices.emplace_back((matrix_P * matrix_VM).transpose());
 			N_matrices.emplace_back(matrix_VM.upper_left_33().invert());
@@ -343,7 +342,7 @@ void static_model_actor::draw_geometry_instanced()
 
 void static_model_actor::draw_geometry_non_instanced() const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	sqt_transformf t;
+	SQT t;
 
 	for (const auto& tuple : model)
 	{
@@ -352,7 +351,7 @@ void static_model_actor::draw_geometry_non_instanced() const BOOST_NOEXCEPT_OR_N
 		t.rotation *= transforms[0].rotation;
 		t.translation += transforms[0].translation;
 
-		renderer::set_model_matrix(t.get_matrix());
+		renderer::set_model_matrix(mat4f(t));
 
 		// Bind the material
 		std::get<2>(tuple).bind(false);

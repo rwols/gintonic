@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
 
-set(executables math
+set(executables mat2f
+	mat3f
+	mat4f
 	materials
-	vec2)
+	math
+	quatf
+	vec2f
+	vec3f
+	vec4f)
 
 add_definitions(-DBOOST_TEST_DYN_LINK) 
 
