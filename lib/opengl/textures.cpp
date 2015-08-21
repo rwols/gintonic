@@ -7,8 +7,10 @@
 	#include <jpeglib.h> // The JPEG library.
 #endif
 #include <fstream>
-#include "opengl/utilities.hpp"
-#include "exception.hpp"
+#include "utilities.hpp"
+#include "../exception.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 namespace gintonic {
 namespace opengl {
@@ -180,21 +182,51 @@ texture::~texture()
 
 texture2d::texture2d(const boost::filesystem::path& filename)
 {
-	GLsizei width;
-	GLsizei height;
+	// GLsizei width;
+	// GLsizei height;
+	
+	// GLenum type;
+	// std::vector<char> data;
+
+	// init_generic_image(filename, width, height, format, type, data);
+
+	const std::string filestr(filename.string());
+
 	GLenum format;
-	GLenum type;
-	std::vector<char> data;
+	int width;
+	int height;
+	int comp;
 
-	init_generic_image(filename, width, height, format, type, data);
+	const auto data = stbi_load(filestr.c_str(), &width, &height, &comp, STBI_default);
 
+	if (!data)
+	{
+		throw exception("Image data ptr is null.");
+	}
+
+	switch (comp)
+	{
+		case STBI_grey: format = GL_RED; break;
+		case STBI_grey_alpha: format = GL_RG; break;
+		case STBI_rgb: format = GL_RGB; break;
+		case STBI_rgb_alpha: format = GL_RGBA; break;
+		default:
+			stbi_image_free(data);
+			throw exception("Unknown image format.");
+	}
+	
 	glBindTexture(GL_TEXTURE_2D, m_tex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, type, (const GLvoid*)data.data());
-	glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now!!!
+
+	glTexImage2D(GL_TEXTURE_2D, 0, format, 
+		static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, 
+		format, GL_UNSIGNED_BYTE, (const GLvoid*)data);	
+
+	glGenerateMipmap(GL_TEXTURE_2D);  // Generate mipmaps now!!!
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	stbi_image_free(data);
 }
 
 texture2d::~texture2d()
@@ -275,27 +307,62 @@ cube_texture::cube_texture(
 		GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 	};
 
-	const boost::filesystem::path* filenames[6] =
+	const std::string filenames[6] =
 	{
-		&positive_X_file,
-		&negative_X_file,
-		&positive_Y_file,
-		&negative_Y_file,
-		&positive_Z_file,
-		&negative_Z_file
+		positive_X_file.string(),
+		negative_X_file.string(),
+		positive_Y_file.string(),
+		negative_Y_file.string(),
+		positive_Z_file.string(),
+		negative_Z_file.string()
 	};
 
-	GLsizei width;
-	GLsizei height;
+	// const boost::filesystem::path* filenames[6] =
+	// {
+	// 	&positive_X_file,
+	// 	&negative_X_file,
+	// 	&positive_Y_file,
+	// 	&negative_Y_file,
+	// 	&positive_Z_file,
+	// 	&negative_Z_file
+	// };
+
+	// GLsizei width;
+	// GLsizei height;
+	// GLenum format;
+	// GLenum type;
+	// std::vector<char> data;
+
+	int width;
+	int height;
+	int comp;
 	GLenum format;
-	GLenum type;
-	std::vector<char> data;
+	stbi_uc* data;
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_tex);
 	for (int i = 0; i < 6; ++i)
 	{
-		init_generic_image(*(filenames[i]), width, height, format, type, data);
-		glTexImage2D(types[i], 0, GL_RGBA8, width, height, 0, format, type, (const GLvoid*)data.data());
+		data = stbi_load(filenames[i].c_str(), &width, &height, &comp, STBI_default);
+
+		if (!data)
+		{
+			throw exception("Image data ptr is null.");
+		}
+
+		switch (comp)
+		{
+			case STBI_grey: format = GL_RED; break;
+			case STBI_grey_alpha: format = GL_RG; break;
+			case STBI_rgb: format = GL_RGB; break;
+			case STBI_rgb_alpha: format = GL_RGBA; break;
+			default:
+				stbi_image_free(data);
+				throw exception("Unknown image format.");
+		}
+
+		glTexImage2D(types[i], 0, format, 
+			static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, 
+			format, GL_UNSIGNED_BYTE, (const GLvoid*)data);	
 	}
 	// glGenerateMipmap(GL_TEXTURE_CUBE_MAP);  //Generate mipmaps now!!!
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -450,7 +517,14 @@ wic_error_label:
 	if (frame) frame->Release();
 	if (decoder) decoder->Release();
 	std::stringstream ss;
-	ss << filename.c_str() << ": Error (code " << hr << ')';
+	if (hr == WINCODEC_ERR_COMPONENTNOTFOUND)
+	{
+		ss << "Unable to decode " << filename.string();
+	}
+	else
+	{
+		ss << filename.string() << ": Error (code " << std::hex << hr << ')';
+	}
 	throw exception(ss.str());
 }
 
@@ -766,14 +840,16 @@ void texture::init_generic_image(const boost::filesystem::path& filename, GLsize
 
 	#ifdef BOOST_MSVC
 
-		if (ext == ".tga" || ext == ".TGA")
-		{
-			init_tga_image(filename, width, height, format, type, data);
-		}
-		else
-		{
-			init_wic_image(filename, width, height, format, type, data);
-		}
+		// if (ext == ".tga" || ext == ".TGA")
+		// {
+		// 	init_tga_image(filename, width, height, format, type, data);
+		// }
+		// else
+		// {
+		// 	init_wic_image(filename, width, height, format, type, data);
+		// }
+
+		init_wic_image(filename, width, height, format, type, data);
 
 	#else
 

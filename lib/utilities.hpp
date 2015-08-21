@@ -2,16 +2,25 @@
 #define gintonic_utilities_hpp
 
 #include "simd.hpp"
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <limits>
 #include <memory>
 #include <iostream>
-#include <boost/config.hpp>
+#include "config.hpp"
 
-#define GINTONIC_SSE_VERSION 30
+/*****************************************************************************
+* GINTONIC_ALIGNED                                                           *
+*                                                                            *
+* Purpose: "Cross-platform" alignment keyword.                               *
+*                                                                            *
+* Usage example: class GINTONIC_ALIGNED(16) my_class { ... }                 *
+*****************************************************************************/
 
-#define GINTONIC_NAMESPACE_FBX fbxsdk_2015_1
+#ifdef BOOST_MSVC
+	#define GINTONIC_ALIGNED(x) __declspec(align(x))
+#else
+	#define GINTONIC_ALIGNED(x) __attribute__ ((aligned(x)))
+#endif
 
 /*****************************************************************************
 * GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE                                *
@@ -99,14 +108,14 @@ inline float dot(const __m128& lhs, const __m128& rhs) BOOST_NOEXCEPT_OR_NOTHROW
 * Purpose: Convert between radians and degrees.                              *
 *****************************************************************************/
 
-template <class T> T deg2rad(const T t)
+inline float deg2rad(const float t)
 {
-	return T(0.0174532925) * t;
+	return float(0.0174532925) * t;
 }
 
-template <class T> T rad2deg(const T t)
+inline float rad2deg(const float t)
 {
-	return T(57.2957795) * t;
+	return float(57.2957795) * t;
 }
 
 } // namespace gintonic

@@ -23,9 +23,6 @@ namespace gintonic {
 
 		typedef char char_type;
 
-		// struct error : virtual exception {};
-		// struct font_not_found : virtual error {};
-
 		static void init();
 		virtual ~font();
 		font(const font&) = delete;
@@ -34,26 +31,26 @@ namespace gintonic {
 		void draw(
 			const char* text,         // The text to draw
 			const std::size_t length, // The length of the text
-			vec2f position,           // The position in clip coordinates
+			const vec2f& position,    // The position in clip coordinates
 			const vec2f& scale)       // The scale (both x and y direction)
 		const BOOST_NOEXCEPT_OR_NOTHROW;
 
 		void draw(
 			const std::string& text, // The text to draw
-			vec2f position,          // The position in clip coordinates
+			const vec2f& position,   // The position in clip coordinates
 			const vec2f& scale)      // The scale (both x and y direction)
 		const BOOST_NOEXCEPT_OR_NOTHROW;
 
 		void draw(
 			const char* text,         // The text to draw
 			const std::size_t length, // The length of the text
-			vec2f position)           // The position in clip coordinates
+			const vec2f& position)    // The position in clip coordinates
 		const BOOST_NOEXCEPT_OR_NOTHROW;
 
 		//
 		void draw(
 			const std::string& text, // The text to draw 
-			vec2f position)          // The position in clip coordinates
+			const vec2f& position)   // The position in clip coordinates
 		const BOOST_NOEXCEPT_OR_NOTHROW;
 
 		font(font&&);

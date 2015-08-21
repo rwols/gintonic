@@ -29,6 +29,7 @@ if (WIN32)
 	# Various bugfixes
 	add_definitions(/D_SCL_SECURE_NO_WARNINGS)
 	add_definitions(/DNOMINMAX)
+	add_definitions(/D_USE_MATH_DEFINES)
 	add_definitions(/DBOOST_ALL_NO_LIB) # THIS FIXES STUFF FOR SOME MAGICAL REASON
 	# add_definitions(/DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 	# add_definitions(/MT)
@@ -41,8 +42,8 @@ if (WIN32)
 	# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ignore:4710" CACHE INTERNAL "Shut up about inlining")
 
 	# Enable multithreaded compilation
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
+	# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+	# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
 else ()
 	add_definitions(-std=c++11)
 	add_definitions(-Wall)
@@ -84,7 +85,9 @@ include_directories(
 	${Boost_INCLUDE_DIR}
 	${FREETYPE_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIRS}
-	${FBX_INCLUDE_DIR})
+	${FBX_INCLUDE_DIR}
+	${CMAKE_BINARY_DIR} # For the config file
+	)
 
 if (WIN32)
 	set(next_item_has_optimized_tag OFF)

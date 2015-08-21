@@ -4,7 +4,6 @@
 #include "shaders.hpp"
 #include "lights.hpp"
 #include "renderer.hpp"
-#include "textures.hpp"
 #include <fbxsdk.h>
 
 namespace

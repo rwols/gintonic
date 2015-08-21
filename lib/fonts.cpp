@@ -133,11 +133,12 @@ namespace gintonic {
 		glDeleteTextures(1, &m_tex);
 	}
 
-	void font::draw(const char* text, const std::size_t length, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW
+	void font::draw(const char* text, const std::size_t length, const vec2f& in_position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		using vert = opengl::vertex_text2d;
 
 		GLsizei n = 0;
+		vec2f position(in_position);
 		const auto aw = static_cast<GLfloat>(m_atlas_width);
 		const auto ah = static_cast<GLfloat>(m_atlas_height);
 		const auto original_x_position = position.x;
@@ -186,19 +187,19 @@ namespace gintonic {
 		glBindVertexArray(0);
 	}
 
-	void font::draw(const std::string& text, vec2f position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW
+	void font::draw(const std::string& text, const vec2f& position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		
 		draw(text.c_str(), text.length(), position, scale);
 	}
 
-	void font::draw(const char* text, const std::size_t length, vec2f position) const BOOST_NOEXCEPT_OR_NOTHROW
+	void font::draw(const char* text, const std::size_t length, const vec2f& position) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		const vec2f scale(2.0f / (GLfloat)renderer::width(), 2.0f / (GLfloat)renderer::height());
 		draw(text, length, position, scale);
 	}
 
-	void font::draw(const std::string& text, vec2f position) const BOOST_NOEXCEPT_OR_NOTHROW
+	void font::draw(const std::string& text, const vec2f& position) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		draw(text.c_str(), text.length(), position);
 	}

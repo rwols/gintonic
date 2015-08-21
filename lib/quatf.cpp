@@ -9,9 +9,11 @@ quatf quatf::axis_angle(const vec3f& rotation_axis, const float rotation_angle)
 	return quatf(c, s * rotation_axis);
 }
 
-quatf quatf::look_at(vec3f eye_position, vec3f subject_position, const vec3f& up_direction)
+quatf quatf::look_at(const vec3f& eye_position, const vec3f& subject_position, const vec3f& up_direction)
 {
-	const auto dotproduct = dot(eye_position.normalize(), subject_position.normalize());
+	auto eye_copy = eye_position;
+	auto up_copy = up_direction;
+	const auto dotproduct = dot(eye_copy.normalize(), up_copy.normalize());
 	if (almost_equal(dotproduct, 1.0f, 5))
 	{
 		return quatf(1.0f, 0.0f, 0.0f, 0.0f);
@@ -22,7 +24,7 @@ quatf quatf::look_at(vec3f eye_position, vec3f subject_position, const vec3f& up
 	}
 	else
 	{
-		const auto rotation_axis = cross(subject_position, up_direction).normalize();
+		const auto rotation_axis = cross(subject_position, up_copy).normalize();
 		const auto rotation_angle = std::acos(dotproduct);
 		return axis_angle(rotation_axis, rotation_angle);
 	}

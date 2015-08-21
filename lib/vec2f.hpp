@@ -34,9 +34,12 @@ public:
 	{
 		float x;
 		float y;
+		float dummy0;
+		float dummy1;
 	};
 
 	inline vec2f() BOOST_NOEXCEPT_OR_NOTHROW
+	: dummy0(0.0f), dummy1(0.0f)
 	{
 		/* Empty on purpose. */
 	}
@@ -48,7 +51,7 @@ public:
 	}
 
 	inline vec2f(const float a, const float b) BOOST_NOEXCEPT_OR_NOTHROW
-	: x(a), y(b)
+	: x(a), y(b), dummy0(0.0f), dummy1(0.0f)
 	{
 
 	}
@@ -58,12 +61,7 @@ public:
 		/* Empty on purpose. */
 	}
 
-	inline vec2f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		alignas(16) float temp[4];
-		std::copy(init.begin(), init.end(), temp);
-		data = _mm_load_ps(temp);
-	}
+	vec2f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline vec2f(const vec2f& v) BOOST_NOEXCEPT_OR_NOTHROW : data(v.data)
 	{
@@ -89,13 +87,7 @@ public:
 		return *this;
 	}
 
-	inline vec2f& operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		alignas(16) float temp[4];
-		std::copy(init.begin(), init.end(), temp);
-		data = _mm_load_ps(temp);
-		return *this;
-	}
+	vec2f& operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	vec2f& operator=(const GINTONIC_NAMESPACE_FBX::FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -216,10 +208,7 @@ public:
 		return _mm_mul_ps(data, _mm_load1_ps(&s));
 	}
 
-	inline friend vec2f operator * (const float lhs, const vec2f& rhs) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return _mm_mul_ps(_mm_load1_ps(&lhs), rhs.data);
-	}
+	friend vec2f operator * (const float lhs, const vec2f& rhs) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline vec2f operator / (float s) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
@@ -248,15 +237,9 @@ public:
 		return operator/=(length());
 	}
 
-	inline friend vec2f deg2rad(const vec2f& degrees) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return _mm_mul_ps(degrees.data, _mm_set1_ps(0.0174532925f));
-	}
+	friend vec2f deg2rad(const vec2f& degrees) BOOST_NOEXCEPT_OR_NOTHROW;
 
-	inline friend vec2f rad2deg(const vec2f& radians) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return _mm_mul_ps(radians.data, _mm_set1_ps(57.2957795f));
-	}
+	friend vec2f rad2deg(const vec2f& radians) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline friend __m128 pack(const vec2f& lhs, const vec2f& rhs) BOOST_NOEXCEPT_OR_NOTHROW
 	{
@@ -281,6 +264,21 @@ private:
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+
+inline vec2f operator * (const float lhs, const vec2f& rhs) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return _mm_mul_ps(_mm_load1_ps(&lhs), rhs.data);
+}
+
+inline vec2f deg2rad(const vec2f& degrees) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return _mm_mul_ps(degrees.data, _mm_set1_ps(0.0174532925f));
+}
+
+inline vec2f rad2deg(const vec2f& radians) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return _mm_mul_ps(radians.data, _mm_set1_ps(57.2957795f));
+}
 
 inline float distance2(const vec2f& u, const vec2f& v) BOOST_NOEXCEPT_OR_NOTHROW
 {

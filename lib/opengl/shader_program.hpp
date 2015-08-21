@@ -2,6 +2,7 @@
 #define gintonic_opengl_shader_program_hpp
 
 #include <memory> // for std::enable_shared_from_this
+#include <array>
 #include "utilities.hpp"
 #include "../filesystem.hpp"
 

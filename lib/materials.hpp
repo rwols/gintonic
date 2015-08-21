@@ -4,7 +4,7 @@
 // #include "math.hpp"
 #include "vec4f.hpp"
 #include "locks.hpp"
-#include "textures.hpp"
+#include "opengl/textures.hpp"
 #include <list>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>

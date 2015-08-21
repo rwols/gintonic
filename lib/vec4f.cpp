@@ -3,9 +3,19 @@
 #include "vec2f.hpp"
 #define FBXSDK_NEW_API
 #include <fbxsdk/core/math/fbxvector4.h>
-
+#include <array>
 
 namespace gintonic {
+
+vec4f::vec4f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	GINTONIC_ALIGNED(16) float temp[4];
+	std::copy(init.begin(), init.end(), temp);
+	x = temp[0];
+	y = temp[1];
+	z = temp[2];
+	w = temp[3];
+}
 
 vec4f::vec4f(const vec2f& v, const float z, const float w) BOOST_NOEXCEPT_OR_NOTHROW
 : x(v.x), y(v.y), z(z), w(w)
@@ -32,6 +42,17 @@ vec4f::vec4f(const GINTONIC_NAMESPACE_FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTH
 , w(static_cast<float>(v[3]))
 {
 	/* Empty on purpose. */
+}
+
+vec4f& vec4f::operator=(std::initializer_list<float> init)
+{
+	GINTONIC_ALIGNED(16) float temp[4];
+	std::copy(init.begin(), init.end(), temp);
+	x = temp[0];
+	y = temp[1];
+	z = temp[2];
+	w = temp[3];
+	return *this;
 }
 
 vec4f& vec4f::operator=(const GINTONIC_NAMESPACE_FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW

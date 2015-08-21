@@ -39,9 +39,11 @@ public:
 		float x;
 		float y;
 		float z;
+		float dummy;
 	};
 
 	inline vec3f() BOOST_NOEXCEPT_OR_NOTHROW
+	: dummy(0.0f)
 	{
 		/* Empty on purpose. */
 	}
@@ -53,7 +55,8 @@ public:
 	}
 
 	inline vec3f(const float a, const float b, const float c) BOOST_NOEXCEPT_OR_NOTHROW
-	: x(a), y(b), z(c)
+	: x(a), y(b), z(c), dummy(0.0f)
+	// : data(_mm_set_ps(x, y, z, 0.0f))
 	{
 		/* Empty on purpose. */
 	}
@@ -63,12 +66,7 @@ public:
 		/* Empty on purpose. */
 	}
 
-	inline vec3f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		alignas(16) float temp[4];
-		std::copy(init.begin(), init.end(), temp);
-		data = _mm_load_ps(temp);
-	}
+	vec3f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline vec3f(const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW : data(v.data)
 	{
@@ -94,13 +92,7 @@ public:
 		return *this;
 	}
 
-	inline vec3f& operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		alignas(16) float temp[4];
-		std::copy(init.begin(), init.end(), temp);
-		data = _mm_load_ps(temp);
-		return *this;
-	}
+	vec3f& operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	vec3f(const GINTONIC_NAMESPACE_FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -218,10 +210,7 @@ public:
 		return _mm_mul_ps(data, _mm_load1_ps(&s));
 	}
 
-	inline friend vec3f operator * (const float lhs, const vec3f& rhs) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return _mm_mul_ps(_mm_load1_ps(&lhs), rhs.data);
-	}
+	friend vec3f operator * (const float lhs, const vec3f& rhs) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline vec3f operator / (float s) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
@@ -305,6 +294,11 @@ private:
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+
+inline vec3f operator * (const float lhs, const vec3f& rhs)
+{
+	return _mm_mul_ps(_mm_load1_ps(&lhs), rhs.data);
+}
 
 inline float distance2(const vec3f& u, const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
 {

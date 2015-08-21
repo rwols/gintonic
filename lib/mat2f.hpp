@@ -55,12 +55,7 @@ union mat2f
 	
 	mat2f(const vec2f& column0, const vec2f& column1);
 
-	mat2f(std::initializer_list<float> init)
-	{
-		alignas(16) float temp[4];
-		std::copy(init.begin(), init.end(), temp);
-		data = _mm_load_ps(temp);
-	}
+	mat2f(std::initializer_list<float> init);
 	
 	inline mat2f& operator=(const mat2f& m)
 	{
@@ -74,14 +69,8 @@ union mat2f
 		return *this;
 	}
 
-	inline mat2f& operator=(std::initializer_list<float> init)
-	{
-		alignas(16) float temp[4];
-		std::copy(init.begin(), init.end(), temp);
-		data = _mm_load_ps(temp);
-		return *this;
-	}
-
+	mat2f& operator=(std::initializer_list<float> init);
+	
 	inline mat2f& operator += (const mat2f& v)
 	{
 		data = _mm_add_ps(data, v.data);

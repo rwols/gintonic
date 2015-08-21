@@ -1,16 +1,9 @@
-#ifndef textures_hpp
-#define textures_hpp
+#ifndef gintonic_textures_hpp
+#define gintonic_textures_hpp
 
-// #include "glad.hpp"
-// #include "exception.hpp"
-// #include "filesystem.hpp"
-// #include <array>
-// #include <vector>
-
-#include "opengl/texture_object.hpp"
-#include "filesystem.hpp"
-// #include <vector>
-// #include <array>
+#include "texture_object.hpp"
+#include "../filesystem.hpp"
+#include <array>
 
 namespace gintonic {
 namespace opengl {

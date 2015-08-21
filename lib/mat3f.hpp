@@ -19,7 +19,7 @@ union quatf; // Forward declaration.
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
 #endif
 
-union alignas(16) mat3f
+union GINTONIC_ALIGNED(16) mat3f
 {
 public:
 	float data[9];

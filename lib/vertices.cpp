@@ -13,7 +13,7 @@ vertex_P::vertex_P(const vec3f& p)
 {
 	position[0] = p.x; position[1] = p.y; position[2] = p.z;
 }
-vertex_P::vertex_P::vertex_P(FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer)
+vertex_P::vertex_P(FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer)
 {
 	position[0]  = static_cast<float>(pMesh->GetControlPointAt(i)[0]);
 	position[1]  = static_cast<float>(pMesh->GetControlPointAt(i)[1]);
@@ -432,15 +432,6 @@ vertex_PCUNTB::vertex_PCUNTB(const float px, const float py, const float pz,
 	tangent[0] = tx; tangent[1] = ty; tangent[2] = tz;
 	bitangent[0] = bx; bitangent[1] = by; tangent[2] = bz;
 }
-vertex_PCUNTB::vertex_PCUNTB(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f b)
-{
-	position[0] = p.x; position[1] = p.y; position[2] = p.z;
-	color[0] = c.x; color[1] = c.y; color[2] = c.z; color[3] = c.w;
-	uv[0] = u.x; uv[1] = u.y;
-	normal[0] = n.x; normal[1] = n.y; normal[2] = n.z;
-	tangent[0] = t.x; tangent[1] = t.y; tangent[2] = t.z;
-	bitangent[0] = b.x; bitangent[1] = b.y; bitangent[2] = b.z;
-}
 vertex_PCUNTB::vertex_PCUNTB(FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer)
 {
 	position[0]  = static_cast<float>(pMesh->GetControlPointAt(i)[0]);
@@ -541,7 +532,7 @@ vertex_PUNTB::vertex_PUNTB(const float px, const float py, const float pz,
 	tangent[0] = tx; tangent[1] = ty; tangent[2] = tz;
 	bitangent[0] = bx; bitangent[1] = by; tangent[2] = bz;
 }
-vertex_PUNTB::vertex_PUNTB(const vec3f& p, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f b)
+vertex_PUNTB::vertex_PUNTB(const vec3f& p, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b)
 {
 	position[0] = p.x; position[1] = p.y; position[2] = p.z;
 	uv[0] = u.x; uv[1] = u.y;

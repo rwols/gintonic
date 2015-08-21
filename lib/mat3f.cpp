@@ -3,6 +3,25 @@
 
 namespace gintonic {
 
+#ifdef BOOST_MSVC // NOTE: Consider removing this when on MSVC2015
+
+mat3f::mat3f(const vec3f& column0, const vec3f& column1, const vec3f& column2)
+{
+	data[0] = column0.x;
+	data[1] = column0.y;
+	data[2] = column0.z;
+
+	data[3] = column1.x;
+	data[4] = column1.y;
+	data[5] = column1.z;
+
+	data[6] = column2.x;
+	data[7] = column2.y;
+	data[8] = column2.z;
+}
+
+#else
+
 mat3f::mat3f(const vec3f& column0, const vec3f& column1, const vec3f& column2)
 : data{column0.x, column0.y, column0.z, 
 	column1.x, column1.y, column1.z, 
@@ -10,6 +29,8 @@ mat3f::mat3f(const vec3f& column0, const vec3f& column1, const vec3f& column2)
 {
 	/* Empty on purpose. */
 }
+
+#endif
 
 vec3f mat3f::operator * (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
 {

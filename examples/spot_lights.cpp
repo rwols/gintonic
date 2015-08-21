@@ -30,12 +30,7 @@ int main(int argc, char* argv[])
 	}
 	try
 	{
-		// #ifdef BOOST_MSVC
-		// 	boost::filesystem::current_path(gt::get_executable_path());
-		// #else
-			boost::filesystem::current_path(gt::get_executable_path() / "..");
-		// #endif
-		gt::init_all("point_lights");
+		gt::init_all("spot_lights");
 		
 		gt::renderer::set_freeform_cursor(true);
 

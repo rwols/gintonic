@@ -99,9 +99,11 @@ public:
 	}
 
 	mat4f(const __m128& column0, const __m128& column1, const __m128& column2, const __m128& column3)
-	: data{column0, column1, column2, column3}
 	{
-		/* Empty on purpose. */
+		data[0] = column0;
+		data[1] = column1;
+		data[2] = column2;
+		data[3] = column3;
 	}
 
 	mat4f(const mat3f& rotation_part);

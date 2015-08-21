@@ -1,9 +1,10 @@
 # Locate FBX
 # This module defines:
 #
-# FBX_INCLUDE_DIR
-# FBX_LIBRARY
-# FBX_FOUND
+# FBX_INCLUDE_DIR -- The FBX SDK include directory
+# FBX_LIBRARY -- The FBX SDK library (debug or release, depending on CMake's configuration)
+# FBX_NAMESPACE -- The C++ name of the FBX SDK namespace. This is useful for forward-declaring FBX types.
+# FBX_FOUND -- Wether everything went okay.
 #
 # If CMake has trouble finding the FBX library, you can define
 # and environment variable called FBX_ROOT that should point tro
@@ -77,8 +78,6 @@ endif ()
 
 list(APPEND search_paths "$ENV{FBX_ROOT}")
 
-# message(FATAL_ERROR "${search_paths}")
-
 find_path(FBX_INCLUDE_DIR "fbxsdk.h"
     PATHS ${search_paths}
     PATH_SUFFIXES "include")
@@ -90,6 +89,17 @@ find_library(FBX_LIBRARY ${fbx_libname}
 find_library(FBX_LIBRARY_DEBUG ${fbx_libname}
     PATHS ${search_paths}
     PATH_SUFFIXES "lib/${libdir}/debug")
+
+if (FBX_INCLUDE_DIR)
+    foreach (version IN LISTS versions)
+        string(REGEX MATCH ${version} FBX_NAMESPACE ${FBX_INCLUDE_DIR})
+        if (FBX_NAMESPACE)
+            string(REPLACE "." "_" FBX_NAMESPACE ${FBX_NAMESPACE})
+            set(FBX_NAMESPACE "fbxsdk_${FBX_NAMESPACE}")
+            break()
+        endif ()
+    endforeach ()
+endif ()
 
 IF(FBX_LIBRARY AND FBX_LIBRARY_DEBUG AND FBX_INCLUDE_DIR)
     set (FBX_FOUND ON)

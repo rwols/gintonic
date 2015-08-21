@@ -219,9 +219,8 @@ struct vertex_PCUNTB
 		const float nx, const float ny, const float nz,
 		const float tx, const float ty, const float tz,
 		const float bx, const float by, const float bz);
-	vertex_PCUNTB(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f b);
-	vertex_PCUNTB(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
 	vertex_PCUNTB(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
+	vertex_PCUNTB(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
 	vertex_PCUNTB(const GINTONIC_NAMESPACE_FBX::FbxVector4& p, const GINTONIC_NAMESPACE_FBX::FbxColor& c, const GINTONIC_NAMESPACE_FBX::FbxVector2& u, const GINTONIC_NAMESPACE_FBX::FbxVector4& n, const GINTONIC_NAMESPACE_FBX::FbxVector4& t, const GINTONIC_NAMESPACE_FBX::FbxVector4& b);
 	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
@@ -250,7 +249,7 @@ struct vertex_PUNTB
 		const float nx, const float ny, const float nz,
 		const float tx, const float ty, const float tz,
 		const float bx, const float by, const float bz);
-	vertex_PUNTB(const vec3f& p, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f b);
+	vertex_PUNTB(const vec3f& p, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
 	vertex_PUNTB(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
 	vertex_PUNTB(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
 	vertex_PUNTB(const GINTONIC_NAMESPACE_FBX::FbxVector4& p, const GINTONIC_NAMESPACE_FBX::FbxColor& c, const GINTONIC_NAMESPACE_FBX::FbxVector2& u, const GINTONIC_NAMESPACE_FBX::FbxVector4& n, const GINTONIC_NAMESPACE_FBX::FbxVector4& t, const GINTONIC_NAMESPACE_FBX::FbxVector4& b);

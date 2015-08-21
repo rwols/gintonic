@@ -63,15 +63,7 @@ public:
 		/* Empty on purpose. */
 	}
 
-	inline vec4f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		float temp alignas(16) [4];
-		std::copy(init.begin(), init.end(), temp);
-		data = _mm_load_ps(temp);
-		std::cout << "Floats are: " << temp[0] << ' '
-			<< temp[1] << ' ' << temp[2] << ' ' << temp[3] << '\n';
-		// data = _mm_load_ps(temp);
-	}
+	vec4f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline vec4f(const vec4f& v) BOOST_NOEXCEPT_OR_NOTHROW : data(v.data)
 	{
@@ -99,13 +91,7 @@ public:
 		return *this;
 	}
 
-	inline vec4f& operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		alignas(16) float temp[4];
-		std::copy(init.begin(), init.end(), temp);
-		data = _mm_load_ps(temp);
-		return *this;
-	}
+	vec4f& operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	vec4f(const GINTONIC_NAMESPACE_FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -223,10 +209,7 @@ public:
 		return _mm_mul_ps(data, _mm_load1_ps(&s));
 	}
 
-	inline friend vec4f operator * (const float lhs, const vec4f& rhs) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return _mm_mul_ps(_mm_load1_ps(&lhs), rhs.data);
-	}
+	friend vec4f operator * (const float lhs, const vec4f& rhs) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline vec4f operator / (float s) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
@@ -293,6 +276,11 @@ private:
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+
+inline vec4f operator * (const float lhs, const vec4f& rhs) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return _mm_mul_ps(_mm_load1_ps(&lhs), rhs.data);
+}
 
 inline float distance2(const vec4f& u, const vec4f& v) BOOST_NOEXCEPT_OR_NOTHROW
 {

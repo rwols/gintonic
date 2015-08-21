@@ -135,7 +135,7 @@ public:
 	}
 
 	static quatf axis_angle(const vec3f& rotation_axis, const float rotation_angle);
-	static quatf look_at(vec3f eye_position, vec3f subject_position, const vec3f& up_direction);
+	static quatf look_at(const vec3f& eye_position, const vec3f& subject_position, const vec3f& up_direction);
 
 	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
 

@@ -24,11 +24,6 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-		// #ifdef BOOST_MSVC
-		// 	boost::filesystem::current_path(gt::get_executable_path());
-		// #else
-			boost::filesystem::current_path(gt::get_executable_path() / "..");
-		// #endif
 		gt::init_all("skybox");
 		gt::renderer::set_freeform_cursor(true);
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
@@ -48,12 +43,12 @@ int main(int argc, char* argv[])
 		// $ convert -flop -rotate 90, for -Y
 
 		gt::skybox the_skybox(gt::opengl::cube_texture(
-			"../resources/skybox/siege_rt_flipped.tga", // positive X
-			"../resources/skybox/siege_lf_flipped.tga", // negative X
+			"../resources/skybox/siege_rt.tga", // positive X
+			"../resources/skybox/siege_lf.tga", // negative X
 			"../resources/skybox/siege_up_flipped.tga", // positive Y
 			"../resources/skybox/siege_dn_flipped.tga", // negative Y
-			"../resources/skybox/siege_bk_flipped.tga", // positive Z
-			"../resources/skybox/siege_ft_flipped.tga"  // negative Z
+			"../resources/skybox/siege_bk.tga", // positive Z
+			"../resources/skybox/siege_ft.tga"  // negative Z
 		));
 		gt::renderer::show();
 		float curtime, dt;

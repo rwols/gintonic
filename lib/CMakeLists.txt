@@ -7,6 +7,7 @@ set(src_files
 	opengl/shader_program.cpp
 	opengl/source_code.cpp
 	opengl/texture_object.cpp
+	opengl/textures.cpp
 	opengl/vertex_array_object.cpp
 	SQT.cpp
 	actors.cpp
@@ -32,7 +33,6 @@ set(src_files
 	renderer.cpp
 	shaders.cpp
 	skybox.cpp
-	textures.cpp
 	timers.cpp
 	vec2f.cpp
 	vec3f.cpp
@@ -46,7 +46,11 @@ option(ENABLE_DEBUG_TRACE "Enable debug tracing via the renderer." ON)
 option(HIDE_CONSOLE "Hide the console on Windows." OFF)
 option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output streams to files." OFF)
 
-configure_file(config.cmake ${CMAKE_CURRENT_SOURCE_DIR}/config.hpp)
+set(SSE_VERSION 30)
+set(FBX_NAMESPACE fbxsdk_2016_0)
+
+configure_file(config.cmake ${CMAKE_BINARY_DIR}/config.hpp)
+# include_directories(${CMAKE_BINARY_DIR})
 
 if (HIDE_CONSOLE)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
@@ -58,21 +62,6 @@ endif ()
 add_subdirectory(opengl)
 
 add_library(gintonic ${src_files})
-
-# foreach (DLL ${DEBUG_DLLS})
-# 	get_filename_component(DLL_NAME ${DLL} NAME)
-# 	add_custom_command(TARGET gintonic 
-# 		POST_BUILD
-# 		COMMAND ${CMAKE_COMMAND}
-# 		ARGS -E create_symlink ${DLL} "Debug\${DLL_NAME}")
-# endforeach ()
-# foreach (DLL ${RELEASE_DLLS})
-# 	get_filename_component(DLL_NAME ${DLL} NAME)
-# 	add_custom_command(TARGET gintonic
-# 		POST_BUILD
-# 		COMMAND ${CMAKE_COMMAND}
-# 		ARGS -E create_symlink ${DLL} "Release\${DLL_NAME}")
-# endforeach()
 
 if (WIN32)
 	target_link_libraries(

@@ -2,6 +2,7 @@
 #include "mesh.hpp"
 #include "vec2f.hpp"
 #include "vec3f.hpp"
+#include <cmath>
 
 #ifndef DEBUG_PRINT
 #define DEBUG_PRINT_START std::cerr << __FILE__ << '(' << __LINE__ << ')'

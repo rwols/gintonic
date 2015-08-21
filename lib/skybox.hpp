@@ -1,7 +1,7 @@
 #ifndef gintonic_skybox_hpp
 #define gintonic_skybox_hpp
 
-#include "textures.hpp"
+#include "opengl/textures.hpp"
 
 namespace gintonic {
 

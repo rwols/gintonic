@@ -7,6 +7,19 @@
 
 namespace gintonic {
 
+#ifdef BOOST_MSVC // NOTE: Consider removing this when on MSVC2015
+
+mat4f::mat4f(const vec3f& translation)
+{
+	data[0] = _mm_set1_ps(0.0f);
+	data[1] = _mm_set1_ps(0.0f);
+	data[2] = _mm_set1_ps(0.0f);
+	data[3] = translation.data;
+	m33 = 1.0f;
+}
+
+#else
+
 mat4f::mat4f(const vec3f& translation)
 : m00(1.0f), m10(0.0f), m20(0.0f), m30(0.0f)
 , m01(0.0f), m11(1.0f), m21(0.0f), m31(0.0f)
@@ -15,6 +28,10 @@ mat4f::mat4f(const vec3f& translation)
 {
 	/* Empty on purpose. */
 }
+
+#endif
+
+
 
 mat4f::mat4f(const quatf& rotation)
 {
@@ -77,11 +94,25 @@ mat4f::mat4f(const mat3f& rotation_part)
 	m33 = 1.0f;
 }
 
+#ifdef BOOST_MSVC // NOTE: Consider removing this when on MSVC2015
+
+mat4f::mat4f(const vec4f& column0, const vec4f& column1, const vec4f& column2, const vec4f& column3)
+{
+	data[0] = column0.data;
+	data[1] = column1.data;
+	data[2] = column2.data;
+	data[3] = column3.data;
+}
+
+#else
+
 mat4f::mat4f(const vec4f& column0, const vec4f& column1, const vec4f& column2, const vec4f& column3)
 : data{column0.data, column1.data, column2.data, column3.data}
 {
 	/* Empty on purpose. */
 }
+
+#endif
 
 vec4f mat4f::operator * (const vec4f& v) const
 {
