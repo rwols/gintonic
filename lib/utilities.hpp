@@ -60,6 +60,16 @@ inline static void operator delete[](void* ptr, std::size_t count)           \
 	_mm_free(ptr);                                                           \
 }
 
+#define GINTONIC_SSE_ALIGNMENT 16
+
+#define GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE() \
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(GINTONIC_SSE_ALIGNMENT)
+
+#define GINTONIC_CACHE_LINE 128
+
+#define GINTONIC_DEFINE_CACHE_LINE_OPERATOR_NEW_DELETE() \
+	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(GINTONIC_CACHE_LINE)
+
 namespace gintonic {
 
 /*****************************************************************************

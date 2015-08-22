@@ -11,8 +11,4 @@
 	#pragma warning (default : 4520)
 #endif
 
-namespace gintonic {
-
-} // end of namespace gintonic
-
 #endif

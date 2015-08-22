@@ -54,9 +54,9 @@ int main(int argc, char* argv[])
 		
 		gt::opengl::unit_sphere_PUN a_sphere(16);
 		
-		std::vector<gt::spot_light> lights;
-		std::vector<gt::SQT> light_transforms;
-		std::vector<gt::material> light_materials;
+		std::vector<gt::spot_light, gt::allocator<gt::spot_light>> lights;
+		std::vector<gt::SQT, gt::allocator<gt::SQT>> light_transforms;
+		std::vector<gt::material, gt::allocator<gt::material>> light_materials;
 		gt::SQT shape_transform;
 
 		// Generate the lights

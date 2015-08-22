@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 set(executables 
 	SQT
+	box2f
 	mat2f
 	mat3f
 	mat4f

@@ -65,6 +65,7 @@ BOOST_AUTO_TEST_CASE( constructor_test )
 	b.m23 = 0.0f;
 	b.m33 = 1.0f;
 
+	#ifndef BOOST_MSVC
 	BOOST_CHECK_EQUAL(a.data[0][0], 0.0f);
 	BOOST_CHECK_EQUAL(a.data[0][1], 1.0f);
 	BOOST_CHECK_EQUAL(a.data[0][2], 0.0f);
@@ -104,6 +105,7 @@ BOOST_AUTO_TEST_CASE( constructor_test )
 	BOOST_CHECK_EQUAL(b.data[3][1], 200.0f);
 	BOOST_CHECK_EQUAL(b.data[3][2], 0.0f);
 	BOOST_CHECK_EQUAL(b.data[3][3], 1.0f);
+	#endif
 }
 
 BOOST_AUTO_TEST_CASE ( operators_test )

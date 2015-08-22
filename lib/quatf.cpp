@@ -9,6 +9,13 @@ quatf quatf::axis_angle(const vec3f& rotation_axis, const float rotation_angle)
 	return quatf(c, s * rotation_axis);
 }
 
+float quatf::length2() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	__m128 l = _mm_mul_ps(data, data);
+	__m128 k = _mm_hadd_ps(l, l);
+	return _mm_cvtss_f32(_mm_hadd_ps(k, k));
+}
+
 quatf quatf::look_at(const vec3f& eye_position, const vec3f& subject_position, const vec3f& up_direction)
 {
 	auto eye_copy = eye_position;

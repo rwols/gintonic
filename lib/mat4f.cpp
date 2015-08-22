@@ -47,7 +47,7 @@ mat4f::mat4f(const quatf& rotation)
 	const auto yy = s * rotation.y * rotation.y;
 	const auto yz = s * rotation.y * rotation.z;
 	const auto zz = s * rotation.z * rotation.z;
-	
+
 	m00 = 1.0f - (yy + zz);
 	m10 = xy + wz;
 	m20 = xz - wy;
@@ -57,12 +57,12 @@ mat4f::mat4f(const quatf& rotation)
 	m11 = 1.0f - (xx + zz);
 	m21 = yz + wx;
 	m31 = 0.0f;
-	
+
 	m02 = xz + wy;
 	m12 = yz - wx;
 	m22 = 1.0f - (xx + yy);
 	m32 = 0.0f;
-	
+
 	m03 = 0.0f;
 	m13 = 0.0f;
 	m23 = 0.0f;

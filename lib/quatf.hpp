@@ -18,8 +18,11 @@ namespace gintonic {
 
 union quatf
 {
-public:
+private:
+
 	__m128 data;
+
+public:
 
 	struct
 	{
@@ -100,7 +103,7 @@ public:
 		return quatf(w, -x, -y, -z);
 	}
 
-	vec3f apply_to(const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f apply_to(const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		const auto temp = (*this) * quatf(0.0f, v) * conjugate();
 		return vec3f(temp.x, temp.y, temp.z);
@@ -111,13 +114,7 @@ public:
 		return apply_to(vec3f(0.0f, 0.0f, -1.0f));
 	}
 
-	float length2() const BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		auto l = _mm_mul_ps(data, data);
-		l = _mm_hadd_ps(l, l);
-		l = _mm_hadd_ps(l, l);
-		return _mm_cvtss_f32(l);
-	}
+	float length2() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline float length() const BOOST_NOEXCEPT_OR_NOTHROW
 	{

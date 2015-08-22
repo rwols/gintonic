@@ -15,6 +15,7 @@ set(src_files
 	box2f.cpp
 	box3f.cpp
 	camera.cpp
+	entity.cpp
 	exception.cpp
 	filesystem.cpp
 	fonts.cpp
@@ -25,9 +26,8 @@ set(src_files
 	mat3f.cpp
 	mat4f.cpp
 	materials.cpp
-	# math.cpp
 	mesh.cpp
-	# opengl.cpp
+	octree.cpp
 	profiler.cpp
 	quatf.cpp
 	renderer.cpp
@@ -50,7 +50,6 @@ set(SSE_VERSION 30)
 set(FBX_NAMESPACE fbxsdk_2016_0)
 
 configure_file(config.cmake ${CMAKE_BINARY_DIR}/config.hpp)
-# include_directories(${CMAKE_BINARY_DIR})
 
 if (HIDE_CONSOLE)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")

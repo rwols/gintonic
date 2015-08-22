@@ -4,6 +4,7 @@
 #include <vector>
 #include "mesh.hpp"
 #include "SQT.hpp"
+#include "allocator.hpp"
 #include "box3f.hpp"
 
 namespace GINTONIC_NAMESPACE_FBX
@@ -30,9 +31,9 @@ public:
 	virtual void draw_geometry();
 	virtual void draw_lights() const BOOST_NOEXCEPT_OR_NOTHROW;
 
-	// SQT transform;
+	// SQT transform
 
-	std::vector<SQT> transforms;
+	std::vector<SQT, allocator<SQT>> transforms;
 
 	virtual ~actor() BOOST_NOEXCEPT_OR_NOTHROW;
 

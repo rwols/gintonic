@@ -1,4 +1,5 @@
 #include "gintonic.hpp"
+#include "allocator.hpp"
 
 namespace gt = gintonic;
 
@@ -67,9 +68,9 @@ int main(int argc, char* argv[])
 		gt::opengl::unit_cube_PUNTB a_cube;
 		gt::opengl::unit_sphere_PUN a_sphere(16);
 		
-		std::vector<gt::point_light> lights;
-		std::vector<gt::SQT> light_transforms;
-		std::vector<gt::material> light_materials;
+		std::vector<gt::point_light, gt::allocator<gt::point_light>> lights;
+		std::vector<gt::SQT, gt::allocator<gt::SQT>> light_transforms;
+		std::vector<gt::material, gt::allocator<gt::material>> light_materials;
 		gt::SQT shape_transform;
 
 		// Generate the lights
@@ -105,7 +106,7 @@ int main(int argc, char* argv[])
 			"../examples/bricks_COLOR.png",     // diffuse texture
 			"../examples/bricks_SPEC.png",      // specular texture
 			"../examples/bricks_NRM.png"        // normal texture
-		);      
+		);
 
 		gt::material sphere_material(
 			gt::vec4f(1.0f, 1.0f, 1.0f,  1.0f), // base diffuse color
@@ -214,7 +215,7 @@ int main(int argc, char* argv[])
 			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
 			
 			gt::renderer::begin_geometry_pass();
-			
+
 			yaxis = (1.0f + current_cos) / 2.0f;
 			zaxis = (1.0f + current_sin) / 2.0f;
 			rotation_axis = gt::vec3f(0.0f, yaxis, zaxis).normalize();
@@ -226,7 +227,10 @@ int main(int argc, char* argv[])
 				{
 					// Draw a grid of (2*numobjects + 1)^2 rotating cubes/spheres :-)
 
-					shape_transform.translation = {3.0f * i, std::sin(i+j+curtime), 3.0f * j};
+					shape_transform.translation.x = 3.0f * static_cast<float>(i);
+					shape_transform.translation.y = std::sin( i + j + curtime );
+					shape_transform.translation.z = 3.0f * static_cast<float>(j);
+
 					gt::renderer::set_model_matrix(shape_transform);
 					
 					if (boolmatrix[i + numobjects][j + numobjects])
@@ -247,19 +251,19 @@ int main(int argc, char* argv[])
 
 				const auto numlights = static_cast<float>(lights.size());
 				const auto radius = static_cast<float>(numlights);
-				
+			
 				light_transforms[i].translation.x = radius 
 					* std::cos(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
-				
+			
 				light_transforms[i].translation.y = light_elevation;
-				
+			
 				light_transforms[i].translation.z = radius 
 					* std::sin(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
-				
+			
 				gt::renderer::set_model_matrix(light_transforms[i]);
-				
+			
 				light_materials[i].bind();
-				
+			
 				gt::renderer::get_unit_sphere_P().draw();
 			}
 
@@ -293,7 +297,7 @@ int main(int argc, char* argv[])
 				gt::renderer::get_text_shader()->activate();
 				
 				gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
-				
+
 				glDisable(GL_CULL_FACE);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

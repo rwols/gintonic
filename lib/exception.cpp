@@ -6,24 +6,26 @@ exception::exception(const std::string& message) : m_message(message) {}
 exception::exception(std::string&& message) : m_message(std::move(message)) {}
 exception::exception(const char* message) : m_message(message) {}
 
-// exception::exception(exception&& other) BOOST_NOEXCEPT_OR_NOTHROW
-// : m_message(std::move(other.m_message))
-// {
-// 	 When MSVC supports defaulted move constructors / destructors,
-// 	remove me 
-// }
+exception::exception(exception&& other) BOOST_NOEXCEPT_OR_NOTHROW
+: m_message(std::move(other.m_message))
+{
+	// When MSVC supports defaulted move constructors / destructors,
+	// remove me.
+}
 
 
-// exception::exception& operator=(exception&& other)
-// {
-// 	m_message = std::move(other.m_message);
-// 	return *this;
-// }
+exception& exception::operator=(exception&& other)
+{
+	// When MSVC supports defaulted move constructors / destructors,
+	// remove me.
+	m_message = std::move(other.m_message);
+	return *this;
+}
 
 exception::~exception() BOOST_NOEXCEPT_OR_NOTHROW
 {
-	/* When MSVC supports defaulted move constructors / destructors,
-	remove me */
+	// When MSVC supports defaulted move constructors / destructors,
+	// remove me.
 }
 
 const char* exception::what() const BOOST_NOEXCEPT_OR_NOTHROW

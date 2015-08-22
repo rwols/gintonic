@@ -14,7 +14,13 @@ struct SQT
 	quatf rotation;
 	vec3f translation;
 
-	inline SQT() = default;
+	inline SQT()
+	: scale(1.0f, 1.0f, 1.0f)
+	, rotation(1.0f, 0.0f, 0.0f, 0.0f)
+	, translation(0.0f, 0.0f, 0.0f)
+	{
+		/* Empty on purpose. */
+	}
 
 	inline SQT(const vec3f& scale, const quatf& rotation, const vec3f& translation)
 	: scale(scale)
@@ -56,6 +62,16 @@ private:
 			& BOOST_SERIALIZATION_NVP(translation);
 	}
 };
+
+inline float distance2(const SQT& a, const SQT& b) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return distance2(a.translation, b.translation);
+}
+
+inline float distance(const SQT& a, const SQT& b) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return distance(a.translation, b.translation);
+}
 
 } // namespace gintonic
 
