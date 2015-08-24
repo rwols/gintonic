@@ -21,7 +21,7 @@ vec3f::vec3f(const vec2f& v, const float z) BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-vec3f::vec3f(const GINTONIC_NAMESPACE_FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
+vec3f::vec3f(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
 : x(static_cast<float>(v[0]))
 , y(static_cast<float>(v[1]))
 , z(static_cast<float>(v[2]))
@@ -39,7 +39,7 @@ vec3f& vec3f::operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOT
 	return *this;
 }
 
-vec3f& vec3f::operator=(const GINTONIC_NAMESPACE_FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
+vec3f& vec3f::operator=(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	x = static_cast<float>(v[0]);
 	y = static_cast<float>(v[1]);
@@ -47,9 +47,9 @@ vec3f& vec3f::operator=(const GINTONIC_NAMESPACE_FBX::FbxVector4& v) BOOST_NOEXC
 	return *this;
 }
 
-vec3f::operator GINTONIC_NAMESPACE_FBX::FbxVector4() const BOOST_NOEXCEPT_OR_NOTHROW
+vec3f::operator FBX::FbxVector4() const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	return GINTONIC_NAMESPACE_FBX::FbxVector4(x, y, z, 0.0);
+	return FBX::FbxVector4(x, y, z, 0.0);
 }
 
 } // namespace gintonic

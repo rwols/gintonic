@@ -4,6 +4,7 @@
 #include "shaders.hpp"
 #include "lights.hpp"
 #include "renderer.hpp"
+#include "entity.hpp"
 #include <fbxsdk.h>
 
 namespace
@@ -307,8 +308,8 @@ void static_model_actor::draw_geometry_instanced()
 	std::vector<mat4f> VM_matrices;
 	std::vector<mat3f> N_matrices;
 
-	const mat4f matrix_V = renderer::camera().matrix_V();
-	const mat4f matrix_P = renderer::matrix_P();
+	const mat4f matrix_V(renderer::camera()->global_transform());
+	const mat4f matrix_P(renderer::matrix_P());
 	mat4f matrix_VM;
 
 	for (const auto& tuple : model)

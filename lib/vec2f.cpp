@@ -13,7 +13,7 @@ vec2f::vec2f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
 	y = temp[1];
 }
 
-vec2f::vec2f(const GINTONIC_NAMESPACE_FBX::FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW
+vec2f::vec2f(const FBX::FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW
 : x(static_cast<float>(v[0]))
 , y(static_cast<float>(v[1]))
 {
@@ -29,16 +29,16 @@ vec2f& vec2f::operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOT
 	return *this;
 }
 
-vec2f& vec2f::operator=(const GINTONIC_NAMESPACE_FBX::FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW
+vec2f& vec2f::operator=(const FBX::FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	x = static_cast<float>(v[0]);
 	y = static_cast<float>(v[1]);
 	return *this;
 }
 
-vec2f::operator GINTONIC_NAMESPACE_FBX::FbxVector2() const BOOST_NOEXCEPT_OR_NOTHROW
+vec2f::operator FBX::FbxVector2() const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	return GINTONIC_NAMESPACE_FBX::FbxVector2(x, y);
+	return FBX::FbxVector2(x, y);
 }
 
 } // namespace gintonic

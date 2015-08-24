@@ -32,4 +32,14 @@ bool intersects(const box3f& a, const box3f& b) BOOST_NOEXCEPT_OR_NOTHROW
 		|| b.contains(a.min_corner) || b.contains(a.max_corner);
 }
 
+std::ostream& operator << (std::ostream& os, const box3f& b)
+{
+	return os << b.min_corner << ' ' << b.max_corner;
+}
+std::istream& operator >> (std::istream& is, box3f& b)
+{
+	is >> b.min_corner >> b.max_corner;
+	return is;
+}
+
 } // namespace gintonic

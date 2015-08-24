@@ -7,7 +7,7 @@
 #include "allocator.hpp"
 #include "box3f.hpp"
 
-namespace GINTONIC_NAMESPACE_FBX
+namespace FBX
 {
 	class FbxNode;
 	class FbxScene;
@@ -19,7 +19,7 @@ namespace gintonic {
 
 class light;
 class material;
-template <class T> class octree;
+class octree;
 
 namespace opengl { class shader; }
 
@@ -39,7 +39,7 @@ public:
 
 	const box3f& bounds() const BOOST_NOEXCEPT_OR_NOTHROW;
 
-	octree<actor>* spatialtree = nullptr;
+	octree* spatialtree = nullptr;
 
 protected:
 	actor() = default;
@@ -50,7 +50,7 @@ class static_model_actor : public actor
 {
 public:
 	static_model_actor() = default;
-	static_model_actor(GINTONIC_NAMESPACE_FBX::FbxScene*);
+	static_model_actor(FBX::FbxScene*);
 
 	virtual ~static_model_actor() BOOST_NOEXCEPT_OR_NOTHROW;
 
@@ -76,11 +76,11 @@ public:
 		>
 	> lights;
 private:
-	void traverse_graph(GINTONIC_NAMESPACE_FBX::FbxNode*);
+	void traverse_graph(FBX::FbxNode*);
 
-	void process_mesh(GINTONIC_NAMESPACE_FBX::FbxMesh*, const SQT&);
+	void process_mesh(FBX::FbxMesh*, const SQT&);
 
-	void process_light(GINTONIC_NAMESPACE_FBX::FbxLight*, const SQT&);
+	void process_light(FBX::FbxLight*, const SQT&);
 
 	void draw_geometry_instanced();
 	void draw_geometry_non_instanced() const BOOST_NOEXCEPT_OR_NOTHROW;
@@ -89,7 +89,7 @@ private:
 class animated_model_actor : public actor
 {
 	animated_model_actor() = default;
-	animated_model_actor(GINTONIC_NAMESPACE_FBX::FbxScene*);
+	animated_model_actor(FBX::FbxScene*);
 
 	virtual ~animated_model_actor() BOOST_NOEXCEPT_OR_NOTHROW;
 

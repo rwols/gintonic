@@ -18,7 +18,8 @@ entity::entity(
 	light*       light_component,
 	rigid_body*  rigid_body_component,
 	logic*       logic_component,
-	AI*          AI_component)
+	AI*          AI_component,
+	proj_info*   proj_info_component)
 : m_local_transform(local_transform)
 , m_local_bounding_box(local_bounding_box)
 , m_parent(parent)
@@ -28,6 +29,7 @@ entity::entity(
 , rigid_body_component(rigid_body_component)
 , logic_component(logic_component)
 , AI_component(AI_component)
+, proj_info_component(proj_info_component)
 {
 	update_global_info_start();
 	octree_root.insert(this);
@@ -46,6 +48,7 @@ entity::entity(const entity& other)
 , rigid_body_component(other.rigid_body_component)
 , logic_component(other.logic_component)
 , AI_component(other.AI_component)
+, proj_info_component(other.proj_info_component)
 {
 	// First, if the object to copy is part of an octree,
 	// then we have to update that octree too.
@@ -67,7 +70,7 @@ entity::entity(const entity& other)
 	}
 }
 
-entity::entity(entity&& other)
+entity::entity(entity&& other) BOOST_NOEXCEPT_OR_NOTHROW
 : m_local_transform(std::move(other.m_local_transform))
 , m_global_transform(std::move(other.m_global_transform))
 , m_local_bounding_box(std::move(other.m_local_bounding_box))
@@ -80,6 +83,7 @@ entity::entity(entity&& other)
 , rigid_body_component(other.rigid_body_component)
 , logic_component(other.logic_component)
 , AI_component(other.AI_component)
+, proj_info_component(other.proj_info_component)
 {
 	other.m_parent = nullptr;
 	other.m_octree = nullptr;
@@ -89,12 +93,13 @@ entity::entity(entity&& other)
 	other.rigid_body_component = nullptr;
 	other.logic_component = nullptr;
 	other.AI_component = nullptr;
+	other.proj_info_component = nullptr;
 
 	// Now we have to update the octree.
 	if (m_octree)
 	{
-		for (auto i = m_octree->m_entities.begin(); 
-			i != m_octree->m_entities.end(); ++i)
+		auto& ents = m_octree->m_entities;
+		for (auto i = ents.begin(); i != ents.end(); ++i)
 		{
 			if (*i == &other)
 			{
@@ -160,7 +165,7 @@ entity& entity::operator = (const entity& other)
 	return *this;
 }
 
-entity& entity::operator = (entity&& other)
+entity& entity::operator = (entity&& other) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	m_local_transform = std::move(other.m_local_transform);
 	m_global_transform = std::move(other.m_global_transform);
@@ -291,6 +296,48 @@ void entity::post_add_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW
 void entity::pre_add_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	m_local_transform = sqt % m_local_transform;
+	update_global_info_start();
+}
+
+void entity::move_forward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.move_forward(amount);
+	update_global_info_start();
+}
+
+void entity::move_backward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.move_backward(amount);
+	update_global_info_start();
+}
+
+void entity::move_right(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.move_right(amount);
+	update_global_info_start();
+}
+
+void entity::move_left(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.move_left(amount);
+	update_global_info_start();
+}
+
+void entity::move_up(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.move_up(amount);
+	update_global_info_start();
+}
+
+void entity::move_down(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.move_down(amount);
+	update_global_info_start();
+}
+
+void entity::add_mousedelta(const vec2f& delta) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.add_mousedelta(delta);
 	update_global_info_start();
 }
 
@@ -425,27 +472,5 @@ void entity::draw_lights(SQTstack& sqt_stack) const
 
 	sqt_stack.pop();
 }
-
-// entity* entity::create()
-// {
-// 	s_entitities_lock.obtain();
-// 	s_entitities.push_front(entity());
-// 	s_entitities.front().m_handle = s_entitities.begin();
-// 	s_entitities_lock.release();
-// }
-
-// void entity::clear_all()
-// {
-// 	s_entitities_lock.obtain();
-// 	s_entitities.clear();
-// 	s_entitities_lock.release();
-// }
-
-// void entity::destroy()
-// {
-// 	s_entitities_lock.obtain();
-// 	s_entitities.erase(m_handle);
-// 	s_entitities_lock.release();
-// }
 
 } // namespace gintonic

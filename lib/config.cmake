@@ -33,16 +33,16 @@
 #define GINTONIC_SSE_VERSION ${SSE_VERSION}
 
 /*****************************************************************************
-* GINTONIC_NAMESPACE_FBX                                                     *
+* FBX                                                                        *
 *                                                                            *
 * Purpose: Defines the fbx sdk namespace, to enable us to forward-declare    *
 * fbx types.                                                                 *
 *****************************************************************************/
 
 #ifdef BOOST_MSVC
-#define GINTONIC_NAMESPACE_FBX fbxsdk
+#define FBX fbxsdk
 #else
-#define GINTONIC_NAMESPACE_FBX ${FBX_NAMESPACE}
+#define FBX ${FBX_NAMESPACE}
 #endif
 
 #cmakedefine ENABLE_DEBUG_TRACE

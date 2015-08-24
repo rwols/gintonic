@@ -5,7 +5,6 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/signals2.hpp>
 #include "opengl/khrplatform.hpp"
-#include "camera.hpp"
 #include "fonts.hpp"
 #include "mat3f.hpp"
 #include "mat4f.hpp"
@@ -20,6 +19,8 @@ namespace gintonic
 		class unit_sphere_P;
 		class unit_cone_P;
 	}
+
+	class entity;
 
 	class matrix_PVM_shader;
 
@@ -57,12 +58,12 @@ namespace gintonic
 		typedef clock_type::time_point time_point_type;
 		typedef clock_type::duration duration_type;
 
-		static void init(const char* title, const camera& cam, const bool fullscreen, const int width, const int height);
+		static void init(const char* title, entity* camera, const bool fullscreen, const int width, const int height);
 		inline static duration_type delta_time() BOOST_NOEXCEPT_OR_NOTHROW { return s_delta_time; }
 		inline static duration_type elapsed_time() BOOST_NOEXCEPT_OR_NOTHROW { return s_elapsed_time; }
 		static bool is_initialized() BOOST_NOEXCEPT_OR_NOTHROW;
-		static void set_camera(const camera& c);
-		inline static const camera& camera() BOOST_NOEXCEPT_OR_NOTHROW { return *s_camera; }
+		static void set_camera(entity*);
+		inline static entity* camera() BOOST_NOEXCEPT_OR_NOTHROW { return s_camera; }
 		inline static int width() BOOST_NOEXCEPT_OR_NOTHROW { return s_width; }
 		inline static int height() BOOST_NOEXCEPT_OR_NOTHROW { return s_height; }
 		void static resize(const int width, const int height);
@@ -353,7 +354,7 @@ namespace gintonic
 		static GLuint s_depth_texture;
 		static GLuint s_shadow_texture;
 
-		static const struct camera* s_camera;
+		static entity* s_camera;
 
 		static matrix_PVM_shader* s_matrix_PVM_shader;
 

@@ -78,23 +78,23 @@ int main(int argc, char* argv[])
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_W))
 			{
-				gt::get_default_camera().move_forward(dt);
+				gt::get_default_camera_entity().move_forward(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_A))
 			{
-				gt::get_default_camera().move_left(dt);
+				gt::get_default_camera_entity().move_left(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_S))
 			{
-				gt::get_default_camera().move_backward(dt);
+				gt::get_default_camera_entity().move_backward(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_D))
 			{
-				gt::get_default_camera().move_right(dt);
+				gt::get_default_camera_entity().move_right(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_SPACE))
 			{
-				gt::get_default_camera().move_up(dt);
+				gt::get_default_camera_entity().move_up(dt);
 			}
 			if (gintonic::renderer::key_toggle_press(SDL_SCANCODE_G))
 			{
@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
 
 			mousedelta = gt::renderer::mouse_delta();
 			mousedelta = -gt::deg2rad(mousedelta) / 4.0f;
-			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
+			gt::get_default_camera_entity().add_mousedelta(mousedelta);
 
 			gt::renderer::begin_geometry_pass();
 			
@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
 					<< "Press G to view the geometry buffer.\n"
 					<< "Press Q to quit.\n"
 					<< the_light << '\n'
-					<< gt::renderer::camera().position << '\n';
+					<< gt::renderer::camera()->global_transform().translation << '\n';
 				stream.close();
 				
 				glEnable(GL_CULL_FACE);

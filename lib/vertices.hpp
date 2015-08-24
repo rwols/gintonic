@@ -28,7 +28,7 @@
 #define GT_VERTEX_LAYOUT_FREE_14 14
 #define GT_VERTEX_LAYOUT_FREE_15 15
 
-namespace GINTONIC_NAMESPACE_FBX
+namespace FBX
 {
 	class FbxMesh; // Forward declaration.
 	class FbxVector4; // Forward declaration.
@@ -46,9 +46,9 @@ struct vertex_P
 	vertex_P() = default;
 	vertex_P(const float px, const float py, const float pz);
 	vertex_P(const vec3f& p);
-	vertex_P(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
+	vertex_P(FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
 	vertex_P(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
-	vertex_P(const GINTONIC_NAMESPACE_FBX::FbxVector4& p, const GINTONIC_NAMESPACE_FBX::FbxColor& c, const GINTONIC_NAMESPACE_FBX::FbxVector2& u, const GINTONIC_NAMESPACE_FBX::FbxVector4& n, const GINTONIC_NAMESPACE_FBX::FbxVector4& t, const GINTONIC_NAMESPACE_FBX::FbxVector4& b);
+	vertex_P(const FBX::FbxVector4& p, const FBX::FbxColor& c, const FBX::FbxVector2& u, const FBX::FbxVector4& n, const FBX::FbxVector4& t, const FBX::FbxVector4& b);
 	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vp"; }
@@ -72,9 +72,9 @@ struct vertex_PC
 	vertex_PC(const float px, const float py, const float pz,
 		const float cx, const float cy, const float cz, const float cw);
 	vertex_PC(const vec3f& p, const vec4f& c);
-	vertex_PC(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
+	vertex_PC(FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
 	vertex_PC(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
-	vertex_PC(const GINTONIC_NAMESPACE_FBX::FbxVector4& p, const GINTONIC_NAMESPACE_FBX::FbxColor& c, const GINTONIC_NAMESPACE_FBX::FbxVector2& u, const GINTONIC_NAMESPACE_FBX::FbxVector4& n, const GINTONIC_NAMESPACE_FBX::FbxVector4& t, const GINTONIC_NAMESPACE_FBX::FbxVector4& b);
+	vertex_PC(const FBX::FbxVector4& p, const FBX::FbxColor& c, const FBX::FbxVector2& u, const FBX::FbxVector4& n, const FBX::FbxVector4& t, const FBX::FbxVector4& b);
 	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpc"; }
@@ -94,9 +94,9 @@ struct vertex_PU
 	vertex_PU(const float px, const float py, const float pz,
 		const float ux, const float uy);
 	vertex_PU(const vec3f& p, const vec2f& u);
-	vertex_PU(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
+	vertex_PU(FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
 	vertex_PU(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
-	vertex_PU(const GINTONIC_NAMESPACE_FBX::FbxVector4& p, const GINTONIC_NAMESPACE_FBX::FbxColor& c, const GINTONIC_NAMESPACE_FBX::FbxVector2& u, const GINTONIC_NAMESPACE_FBX::FbxVector4& n, const GINTONIC_NAMESPACE_FBX::FbxVector4& t, const GINTONIC_NAMESPACE_FBX::FbxVector4& b);
+	vertex_PU(const FBX::FbxVector4& p, const FBX::FbxColor& c, const FBX::FbxVector2& u, const FBX::FbxVector4& n, const FBX::FbxVector4& t, const FBX::FbxVector4& b);
 	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpu"; }
@@ -115,9 +115,9 @@ struct vertex_PN
 	vertex_PN(const float px, const float py, const float pz,
 		const float nx, const float ny, const float nz);
 	vertex_PN(const vec3f& p, const vec3f& n);
-	vertex_PN(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
+	vertex_PN(FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
 	vertex_PN(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
-	vertex_PN(const GINTONIC_NAMESPACE_FBX::FbxVector4& p, const GINTONIC_NAMESPACE_FBX::FbxColor& c, const GINTONIC_NAMESPACE_FBX::FbxVector2& u, const GINTONIC_NAMESPACE_FBX::FbxVector4& n, const GINTONIC_NAMESPACE_FBX::FbxVector4& t, const GINTONIC_NAMESPACE_FBX::FbxVector4& b);
+	vertex_PN(const FBX::FbxVector4& p, const FBX::FbxColor& c, const FBX::FbxVector2& u, const FBX::FbxVector4& n, const FBX::FbxVector4& t, const FBX::FbxVector4& b);
 	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".pn"; }
@@ -138,9 +138,9 @@ struct vertex_PCU
 		const float cx, const float cy, const float cz, const float cw,
 		const float ux, const float uy);
 	vertex_PCU(const vec3f& p, const vec4f& c, const vec2f& u);
-	vertex_PCU(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
+	vertex_PCU(FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
 	vertex_PCU(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
-	vertex_PCU(const GINTONIC_NAMESPACE_FBX::FbxVector4& p, const GINTONIC_NAMESPACE_FBX::FbxColor& c, const GINTONIC_NAMESPACE_FBX::FbxVector2& u, const GINTONIC_NAMESPACE_FBX::FbxVector4& n, const GINTONIC_NAMESPACE_FBX::FbxVector4& t, const GINTONIC_NAMESPACE_FBX::FbxVector4& b);
+	vertex_PCU(const FBX::FbxVector4& p, const FBX::FbxColor& c, const FBX::FbxVector2& u, const FBX::FbxVector4& n, const FBX::FbxVector4& t, const FBX::FbxVector4& b);
 	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpcu"; }
@@ -164,9 +164,9 @@ struct vertex_PCUN
 		const float ux, const float uy,
 		const float nx, const float ny, const float nz);
 	vertex_PCUN(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n);
-	vertex_PCUN(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
+	vertex_PCUN(FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
 	vertex_PCUN(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
-	vertex_PCUN(const GINTONIC_NAMESPACE_FBX::FbxVector4& p, const GINTONIC_NAMESPACE_FBX::FbxColor& c, const GINTONIC_NAMESPACE_FBX::FbxVector2& u, const GINTONIC_NAMESPACE_FBX::FbxVector4& n, const GINTONIC_NAMESPACE_FBX::FbxVector4& t, const GINTONIC_NAMESPACE_FBX::FbxVector4& b);
+	vertex_PCUN(const FBX::FbxVector4& p, const FBX::FbxColor& c, const FBX::FbxVector2& u, const FBX::FbxVector4& n, const FBX::FbxVector4& t, const FBX::FbxVector4& b);
 	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpcun"; }
@@ -189,9 +189,9 @@ struct vertex_PUN
 		const float ux, const float uy,
 		const float nx, const float ny, const float nz);
 	vertex_PUN(const vec3f& p, const vec2f& u, const vec3f& n);
-	vertex_PUN(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
+	vertex_PUN(FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
 	vertex_PUN(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
-	vertex_PUN(const GINTONIC_NAMESPACE_FBX::FbxVector4& p, const GINTONIC_NAMESPACE_FBX::FbxColor& c, const GINTONIC_NAMESPACE_FBX::FbxVector2& u, const GINTONIC_NAMESPACE_FBX::FbxVector4& n, const GINTONIC_NAMESPACE_FBX::FbxVector4& t, const GINTONIC_NAMESPACE_FBX::FbxVector4& b);
+	vertex_PUN(const FBX::FbxVector4& p, const FBX::FbxColor& c, const FBX::FbxVector2& u, const FBX::FbxVector4& n, const FBX::FbxVector4& t, const FBX::FbxVector4& b);
 	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpun"; }
@@ -220,8 +220,8 @@ struct vertex_PCUNTB
 		const float tx, const float ty, const float tz,
 		const float bx, const float by, const float bz);
 	vertex_PCUNTB(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
-	vertex_PCUNTB(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
-	vertex_PCUNTB(const GINTONIC_NAMESPACE_FBX::FbxVector4& p, const GINTONIC_NAMESPACE_FBX::FbxColor& c, const GINTONIC_NAMESPACE_FBX::FbxVector2& u, const GINTONIC_NAMESPACE_FBX::FbxVector4& n, const GINTONIC_NAMESPACE_FBX::FbxVector4& t, const GINTONIC_NAMESPACE_FBX::FbxVector4& b);
+	vertex_PCUNTB(FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
+	vertex_PCUNTB(const FBX::FbxVector4& p, const FBX::FbxColor& c, const FBX::FbxVector2& u, const FBX::FbxVector4& n, const FBX::FbxVector4& t, const FBX::FbxVector4& b);
 	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpcuntb"; }
@@ -250,9 +250,9 @@ struct vertex_PUNTB
 		const float tx, const float ty, const float tz,
 		const float bx, const float by, const float bz);
 	vertex_PUNTB(const vec3f& p, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
-	vertex_PUNTB(GINTONIC_NAMESPACE_FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
+	vertex_PUNTB(FBX::FbxMesh const*const pMesh, const std::size_t i, const std::size_t layer);
 	vertex_PUNTB(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b);
-	vertex_PUNTB(const GINTONIC_NAMESPACE_FBX::FbxVector4& p, const GINTONIC_NAMESPACE_FBX::FbxColor& c, const GINTONIC_NAMESPACE_FBX::FbxVector2& u, const GINTONIC_NAMESPACE_FBX::FbxVector4& n, const GINTONIC_NAMESPACE_FBX::FbxVector4& t, const GINTONIC_NAMESPACE_FBX::FbxVector4& b);
+	vertex_PUNTB(const FBX::FbxVector4& p, const FBX::FbxColor& c, const FBX::FbxVector2& u, const FBX::FbxVector4& n, const FBX::FbxVector4& t, const FBX::FbxVector4& b);
 	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW { return ".vpuntb"; }

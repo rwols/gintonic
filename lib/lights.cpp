@@ -1,6 +1,7 @@
 #include "lights.hpp"
 #include "shaders.hpp"
 #include "basic_shapes.hpp"
+#include "entity.hpp"
 #include "renderer.hpp"
 
 #ifdef ENABLE_DEBUG_TRACE
@@ -106,7 +107,7 @@ void directional_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	s.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
 	s.set_light_intensity(intensity);
-	s.set_light_direction(renderer::camera().matrix_V().upper_left_33() * t.rotation.direction());
+	s.set_light_direction((renderer::camera()->global_transform().rotation * t.rotation).direction());
 	renderer::get_unit_quad_P().draw();
 }
 
@@ -184,7 +185,7 @@ void point_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	const auto light_pos = renderer::camera().matrix_V().apply_to_point(t.translation);
+	const auto light_pos = renderer::camera()->global_transform().apply_to_point(t.translation);
 
 	renderer::begin_light_pass();
 
@@ -303,11 +304,8 @@ void spot_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	// What we actually want to do here: renderer::camera() should just be an SQT transform,
-	// and then we can do (renderer::camera().rotation * t.rotation).direction()
-	const auto matrix_V = renderer::camera().matrix_V();
-	const auto light_pos = matrix_V.apply_to_point(t.translation);
-	const auto light_dir = matrix_V.apply_to_direction(t.rotation.direction());
+	const auto light_pos = renderer::camera()->global_transform().apply_to_point(t.translation);
+	const auto light_dir = (renderer::camera()->global_transform().rotation * t.rotation).direction();
 
 	renderer::begin_light_pass();
 

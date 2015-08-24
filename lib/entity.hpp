@@ -8,14 +8,15 @@
 
 namespace gintonic {
 
-class octree; // Forward declaration.
-class mesh; // Forward declaration.
-class material; // Forward declaration.
-class light; // Forward declaration.
+class octree;     // Forward declaration.
+class mesh;       // Forward declaration.
+class material;   // Forward declaration.
+class light;      // Forward declaration.
 class rigid_body; // Forward declaration.
-class logic; // Forward declaration.
-class AI; // Forward declaration.
-class SQTstack; // Forward declaration.
+class logic;      // Forward declaration.
+class AI;         // Forward declaration.
+class proj_info;  // Forward declaration.
+class SQTstack;   // Forward declaration.
 
 class entity
 {
@@ -61,6 +62,7 @@ public:
 	rigid_body* rigid_body_component = nullptr;
 	logic*      logic_component      = nullptr;
 	AI*         AI_component         = nullptr;
+	proj_info*  proj_info_component  = nullptr;
 
 
 	entity(
@@ -73,7 +75,8 @@ public:
 		light*       light_component      = nullptr,
 		rigid_body*  rigid_body_component = nullptr,
 		logic*       logic_component      = nullptr,
-		AI*          AI_component         = nullptr);
+		AI*          AI_component         = nullptr,
+		proj_info*   proj_info_component  = nullptr);
 
 	entity(const entity&);
 	entity(entity&&) BOOST_NOEXCEPT_OR_NOTHROW;
@@ -99,6 +102,13 @@ public:
 	void set_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void post_add_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void pre_add_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_forward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_backward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_right(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_left(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_up(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_down(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void add_mousedelta(const vec2f& delta) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	// These methods modify the local bounding box.
 	// The global bounding box is updated automatically.
@@ -138,16 +148,16 @@ public:
 	void set_parent(entity*);
 	
 	// Basic getters.
-	inline entity* parent() BOOST_NOEXCEPT_OR_NOTHROW { return m_parent; }
-	inline const entity* parent() const BOOST_NOEXCEPT_OR_NOTHROW { return m_parent; }
-	inline iterator begin() { return m_children.begin(); }
-	inline iterator end() { return m_children.end(); }
-	inline const_iterator begin() const { return m_children.begin(); }
-	inline const_iterator end() const { return m_children.end(); }
-	inline const_iterator cbegin() const { return m_children.cbegin(); }
-	inline const_iterator cend() const { return m_children.cend(); }
-	inline octree* octree_node() { return m_octree; }
-	inline const octree* octree_node() const { return m_octree; }
+	inline       entity*  parent()            BOOST_NOEXCEPT_OR_NOTHROW { return m_parent; }
+	inline const entity*  parent()      const BOOST_NOEXCEPT_OR_NOTHROW { return m_parent; }
+	inline       iterator begin()             BOOST_NOEXCEPT_OR_NOTHROW { return m_children.begin(); }
+	inline       iterator end()               BOOST_NOEXCEPT_OR_NOTHROW { return m_children.end(); }
+	inline const_iterator begin()       const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.begin(); }
+	inline const_iterator end()         const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.end(); }
+	inline const_iterator cbegin()      const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.cbegin(); }
+	inline const_iterator cend()        const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.cend(); }
+	inline       octree*  octree_node()       BOOST_NOEXCEPT_OR_NOTHROW { return m_octree; }
+	inline const octree*  octree_node() const BOOST_NOEXCEPT_OR_NOTHROW { return m_octree; }
 
 	// Comparison operators.
 	inline bool operator == (const entity& other) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -211,7 +221,7 @@ public:
 	// of the entity after this method has been called.
 	// void destroy();
 
-	// An entity carries an SQT and a box3f/box3f, so we must
+	// An entity carries an SQT and a box3f, so we must
 	// define custom new/delete operators.
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 };

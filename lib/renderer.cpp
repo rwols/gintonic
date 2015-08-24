@@ -4,6 +4,8 @@
 #include "fonts.hpp"
 #include "exception.hpp"
 #include "vec4f.hpp"
+#include "camera.hpp"
+#include "entity.hpp"
 #include <iostream>
 #include <SDL.h>
 
@@ -55,7 +57,7 @@ namespace gintonic {
 	GLuint renderer::s_depth_texture;
 	GLuint renderer::s_shadow_texture;
 
-	const camera* renderer::s_camera = nullptr;
+	entity* renderer::s_camera = nullptr;
 
 	matrix_PVM_shader* renderer::s_matrix_PVM_shader = nullptr;
 
@@ -123,7 +125,7 @@ namespace gintonic {
 	fontstream& renderer::cerr() { return *debug_stream; }
 	#endif
 
-	void renderer::init(const char* title, const struct camera& cam, const bool fullscreen, const int width, const int height)
+	void renderer::init(const char* title, entity* cam, const bool fullscreen, const int width, const int height)
 	{
 		bool was_already_initialized;
 		if (is_initialized())
@@ -142,11 +144,19 @@ namespace gintonic {
 		}
 		if (was_already_initialized == false) std::atexit(SDL_Quit);
 
-		s_camera = &cam;
+		s_camera = cam;
 		s_fullscreen = fullscreen;
 		s_width = width;
 		s_height = height;
 		s_aspect_ratio = (float) s_width / (float) s_height;
+		if (s_camera && s_camera->proj_info_component)
+		{
+			s_camera->proj_info_component->update();
+		}
+		else
+		{
+			throw std::runtime_error("Expected a valid entity with a projection component.");
+		}
 
 		Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
 		if (s_fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -487,6 +497,10 @@ namespace gintonic {
 		s_aspect_ratio = (float)s_width / (float)s_height;
 		s_matrix_P_dirty = true;
 		glViewport(0, 0, s_width, s_height);
+		if (s_camera && s_camera->proj_info_component)
+		{
+			s_camera->proj_info_component->update();
+		}
 
 		//
 		// resize framebuffers
@@ -513,6 +527,15 @@ namespace gintonic {
 	bool renderer::is_initialized() BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		return s_window != nullptr;
+	}
+
+	void renderer::set_camera(entity* camera)
+	{
+		s_camera = camera;
+		if (s_camera && s_camera->proj_info_component)
+		{
+			s_camera->proj_info_component->update();
+		}
 	}
 
 	void renderer::focus_context() BOOST_NOEXCEPT_OR_NOTHROW
@@ -819,7 +842,7 @@ namespace gintonic {
 	{
 		if (s_matrix_P_dirty)
 		{
-			s_matrix_P = camera().matrix_P(width(), height());
+			s_matrix_P = s_camera->proj_info_component->matrix;
 			s_matrix_P_dirty = false;
 		}
 	}
@@ -828,7 +851,7 @@ namespace gintonic {
 	{
 		if (s_matrix_VM_dirty)
 		{
-			s_matrix_VM = camera().matrix_V() * s_matrix_M;
+			s_matrix_VM = mat4f(s_camera->global_transform()) * s_matrix_M;
 			s_matrix_VM_dirty = false;
 		}
 	}

@@ -145,6 +145,8 @@ private:
 
 	octree(octree*, const box3f&);
 
+	octree(octree* parent, const vec3f& min, const vec3f& max);
+
 	void notify_helper(entity*);
 
 	void subdivide();
@@ -214,7 +216,7 @@ void octree::query(const box3f& area, OutputIter iter)
 {
 	for (auto* object : m_entities)
 	{
-		if (area.intersects(object->global_bounding_box()))
+		if (intersects(area, object->global_bounding_box()))
 		{
 			++iter;
 			*iter = object;
@@ -245,7 +247,7 @@ void octree::query(const box3f& area, OutputIter iter)
 		// Case 3: search area intersects with sub-quad
 		// traverse into this quad, continue the loop to search other
 		// quads
-		else if (area.intersects(c->m_bounds))
+		else if (intersects(area, c->m_bounds))
 		{
 			c->query(area, iter);
 			continue;

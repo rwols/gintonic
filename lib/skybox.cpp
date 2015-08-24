@@ -2,6 +2,7 @@
 #include "renderer.hpp"
 #include "shaders.hpp"
 #include "basic_shapes.hpp"
+#include "entity.hpp"
 
 namespace gintonic {
 
@@ -27,7 +28,7 @@ void skybox::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	const auto& s = renderer::get_skybox_shader();
 	s.activate();
-	s.set_matrix_PV(renderer::matrix_P() * renderer::camera().matrix_V());
+	s.set_matrix_PV(renderer::matrix_P() * mat4f(renderer::camera()->global_transform()));
 	s.set_skybox_diffuse(0);
 	diffuse_texture.bind(0);
 

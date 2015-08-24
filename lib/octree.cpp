@@ -282,7 +282,7 @@ void octree::notify_helper(entity* object)
 	}
 }
 
-octree(octree* parent, const box3f& bounds)
+octree::octree(octree* parent, const box3f& bounds)
 : m_parent(parent)
 , m_bounds(bounds)
 {
@@ -291,33 +291,42 @@ octree(octree* parent, const box3f& bounds)
 		= m_child[6] = m_child[7] = nullptr;
 }
 
+octree::octree(octree* parent, const vec3f& min, const vec3f& max)
+: m_parent(parent)
+, m_bounds(min, max)
+{
+	m_child[0] = m_child[1] = m_child[2] 
+		= m_child[3] = m_child[4] = m_child[5] 
+		= m_child[6] = m_child[7] = nullptr;
+}
+
 void octree::subdivide()
 {
-	auto min = m_bounds.min_corner();
-	auto max = m_bounds.max_corner();
+	auto min = m_bounds.min_corner;
+	auto max = m_bounds.max_corner;
 	const auto half = (max - min) / 2.0f;
-	if (half[0] <= subdivision_threshold 
-		|| half[1] <= subdivision_threshold 
-		|| half[2] <= subdivision_threshold)
+	if (half.x <= subdivision_threshold 
+		|| half.y <= subdivision_threshold 
+		|| half.z <= subdivision_threshold)
 	{
 		return;
 	}
 	m_child[0] = new octree(this, min, min + half);
-	min[0] += half[0];
+	min.x += half.x;
 	m_child[1] = new octree(this, min, min + half);
-	min[1] += half[1];
+	min.y += half.y;
 	m_child[2] = new octree(this, min, min + half);
-	min[0] -= half[0];
+	min.x -= half.x;
 	m_child[3] = new octree(this, min, min + half);
-	min[1] -= half[1];
+	min.y -= half.y;
 	// at this point, we are at the original location of min
-	min[2] += half[2];
+	min.z += half.z;
 	m_child[4] = new octree(this, min, min + half);
-	min[0] += half[0];
+	min.x += half.x;
 	m_child[5] = new octree(this, min, min + half);
-	min[1] += half[1];
+	min.y += half.y;
 	m_child[6] = new octree(this, min, min + half);
-	min[0] -= half[0];
+	min.x -= half.x;
 	m_child[7] = new octree(this, min, min + half);
 }
 

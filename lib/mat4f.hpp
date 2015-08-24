@@ -5,6 +5,11 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
+namespace FBX {
+	class FbxAMatrix; // Forward declaration.
+	class FbxMatrix;  // Forward declaration.
+}
+
 namespace gintonic {
 
 union vec3f; // Forward declaration.

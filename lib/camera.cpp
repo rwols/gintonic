@@ -1,7 +1,35 @@
 #include "camera.hpp"
 #include "mat4f.hpp"
+#include "renderer.hpp"
 
 namespace gintonic {
+
+void proj_info::update() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	switch (projection)
+	{
+		case kOrthographicProjection:
+			matrix.set_orthographic(
+				static_cast<float>(renderer::width()), 
+				static_cast<float>(renderer::height()), 
+				0.1f, 
+				100.0f);
+			break;
+		case kPerspectiveProjection:
+			matrix.set_perspective(
+				fieldofview, 
+				static_cast<float>(renderer::width()) / static_cast<float>(renderer::height()), 
+				0.1f, 
+				100.0f);
+			break;
+		default:
+			matrix.set_perspective(
+				fieldofview, 
+				static_cast<float>(renderer::width()) / static_cast<float>(renderer::height()), 
+				0.1f, 
+				100.0f);
+	}
+}
 
 void camera::add_horizontal_and_vertical_angles(const float horizontal, const float vertical) BOOST_NOEXCEPT_OR_NOTHROW
 {
@@ -35,9 +63,9 @@ mat4f camera::matrix_V() const BOOST_NOEXCEPT_OR_NOTHROW
 }
 mat4f camera::matrix_P(const int width, const int height) const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	switch (this->projection_type)
+	switch (this->projection)
 	{
-	case e_projection_type::orthographic :
+	case kOrthographicProjection:
 	{
 		const float hw = static_cast<float>(width)  * float(0.5) / orthographic_zoom;
 		const float hh = static_cast<float>(height) * float(0.5) / orthographic_zoom;
@@ -45,7 +73,7 @@ mat4f camera::matrix_P(const int width, const int height) const BOOST_NOEXCEPT_O
 		r.set_orthographic(-hw, hw, -hh, hh, near_plane, far_plane);
 		return r;
 	}
-	case e_projection_type::projective :
+	case kPerspectiveProjection:
 		mat4f r;
 		r.set_perspective(field_of_view, static_cast<float>(width) / static_cast<float>(height), near_plane, far_plane);
 		return r;

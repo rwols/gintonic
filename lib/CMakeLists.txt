@@ -47,7 +47,7 @@ option(HIDE_CONSOLE "Hide the console on Windows." OFF)
 option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output streams to files." OFF)
 
 set(SSE_VERSION 30)
-set(FBX_NAMESPACE fbxsdk_2016_0)
+# set(FBX_NAMESPACE fbxsdk_2016_0)
 
 configure_file(config.cmake ${CMAKE_BINARY_DIR}/config.hpp)
 

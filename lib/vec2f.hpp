@@ -5,7 +5,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
-namespace GINTONIC_NAMESPACE_FBX
+namespace FBX
 {
 	class FbxVector2; // Forward declaration.	
 }
@@ -73,7 +73,7 @@ public:
 		/* Empty on purpose. */
 	}
 
-	vec2f(const GINTONIC_NAMESPACE_FBX::FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW;
+	vec2f(const FBX::FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline vec2f& operator = (const vec2f& v) BOOST_NOEXCEPT_OR_NOTHROW
 	{
@@ -89,7 +89,7 @@ public:
 
 	vec2f& operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW;
 
-	vec2f& operator=(const GINTONIC_NAMESPACE_FBX::FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW;
+	vec2f& operator=(const FBX::FbxVector2& v) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline vec2f& operator += (const vec2f& v) BOOST_NOEXCEPT_OR_NOTHROW
 	{
@@ -150,7 +150,7 @@ public:
 
 	inline bool operator >= (const vec2f& v) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		return !operator<(v);
+		return x >= v.x && y >= v.y;
 	}
 
 	inline bool operator > (const vec2f& v) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -160,7 +160,7 @@ public:
 
 	inline bool operator <= (const vec2f& v) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		return !operator>(v);
+		return x <= v.x && y <= v.y;
 	}
 
 	inline vec2f operator + (const vec2f& v) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -246,7 +246,7 @@ public:
 		return _mm_shuffle_ps(lhs.data, rhs.data, 0x44);
 	}
 
-	operator GINTONIC_NAMESPACE_FBX::FbxVector2() const BOOST_NOEXCEPT_OR_NOTHROW;
+	operator FBX::FbxVector2() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
 

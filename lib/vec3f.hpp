@@ -5,7 +5,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
-namespace GINTONIC_NAMESPACE_FBX
+namespace FBX
 {
 	class FbxVector4; // Forward declaration.	
 }
@@ -94,9 +94,9 @@ public:
 
 	vec3f& operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW;
 
-	vec3f(const GINTONIC_NAMESPACE_FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW;
 
-	vec3f& operator=(const GINTONIC_NAMESPACE_FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f& operator=(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline vec3f& operator += (const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
 	{
@@ -157,7 +157,7 @@ public:
 
 	inline bool operator >= (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		return !operator<(v);
+		return x >= v.x && y >= v.y && z >= v.z;
 	}
 
 	inline bool operator > (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -167,7 +167,7 @@ public:
 
 	inline bool operator <= (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
-		return !operator>(v);
+		return x <= v.x && y <= v.y && z <= v.z;
 	}
 
 	inline vec3f operator + (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -276,7 +276,7 @@ public:
 		return _mm_mul_ps(radians.data, _mm_set1_ps(57.2957795f));
 	}
 
-	operator GINTONIC_NAMESPACE_FBX::FbxVector4() const BOOST_NOEXCEPT_OR_NOTHROW;
+	operator FBX::FbxVector4() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
 
@@ -295,7 +295,7 @@ private:
 #pragma clang diagnostic pop
 #endif
 
-inline vec3f operator * (const float lhs, const vec3f& rhs)
+inline vec3f operator * (const float lhs, const vec3f& rhs) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	return _mm_mul_ps(_mm_load1_ps(&lhs), rhs.data);
 }

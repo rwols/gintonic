@@ -30,25 +30,61 @@ struct SQT
 		/* Empty on purpose. */
 	}
 
-	inline SQT operator % (const SQT& other) const BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return SQT(scale * other.scale, rotation * other.rotation, translation + other.translation);
-	}
+	SQT operator % (const SQT& other) const BOOST_NOEXCEPT_OR_NOTHROW;
 
-	SQT& operator %= (const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		scale *= other.scale;
-		rotation *= other.rotation;
-		translation += other.translation;
-		return *this;
-	}
+	SQT& operator %= (const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline void look_at(const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		rotation = quatf::look_at(translation, other.translation, vec3f(0.0f, 1.0f, 0.0f));
 	}
 
-	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+	inline void move_forward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		translation += amount * rotation.forward_direction();
+	}
+
+	inline void move_backward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		translation -= amount * rotation.forward_direction();
+	}
+
+	inline void move_right(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		translation += amount * rotation.right_direction();
+	}
+
+	inline void move_left(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		translation -= amount * rotation.right_direction();
+	}
+
+	inline void move_up(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		translation += amount * rotation.up_direction();
+	}
+
+	inline void move_down(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		translation -= amount * rotation.up_direction();
+	}
+
+	inline void add_mousedelta(const vec2f& delta) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		rotation.add_mousedelta(delta);
+	}
+
+	inline vec3f apply_to_point(const vec3f& point) const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return rotation.apply_to(point) * scale + translation;
+	}
+
+	inline vec3f apply_to_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return rotation.apply_to(direction);
+	}
+
+	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
 private:
 
