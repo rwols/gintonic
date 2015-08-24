@@ -179,23 +179,23 @@ int main(int argc, char* argv[])
 			}
 			if (gt::renderer::key(SDL_SCANCODE_W))
 			{
-				gt::get_default_camera().move_forward(MOVE_SPEED * dt);
+				gt::get_default_camera_entity().move_forward(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_A))
 			{
-				gt::get_default_camera().move_left(MOVE_SPEED * dt);
+				gt::get_default_camera_entity().move_left(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_S))
 			{
-				gt::get_default_camera().move_backward(MOVE_SPEED * dt);
+				gt::get_default_camera_entity().move_backward(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_D))
 			{
-				gt::get_default_camera().move_right(MOVE_SPEED * dt);
+				gt::get_default_camera_entity().move_right(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_SPACE))
 			{
-				gt::get_default_camera().move_up(MOVE_SPEED * dt);
+				gt::get_default_camera_entity().move_up(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_EQUALS))
 			{
@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
 			mousedelta = gt::renderer::mouse_delta();
 			mousedelta = -gt::deg2rad(mousedelta) / 4.0f;
 			
-			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
+			gt::get_default_camera_entity().add_mousedelta(mousedelta);
 			
 			gt::renderer::begin_geometry_pass();
 

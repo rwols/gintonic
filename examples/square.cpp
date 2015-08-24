@@ -1,5 +1,7 @@
 #include "gintonic.hpp"
 
+#define M_PIf static_cast<float>(M_PI)
+
 namespace gt = gintonic;
 
 int main(int argc, char* argv[])
@@ -7,6 +9,16 @@ int main(int argc, char* argv[])
 	try
 	{
 		gt::init_all("square");
+		
+		gt::get_default_camera_entity().set_scale(gt::vec3f(1.0f, 1.0f, 1.0f));
+		gt::get_default_camera_entity().set_translation(gt::vec3f(0.0f, 0.0f, 4.0f));
+		gt::get_default_camera_entity().set_rotation(gt::quatf::axis_angle(gt::vec3f(0.0f, 1.0f, 0.0f), M_PIf));
+
+		gt::renderer::set_camera(&gt::get_default_camera_entity());
+
+		std::cout << "Local camera SQT transform: " << gt::get_default_camera_entity().local_transform() << '\n'
+			<< "Global camera SQT transform: " << gt::get_default_camera_entity().global_transform() << '\n';
+		
 		gt::opengl::unit_quad_P the_shape;
 		gt::material the_material(gt::vec4f(1.0f, 0.0f, 0.0f, 0.0f));
 		gt::renderer::show();

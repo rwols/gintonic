@@ -91,23 +91,28 @@ find_library(FBX_LIBRARY_DEBUG ${fbx_libname}
     PATH_SUFFIXES "lib/${libdir}/debug")
 
 if (FBX_INCLUDE_DIR)
+    if (WIN32 OR APPLE)
     foreach (version IN LISTS versions)
         string(REGEX MATCH ${version} FBX_NAMESPACE ${FBX_INCLUDE_DIR})
         if (FBX_NAMESPACE)
             string(REPLACE "." "_" FBX_NAMESPACE ${FBX_NAMESPACE})
-            set(FBX_NAMESPACE "fbxsdk_${FBX_NAMESPACE}")
+            set(FBX_NAMESPACE "fbxsdk_${FBX_NAMESPACE}" CACHE STRING "The Fbx namespace.")
             break()
         endif ()
     endforeach ()
+    else ()
+        # BIG HACK!!! IMPROVE THIS
+        set(FBX_NAMESPACE "fbxsdk_2015_1" CACHE STRING "BIG HACK!!!")
+    endif ()
 endif ()
 
 IF(FBX_LIBRARY AND FBX_LIBRARY_DEBUG AND FBX_INCLUDE_DIR)
-    set (FBX_FOUND ON)
+    set (FBX_FOUND ON CACHE BOOL "Fbx has been found.")
 else ()
-    set (FBX_FOUND OFF)
+    set (FBX_FOUND OFF CACHE BOOL "Fbx has not been found.")
 endif ()
 
-set(FBX_LIBRARY optimized ${FBX_LIBRARY} debug ${FBX_LIBRARY_DEBUG})
+set(FBX_LIBRARY optimized ${FBX_LIBRARY} debug ${FBX_LIBRARY_DEBUG} CACHE STRING "Fbx Library location.")
 
 include(FindPackageHandleStandardArgs)
 

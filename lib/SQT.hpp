@@ -109,6 +109,9 @@ inline float distance(const SQT& a, const SQT& b) BOOST_NOEXCEPT_OR_NOTHROW
 	return distance(a.translation, b.translation);
 }
 
+std::ostream& operator << (std::ostream&, const SQT&);
+std::istream& operator >> (std::istream&, SQT&);
+
 } // namespace gintonic
 
 #endif

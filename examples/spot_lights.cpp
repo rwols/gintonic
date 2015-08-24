@@ -96,8 +96,8 @@ int main(int argc, char* argv[])
 			"../examples/bricks_SPEC.png");     // specular texture
 
 		// Orient the camera
-		gt::get_default_camera().position = {0.0f, 2.0f, 4.0f};
-		gt::get_default_camera().add_horizontal_and_vertical_angles(0.0f, 0.0f);
+		gt::get_default_camera_entity().set_translation(gt::vec3f(0.0f, 2.0f, 4.0f));
+		gt::get_default_camera_entity().add_mousedelta(gt::vec2f(0.0f, 0.0f));
 
 		float curtime = 0.0f, dt;
 		float current_cos, current_sin;
@@ -129,23 +129,23 @@ int main(int argc, char* argv[])
 			}
 			if (gt::renderer::key(SDL_SCANCODE_W))
 			{
-				gt::get_default_camera().move_forward(MOVE_SPEED * dt);
+				gt::get_default_camera_entity().move_forward(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_A))
 			{
-				gt::get_default_camera().move_left(MOVE_SPEED * dt);
+				gt::get_default_camera_entity().move_left(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_S))
 			{
-				gt::get_default_camera().move_backward(MOVE_SPEED * dt);
+				gt::get_default_camera_entity().move_backward(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_D))
 			{
-				gt::get_default_camera().move_right(MOVE_SPEED * dt);
+				gt::get_default_camera_entity().move_right(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_SPACE))
 			{
-				gt::get_default_camera().move_up(MOVE_SPEED * dt);
+				gt::get_default_camera_entity().move_up(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key_toggle_press(SDL_SCANCODE_B))
 			{
@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
 			}
 
 			mousedelta = -gt::deg2rad(gt::renderer::mouse_delta()) / 4.0f;
-			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
+			gt::get_default_camera_entity().add_mousedelta(mousedelta);
 			
 			gt::renderer::begin_geometry_pass();
 			

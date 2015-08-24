@@ -14,6 +14,7 @@
 #include "lights.hpp"
 #include "skybox.hpp"
 #include "scancodes.hpp"
+#include "camera.hpp"
 
 namespace gintonic {
 

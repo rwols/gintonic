@@ -42,26 +42,26 @@ int main(int argc, char* argv[])
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_W))
 			{
-				gt::get_default_camera().move_forward(dt);
+				gt::get_default_camera_entity().move_forward(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_A))
 			{
-				gt::get_default_camera().move_left(dt);
+				gt::get_default_camera_entity().move_left(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_S))
 			{
-				gt::get_default_camera().move_backward(dt);
+				gt::get_default_camera_entity().move_backward(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_D))
 			{
-				gt::get_default_camera().move_right(dt);
+				gt::get_default_camera_entity().move_right(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_SPACE))
 			{
-				gt::get_default_camera().move_up(dt);
+				gt::get_default_camera_entity().move_up(dt);
 			}
 			auto mousedelta = -gt::deg2rad(gt::renderer::mouse_delta()) / 4.0f;
-			gt::get_default_camera().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
+			gt::get_default_camera_entity().add_mousedelta(mousedelta);
 			gt::renderer::begin_geometry_pass();
 			const auto yaxis = (1.0f + std::cos(curtime)) / 2.0f;
 			const auto zaxis = (1.0f + std::sin(curtime)) / 2.0f;
@@ -84,9 +84,10 @@ int main(int argc, char* argv[])
 				<< "Press Q to quit.\n"
 				<< "Elapsed time: " << std::fixed << std::setprecision(1) << curtime << " seconds\n"
 				<< "Frames per second: " << std::fixed << std::setprecision(1) << 1.0f / dt << '\n'
-				<< "Camera position: " << gt::get_default_camera().position << '\n'
-				<< "Camera up:       " << gt::get_default_camera().up << '\n'
-				<< "Camera right:    " << gt::get_default_camera().right << std::endl;
+				<< "Camera position: " << gt::get_default_camera_entity().global_transform().translation << '\n'
+				<< "Camera forward:  " << gt::get_default_camera_entity().global_transform().rotation.forward_direction() << '\n'
+				<< "Camera up:       " << gt::get_default_camera_entity().global_transform().rotation.up_direction() << '\n'
+				<< "Camera right:    " << gt::get_default_camera_entity().global_transform().rotation.right_direction() << std::endl;
 			stream.close();
 			glEnable(GL_CULL_FACE);
 			gt::renderer::update();

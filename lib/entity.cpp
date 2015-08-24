@@ -281,6 +281,14 @@ void entity::pre_multiply_rotation(const quatf& rotation) BOOST_NOEXCEPT_OR_NOTH
 	update_global_info_start();
 }
 
+void entity::look_at(const entity* other) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	throw std::logic_error("entity::look_at: not yet implemented.");
+	// m_local_transform.rotation = 
+	// 	m_global_transform.rotation.look_at(other->m_global_transform.rotation, );
+	// update_global_info_start();
+}
+
 void entity::set_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	m_local_transform = sqt;
@@ -367,7 +375,7 @@ void entity::remove_child(entity* c)
 	bool child_was_removed = false;
 	#endif
 
-	for (auto i = cbegin(); i != cend(); ++i)
+	for (auto i = begin(); i != end(); ++i)
 	{
 		if (*i == c)
 		{

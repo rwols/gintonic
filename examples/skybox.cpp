@@ -1,5 +1,4 @@
 #include "gintonic.hpp"
-
 #include <iomanip>
 
 namespace gt = gintonic;
@@ -52,6 +51,7 @@ int main(int argc, char* argv[])
 		));
 		gt::renderer::show();
 		float curtime, dt;
+		gt::get_default_camera_entity().proj_info_component->update();
 		while (!gt::renderer::should_close())
 		{
 			curtime = get_elapsed_time<float>();
@@ -82,10 +82,10 @@ int main(int argc, char* argv[])
 			}
 			auto mousedelta = gintonic::renderer::mouse_delta();
 			mousedelta = -gt::deg2rad(mousedelta) / 4.0f;
-			gt::get_default_camera_entity().add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
+			gt::get_default_camera_entity().add_mousedelta(mousedelta);
 
-			gt::get_default_camera_entity().add_translation(vec3f(mousedelta.x, mousedelta.y, 0.0f));
-			gt::get_default_camera_entity().look_at(cube_entity);
+			gt::get_default_camera_entity().add_translation(gt::vec3f(mousedelta.x, mousedelta.y, 0.0f));
+			// gt::get_default_camera_entity().look_at(cube_entity);
 			gt::get_default_camera_entity().proj_info_component->update();
 			
 			gt::renderer::begin_geometry_pass();

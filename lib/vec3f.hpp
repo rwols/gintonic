@@ -13,6 +13,7 @@ namespace FBX
 namespace gintonic {
 
 union vec2f; // Forward declaration.
+union quatf; // Forward declaration.
 
 /*****************************************************************************
 * gintonic::vec3f                                                            *
@@ -79,6 +80,8 @@ public:
 	}
 
 	vec3f(const vec2f& v, const float z) BOOST_NOEXCEPT_OR_NOTHROW;
+
+	vec3f(const quatf&) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline vec3f& operator = (const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
 	{

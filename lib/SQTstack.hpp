@@ -39,10 +39,16 @@ public:
 		return *this;
 	}
 
-	SQTstack(const vec3f& scale, const quatf& rotation, const vec3f& translation)
+	template <class U0, class U1, class U2>
+	SQTstack(U0&& u0, U1&& u1, U2&& u2)
 	{
-		m_stack.emplace(scale, rotation, translation);
+		m_stack.emplace(std::forward<U0>(u0), std::forward<U1>(u1), std::forward<U2>(u2));
 	}
+
+	// SQTstack(const vec3f& scale, const quatf& rotation, const vec3f& translation)
+	// {
+	// 	m_stack.emplace(scale, rotation, translation);
+	// }
 
 	inline SQT& top() 
 	{

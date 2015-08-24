@@ -99,6 +99,7 @@ public:
 	void set_rotation(const quatf&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void post_multiply_rotation(const quatf&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void pre_multiply_rotation(const quatf&) BOOST_NOEXCEPT_OR_NOTHROW;
+	void look_at(const entity*) BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void post_add_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void pre_add_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;

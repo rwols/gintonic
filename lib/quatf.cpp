@@ -19,25 +19,25 @@ vec3f quatf::apply_to(const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
 vec3f quatf::forward_direction() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	// return apply_to(vec3f(0.0f, 0.0f, -1.0f));
-
-	const auto temp = (*this) * quatf(-z, -y, x, -w);
-	return vec3f(temp.x, temp.y, temp.z);
+	// const auto temp = (*this) * quatf(-z, -y, x, -w);
+	// return vec3f(temp.x, temp.y, temp.z);
+	return (*this) * quatf(-z, -y, x, -w);
 }
 
 vec3f quatf::right_direction() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	// return apply_to(vec3f(1.0f, 0.0f, 0.0f));
-
-	const auto temp = (*this) * quatf(x, -w, z, -y);
-	return vec3f(temp.x, temp.y, temp.z);
+	// const auto temp = (*this) * quatf(x, -w, z, -y);
+	// return vec3f(temp.x, temp.y, temp.z);
+	return (*this) * quatf(x, w, z, -y);
 }
 
 vec3f quatf::up_direction() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	// return apply_to(vec3f(0.0f, 1.0f, 0.0f));
-
-	const auto temp = (*this) * quatf(y, -z, w, x);
-	return vec3f(temp.x, temp.y, temp.z);
+	// const auto temp = (*this) * quatf(y, -z, w, x);
+	// return vec3f(temp.x, temp.y, temp.z);
+	return (*this) * quatf(y, -z, w, x);
 }
 
 vec3f quatf::direction() const BOOST_NOEXCEPT_OR_NOTHROW
