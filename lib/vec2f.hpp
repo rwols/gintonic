@@ -28,6 +28,7 @@ private:
 	__m128 data;
 	friend union vec3f;
 	friend union vec4f;
+	friend union quatf;
 public:
 
 	struct

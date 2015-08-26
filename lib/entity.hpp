@@ -3,6 +3,7 @@
 
 #include "SQT.hpp"
 #include "box3f.hpp"
+#include "mat4f.hpp"
 #include "allocator.hpp"
 #include <list>
 
@@ -16,7 +17,9 @@ class rigid_body; // Forward declaration.
 class logic;      // Forward declaration.
 class AI;         // Forward declaration.
 class proj_info;  // Forward declaration.
+class camera;     // Forward declaration.
 class SQTstack;   // Forward declaration.
+class controller; // Forward declaration.
 
 class entity
 {
@@ -45,12 +48,15 @@ private:
 	// Pointer to the octree.
 	octree* m_octree = nullptr;
 
+	controller* m_controller = nullptr;
+
 	friend class octree;
 
 	void update_global_info(SQTstack&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void update_global_info_start() BOOST_NOEXCEPT_OR_NOTHROW;
 	void update_global_transform_and_bounding_box(const SQTstack&) BOOST_NOEXCEPT_OR_NOTHROW;
 	SQT compute_global_transform() const BOOST_NOEXCEPT_OR_NOTHROW;
+	void update_global_datamembers(const SQTstack&) BOOST_NOEXCEPT_OR_NOTHROW;
 
 public:
 
@@ -62,13 +68,15 @@ public:
 	rigid_body* rigid_body_component = nullptr;
 	logic*      logic_component      = nullptr;
 	AI*         AI_component         = nullptr;
+	camera*     camera_component     = nullptr;
 	proj_info*  proj_info_component  = nullptr;
 
+	entity() = default;
 
 	entity(
 		const SQT&   local_transform,
 		const box3f& local_bounding_box,
-		octree&      octree_root,
+		octree*      octree_root          = nullptr,
 		entity*      parent               = nullptr,
 		mesh*        mesh_component       = nullptr,
 		material*    material_component   = nullptr,
@@ -76,15 +84,16 @@ public:
 		rigid_body*  rigid_body_component = nullptr,
 		logic*       logic_component      = nullptr,
 		AI*          AI_component         = nullptr,
+		camera*      camera_component     = nullptr,
 		proj_info*   proj_info_component  = nullptr);
 
-	entity(const entity&);
+	entity(const entity&) = default;
 	entity(entity&&) BOOST_NOEXCEPT_OR_NOTHROW;
-	entity& operator = (const entity&);
+	entity& operator = (const entity&) = default;
 	entity& operator = (entity&&) BOOST_NOEXCEPT_OR_NOTHROW;
 	
-	// Non-trivial destructor deletes all of the children of this entity.
-	~entity();
+	// Destructor.
+	virtual ~entity();
 
 	// These methods modify the entity's local SQT transform.
 	// The entity's global SQT transform, the entity's global bounding box,
@@ -99,17 +108,11 @@ public:
 	void set_rotation(const quatf&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void post_multiply_rotation(const quatf&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void pre_multiply_rotation(const quatf&) BOOST_NOEXCEPT_OR_NOTHROW;
-	void look_at(const entity*) BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void post_add_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void pre_add_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_forward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_backward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_right(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_left(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_up(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_down(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
-	void add_mousedelta(const vec2f& delta) BOOST_NOEXCEPT_OR_NOTHROW;
+
+	void get_view_matrix(mat4f&) const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	// These methods modify the local bounding box.
 	// The global bounding box is updated automatically.
@@ -118,6 +121,9 @@ public:
 	// its datastructure accordingly.
 	void set_local_bounding_box(const box3f&);
 	void set_local_bounding_box(const vec2f& min_corner, const vec2f& max_corner);
+
+	void set_controller(controller&);
+	void unset_controller();
 
 	// Get a constant reference to the local SQT transform.
 	inline const SQT& local_transform() const BOOST_NOEXCEPT_OR_NOTHROW
@@ -144,9 +150,10 @@ public:
 	}
 
 	// Basic add child, remove child and set parent methods.
-	void add_child(entity*);
-	void remove_child(entity*);
-	void set_parent(entity*);
+	void add_child(entity&);
+	void remove_child(entity&);
+	void set_parent(entity&);
+	void unset_parent();
 	
 	// Basic getters.
 	inline       entity*  parent()            BOOST_NOEXCEPT_OR_NOTHROW { return m_parent; }
@@ -192,51 +199,21 @@ public:
 		return !operator>(other);
 	}
 
-	// Draw the mesh of this entity (if present)
-	// as well as all of its children.
-	void draw_geometry() const;
-
-	// Draw the light of this entity (if present)
-	// as well as all of its children.
-	void draw_lights() const;
-
-	// Draw the mesh of this entity (if present)
-	// given the current SQTstack.
-	void draw_geometry(SQTstack&) const;
-
-	// Draw the light of this entity (if present)
-	// given the current SQTstack.
-	void draw_lights(SQTstack&) const;
-
-	// Create a new entity.
-	// Every entity is stored in a global container.
-	// An entity has a private constructor, so this
-	// static method is the only way to create new entitities.
-	// static entity* create();
-
-	// Clear all entities from the global container.
-	// static void clear_all();
-
-	// Destroy this entity.
-	// Do not call any methods or access any member variables
-	// of the entity after this method has been called.
-	// void destroy();
-
 	// An entity carries an SQT and a box3f, so we must
 	// define custom new/delete operators.
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 };
 
 // Compute the squared distance between two entitities.
-inline float distance2(const entity* a, const entity* b) BOOST_NOEXCEPT_OR_NOTHROW
+inline float distance2(const entity& a, const entity& b) BOOST_NOEXCEPT_OR_NOTHROW
 {
-	return distance2(a->global_transform(), b->global_transform());
+	return distance2(a.global_transform(), b.global_transform());
 }
 
 // Compute the distance between two entities.
-inline float distance(const entity* a, const entity* b) BOOST_NOEXCEPT_OR_NOTHROW
+inline float distance(const entity& a, const entity& b) BOOST_NOEXCEPT_OR_NOTHROW
 {
-	return distance(a->global_transform(), b->global_transform());
+	return distance(a.global_transform(), b.global_transform());
 }
 
 } // namespace gintonic

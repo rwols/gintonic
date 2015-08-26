@@ -156,9 +156,12 @@ mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 mark_as_advanced(CMAKE_INSTALL_PREFIX)
 
 add_subdirectory (lib)
+add_subdirectory (tools)
 add_subdirectory (examples)
 add_subdirectory (test)
+
 enable_testing()
+
 add_test(NAME materials COMMAND materials)
 add_test(NAME SQT COMMAND SQT)
 add_test(NAME box2f COMMAND box2f)

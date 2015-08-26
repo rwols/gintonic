@@ -15,6 +15,8 @@
 
 namespace gintonic {
 
+	// ALL the global variables.
+
 	#ifdef ENABLE_DEBUG_TRACE
 	font::flyweight* debug_font = nullptr;
 	fontstream* debug_stream = nullptr;
@@ -28,7 +30,7 @@ namespace gintonic {
 	bool renderer::s_fullscreen = false;
 	int renderer::s_width = 800;
 	int renderer::s_height = 640;
-	float renderer::s_aspect_ratio = (float)renderer::s_width / (float)renderer::s_height;
+	float renderer::s_aspectratio = (float)renderer::s_width / (float)renderer::s_height;
 
 	renderer::time_point_type renderer::s_start_time;
 	renderer::duration_type renderer::s_delta_time = renderer::duration_type();
@@ -47,6 +49,7 @@ namespace gintonic {
 	bool renderer::s_matrix_N_dirty = true;
 
 	mat4f renderer::s_matrix_P = mat4f();
+	mat4f renderer::s_matrix_V = mat4f();
 	mat4f renderer::s_matrix_M = mat4f();
 	mat4f renderer::s_matrix_VM = mat4f();
 	mat4f renderer::s_matrix_PVM = mat4f();
@@ -88,11 +91,11 @@ namespace gintonic {
 
 	text_shader* renderer::s_text_shader = nullptr;
 
-	opengl::unit_quad_P* renderer::s_unit_quad_P = nullptr;
-	opengl::unit_cube_P* renderer::s_unit_cube_P = nullptr;
-	opengl::unit_cube_P_flipped* renderer::s_unit_cube_P_flipped = nullptr;
-	opengl::unit_sphere_P* renderer::s_unit_sphere_P = nullptr;
-	opengl::unit_cone_P* renderer::s_unit_cone_P = nullptr;
+	unit_quad_P* renderer::s_unit_quad_P = nullptr;
+	unit_cube_P* renderer::s_unit_cube_P = nullptr;
+	unit_cube_P_flipped* renderer::s_unit_cube_P_flipped = nullptr;
+	unit_sphere_P* renderer::s_unit_sphere_P = nullptr;
+	unit_cone_P* renderer::s_unit_cone_P = nullptr;
 
 	boost::signals2::signal<void(wchar_t)> renderer::char_typed;
 	boost::signals2::signal<void(double, double)> renderer::mouse_scrolled;
@@ -148,7 +151,7 @@ namespace gintonic {
 		s_fullscreen = fullscreen;
 		s_width = width;
 		s_height = height;
-		s_aspect_ratio = (float) s_width / (float) s_height;
+		s_aspectratio = (float) s_width / (float) s_height;
 		if (s_camera && s_camera->proj_info_component)
 		{
 			s_camera->proj_info_component->update();
@@ -470,11 +473,11 @@ namespace gintonic {
 		//
 		// Initialize basic shapes
 		//
-		s_unit_quad_P = new opengl::unit_quad_P();
-		s_unit_cube_P = new opengl::unit_cube_P();
-		s_unit_cube_P_flipped = new opengl::unit_cube_P_flipped();
-		s_unit_sphere_P = new opengl::unit_sphere_P(64, 64);
-		s_unit_cone_P = new opengl::unit_cone_P(16);
+		s_unit_quad_P = new unit_quad_P();
+		s_unit_cube_P = new unit_cube_P();
+		s_unit_cube_P_flipped = new unit_cube_P_flipped();
+		s_unit_sphere_P = new unit_sphere_P(64, 64);
+		s_unit_cone_P = new unit_cone_P(16);
 
 		//
 		// Initialize debug variables
@@ -494,13 +497,9 @@ namespace gintonic {
 		//
 		s_width = width;
 		s_height = height;
-		s_aspect_ratio = (float)s_width / (float)s_height;
+		s_aspectratio = (float)s_width / (float)s_height;
 		s_matrix_P_dirty = true;
 		glViewport(0, 0, s_width, s_height);
-		if (s_camera && s_camera->proj_info_component)
-		{
-			s_camera->proj_info_component->update();
-		}
 
 		//
 		// resize framebuffers
@@ -522,6 +521,14 @@ namespace gintonic {
 			throw exception("Frame buffer status was not complete: " + std::to_string(framebuffer_status));
 		}
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+		//
+		// Update projection matrix
+		//
+		if (s_camera && s_camera->proj_info_component)
+		{
+			s_camera->proj_info_component->update();
+		}
 	}
 
 	bool renderer::is_initialized() BOOST_NOEXCEPT_OR_NOTHROW
@@ -595,9 +602,9 @@ namespace gintonic {
 		return s_should_close; 
 	}
 
-	float renderer::aspect_ratio() BOOST_NOEXCEPT_OR_NOTHROW
-	{ 
-		return s_aspect_ratio; 
+	vec2f renderer::viewport_size() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return vec2f(static_cast<float>(s_width), static_cast<float>(s_height));
 	}
 
 	bool renderer::key(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
@@ -637,6 +644,22 @@ namespace gintonic {
 			SDL_DestroyWindow(s_window);
 			s_window = nullptr;
 		}
+	}
+
+	void renderer::set_model_matrix(const mat4f& m)
+	{
+		s_matrix_M = m;
+		s_matrix_VM_dirty = true;
+		s_matrix_PVM_dirty = true;
+		s_matrix_N_dirty = true;
+	}
+
+	void renderer::set_model_matrix(const entity* model_ent)
+	{
+		s_matrix_M = mat4f(model_ent->global_transform());
+		s_matrix_VM_dirty = true;
+		s_matrix_PVM_dirty = true;
+		s_matrix_N_dirty = true;
 	}
 
 	void renderer::update() BOOST_NOEXCEPT_OR_NOTHROW
@@ -707,6 +730,9 @@ namespace gintonic {
 		{
 			mouse_moved(s_mouse_delta.x, s_mouse_delta.y);
 		}
+
+		// Update the WORLD->VIEW matrix.
+		s_matrix_V = s_camera->camera_component->get_matrix();
 	}
 
 	void renderer::begin_geometry_pass()
@@ -851,7 +877,16 @@ namespace gintonic {
 	{
 		if (s_matrix_VM_dirty)
 		{
-			s_matrix_VM = mat4f(s_camera->global_transform()) * s_matrix_M;
+			// const mat4f S(s_camera->global_transform().scale.x, s_camera->global_transform().scale.y, s_camera->global_transform().scale.z);
+			// const mat4f T(s_camera->global_transform().translation);
+			// const mat4f R(s_camera->global_transform().rotation);
+			// s_matrix_VM = S * R * T * s_matrix_M;
+			s_matrix_VM = s_matrix_V * s_matrix_M;
+			// s_matrix_VM = mat4f(
+			// 	s_camera->global_transform().translation, 
+			// 	s_camera->global_transform().translation + s_camera->camera_component->direction,
+			// 	vec3f(0.0f, 1.0f, 0.0f)) * s_matrix_M;
+			// s_matrix_VM = mat4f(s_camera->global_transform()) * s_matrix_M;
 			s_matrix_VM_dirty = false;
 		}
 	}

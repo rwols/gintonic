@@ -11,7 +11,7 @@ namespace gintonic {
 entity::entity(
 	const SQT&   local_transform,
 	const box3f& local_bounding_box,
-	octree&      octree_root,
+	octree*      octree_root,
 	entity*      parent,
 	mesh*        mesh_component,
 	material*    material_component,
@@ -19,6 +19,7 @@ entity::entity(
 	rigid_body*  rigid_body_component,
 	logic*       logic_component,
 	AI*          AI_component,
+	camera*      camera_component,
 	proj_info*   proj_info_component)
 : m_local_transform(local_transform)
 , m_local_bounding_box(local_bounding_box)
@@ -29,45 +30,11 @@ entity::entity(
 , rigid_body_component(rigid_body_component)
 , logic_component(logic_component)
 , AI_component(AI_component)
+, camera_component(camera_component)
 , proj_info_component(proj_info_component)
 {
 	update_global_info_start();
-	octree_root.insert(this);
-}
-
-entity::entity(const entity& other)
-: m_local_transform(other.m_local_transform)
-, m_global_transform(other.m_global_transform)
-, m_local_bounding_box(other.m_local_bounding_box)
-, m_global_bounding_box(other.m_global_bounding_box)
-, m_parent(other.m_parent)
-, m_octree(other.m_octree)
-, mesh_component(other.mesh_component)
-, material_component(other.material_component)
-, light_component(other.light_component)
-, rigid_body_component(other.rigid_body_component)
-, logic_component(other.logic_component)
-, AI_component(other.AI_component)
-, proj_info_component(other.proj_info_component)
-{
-	// First, if the object to copy is part of an octree,
-	// then we have to update that octree too.
-	if (m_octree) m_octree->insert(this);
-
-	// Now we have to copy all the children recursively.
-	for (auto* child : other.m_children)
-	{
-		if (child)
-		{
-			// Note that this recurses.
-			auto* child_copy = new entity(*child);
-			m_children.push_back(child_copy);
-		}
-		else
-		{
-			m_children.push_back(nullptr);
-		}
-	}
+	if (octree_root) octree_root->insert(this);
 }
 
 entity::entity(entity&& other) BOOST_NOEXCEPT_OR_NOTHROW
@@ -75,94 +42,19 @@ entity::entity(entity&& other) BOOST_NOEXCEPT_OR_NOTHROW
 , m_global_transform(std::move(other.m_global_transform))
 , m_local_bounding_box(std::move(other.m_local_bounding_box))
 , m_global_bounding_box(std::move(other.m_global_bounding_box))
-, m_parent(other.m_parent)
-, m_octree(other.m_octree)
-, mesh_component(other.mesh_component)
-, material_component(other.material_component)
-, light_component(other.light_component)
-, rigid_body_component(other.rigid_body_component)
-, logic_component(other.logic_component)
-, AI_component(other.AI_component)
-, proj_info_component(other.proj_info_component)
+, m_children(std::move(other.m_children))
+, m_parent(std::move(other.m_parent))
+, m_octree(std::move(other.m_octree))
+, mesh_component(std::move(other.mesh_component))
+, material_component(std::move(other.material_component))
+, light_component(std::move(other.light_component))
+, rigid_body_component(std::move(other.rigid_body_component))
+, logic_component(std::move(other.logic_component))
+, AI_component(std::move(other.AI_component))
+, camera_component(std::move(other.camera_component))
+, proj_info_component(std::move(other.proj_info_component))
 {
-	other.m_parent = nullptr;
-	other.m_octree = nullptr;
-	other.mesh_component = nullptr;
-	other.material_component = nullptr;
-	other.light_component = nullptr;
-	other.rigid_body_component = nullptr;
-	other.logic_component = nullptr;
-	other.AI_component = nullptr;
-	other.proj_info_component = nullptr;
-
-	// Now we have to update the octree.
-	if (m_octree)
-	{
-		auto& ents = m_octree->m_entities;
-		for (auto i = ents.begin(); i != ents.end(); ++i)
-		{
-			if (*i == &other)
-			{
-				*i = this;
-				break;
-			}
-		}
-	}
-
-	// Now we have to move all the children.
-	// Note that recursion is NOT necessary.
-	for (auto* child : other.m_children)
-	{
-		if (child)
-		{
-			// This does NOT recurse. But that's okay.
-			m_children.push_back(child);
-			child->m_parent = this;
-		}
-		else
-		{
-			m_children.push_back(nullptr);
-		}
-	}
-	// We clear the children container of the moved entity.
-	// When the destructor of the moved entity is called,
-	// it will do nothing.
-	other.m_children.clear();
-}
-entity& entity::operator = (const entity& other)
-{
-	m_local_transform = other.m_local_transform;
-	m_global_transform = other.m_global_transform;
-	m_local_bounding_box = other.m_local_bounding_box;
-	m_global_bounding_box = other.m_global_bounding_box;
-	m_parent = other.m_parent;
-	m_octree = other.m_octree;
-	mesh_component = other.mesh_component;
-	material_component = other.material_component;
-	light_component = other.light_component;
-	rigid_body_component = other.rigid_body_component;
-	logic_component = other.logic_component;
-	AI_component = other.AI_component;
-
-	// Explicitly call the destructor.
-	this->~entity();
-
-	// Now we have to copy all the children recursively.
-	for (auto* child : other.m_children)
-	{
-		if (child)
-		{
-			// Note that this recurses.
-			auto* child_copy = new entity(*child);
-			m_children.push_back(child_copy);
-		}
-		else
-		{
-			m_children.push_back(nullptr);
-		}
-	}
-
-	return *this;
+	/* Empty on purpose. */
 }
 
 entity& entity::operator = (entity&& other) BOOST_NOEXCEPT_OR_NOTHROW
@@ -171,41 +63,17 @@ entity& entity::operator = (entity&& other) BOOST_NOEXCEPT_OR_NOTHROW
 	m_global_transform = std::move(other.m_global_transform);
 	m_local_bounding_box = std::move(other.m_local_bounding_box);
 	m_global_bounding_box = std::move(other.m_global_bounding_box);
-	m_parent = other.m_parent;
-	m_octree = other.m_octree;
-	mesh_component = other.mesh_component;
-	material_component = other.material_component;
-	light_component = other.light_component;
-	rigid_body_component = other.rigid_body_component;
-	logic_component = other.logic_component;
-	AI_component = other.AI_component;
-
-	// Explicitly call the destructor.
-	this->~entity();
-
-	// Clear the children container. We can safely do this
-	// because the destructor has been called explicitly.
-	m_children.clear();
-
-	// Now we have to move all the children.
-	// Note that recursion is NOT necessary.
-	for (auto* child : other.m_children)
-	{
-		if (child)
-		{
-			// This does NOT recurse. But that's okay.
-			m_children.push_back(child);
-			child->m_parent = this;
-		}
-		else
-		{
-			m_children.push_back(nullptr);
-		}
-	}
-	// We clear the children container of the moved entity.
-	// When the destructor of the moved entity is called,
-	// it will do nothing.
-	other.m_children.clear();
+	m_children = std::move(other.m_children);
+	m_parent = std::move(other.m_parent);
+	m_octree = std::move(other.m_octree);
+	mesh_component = std::move(other.mesh_component);
+	material_component = std::move(other.material_component);
+	light_component = std::move(other.light_component);
+	rigid_body_component = std::move(other.rigid_body_component);
+	logic_component = std::move(other.logic_component);
+	AI_component = std::move(other.AI_component);
+	camera_component = std::move(other.camera_component);
+	proj_info_component = std::move(other.proj_info_component);
 
 	return *this;
 }
@@ -213,7 +81,7 @@ entity& entity::operator = (entity&& other) BOOST_NOEXCEPT_OR_NOTHROW
 void entity::update_global_info(SQTstack& sqt_stack) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	sqt_stack.push(m_local_transform);
-	update_global_transform_and_bounding_box(sqt_stack);
+	update_global_datamembers(sqt_stack);
 	for (auto* child : m_children)
 	{
 		if (child) child->update_global_info(sqt_stack);
@@ -224,14 +92,14 @@ void entity::update_global_info(SQTstack& sqt_stack) BOOST_NOEXCEPT_OR_NOTHROW
 void entity::update_global_info_start() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	SQTstack sqt_stack(compute_global_transform());
-	update_global_transform_and_bounding_box(sqt_stack);
+	update_global_datamembers(sqt_stack);
 	for (auto* child : m_children)
 	{
 		if (child) child->update_global_info(sqt_stack);
 	}
 }
 
-void entity::update_global_transform_and_bounding_box(const SQTstack& sqt_stack) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::update_global_datamembers(const SQTstack& sqt_stack) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	m_global_transform = sqt_stack.top();
 	m_global_bounding_box.min_corner = m_global_transform.translation + m_local_bounding_box.min_corner;
@@ -281,14 +149,6 @@ void entity::pre_multiply_rotation(const quatf& rotation) BOOST_NOEXCEPT_OR_NOTH
 	update_global_info_start();
 }
 
-void entity::look_at(const entity* other) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	throw std::logic_error("entity::look_at: not yet implemented.");
-	// m_local_transform.rotation = 
-	// 	m_global_transform.rotation.look_at(other->m_global_transform.rotation, );
-	// update_global_info_start();
-}
-
 void entity::set_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	m_local_transform = sqt;
@@ -307,54 +167,20 @@ void entity::pre_add_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW
 	update_global_info_start();
 }
 
-void entity::move_forward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	m_local_transform.move_forward(amount);
-	update_global_info_start();
-}
-
-void entity::move_backward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	m_local_transform.move_backward(amount);
-	update_global_info_start();
-}
-
-void entity::move_right(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	m_local_transform.move_right(amount);
-	update_global_info_start();
-}
-
-void entity::move_left(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	m_local_transform.move_left(amount);
-	update_global_info_start();
-}
-
-void entity::move_up(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	m_local_transform.move_up(amount);
-	update_global_info_start();
-}
-
-void entity::move_down(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	m_local_transform.move_down(amount);
-	update_global_info_start();
-}
-
-void entity::add_mousedelta(const vec2f& delta) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	m_local_transform.add_mousedelta(delta);
-	update_global_info_start();
-}
-
 SQT entity::compute_global_transform() const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	SQT result(vec3f(1.0f, 1.0f, 1.0f), quatf(1.0f, 0.0f, 0.0f, 0.0f), vec3f(0.0f, 0.0f, 0.0f));
-	const auto* current_entity = this;
+	SQT result(m_local_transform);
+	const auto* current_entity = m_parent;
 	while (current_entity)
 	{
+		if (current_entity == this)
+		{
+			#ifndef NDEBUG
+			throw std::logic_error("There's a cycle in the entitities.");
+			#else
+			break;
+			#endif
+		}
 		result.scale *= current_entity->m_local_transform.scale;
 		result.rotation = current_entity->m_local_transform.rotation * result.rotation;
 		result.translation += current_entity->m_local_transform.translation;
@@ -363,13 +189,13 @@ SQT entity::compute_global_transform() const BOOST_NOEXCEPT_OR_NOTHROW
 	return result;
 }
 
-void entity::add_child(entity* c)
+void entity::add_child(entity& c)
 {
-	c->m_parent = this;
-	m_children.push_front(c);
+	c.m_parent = this;
+	m_children.push_front(&c);
 }
 
-void entity::remove_child(entity* c)
+void entity::remove_child(entity& c)
 {
 	#ifndef NDEBUG
 	bool child_was_removed = false;
@@ -377,7 +203,7 @@ void entity::remove_child(entity* c)
 
 	for (auto i = begin(); i != end(); ++i)
 	{
-		if (*i == c)
+		if (*i == &c)
 		{
 			m_children.erase(i);
 
@@ -390,18 +216,22 @@ void entity::remove_child(entity* c)
 	}
 
 	#ifndef NDEBUG
-	if (child_was_removed) c->m_parent = nullptr;
+	if (child_was_removed) c.m_parent = nullptr;
 	else throw std::logic_error("Entity was not a child.");
 	#else
-	c->m_parent = nullptr;
+	c.m_parent = nullptr;
 	#endif
 }
 
-void entity::set_parent(entity* p)
+void entity::set_parent(entity& p)
 {
-	if (m_parent) m_parent->remove_child(this);
-	if (p) p->add_child(this);
-	else m_parent = nullptr;
+	if (m_parent) m_parent->remove_child(*this);
+	p.add_child(*this);
+}
+
+void entity::unset_parent()
+{
+	if (m_parent) m_parent->remove_child(*this); // Also sets m_parent to nullptr
 }
 
 entity::~entity()
@@ -418,67 +248,6 @@ entity::~entity()
 	#else
 	if (m_octree) m_octree->erase(this);
 	#endif
-	for (const auto* child : m_children) delete child;
-}
-
-void entity::draw_geometry() const
-{
-	SQTstack sqt_stack;
-	draw_geometry(sqt_stack);
-}
-
-void entity::draw_geometry(SQTstack& sqt_stack) const
-{
-	sqt_stack.push(m_local_transform);
-
-	if (mesh_component)
-	{
-		renderer::set_model_matrix(sqt_stack.top());
-		if (material_component)
-		{
-			material_component->bind();
-			mesh_component->draw();
-		}
-		else
-		{
-			// Make a "null" material.
-			material mat(
-				vec4f(0.6f, 0.6f, 0.6f, 0.9f),
-				vec4f(1.0f, 1.0f, 1.5f, 1.0f));
-			mat.bind();
-			mesh_component->draw();
-		}
-	}
-
-	for (const auto* child : m_children)
-	{
-		if (child) child->draw_geometry(sqt_stack);
-	}
-
-	sqt_stack.pop();
-}
-
-void entity::draw_lights() const
-{
-	SQTstack sqt_stack;
-	draw_lights(sqt_stack);
-}
-
-void entity::draw_lights(SQTstack& sqt_stack) const
-{
-	sqt_stack.push(m_local_transform);
-
-	if (light_component)
-	{
-		light_component->shine(sqt_stack.top());
-	}
-
-	for (const auto* child : m_children)
-	{
-		if (child) child->draw_lights(sqt_stack);
-	}
-
-	sqt_stack.pop();
 }
 
 } // namespace gintonic

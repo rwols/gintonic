@@ -1,6 +1,6 @@
 #include "actors.hpp"
 #include "materials.hpp"
-#include "mesh.hpp"
+#include "static_mesh.hpp"
 #include "shaders.hpp"
 #include "lights.hpp"
 #include "renderer.hpp"
@@ -188,9 +188,9 @@ void static_model_actor::process_mesh(
 		mat.diffuse_color  = vec4f(0.8f, 0.8f, 0.8f,  0.9f);
 		mat.specular_color = vec4f(0.2f, 0.2f, 0.2f, 20.0f);
 	}
-	const auto m = std::make_shared<mesh>(fbx_mesh);
+	std::unique_ptr<mesh> m(new static_mesh(fbx_mesh));
 
-	model.emplace_back(t, m, mat);
+	model.emplace_back(t, std::move(m), mat);
 }
 
 void static_model_actor::process_light( 
@@ -304,9 +304,9 @@ void static_model_actor::draw_geometry_instanced()
 {
 	SQT t;
 
-	std::vector<mat4f> PVM_matrices;
-	std::vector<mat4f> VM_matrices;
-	std::vector<mat3f> N_matrices;
+	std::vector<mat4f, allocator<mat4f>> PVM_matrices;
+	std::vector<mat4f, allocator<mat4f>> VM_matrices;
+	std::vector<mat3f, allocator<mat3f>> N_matrices;
 
 	const mat4f matrix_V(renderer::camera()->global_transform());
 	const mat4f matrix_P(renderer::matrix_P());

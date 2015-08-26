@@ -69,12 +69,41 @@ mat4f::mat4f(const quatf& rotation)
 	m33 = 1.0f;
 }
 
-mat4f::mat4f(const SQT& transform) : mat4f(transform.rotation)
+mat4f::mat4f(const SQT& transform)
 {
+	// SIMDify this...
+	const auto n = transform.rotation.length2();
+	const auto s = (n == 0.0f) ? 0.0f : 2.0f / n;
+	const auto wx = s * transform.rotation.w * transform.rotation.x;
+	const auto wy = s * transform.rotation.w * transform.rotation.y;
+	const auto wz = s * transform.rotation.w * transform.rotation.z;
+	const auto xx = s * transform.rotation.x * transform.rotation.x;
+	const auto xy = s * transform.rotation.x * transform.rotation.y;
+	const auto xz = s * transform.rotation.x * transform.rotation.z;
+	const auto yy = s * transform.rotation.y * transform.rotation.y;
+	const auto yz = s * transform.rotation.y * transform.rotation.z;
+	const auto zz = s * transform.rotation.z * transform.rotation.z;
+
+	m00 = 1.0f - (yy + zz);
+	m10 = xy + wz;
+	m20 = xz - wy;
+	m30 = 0.0f;
+
+	m01 = xy - wz;
+	m11 = 1.0f - (xx + zz);
+	m21 = yz + wx;
+	m31 = 0.0f;
+
+	m02 = xz + wy;
+	m12 = yz - wx;
+	m22 = 1.0f - (xx + yy);
+	m32 = 0.0f;
+
 	data[0] = _mm_mul_ps(data[0], transform.scale.data);
 	data[1] = _mm_mul_ps(data[1], transform.scale.data);
 	data[2] = _mm_mul_ps(data[2], transform.scale.data);
 	data[3] = transform.translation.data;
+	// data[3] = _mm_mul_ps(_mm_set1_ps(-1.0f), transform.translation.data);
 	m33 = 1.0f;
 }
 
@@ -302,7 +331,7 @@ mat4f& mat4f::set_inverse_perspective(const float fieldofview, const float aspec
 
 void mat4f::unproject_perspective(float& fieldofview, float& aspectratio, float& nearplane, float& farplane)
 {
-	fieldofview = 2.0f * std::atan(1 / m11);
+	fieldofview = 2.0f * std::atan(1.0f / m11);
 	aspectratio = m11 / m00;
 	nearplane = m23 / (m22 - 1.0f);
 	farplane = m23 / (m22 + 1.0f);

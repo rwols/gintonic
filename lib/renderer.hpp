@@ -11,14 +11,11 @@
 
 namespace gintonic 
 {
-	namespace opengl
-	{
-		class unit_quad_P;
-		class unit_cube_P;
-		class unit_cube_P_flipped;
-		class unit_sphere_P;
-		class unit_cone_P;
-	}
+	class unit_quad_P;
+	class unit_cube_P;
+	class unit_cube_P_flipped;
+	class unit_sphere_P;
+	class unit_cone_P;
 
 	class entity;
 
@@ -66,6 +63,8 @@ namespace gintonic
 		inline static entity* camera() BOOST_NOEXCEPT_OR_NOTHROW { return s_camera; }
 		inline static int width() BOOST_NOEXCEPT_OR_NOTHROW { return s_width; }
 		inline static int height() BOOST_NOEXCEPT_OR_NOTHROW { return s_height; }
+		inline static float aspectratio() BOOST_NOEXCEPT_OR_NOTHROW { return s_aspectratio; }
+		static vec2f viewport_size() BOOST_NOEXCEPT_OR_NOTHROW;
 		void static resize(const int width, const int height);
 		static void focus_context() BOOST_NOEXCEPT_OR_NOTHROW;
 		static void set_cursor_position(const double x, const double y) BOOST_NOEXCEPT_OR_NOTHROW;
@@ -78,12 +77,12 @@ namespace gintonic
 		static void hide() BOOST_NOEXCEPT_OR_NOTHROW;
 		static void close() BOOST_NOEXCEPT_OR_NOTHROW;
 		static bool should_close() BOOST_NOEXCEPT_OR_NOTHROW;
-		static float aspect_ratio() BOOST_NOEXCEPT_OR_NOTHROW;
 		static bool key(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW;
 		static bool key_prev(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW;
 		static bool key_toggle_press(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW;
 		static bool key_toggle_release(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW;
 		static bool mousebutton(const int buttoncode) BOOST_NOEXCEPT_OR_NOTHROW;
+		
 		inline static const vec2f& mouse_delta() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return s_mouse_delta;
@@ -93,6 +92,11 @@ namespace gintonic
 		{
 			update_matrix_P();
 			return s_matrix_P;
+		}
+
+		inline static const mat4f& matrix_V() BOOST_NOEXCEPT_OR_NOTHROW
+		{
+			return s_matrix_V;
 		}
 
 		inline static const mat4f& matrix_M() BOOST_NOEXCEPT_OR_NOTHROW
@@ -118,13 +122,16 @@ namespace gintonic
 			return s_matrix_N;
 		}
 
-		template <class ...Args> static void set_model_matrix(Args&&... args)
-		{
-			s_matrix_VM_dirty = true;
-			s_matrix_PVM_dirty = true;
-			s_matrix_N_dirty = true;
-			s_matrix_M = mat4f(std::forward<Args>(args)...);
-		}
+		// template <class ...Args> static void set_model_matrix(Args&&... args)
+		// {
+		// 	s_matrix_VM_dirty = true;
+		// 	s_matrix_PVM_dirty = true;
+		// 	s_matrix_N_dirty = true;
+		// 	s_matrix_M = mat4f(std::forward<Args>(args)...);
+		// }
+
+		static void set_model_matrix(const mat4f& m);
+		static void set_model_matrix(const entity*);
 
 		#ifdef ENABLE_DEBUG_TRACE
 		static fontstream& cerr();
@@ -291,27 +298,27 @@ namespace gintonic
 			return s_text_shader;
 		}
 
-		inline static const opengl::unit_quad_P& get_unit_quad_P() BOOST_NOEXCEPT_OR_NOTHROW
+		inline static unit_quad_P& get_unit_quad_P() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_unit_quad_P;
 		}
 
-		inline static const opengl::unit_cube_P& get_unit_cube_P() BOOST_NOEXCEPT_OR_NOTHROW
+		inline static unit_cube_P& get_unit_cube_P() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_unit_cube_P;
 		}
 
-		inline static const opengl::unit_cube_P_flipped& get_unit_cube_P_flipped() BOOST_NOEXCEPT_OR_NOTHROW
+		inline static unit_cube_P_flipped& get_unit_cube_P_flipped() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_unit_cube_P_flipped;
 		}
 
-		inline static const opengl::unit_sphere_P& get_unit_sphere_P() BOOST_NOEXCEPT_OR_NOTHROW
+		inline static unit_sphere_P& get_unit_sphere_P() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_unit_sphere_P;
 		}
 
-		inline static const opengl::unit_cone_P& get_unit_cone_P() BOOST_NOEXCEPT_OR_NOTHROW
+		inline static unit_cone_P& get_unit_cone_P() BOOST_NOEXCEPT_OR_NOTHROW
 		{
 			return *s_unit_cone_P;
 		}
@@ -329,7 +336,7 @@ namespace gintonic
 		static bool s_fullscreen;
 		static int s_width;
 		static int s_height;
-		static float s_aspect_ratio;
+		static float s_aspectratio;
 
 		static time_point_type s_start_time;
 		static duration_type s_delta_time;
@@ -344,6 +351,7 @@ namespace gintonic
 		static bool s_matrix_N_dirty;
 
 		static mat4f s_matrix_P;
+		static mat4f s_matrix_V;
 		static mat4f s_matrix_M;
 		static mat4f s_matrix_VM;
 		static mat4f s_matrix_PVM;
@@ -385,11 +393,11 @@ namespace gintonic
 
 		static text_shader* s_text_shader;
 
-		static opengl::unit_quad_P* s_unit_quad_P;
-		static opengl::unit_cube_P* s_unit_cube_P;
-		static opengl::unit_cube_P_flipped* s_unit_cube_P_flipped;
-		static opengl::unit_sphere_P* s_unit_sphere_P;
-		static opengl::unit_cone_P* s_unit_cone_P;
+		static unit_quad_P* s_unit_quad_P;
+		static unit_cube_P* s_unit_cube_P;
+		static unit_cube_P_flipped* s_unit_cube_P_flipped;
+		static unit_sphere_P* s_unit_sphere_P;
+		static unit_cone_P* s_unit_cone_P;
 	};
 } // namespace gintonic
 

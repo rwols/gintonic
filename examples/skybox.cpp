@@ -84,9 +84,9 @@ int main(int argc, char* argv[])
 			mousedelta = -gt::deg2rad(mousedelta) / 4.0f;
 			gt::get_default_camera_entity().add_mousedelta(mousedelta);
 
-			gt::get_default_camera_entity().add_translation(gt::vec3f(mousedelta.x, mousedelta.y, 0.0f));
+			// gt::get_default_camera_entity().add_translation(gt::vec3f(mousedelta.x, mousedelta.y, 0.0f));
 			// gt::get_default_camera_entity().look_at(cube_entity);
-			gt::get_default_camera_entity().proj_info_component->update();
+			// gt::get_default_camera_entity().proj_info_component->update();
 			
 			gt::renderer::begin_geometry_pass();
 

@@ -1,6 +1,7 @@
 #include "quatf.hpp"
 #include "vec2f.hpp"
 #include "vec3f.hpp"
+#include "vec4f.hpp"
 
 namespace gintonic {
 
@@ -12,8 +13,8 @@ quatf::quatf(const float realpart, const vec3f& imaginarypart)
 
 vec3f quatf::apply_to(const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
 {
-	const auto temp = (*this) * quatf(0.0f, v) * conjugate();
-	return vec3f(temp.x, temp.y, temp.z);
+	return (*this) * quatf(0.0f, v) * conjugate();
+	// return vec3f(temp.x, temp.y, temp.z);
 }
 
 vec3f quatf::forward_direction() const BOOST_NOEXCEPT_OR_NOTHROW
@@ -45,7 +46,13 @@ vec3f quatf::direction() const BOOST_NOEXCEPT_OR_NOTHROW
 	return forward_direction();
 }
 
-quatf& quatf::add_mousedelta(const vec2f& mousedelta)
+quatf& quatf::set_mousedelta(const vec2f& angles) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return *this = mouse(angles);
+		// * axis_agle(vec3f(0.0f, 0.0f, -1.0f), roll);
+}
+
+quatf& quatf::add_mousedelta(const vec2f& mousedelta) BOOST_NOEXCEPT_OR_NOTHROW
 {
 	// const float cx = std::cos(mousedelta.x * 0.5f);
 	// const float sx = std::sin(mousedelta.x * 0.5f);
@@ -53,9 +60,16 @@ quatf& quatf::add_mousedelta(const vec2f& mousedelta)
 	// const float sy = std::sin(mousedelta.y * 0.5f);
 
 	// const quatf mouse(cx * sy, sx * sy, sx * cy, cx * cy);
-	return operator *= (
-		axis_angle(vec3f(0.0f, 1.0f, 0.0f), mousedelta.x) * 
-		axis_angle(vec3f(1.0f, 0.0f, 0.0f), mousedelta.y));
+
+	// return operator *= (mouse);
+
+	*this = axis_angle(vec3f(1.0f, 0.0f, 0.0f), mousedelta.y) * (*this) * axis_angle(vec3f(0.0f, 1.0f, 0.0f), -mousedelta.x);
+	return *this;
+
+	// return operator *= (
+	// 	axis_angle(vec3f(1.0f, 0.0f, 0.0f), mousedelta.y) *
+	// 	axis_angle(vec3f(0.0f, 1.0f, 0.0f), mousedelta.x) 
+	// 	);
 }
 
 quatf quatf::axis_angle(const vec3f& rotation_axis, const float rotation_angle)
@@ -106,6 +120,7 @@ quatf quatf::operator * (const quatf& other) const BOOST_NOEXCEPT_OR_NOTHROW
 	return _mm_shuffle_ps(XZWY, XZWY, _MM_SHUFFLE(2,1,3,0));
 
 	/* operations: 6 shuffles, 4 multiplications, 3 compound additions/subtractions   */
+
 	// This is the old way of multiplying two quaternions
 	// return quatf(
 	// 	w * b.w - x * b.x - y * b.y - z * b.z,
@@ -114,25 +129,154 @@ quatf quatf::operator * (const quatf& other) const BOOST_NOEXCEPT_OR_NOTHROW
 	// 	w * b.z + x * b.y - y * b.x + z * b.w);
 }
 
+quatf quatf::yaw_pitch_roll(
+	const float yaw, 
+	const float pitch, 
+	const float roll)
+{
+	return axis_angle(vec3f(0.0f, 1.0f, 0.0f), yaw) 
+		* axis_angle(vec3f(1.0f, 0.0f, 0.0f), pitch) 
+		* axis_angle(vec3f(0.0f, 0.0f, -1.0f), roll);
+}
+
 quatf quatf::look_at(const vec3f& eye_position, const vec3f& subject_position, const vec3f& up_direction)
 {
-	auto eye_copy = eye_position;
-	auto up_copy = up_direction;
-	const auto dotproduct = dot(eye_copy.normalize(), up_copy.normalize());
-	if (almost_equal(dotproduct, 1.0f, 5))
+	const auto direction = (subject_position - eye_position).normalize();
+
+	if (almost_equal(direction.z, 1.0f, 5))
+	{
+		return axis_angle(up_direction, static_cast<float>(M_PI));
+	}
+	else if (almost_equal(direction.z, -1.0f, 5))
 	{
 		return quatf(1.0f, 0.0f, 0.0f, 0.0f);
 	}
-	else if (almost_equal(dotproduct, -1.0f, 5))
-	{
-		return quatf(-1.0f, 0.0f, 0.0f, 0.0f);
-	}
 	else
 	{
-		const auto rotation_axis = cross(subject_position, up_copy).normalize();
-		const auto rotation_angle = std::acos(dotproduct);
-		return axis_angle(rotation_axis, rotation_angle);
+		const auto angle = std::acos(-direction.z);
+		const auto axis = cross(vec3f(0.0f, 0.0f, -1.0f), direction).normalize();
+		return axis_angle(axis, angle);
 	}
+
+	// return look_at((subject_position - eye_position).normalize(), up_direction);
+
+	// const auto f = (subject_location - eye_location).normalize();
+	// const auto s = (cross(f, up_direction)).normalize();
+	// const auto u = cross(s, f).normalize();
+
+
+
+	// auto direction = (subject_position - eye_position).normalize();
+	// const auto dotproduct = dot(direction, up_direction);
+	// direction = cross(direction, up_direction).normalize();
+	// const auto rotation_angle = std::acos(dotproduct);
+	// return axis_angle(direction, rotation_angle);
+
+	// if (almost_equal(dotproduct, 1.0f, 5))
+	// {
+	// 	return quatf(1.0f, 0.0f, 0.0f, 0.0f);
+	// }
+	// else if (almost_equal(dotproduct, -1.0f, 5))
+	// {
+	// 	return quatf(-1.0f, 0.0f, 0.0f, 0.0f);
+	// }
+	// else
+	// {
+	// 	const auto right_direction = cross(look_direction, up_direction).normalize();
+	// 	const auto rotation_angle = std::acos(dotproduct);
+	// 	return axis_angle(right_direction, rotation_angle);
+	// }
+}
+
+quatf quatf::look_at(const vec3f& f, const vec3f& up)
+{
+
+	const auto r = cross(f, up).normalize();
+	const auto u = cross(r, f).normalize();
+
+	// Now we have an orthonormal basis of unit vectors:
+	// r (X), u (Y) and -f (Z).
+
+	const auto tr = r.x + u.y - f.z;
+	float S;
+
+	#define m00 r.x
+	#define m10 r.y
+	#define m20 r.z
+	#define m01 u.x
+	#define m11 u.y
+	#define m21 u.z
+	#define m02 -f.x
+	#define m12 -f.y
+	#define m22 -f.z
+
+	quatf q;
+
+	if (tr > 0.0f)
+	{ 
+		S = std::sqrt(tr + 1.0) * 2.0f; // S=4*q.w 
+		q.x = (m21 - m12) / S;
+		q.y = (m02 - m20) / S; 
+		q.z = (m10 - m01) / S;
+		q.w = 0.25 * S;
+	}
+	else if ((m00 > m11) & (m00 > m22))
+	{ 
+		S = std::sqrt(1.0 + m00 - m11 - m22) * 2.0f; // S=4*q.x 
+		q.x = 0.25 * S;
+		q.y = (m01 + m10) / S; 
+		q.z = (m02 + m20) / S;
+		q.w = (m21 - m12) / S;
+	}
+	else if (m11 > m22)
+	{ 
+		S = std::sqrt(1.0 + m11 - m00 - m22) * 2.0f; // S=4*q.y
+		q.x = (m01 + m10) / S; 
+		q.y = 0.25 * S;
+		q.z = (m12 + m21) / S;
+		q.w = (m02 - m20) / S;
+	}
+	else
+	{ 
+		S = std::sqrt(1.0 + m22 - m00 - m11) * 2.0f; // S=4*q.z
+		q.x = (m02 + m20) / S;
+		q.y = (m12 + m21) / S;
+		q.z = 0.25 * S;
+		q.w = (m10 - m01) / S;
+	}
+
+	#undef m00
+	#undef m10
+	#undef m20
+	#undef m01
+	#undef m11
+	#undef m21
+	#undef m02
+	#undef m12
+	#undef m22
+
+	return q;
+}
+
+quatf quatf::mouse(const vec2f& angles)
+{
+	// const vec4f c = _mm_cos_ps(_mm_mul_ps(_mm_set1_ps(0.5f), angles.data));
+	// const vec4f s = _mm_sin_ps(_mm_mul_ps(_mm_set1_ps(0.5f), angles.data));
+	// const float cx = std::cos(angles.x * 0.5f);
+	// const float sx = std::sin(angles.x * 0.5f);
+	// const float cy = std::cos(angles.y * 0.5f);
+	// const float sy = std::sin(angles.y * 0.5f);
+
+	// return quatf(cx * sy, sx * sy, sx * cy, cx * cy);
+
+	return axis_angle( vec3f(1.0f, 0.0f, 0.0f), angles.y ) * axis_angle( vec3f(0.0f, 1.0f, 0.0f), angles.x );
+
+	// const vec3f direction(
+	// 	std::cos(angles.y) * -std::sin(angles.x), 
+	// 	-std::sin(angles.y), 
+	// 	std::cos(angles.y) * std::cos(angles.x));
+
+	// return look_at(vec3f(0.0f, 0.0f, -1.0f), direction, vec3f(0.0f, 1.0f, 0.0f));
 }
 
 } // namespace gintonic

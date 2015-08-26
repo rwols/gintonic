@@ -23,9 +23,11 @@ union quatf
 {
 private:
 
-	__m128 data;
+	
 
 public:
+
+	__m128 data;
 
 	struct
 	{
@@ -35,7 +37,11 @@ public:
 		float w;
 	};
 
-	inline quatf() = default;
+	inline quatf()
+	: x(0.0f), y(0.0f), z(0.0f), w(1.0f)
+	{
+		/* Empty on purpose. */
+	}
 
 	inline quatf(const __m128& data) : data(data)
 	{
@@ -52,9 +58,20 @@ public:
 
 	quatf operator * (const quatf& other) const BOOST_NOEXCEPT_OR_NOTHROW;
 
+	inline quatf operator * (const float s) const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return _mm_mul_ps(data, _mm_set1_ps(s));
+	}
+
 	inline quatf& operator *= (const quatf& q) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		return *this = *this * q;
+	}
+
+	inline quatf& operator *= (const float s) BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		data = _mm_mul_ps(data, _mm_set1_ps(s));
+		return *this;
 	}
 
 	inline quatf conjugate() const BOOST_NOEXCEPT_OR_NOTHROW
@@ -72,13 +89,20 @@ public:
 
 	vec3f direction() const BOOST_NOEXCEPT_OR_NOTHROW;
 
-	quatf& add_mousedelta(const vec2f&);
+	quatf& set_mousedelta(const vec2f&) BOOST_NOEXCEPT_OR_NOTHROW;
+
+	quatf& add_mousedelta(const vec2f&) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	float length2() const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	inline float length() const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		return std::sqrt(length2());
+	}
+
+	inline quatf& normalize() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return operator*=(length2());
 	}
 
 	inline bool operator == (const quatf& other) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -95,10 +119,21 @@ public:
 		const vec3f& rotation_axis, 
 		const float rotation_angle);
 
+	static quatf yaw_pitch_roll(
+		const float yaw, 
+		const float pitch, 
+		const float roll);
+
 	static quatf look_at(
 		const vec3f& eye_position, 
 		const vec3f& subject_position, 
 		const vec3f& up_direction);
+
+	static quatf look_at(
+		const vec3f& forward_direction,
+		const vec3f& up_direction);
+
+	static quatf mouse(const vec2f& angles);
 
 	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
 

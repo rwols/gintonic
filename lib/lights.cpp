@@ -71,7 +71,7 @@ void ambient_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	const auto& s = renderer::get_lp_ambient_shader();
 	s.activate();
-	s.set_viewport_size(vec2f(static_cast<float>(renderer::width()), static_cast<float>(renderer::height())));
+	s.set_viewport_size(renderer::viewport_size());
 	s.set_light_intensity(intensity);
 	renderer::get_unit_quad_P().draw();
 }
@@ -101,13 +101,23 @@ void directional_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	const auto& s = renderer::get_lp_directional_shader();
 	s.activate();
-	s.set_viewport_size(vec2f(static_cast<float>(renderer::width()), static_cast<float>(renderer::height())));
+
+	// These uniforms are always the same for every light shader.
+	// Consider using uniform buffers ...
+	s.set_viewport_size(renderer::viewport_size());
 	s.set_gbuffer_position(renderer::GBUFFER_POSITION);
 	s.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
 	s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	s.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
+
+	// These uniforms are different for each directional_light.
 	s.set_light_intensity(intensity);
-	s.set_light_direction((renderer::camera()->global_transform().rotation * t.rotation).direction());
+
+	// const auto rot = renderer::camera()->global_transform().apply_to_direction(t.rotation.direction());
+	const auto rot = renderer::matrix_V() * vec4f(t.rotation.direction(), 0.0f);
+	
+	s.set_light_direction(vec3f(rot.x, rot.y, rot.z));
+
 	renderer::get_unit_quad_P().draw();
 }
 
@@ -190,8 +200,7 @@ void point_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	renderer::begin_light_pass();
 
 	pointshader.activate();
-	pointshader.set_viewport_size(vec2f(static_cast<float>(
-		renderer::width()), static_cast<float>(renderer::height())));
+	pointshader.set_viewport_size(renderer::viewport_size());
 	pointshader.set_gbuffer_position(renderer::GBUFFER_POSITION);
 	pointshader.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
 	pointshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
@@ -310,8 +319,7 @@ void spot_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	renderer::begin_light_pass();
 
 	spotshader.activate();
-	spotshader.set_viewport_size(vec2f(static_cast<float>(
-		renderer::width()), static_cast<float>(renderer::height())));
+	spotshader.set_viewport_size(renderer::viewport_size());
 	spotshader.set_gbuffer_position(renderer::GBUFFER_POSITION);
 	spotshader.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
 	spotshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);

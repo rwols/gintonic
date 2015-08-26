@@ -188,6 +188,11 @@ public:
 		return _mm_add_ps(_mm_set1_ps(s), v.data);
 	}
 
+	inline vec3f operator -() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return _mm_mul_ps(_mm_set1_ps(-1.0f), data);
+	}
+
 	inline vec3f operator - (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		return _mm_sub_ps(data, v.data);

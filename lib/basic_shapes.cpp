@@ -1,7 +1,7 @@
 #include "basic_shapes.hpp"
-#include "mesh.hpp"
 #include "vec2f.hpp"
 #include "vec3f.hpp"
+#include "vertices.hpp"
 #include <cmath>
 
 #ifndef DEBUG_PRINT
@@ -11,21 +11,15 @@
 #endif
 
 namespace gintonic {
-namespace opengl {
 
-basic_shape::~basic_shape()
-{
-	/* Empty on purpose. */
-}
-
-unit_quad_P::unit_quad_P() : basic_shape()
+unit_quad_P::unit_quad_P() : mesh(mesh::kStaticMesh)
 {
 	#ifdef BOOST_MSVC
 	const int num_vertices = 4;
-	static const vertex_P quad[4] =
+	static const opengl::vertex_P quad[4] =
 	#else
 	BOOST_CONSTEXPR int num_vertices = 4;
-	static const vertex_P quad[num_vertices] =
+	static const opengl::vertex_P quad[num_vertices] =
 	#endif
 	{
 		{-1.0f, -1.0f, 0.0f},
@@ -35,8 +29,8 @@ unit_quad_P::unit_quad_P() : basic_shape()
 	};
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_P::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P) * num_vertices, quad, GL_STATIC_DRAW);
+	opengl::vertex_P::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(opengl::vertex_P) * num_vertices, quad, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -55,9 +49,9 @@ unit_quad_P::~unit_quad_P()
 	/* Empty on purpose. */
 }
 
-unit_quad_PN::unit_quad_PN()
+unit_quad_PN::unit_quad_PN() : mesh(mesh::kStaticMesh)
 {
-	const vertex_PN quad[4] =
+	const opengl::vertex_PN quad[4] =
 	{
 		// --positions-----|---normals--------
 		{-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f},
@@ -67,8 +61,8 @@ unit_quad_PN::unit_quad_PN()
 	};
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_PN::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PN) * 4, quad, GL_STATIC_DRAW);
+	opengl::vertex_PN::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(opengl::vertex_PN) * 4, quad, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -90,8 +84,9 @@ unit_quad_PN::~unit_quad_PN()
 unit_quad_PC::unit_quad_PC(
 const vec3f& color_topleft, const vec3f& color_topright,
 const vec3f& color_bottomleft, const vec3f& color_bottomright)
+: mesh(mesh::kStaticMesh)
 {
-	std::vector<vertex_PC> quad(4);
+	std::vector<opengl::vertex_PC> quad(4);
 	quad[0].position[0] = -1.0f;
 	quad[0].position[1] = -1.0f;
 	quad[0].position[2] =  0.0f;
@@ -122,7 +117,7 @@ const vec3f& color_bottomleft, const vec3f& color_bottomright)
 	quad[0].color[3] = 1.0f;
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_PC::enable_attributes();
+	opengl::vertex_PC::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, quad, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -139,14 +134,14 @@ void unit_quad_PC::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glBindVertexArray(0);
 }
 
-unit_quad_PU::unit_quad_PU()
+unit_quad_PU::unit_quad_PU() : mesh(mesh::kStaticMesh)
 {
 	#ifdef BOOST_MSVC
 	const int num_vertices = 4;
-	static const vertex_PU quad[4] =
+	static const opengl::vertex_PU quad[4] =
 	#else
 	BOOST_CONSTEXPR int num_vertices = 4;
-	static const vertex_PU quad[num_vertices] =
+	static const opengl::vertex_PU quad[num_vertices] =
 	#endif
 	{
 		{-1.0f, -1.0f, 0.0f, -1.0f, -1.0f},
@@ -156,8 +151,8 @@ unit_quad_PU::unit_quad_PU()
 	};
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_PU::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PU) * num_vertices, quad, GL_STATIC_DRAW);
+	opengl::vertex_PU::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(opengl::vertex_PU) * num_vertices, quad, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -176,9 +171,9 @@ void unit_quad_PU::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 #define NUM_CUBE_INDICES 14
 #define NUM_CUBE_VERTICES 8
 
-unit_cube_P::unit_cube_P() : basic_shape()
+unit_cube_P::unit_cube_P() : mesh(mesh::kStaticMesh)
 {
-	const vertex_P cube_vertices[NUM_CUBE_VERTICES] =
+	const opengl::vertex_P cube_vertices[NUM_CUBE_VERTICES] =
 	{
 		{ 1.0f,  1.0f, -1.0f}, // 0
 		{-1.0f,  1.0f, -1.0f}, // 1
@@ -193,8 +188,8 @@ unit_cube_P::unit_cube_P() : basic_shape()
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_P::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P) * NUM_CUBE_VERTICES, cube_vertices, GL_STATIC_DRAW);
+	opengl::vertex_P::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(opengl::vertex_P) * NUM_CUBE_VERTICES, cube_vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * NUM_CUBE_INDICES, cube_indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -214,9 +209,9 @@ void unit_cube_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glBindVertexArray(0);
 }
 
-unit_cube_P_flipped::unit_cube_P_flipped() : basic_shape()
+unit_cube_P_flipped::unit_cube_P_flipped() : mesh(mesh::kStaticMesh)
 {
-	const vertex_P cube_vertices[NUM_CUBE_VERTICES] =
+	const opengl::vertex_P cube_vertices[NUM_CUBE_VERTICES] =
 	{
 		{ 1.0f,  1.0f, -1.0f}, // 0
 		{-1.0f,  1.0f, -1.0f}, // 1
@@ -232,8 +227,8 @@ unit_cube_P_flipped::unit_cube_P_flipped() : basic_shape()
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_P::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_P) * NUM_CUBE_VERTICES, cube_vertices, GL_STATIC_DRAW);
+	opengl::vertex_P::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(opengl::vertex_P) * NUM_CUBE_VERTICES, cube_vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * NUM_CUBE_INDICES, cube_indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -254,9 +249,9 @@ void unit_cube_P_flipped::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 }
 
 
-unit_cube_PU::unit_cube_PU() : basic_shape()
+unit_cube_PU::unit_cube_PU() : mesh(mesh::kStaticMesh)
 {
-	const vertex_PU cube_vertices[24] =
+	const opengl::vertex_PU cube_vertices[24] =
 	{
 		// front
     	{-1.0f, -1.0f,  1.0f, 0.0f, 0.0f},
@@ -313,8 +308,8 @@ unit_cube_PU::unit_cube_PU() : basic_shape()
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_PU::enable_attributes();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_PU) * 24, cube_vertices, GL_STATIC_DRAW);
+	opengl::vertex_PU::enable_attributes();
+	glBufferData(GL_ARRAY_BUFFER, sizeof(opengl::vertex_PU) * 24, cube_vertices, GL_STATIC_DRAW);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -334,7 +329,7 @@ void unit_cube_PU::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glBindVertexArray(0);
 }
 
-unit_cube_PUN::unit_cube_PUN()
+unit_cube_PUN::unit_cube_PUN() : mesh(mesh::kStaticMesh)
 {
 	const mesh::vec4f cube_positions[24] =
 	{
@@ -451,7 +446,7 @@ void unit_cube_PUN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
 }
 
-unit_cube_PUN_flipped_normals::unit_cube_PUN_flipped_normals()
+unit_cube_PUN_flipped_normals::unit_cube_PUN_flipped_normals() : mesh(mesh::kStaticMesh)
 {
 	const mesh::vec4f cube_positions[24] =
 	{
@@ -567,7 +562,7 @@ void unit_cube_PUN_flipped_normals::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
 }
 
-unit_cube_PUNTB::unit_cube_PUNTB()
+unit_cube_PUNTB::unit_cube_PUNTB() : mesh(mesh::kStaticMesh)
 {
 	const mesh::vec4f cube_positions[24] =
 	{
@@ -722,7 +717,7 @@ unit_cube_PUNTB::~unit_cube_PUNTB()
 	/* Empty on purpose. */
 }
 
-unit_cube_PUNTB_flipped_normals::unit_cube_PUNTB_flipped_normals()
+unit_cube_PUNTB_flipped_normals::unit_cube_PUNTB_flipped_normals() : mesh(mesh::kStaticMesh)
 {
 	const mesh::vec4f cube_positions[24] =
 	{
@@ -877,9 +872,10 @@ unit_cube_PUNTB_flipped_normals::~unit_cube_PUNTB_flipped_normals()
 	/* Empty on purpose. */
 }
 
-unit_sphere_P::unit_sphere_P(const unsigned short stacks, const unsigned short slices) 
+unit_sphere_P::unit_sphere_P(const unsigned short stacks, const unsigned short slices)
+ : mesh(mesh::kStaticMesh)
 {
-	std::vector<vertex_P> vertices;
+	std::vector<opengl::vertex_P> vertices;
 	std::vector<unsigned short> indices;
 	float theta, phi, sin_theta, sin_phi, cos_theta, cos_phi;
 
@@ -893,7 +889,7 @@ unit_sphere_P::unit_sphere_P(const unsigned short stacks, const unsigned short s
 			sin_phi = std::sin(phi);
 			cos_theta = std::cos(theta);
 			cos_phi = std::cos(phi);
-			vertices.emplace_back(vec3f(cos_phi * sin_theta, sin_phi * sin_theta, cos_theta));
+			vertices.emplace_back(gintonic::vec3f(cos_phi * sin_theta, sin_phi * sin_theta, cos_theta));
 		}
 	}
 	for (unsigned int stack = 0; stack < stacks; ++stack)
@@ -910,7 +906,7 @@ unit_sphere_P::unit_sphere_P(const unsigned short stacks, const unsigned short s
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_P::enable_attributes();
+	opengl::vertex_P::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 }
@@ -930,8 +926,9 @@ unit_sphere_P::~unit_sphere_P()
 }
 
 unit_sphere_PU::unit_sphere_PU(const unsigned short stacks, const unsigned short slices)
+ : mesh(mesh::kStaticMesh)
 {
-	std::vector<vertex_PU> vertices;
+	std::vector<opengl::vertex_PU> vertices;
 	std::vector<unsigned short> indices;
 	float theta, phi, sin_theta, sin_phi, cos_theta, cos_phi;
 
@@ -947,8 +944,8 @@ unit_sphere_PU::unit_sphere_PU(const unsigned short stacks, const unsigned short
 			cos_phi = std::cos(phi);
 			vertices.emplace_back
 			(
-				vec3f(cos_phi * sin_theta, sin_phi * sin_theta, cos_theta),
-				vec2f(0, 0) // TODO: THIS IS A PLACEHOLDER!!!
+				gintonic::vec3f(cos_phi * sin_theta, sin_phi * sin_theta, cos_theta),
+				gintonic::vec2f(0, 0) // TODO: THIS IS A PLACEHOLDER!!!
 			);
 		}
 	}
@@ -966,7 +963,7 @@ unit_sphere_PU::unit_sphere_PU(const unsigned short stacks, const unsigned short
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-	vertex_PU::enable_attributes();
+	opengl::vertex_PU::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 }
@@ -991,8 +988,8 @@ struct sphere_face
 	virtual void get(
 		const float s, 
 		const float t, 
-		vec3f& pos, 
-		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
 };
 
 struct sphere_front_face : public sphere_face
@@ -1001,8 +998,8 @@ struct sphere_front_face : public sphere_face
 	inline virtual void get(
 		const float s, 
 		const float t, 
-		vec3f& pos, 
-		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
 		pos.x = 2.0f * s - 1.0f;
 		pos.y = 2.0f * t - 1.0f;
@@ -1019,8 +1016,8 @@ struct sphere_back_face : public sphere_face
 	inline virtual void get(
 		const float s, 
 		const float t, 
-		vec3f& pos, 
-		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
 		pos.x = 2.0f * s - 1.0f;
 		pos.y = -(2.0f * t - 1.0f);
@@ -1037,8 +1034,8 @@ struct sphere_top_face : public sphere_face
 	inline virtual void get(
 		const float s, 
 		const float t, 
-		vec3f& pos, 
-		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
 		pos.x = 2.0f * s - 1.0f;
 		pos.y = 1.0f;
@@ -1055,8 +1052,8 @@ struct sphere_bottom_face : public sphere_face
 	inline virtual void get(
 		const float s, 
 		const float t, 
-		vec3f& pos, 
-		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
 		pos.x = 2.0f * s - 1.0f;
 		pos.y = -1.0f;
@@ -1073,8 +1070,8 @@ struct sphere_left_face : public sphere_face
 	inline virtual void get(
 		const float s, 
 		const float t, 
-		vec3f& pos, 
-		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
 		pos.x = -1.0f;
 		pos.y = 2.0f * s - 1.0f;
@@ -1091,8 +1088,8 @@ struct sphere_right_face : public sphere_face
 	inline virtual void get(
 		const float s, 
 		const float t, 
-		vec3f& pos, 
-		vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
 	{
 		pos.x = 1.0f;
 		pos.y = 2.0f * s - 1.0f;
@@ -1104,6 +1101,7 @@ struct sphere_right_face : public sphere_face
 };
 
 unit_sphere_PUN::unit_sphere_PUN(const unsigned short subdivisions)
+ : mesh(mesh::kStaticMesh)
 {
 	if (subdivisions == 0)
 	{
@@ -1123,10 +1121,10 @@ unit_sphere_PUN::unit_sphere_PUN(const unsigned short subdivisions)
 	float s;
 	float t;
 	const float subdivs = static_cast<float>(subdivisions);
-	vec3f pos;
-	vec2f uv;
+	gintonic::vec3f pos;
+	gintonic::vec2f uv;
 
-	// std::vector<vertex_PUN> vertices;
+	// std::vector<opengl::vertex_PUN> vertices;
 
 	std::vector<mesh::vec4f> positions;
 	std::vector<mesh::vec4f> texcoords;
@@ -1202,10 +1200,10 @@ void unit_sphere_PUN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 }
 
 unit_cone_P::unit_cone_P(const GLsizei divs)
-: basic_shape()
+: mesh(mesh::kStaticMesh)
 , divisions(divs+2)
 {
-	std::vector<vertex_P> vertices(2 * divisions);
+	std::vector<opengl::vertex_P> vertices(2 * divisions);
 	GLfloat s, c;
 	const GLfloat angle = 2.0f * static_cast<float>(M_PI) / static_cast<float>(divs);
 
@@ -1228,7 +1226,7 @@ unit_cone_P::unit_cone_P(const GLsizei divs)
 	}
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertices);
-	vertex_P::enable_attributes();
+	opengl::vertex_P::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -1252,10 +1250,10 @@ void unit_cone_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 }
 
 unit_cone_PN::unit_cone_PN(const GLsizei divs)
-: basic_shape()
+: mesh(mesh::kStaticMesh)
 , divisions(divs+2)
 {
-	std::vector<vertex_PN> vertices(2 * divisions);
+	std::vector<opengl::vertex_PN> vertices(2 * divisions);
 	GLfloat s, c, next_s, next_c;
 	const GLfloat angle = 2.0f * static_cast<float>(M_PI) / static_cast<float>(divs);
 
@@ -1280,9 +1278,9 @@ unit_cone_PN::unit_cone_PN(const GLsizei divs)
 		next_c = cos(static_cast<float>(div) * angle);
 		next_s = sin(static_cast<float>(div) * angle);
 
-		vec3f P0(0.0f, 1.0f, 0.0f);
-		vec3f P1(c, -1.0f, s);
-		vec3f P2(next_c, -1.0f, next_s);
+		gintonic::vec3f P0(0.0f, 1.0f, 0.0f);
+		gintonic::vec3f P1(c, -1.0f, s);
+		gintonic::vec3f P2(next_c, -1.0f, next_s);
 
 		auto N = cross(P2 - P0, P1 - P0).normalize();
 
@@ -1302,7 +1300,7 @@ unit_cone_PN::unit_cone_PN(const GLsizei divs)
 	}
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	vertex_PN::enable_attributes();
+	opengl::vertex_PN::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -1325,9 +1323,9 @@ void unit_cone_PN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glFrontFace(GL_CCW);
 }
 
-unit_cylinder_P::unit_cylinder_P(const GLsizei divs) : basic_shape(), divisions(divs+2)
+unit_cylinder_P::unit_cylinder_P(const GLsizei divs) : mesh(mesh::kStaticMesh), divisions(divs+2)
 {
-	std::vector<vertex_P> vertices(4 * divisions);
+	std::vector<opengl::vertex_P> vertices(4 * divisions);
 	GLfloat s_current, c_current, s_next, c_next;
 	const GLfloat angle = 2.0f * static_cast<float>(M_PI) / static_cast<float>(divs);
 
@@ -1360,7 +1358,7 @@ unit_cylinder_P::unit_cylinder_P(const GLsizei divs) : basic_shape(), divisions(
 	}
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertices);
-	vertex_P::enable_attributes();
+	opengl::vertex_P::enable_attributes();
 	gtBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -1384,5 +1382,4 @@ void unit_cylinder_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
 	glFrontFace(GL_CCW);
 }
 
-} // end of namespace opengl
 } // end of namespace gintonic
