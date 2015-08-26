@@ -4,6 +4,7 @@
 #include "quatf.hpp"
 #include "mat3f.hpp"
 #include "SQT.hpp"
+#include "entity.hpp"
 
 namespace gintonic {
 
@@ -105,6 +106,11 @@ mat4f::mat4f(const SQT& transform)
 	data[3] = transform.translation.data;
 	// data[3] = _mm_mul_ps(_mm_set1_ps(-1.0f), transform.translation.data);
 	m33 = 1.0f;
+}
+
+mat4f::mat4f(const entity& e) : mat4f(e.global_transform())
+{
+	/* Empty on purpose. */
 }
 
 mat4f::mat4f(const mat3f& rotation_part)

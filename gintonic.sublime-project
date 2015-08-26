@@ -24,6 +24,10 @@
 		{
 			"path": "test",
 			"name": "Unit Tests"
+		},
+		{
+			"path": "doc",
+			"name": "Documentation"
 		}
 	],
 	"settings":

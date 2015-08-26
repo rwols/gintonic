@@ -12,11 +12,12 @@ namespace FBX {
 
 namespace gintonic {
 
-union vec3f; // Forward declaration.
-union vec4f; // Forward declaration.
-union quatf; // Forward declaration.
-union mat3f; // Forward declaration.
-struct SQT;  // Forward declaration.
+union vec3f;  // Forward declaration.
+union vec4f;  // Forward declaration.
+union quatf;  // Forward declaration.
+union mat3f;  // Forward declaration.
+struct SQT;   // Forward declaration.
+class entity; // Forward declaration.
 
 /*****************************************************************************
 * gintonic::mat4f, column-major storage                                      *
@@ -90,6 +91,8 @@ public:
 	mat4f(const vec3f& translation);
 
 	mat4f(const SQT& transform);
+
+	mat4f(const entity&);
 
 	mat4f(const float m00, const float m01, const float m02, const float m03,
 		const float m10, const float m11, const float m12, const float m13,

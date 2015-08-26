@@ -113,7 +113,7 @@ void directional_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	// These uniforms are different for each directional_light.
 	s.set_light_intensity(intensity);
 
-	// const auto rot = renderer::camera()->global_transform().apply_to_direction(t.rotation.direction());
+	// const auto rot = renderer::camera().global_transform().apply_to_direction(t.rotation.direction());
 	const auto rot = renderer::matrix_V() * vec4f(t.rotation.direction(), 0.0f);
 	
 	s.set_light_direction(vec3f(rot.x, rot.y, rot.z));
@@ -195,7 +195,7 @@ void point_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	const auto light_pos = renderer::camera()->global_transform().apply_to_point(t.translation);
+	const auto light_pos = renderer::camera().global_transform().apply_to_point(t.translation);
 
 	renderer::begin_light_pass();
 
@@ -313,8 +313,8 @@ void spot_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	const auto light_pos = renderer::camera()->global_transform().apply_to_point(t.translation);
-	const auto light_dir = (renderer::camera()->global_transform().rotation * t.rotation).direction();
+	const auto light_pos = renderer::camera().global_transform().apply_to_point(t.translation);
+	const auto light_dir = (renderer::camera().global_transform().rotation * t.rotation).direction();
 
 	renderer::begin_light_pass();
 

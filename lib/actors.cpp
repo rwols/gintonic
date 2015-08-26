@@ -308,7 +308,7 @@ void static_model_actor::draw_geometry_instanced()
 	std::vector<mat4f, allocator<mat4f>> VM_matrices;
 	std::vector<mat3f, allocator<mat3f>> N_matrices;
 
-	const mat4f matrix_V(renderer::camera()->global_transform());
+	const mat4f matrix_V(renderer::camera().global_transform());
 	const mat4f matrix_P(renderer::matrix_P());
 	mat4f matrix_VM;
 

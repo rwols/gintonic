@@ -1,3 +1,7 @@
+#
+# Put stuff here that git shouldn't track.
+#
+
 freetype-gl/
 build/
 b/
@@ -5,6 +9,20 @@ gintonic
 libgintonic.a
 *.trace
 trace.txt
+
+#
+# Don't track the LaTeX output files
+#
+doc/*.synctex.gz
+doc/*.aux
+doc/*.fdb_latexmk
+doc/*.log
+doc/*.pdf
+
+
+##############################################
+# What follows is grabbed from the internet. #
+##############################################
 
 # Created by http://www.gitignore.io
 

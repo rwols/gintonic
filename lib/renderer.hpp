@@ -55,12 +55,13 @@ namespace gintonic
 		typedef clock_type::time_point time_point_type;
 		typedef clock_type::duration duration_type;
 
-		static void init(const char* title, entity* camera, const bool fullscreen, const int width, const int height);
+		static void init(const char* title, entity& camera, const bool fullscreen, const int width, const int height);
+		static void init_dummy(const bool construct_shaders = false);
 		inline static duration_type delta_time() BOOST_NOEXCEPT_OR_NOTHROW { return s_delta_time; }
 		inline static duration_type elapsed_time() BOOST_NOEXCEPT_OR_NOTHROW { return s_elapsed_time; }
 		static bool is_initialized() BOOST_NOEXCEPT_OR_NOTHROW;
-		static void set_camera(entity*);
-		inline static entity* camera() BOOST_NOEXCEPT_OR_NOTHROW { return s_camera; }
+		static void set_camera(entity&);
+		inline static entity& camera() BOOST_NOEXCEPT_OR_NOTHROW { return *s_camera; }
 		inline static int width() BOOST_NOEXCEPT_OR_NOTHROW { return s_width; }
 		inline static int height() BOOST_NOEXCEPT_OR_NOTHROW { return s_height; }
 		inline static float aspectratio() BOOST_NOEXCEPT_OR_NOTHROW { return s_aspectratio; }
@@ -122,16 +123,13 @@ namespace gintonic
 			return s_matrix_N;
 		}
 
-		// template <class ...Args> static void set_model_matrix(Args&&... args)
-		// {
-		// 	s_matrix_VM_dirty = true;
-		// 	s_matrix_PVM_dirty = true;
-		// 	s_matrix_N_dirty = true;
-		// 	s_matrix_M = mat4f(std::forward<Args>(args)...);
-		// }
-
-		static void set_model_matrix(const mat4f& m);
-		static void set_model_matrix(const entity*);
+		template <class ...Args> static void set_model_matrix(Args&&... args)
+		{
+			s_matrix_VM_dirty = true;
+			s_matrix_PVM_dirty = true;
+			s_matrix_N_dirty = true;
+			s_matrix_M = mat4f(std::forward<Args>(args)...);
+		}
 
 		#ifdef ENABLE_DEBUG_TRACE
 		static fontstream& cerr();
@@ -181,7 +179,7 @@ namespace gintonic
 		static void set_read_buffer(const enum GBUFFER type);
 		static void blit_drawbuffers_to_screen();
 		static void blit_drawbuffers_to_screen(fontstream&);
-		static void null_light_pass() BOOST_NOEXCEPT_OR_NOTHROW;
+		static void ambient_light_pass() BOOST_NOEXCEPT_OR_NOTHROW;
 
 		inline static const matrix_PVM_shader& get_null_shader() BOOST_NOEXCEPT_OR_NOTHROW
 		{
@@ -329,6 +327,8 @@ namespace gintonic
 		static void update_matrix_VM();
 		static void update_matrix_PVM();
 		static void update_matrix_N();
+
+		static void init_shaders();
 
 		static void release();
 		

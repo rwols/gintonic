@@ -4,7 +4,7 @@ namespace gt = gintonic;
 
 int main(int argc, char** argv)
 {
-	gt::init_all("driver_info");
+	gt::renderer::init_dummy(false);
 	std::cout << "\nRenderer: " << gt::renderer::name() << '\n';
 	std::cout << "Version: " << gt::renderer::version() << '\n';
 

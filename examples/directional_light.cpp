@@ -24,14 +24,18 @@ template <class FloatType> FloatType get_dt()
 int main(int argc, char* argv[])
 {
 	// Define a camera.
-	gt::entity camera;
-	gt::camera cam(camera);
 	gt::proj_info projection;
-	cam.position = {0.0f, 0.0f, -4.0f};
-	camera.proj_info_component = &projection;
+	gt::entity cam_entity;
+	cam_entity.proj_info_component = &projection;
+	gt::camera cam_component(cam_entity);
+
+	// Position the camera
+	cam_component.position = {0.0f, 0.0f, 4.0f};
+	cam_component.add_horizontal_and_vertical_angles(static_cast<float>(M_PI), 0.0f);
+	
 	try
 	{
-		gt::init_all("directional_light", &camera);
+		gt::init_all("directional_light", cam_entity);
 		gt::renderer::set_freeform_cursor(true);
 		
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
@@ -81,36 +85,36 @@ int main(int argc, char* argv[])
 			}
 			if (gt::renderer::key(SDL_SCANCODE_W))
 			{
-				cam.move_forward(dt);
+				cam_component.move_forward(dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_A))
 			{
-				cam.move_left(dt);
+				cam_component.move_left(dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_S))
 			{
-				cam.move_backward(dt);
+				cam_component.move_backward(dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_D))
 			{
-				cam.move_right(dt);
+				cam_component.move_right(dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_SPACE))
 			{
-				cam.move_up(dt);
+				cam_component.move_up(dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_C))
 			{
-				cam.move_down(dt);
+				cam_component.move_down(dt);
 			}
 
 			mousedelta = -gt::deg2rad(gt::renderer::mouse_delta()) / 10.0f;
-			cam.add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
-			// camera.camera_component->update(mousedelta);
-			// camera.set_rotation_from_camera();
-			// camera.set_mousedelta(camera.camera_component->angles);
+			cam_component.add_horizontal_and_vertical_angles(mousedelta.x, mousedelta.y);
+			// cam_entity.cam_entity_component->update(mousedelta);
+			// cam_entity.set_rotation_from_cam_entity();
+			// cam_entity.set_mousedelta(cam_entity.cam_entity_component->angles);
 			// cam.update(mousedelta);
-			// camera.set_mouserotation(cam.angles);
+			// cam_entity.set_mouserotation(cam.angles);
 			
 			gt::renderer::begin_geometry_pass();
 			
@@ -119,7 +123,7 @@ int main(int argc, char* argv[])
 			const auto rotation_axis = gt::vec3f(0.0f, 0.0f, 1.0f);
 
 			cube_entity.set_rotation(gt::quatf::axis_angle(rotation_axis, -curtime / 4.0f));
-			gt::renderer::set_model_matrix(&cube_entity);
+			gt::renderer::set_model_matrix(cube_entity);
 			cube_entity.material_component->bind();
 			cube_entity.mesh_component->draw();
 			
@@ -150,10 +154,14 @@ int main(int argc, char* argv[])
 				<< "Press Q to quit.\n"
 				<< the_light << '\n'
 				<< std::setprecision(2) << std::fixed << '\n'
-				<< "Camera RIGHT:    " << cam.right << '\n'
-				<< "Camera UP:       " << cam.up << '\n'
-				<< "Camera FORWARD:  " << cam.direction << "\n\n"
-				<< "Camera POSITION: " << cam.position;
+				<< "Camera entity RIGHT:    " << cam_entity.global_transform().rotation.right_direction() << '\n'
+				<< "Camera entity UP:       " << cam_entity.global_transform().rotation.up_direction() << '\n'
+				<< "Camera entity FORWARD:  " << cam_entity.global_transform().rotation.forward_direction() << '\n'
+				<< "Camera entity POSITION: " << cam_entity.global_transform().translation << "\n\n"
+				<< "Cam component RIGHT:    " << cam_component.right << '\n'
+				<< "Cam component UP:       " << cam_component.up << '\n'
+				<< "Cam component FORWARD:  " << cam_component.direction << '\n'
+				<< "Cam component POSITION: " << cam_component.position;
 			stream.close();
 			
 			glEnable(GL_CULL_FACE);
