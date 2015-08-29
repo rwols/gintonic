@@ -262,7 +262,7 @@ mat4f& mat4f::set_orthographic(const float width, const float height, const floa
 mat4f::mat4f(const vec3f& eye_location, const vec3f& subject_location, const vec3f& up_direction)
 {
 	const auto f = (subject_location - eye_location).normalize();
-	const auto s = (cross(f, up_direction)).normalize();
+	const auto s = cross(f, up_direction).normalize();
 	const auto u = cross(s, f).normalize();
 
 	m00 =  s.x;

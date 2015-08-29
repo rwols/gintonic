@@ -18,6 +18,24 @@ SQT& SQT::operator %= (const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW
 	return *this;
 }
 
+SQT SQT::inverse() const BOOST_NOEXCEPT_OR_NOTHROW
+{
+	return SQT(
+		vec3f(1.0f / scale.x, 1.0f / scale.y, 1.0f / scale.z),
+		rotation.conjugate(),
+		-translation);
+}
+
+SQT& SQT::invert() BOOST_NOEXCEPT_OR_NOTHROW
+{
+	scale.x = 1.0f / scale.x;
+	scale.y = 1.0f / scale.y;
+	scale.z = 1.0f / scale.z;
+	rotation = rotation.conjugate();
+	translation *= -1.0f;
+	return *this;
+}
+
 std::ostream& operator << (std::ostream& os, const SQT& sqt)
 {
 	return os << sqt.scale << ' ' << sqt.rotation << ' ' << sqt.translation;

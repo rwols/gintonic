@@ -134,9 +134,10 @@ quatf quatf::yaw_pitch_roll(
 	const float pitch, 
 	const float roll)
 {
-	return axis_angle(vec3f(0.0f, 1.0f, 0.0f), yaw) 
+	return
+		axis_angle(vec3f(0.0f, 0.0f, -1.0f), roll)
 		* axis_angle(vec3f(1.0f, 0.0f, 0.0f), pitch) 
-		* axis_angle(vec3f(0.0f, 0.0f, -1.0f), roll);
+		* axis_angle(vec3f(0.0f, 1.0f, 0.0f), yaw);
 }
 
 quatf quatf::look_at(const vec3f& eye_position, const vec3f& subject_position, const vec3f& up_direction)
@@ -258,25 +259,16 @@ quatf quatf::look_at(const vec3f& f, const vec3f& up)
 	return q;
 }
 
+void quatf::add_mouse(const vec2f& angles) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	const auto rot = axis_angle(vec3f(0.0f, 1.0f, 0.0f), angles.x);
+	*this = axis_angle(rot.right_direction(), angles.y) * (*this) * rot;
+}
+
 quatf quatf::mouse(const vec2f& angles)
 {
-	// const vec4f c = _mm_cos_ps(_mm_mul_ps(_mm_set1_ps(0.5f), angles.data));
-	// const vec4f s = _mm_sin_ps(_mm_mul_ps(_mm_set1_ps(0.5f), angles.data));
-	// const float cx = std::cos(angles.x * 0.5f);
-	// const float sx = std::sin(angles.x * 0.5f);
-	// const float cy = std::cos(angles.y * 0.5f);
-	// const float sy = std::sin(angles.y * 0.5f);
-
-	// return quatf(cx * sy, sx * sy, sx * cy, cx * cy);
-
-	return axis_angle( vec3f(1.0f, 0.0f, 0.0f), angles.y ) * axis_angle( vec3f(0.0f, 1.0f, 0.0f), angles.x );
-
-	// const vec3f direction(
-	// 	std::cos(angles.y) * -std::sin(angles.x), 
-	// 	-std::sin(angles.y), 
-	// 	std::cos(angles.y) * std::cos(angles.x));
-
-	// return look_at(vec3f(0.0f, 0.0f, -1.0f), direction, vec3f(0.0f, 1.0f, 0.0f));
+	const auto rot = axis_angle(vec3f(0.0f, 1.0f, 0.0f), angles.x);
+	return axis_angle(rot.right_direction(), angles.y) * rot;
 }
 
 } // namespace gintonic

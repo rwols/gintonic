@@ -73,7 +73,10 @@ void camera::add_horizontal_and_vertical_angles(const float horizontal, const fl
 	
 	up = cross(right, direction).normalize();
 
-	controlling_entity->set_rotation(get_rotation());
+	controlling_entity->set_rotation(quatf::mouse(vec2f(horizontal_angle, vertical_angle)));
+	// auto rot = controlling_entity->local_transform().rotation;
+	// rot.add_mouse(vec2f(horizontal, vertical));
+	// controlling_entity->set_rotation(rot);
 }
 
 mat4f camera::get_matrix() const BOOST_NOEXCEPT_OR_NOTHROW

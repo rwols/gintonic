@@ -115,6 +115,8 @@ public:
 		return !operator==(other);
 	}
 
+	void add_mouse(const vec2f& angles) BOOST_NOEXCEPT_OR_NOTHROW;
+
 	static quatf axis_angle(
 		const vec3f& rotation_axis, 
 		const float rotation_angle);

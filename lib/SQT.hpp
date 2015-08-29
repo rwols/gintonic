@@ -34,6 +34,10 @@ struct SQT
 
 	SQT& operator %= (const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW;
 
+	SQT inverse() const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	SQT& invert() BOOST_NOEXCEPT_OR_NOTHROW;
+
 	inline void look_at(const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		rotation = quatf::look_at(translation, other.translation, vec3f(0.0f, 1.0f, 0.0f));
