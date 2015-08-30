@@ -1,7 +1,7 @@
 #ifndef gintonic_materials_hpp
 #define gintonic_materials_hpp
 
-// #include "math.hpp"
+#include "component.hpp"
 #include "vec4f.hpp"
 #include "locks.hpp"
 #include "opengl/textures.hpp"
@@ -11,17 +11,25 @@
 
 namespace gintonic {
 
+class entity; // Forward declaration.
+
 /*****************************************************************************
 * gintonic::material                                                         *
 *****************************************************************************/
 
-class material
+class material : public component
 {
 public:
 
 	// Bind the material.
 	virtual void bind(const bool instanced = false) 
 		const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	// Needs implementation from base class component.
+	virtual void attach(entity&) final;
+
+	// Needs implementation from base class component.
+	virtual void detach(entity&) final;
 	
 	// Destructor.
 	virtual ~material() BOOST_NOEXCEPT_OR_NOTHROW;
@@ -291,10 +299,6 @@ private:
 	iter_type m_diffuse_tex;
 	iter_type m_specular_tex;
 	iter_type m_normal_tex;
-
-	friend class material_component_diffuse_texture;
-	friend class material_component_specular_texture;
-	friend class material_component_normal_texture;	
 };
 
 } // namespace gintonic

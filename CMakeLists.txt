@@ -140,7 +140,7 @@ else ()
 
 	if (APPLE)
 		# Need to copy fbxsdk
-		list(GET FBX_LIBRARY 1 FBX_DLL)
+		list(GET FBX_LIBRARY 0 FBX_DLL)
 		file (COPY ${FBX_DLL} DESTINATION ${CMAKE_BINARY_DIR}/examples)
 		file (COPY ${FBX_DLL} DESTINATION ${CMAKE_BINARY_DIR}/test)
 	endif ()

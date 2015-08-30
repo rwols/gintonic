@@ -1,6 +1,7 @@
 #ifndef gintonic_lights_hpp
 #define gintonic_lights_hpp
 
+#include "component.hpp"
 #include "vec4f.hpp"
 #include "SQT.hpp"
 #include <boost/serialization/access.hpp>
@@ -9,16 +10,24 @@
 
 namespace gintonic {
 
+class entity; // Forward declaration.
+
 /*****************************************************************************
 * gintonic::light                                                            *
 *****************************************************************************/
 
-class light : public std::enable_shared_from_this<light>
+class light : public component
 {
 public:
 
 	// Light intensity property.
 	vec4f intensity;
+
+	// Needs implementation from base class component.
+	virtual void attach(entity&) final;
+
+	// Needs implementation from base class component.
+	virtual void detach(entity&) final;
 
 	// Default constructor.
 	light() = default;

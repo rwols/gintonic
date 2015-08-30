@@ -10,6 +10,27 @@
 
 namespace gintonic {
 
+void light::attach(entity& e)
+{
+	if (e.light_component == this) return;
+	else if (e.light_component) e.light_component->detach(e);
+	e.light_component = this;
+	m_ents.push_back(&e);
+}
+
+void light::detach(entity& e)
+{
+	for (auto i = begin(); i != end(); ++i)
+	{
+		if (*i == e)
+		{
+			e.light_component = nullptr;
+			m_ents.erase(i);
+			return;
+		}
+	}
+}
+
 light::light(const vec4f& intensity)
 : intensity(intensity)
 {

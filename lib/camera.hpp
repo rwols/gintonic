@@ -30,59 +30,31 @@ public:
 	void update() BOOST_NOEXCEPT_OR_NOTHROW;
 };
 
-// class camera
-// {
-// public:
-
-// 	vec2f angles;
-
-// 	vec3f right;
-// 	vec3f up;
-// 	vec3f forward;
-
-// 	mat4f matrix;
-
-// 	void update(const vec2f& mousedelta) BOOST_NOEXCEPT_OR_NOTHROW;
-// };
-
 class camera
 {
+private:
+
+	entity* m_controlling_entity;
+
 public:
-
-	enum projection_type
-	{
-		kOrthographicProjection,
-		kPerspectiveProjection
-	};
-
-	projection_type projection = kPerspectiveProjection;
-
-	float fieldofview = 1.22173048f;
-	float orthographic_zoom = 1.0f;
 
 	camera(entity& entity_to_control);
 
-	entity* controlling_entity;
+	vec2f angles;
 
-	float horizontal_angle;
-	float vertical_angle;
+	inline entity& controlling_entity() BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return *m_controlling_entity;
+	}
 
-	vec3f direction;
-	vec3f up;
-	vec3f right;
-	vec3f position;
+	inline const entity&  controlling_entity() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return *m_controlling_entity;
+	}
 
-	void add_horizontal_and_vertical_angles(const float horizontal, const float vertical) BOOST_NOEXCEPT_OR_NOTHROW;
-	quatf get_rotation() const BOOST_NOEXCEPT_OR_NOTHROW;
-	mat4f get_matrix() const BOOST_NOEXCEPT_OR_NOTHROW;
-	mat4f matrix_V() const BOOST_NOEXCEPT_OR_NOTHROW;
-	mat4f matrix_P() const BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_forward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_backward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_left(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_right(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_up(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
-	void move_down(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_controlling_entity(entity&);
+
+	void add_mouse(const vec2f& angles) BOOST_NOEXCEPT_OR_NOTHROW;
 };
 
 } // namespace gintonic

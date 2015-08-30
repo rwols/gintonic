@@ -523,8 +523,6 @@ namespace gintonic {
 		}
 
 		// Update the WORLD->VIEW matrix.
-		// s_matrix_V = s_camera->camera_component->get_matrix();
-
 		const auto f = s_camera->global_transform().rotation.forward_direction();
 		const auto u = s_camera->global_transform().rotation.up_direction();
 		const auto r = s_camera->global_transform().rotation.right_direction();
@@ -549,18 +547,6 @@ namespace gintonic {
 		s_matrix_V.m13 = -dot(u, eye);
 		s_matrix_V.m23 =  dot(f, eye);
 		s_matrix_V.m33 = 1.0f;
-
-		// {
-		// 	const mat4f scale_matrix(
-		// 		s_camera->global_transform().scale.x, 
-		// 		s_camera->global_transform().scale.y, 
-		// 		s_camera->global_transform().scale.z);
-
-		// 	const mat4f rotation_matrix(s_camera->global_transform().rotation);
-		// 	const mat4f translation_matrix(s_camera->global_transform().translation);
-
-		// 	s_matrix_V = scale_matrix * translation_matrix * rotation_matrix;
-		// }
 	}
 
 	void renderer::begin_geometry_pass()

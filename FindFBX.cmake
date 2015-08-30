@@ -90,13 +90,15 @@ find_library(FBX_LIBRARY_DEBUG ${fbx_libname}
     PATHS ${search_paths}
     PATH_SUFFIXES "lib/${libdir}/debug")
 
-if (FBX_INCLUDE_DIR)
+# First-time run
+if (FBX_INCLUDE_DIR AND NOT FBX_FOUND)
     if (WIN32 OR APPLE)
     foreach (version IN LISTS versions)
         string(REGEX MATCH ${version} FBX_NAMESPACE ${FBX_INCLUDE_DIR})
         if (FBX_NAMESPACE)
             string(REPLACE "." "_" FBX_NAMESPACE ${FBX_NAMESPACE})
             set(FBX_NAMESPACE "fbxsdk_${FBX_NAMESPACE}" CACHE STRING "The Fbx namespace.")
+            message(STATUS "FBX namespace: ${FBX_NAMESPACE}")
             break()
         endif ()
     endforeach ()

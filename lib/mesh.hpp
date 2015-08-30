@@ -2,6 +2,7 @@
 #define gintonic_mesh_hpp
 
 #include "opengl/glad.hpp"
+#include "component.hpp"
 #include "mat3f.hpp"
 #include "mat4f.hpp"
 #include "allocator.hpp"
@@ -15,7 +16,7 @@ namespace FBX
 
 namespace gintonic {
 
-class mesh
+class mesh : public component
 {
 public:
 
@@ -24,6 +25,9 @@ public:
 		kStaticMesh,
 		kDynamicMesh
 	};
+
+	virtual void attach(entity&);
+	virtual void detach(entity&);
 
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW = 0;
 
@@ -34,7 +38,7 @@ public:
 
 	inline mesh_type type() const BOOST_NOEXCEPT_OR_NOTHROW { return m_type; }
 
-	inline virtual ~mesh() BOOST_NOEXCEPT_OR_NOTHROW {}
+	virtual ~mesh() BOOST_NOEXCEPT_OR_NOTHROW;
 
 	struct vec2f
 	{

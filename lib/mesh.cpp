@@ -1,8 +1,29 @@
 #include "mesh.hpp"
+#include "entity.hpp"
 #include <fbxsdk.h>
 
-namespace gintonic
+namespace gintonic {
+
+void mesh::attach(entity& e)
 {
+	if (e.mesh_component == this) return;
+	else if (e.mesh_component) e.mesh_component->detach(e);
+	e.mesh_component = this;
+	m_ents.push_back(&e);
+}
+
+void mesh::detach(entity& e)
+{
+	for (auto i = begin(); i != end(); ++i)
+	{
+		if (*i == e)
+		{
+			e.mesh_component = nullptr;
+			m_ents.erase(i);
+			return;
+		}
+	}
+}
 
 mesh::vec2f::vec2f(const FbxVector2& v)
 : x(static_cast<GLfloat>(v[0]))
@@ -80,6 +101,11 @@ mesh::vec4f::vec4f(const GLfloat x, const GLfloat y, const GLfloat z, const GLfl
 , y(y)
 , z(z)
 , w(w)
+{
+	/* Empty on purpose. */
+}
+
+mesh::~mesh() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	/* Empty on purpose. */
 }

@@ -111,6 +111,12 @@ public:
 	void set_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void post_add_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void pre_add_local_transform(const SQT&) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_forward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_backward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_right(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_left(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_up(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_down(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
 
 	void get_view_matrix(mat4f&) const BOOST_NOEXCEPT_OR_NOTHROW;
 

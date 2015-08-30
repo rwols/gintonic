@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 set(executables basic_shapes
 	directional_light
-	fbx_importer
+	fbx_viewer
 	fps_camera
 	geometry_buffer_showcase
 	normal_map_test

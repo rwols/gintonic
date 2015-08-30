@@ -39,12 +39,28 @@ set(src_files
 	vec4f.cpp
 	vertices.cpp)
 
+find_package(Doxygen)
+
+option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 option(WITH_PROFILING "Profile various math functions. Does nothing at the moment." OFF)
 option(WITH_PROFILING "Profile various math functions." OFF)
 option(WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
 option(ENABLE_DEBUG_TRACE "Enable debug tracing via the renderer." ON)
 option(HIDE_CONSOLE "Hide the console on Windows." OFF)
 option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output streams to files." OFF)
+
+if (BUILD_DOCUMENTATION)
+	if (NOT DOXYGEN_FOUND)
+		message(FATAL_ERROR "Doxygen is needed to build the documentation.")
+	endif()
+	configure_file(Doxyfile.cmake ${CMAKE_BINARY_DIR}/Doxyfile)
+	add_custom_target(doc
+		COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		COMMENT "Generating documentation."
+		VERBATIM)
+endif()
+
 
 set(SSE_VERSION 30)
 # set(FBX_NAMESPACE fbxsdk_2016_0)

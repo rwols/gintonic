@@ -167,6 +167,42 @@ void entity::pre_add_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW
 	update_global_info_start();
 }
 
+void entity::move_forward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.translation += amount * m_local_transform.rotation.forward_direction();
+	update_global_info_start();
+}
+
+void entity::move_backward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.translation -= amount * m_local_transform.rotation.forward_direction();
+	update_global_info_start();
+}
+
+void entity::move_right(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.translation += amount * m_local_transform.rotation.right_direction();
+	update_global_info_start();
+}
+
+void entity::move_left(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.translation -= amount * m_local_transform.rotation.right_direction();
+	update_global_info_start();
+}
+
+void entity::move_up(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.translation += amount * m_local_transform.rotation.up_direction();
+	update_global_info_start();
+}
+
+void entity::move_down(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+{
+	m_local_transform.translation -= amount * m_local_transform.rotation.up_direction();
+	update_global_info_start();
+}
+
 SQT entity::compute_global_transform() const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	SQT result(m_local_transform);

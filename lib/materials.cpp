@@ -1,4 +1,5 @@
 #include "materials.hpp"
+#include "entity.hpp"
 #include "shaders.hpp"
 #include "renderer.hpp"
 #include "exception.hpp"
@@ -318,6 +319,27 @@ material& material::operator = (material&& other) BOOST_NOEXCEPT_OR_NOTHROW
 	other.m_normal_tex = s_textures.end();
 	s_textures_lock.release();
 	return *this;
+}
+
+void material::attach(entity& e)
+{
+	if (e.material_component == this) return;
+	else if (e.material_component) e.material_component->detach(e);
+	e.material_component = this;
+	m_ents.push_back(&e);
+}
+
+void material::detach(entity& e)
+{
+	for (auto i = begin(); i != end(); ++i)
+	{
+		if (*i == e)
+		{
+			e.material_component = nullptr;
+			m_ents.erase(i);
+			return;
+		}
+	}
 }
 
 void material::bind(const bool instanced) const BOOST_NOEXCEPT_OR_NOTHROW
