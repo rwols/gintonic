@@ -7,7 +7,95 @@
 
 # <a name="introduction"></a>Introduction
 
-Hello! Read on for the math. **TODO: Better introduction.**
+Gintonic is the name of an engine framework written in C++ using OpenGL.
+The project is ongoing.
+
+# <a name="dependencies"></a>Dependencies
+
+Gintonic depends on the following software:
+
+* CMake -- For building
+* Boost libraries -- Cross-platform filesystem, serialization, iostreams, etc.
+* Freetype -- For rendering fonts
+* libjpeg -- If on OSX/Linux, for texture loading
+* libpng -- If on OSX/Linux, for texture loading
+* SDL2 -- For a cross-platform windowing system
+* FBX SDK -- For importing meshes, materials, light, etc.
+
+## <a name="installing-windows-dependencies"></a>Installing Windows Dependencies
+
+You do not have to install libjpeg and libpng. Loading images into memory can 
+be done with the WIC API of Windows. There is no universal way to install
+dependencies on Windows, so it can be a bit of a pain to do this. CMake has an
+installer, so no problem there. I recommend downloading the precompiled 
+binaries of SDL2. The website of the Freetype project has some links to
+websites which provide precompiled binaries. I suggest making a separate
+folder for each dependency in your top-level directory. For instance,
+C:\Freetype, C:\SDL2, and so forth. The FBX SDK has an installer, so that's
+nice too. The FBX SDK will be installed in %programfiles%\Autodesk\FBX. Once
+the dependencies are installed, you need to setup some environment variables.
+The top-level CMakeLists.txt file expects the following environment variables
+to be defined.
+
+* BOOST_ROOT: Location of Boost (e.g. C:\Boost)
+* SDL2: Location of the SDL2 directory (e.g. C:\SDL2)
+* FREETYPE_DIR: Location of the Freetype library (e.g. C:\Freetype)
+
+In addition, if for some reason CMake cannot find the FBX SDK, you can set an
+environment variable called FBX_ROOT to point to the root FBX folder.
+
+## <a name="installing-osx-dependencies"></a>Installing OSX Dependencies
+
+The best way to install the dependencies is via Homebrew. Go to http://brew.sh
+and read the instructions on how to install Homebrew. Once installed, you can
+type
+
+	brew install cmake boost freetype libjpeg libpng sdl2
+
+In a terminal to install all the dependencies except for the FBX SDK. The FBX
+SDK needs to be installed manually (with an install wizard). As of this
+writing, the most recent FBX SDK is version 2016.1. This can be downloaded
+from
+
+http://download.autodesk.com/us/fbx/20161/fbx20161_fbxsdk_clang_mac.pkg.tgz
+
+You may need to edit some variables in the top-level CMakeLists.txt file
+of the Gintonic project to get everything to work.
+
+## <a name="installing-linux-dependencies"></a>Installing Linux Dependencies
+
+In the top-level directory there's a file called `bootstrap-linux.sh`.
+Run that file to install all dependencies.
+
+# <a name="the-structure-of-the-engine"></a>The Structure of the Engine
+
+My suggestion is to explore the code in the examples directory to get a feel
+for how the various classes interact with eachother. Basically, there's a huge
+singleton class in renderer.hpp that takes care of rendering. There are
+vectors, matrices and quaternion classes in math.hpp.
+
+Rendering geometry is done with the mesh class in mesh.hpp. However if you 
+need simple geometric shapes you could look into basic_shapes.hpp. When 
+rendering a mesh, you need to bind a material so that the correct shader gets
+activated. This interplay is in the files materials.hpp and shaders.hpp. Every
+class in shaders.hpp derives from the gintonic::opengl::shader class and adds
+some extra methods that correspond to uniform variables in the corresponding
+shader with the same name (as the class). Each material in materials.hpp
+(again with the same naming scheme) then references its corresponding shader
+class and sets up the uniform variables in the shader given its own data
+members. Each new shader class needs to be known to the giant singleton class
+in renderer.hpp (called gintonic::renderer). Currently, I just give it a new
+static method that fetches the new shader class (and add a new static pointer
+to the new class). This works for now, but could probably benefit from a more
+generic approach.
+
+I wrote the classes in math.hpp a very long time ago. I believe they could use
+a rewrite using SSE intrinsics. The vector and matrix class being templated
+is pointless.
+
+The classes in lights.hpp represent a light in space. Currently, I have
+implemented a directional light and a point light. Just as with materials,
+each light has a corresponding shader class and a corresponding shader.
 
 # <a name="the-math-in-gintonic"></a>The Math in Gintonic
 
