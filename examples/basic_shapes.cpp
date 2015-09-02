@@ -22,10 +22,11 @@ template <class FloatType> FloatType get_dt()
 int main(int argc, char* argv[])
 {
 	// Define a camera.
-	gt::proj_info projection;
+	gt::proj_info projection_component;
+	gt::camera cam_component;
 	gt::entity cam_entity;
-	cam_entity.proj_info_component = &projection;
-	gt::camera cam_component(cam_entity);
+	projection_component.attach(cam_entity);
+	cam_component.attach(cam_entity);
 
 	// Position the camera
 	cam_entity.set_translation(gt::vec3f(-2.78f, 0.83f, 1.17f));
@@ -74,13 +75,13 @@ int main(int argc, char* argv[])
 		gt::entity light_entity(transform, bbox);
 
 		// "Wire up" the entities with their components
-		cube_entity.mesh_component = &the_cube;
-		cube_entity.material_component = &brick_with_normal_material;
-		sphere_entity.mesh_component = &the_sphere;
-		sphere_entity.material_component = &brick_material;
-		cone_entity.mesh_component = &the_cone;
-		cone_entity.material_component = &flat_material;
-		light_entity.light_component = &the_light;
+		the_cube.attach(cube_entity);
+		brick_with_normal_material.attach(cube_entity);
+		the_sphere.attach(sphere_entity);
+		brick_material.attach(sphere_entity);
+		the_cone.attach(cone_entity);
+		flat_material.attach(cone_entity);
+		the_light.attach(light_entity);
 		
 		// std::unique_ptr<gt::light> the_light(new gt::directional_light(gt::vec4f(1.0f, 1.0f, 1.0f, 1.0f)));
 		gt::SQT the_light_transform;
@@ -146,20 +147,20 @@ int main(int argc, char* argv[])
 
 			cube_entity.set_local_transform(shape_transform);
 			gt::renderer::set_model_matrix(cube_entity);
-			cube_entity.material_component->bind();
-			cube_entity.mesh_component->draw();
+			cube_entity.material_component()->bind();
+			cube_entity.mesh_component()->draw();
 
 			shape_transform.translation.x += 3.0f;
 			sphere_entity.set_local_transform(shape_transform);
 			gt::renderer::set_model_matrix(sphere_entity);
-			sphere_entity.material_component->bind();
-			sphere_entity.mesh_component->draw();
+			sphere_entity.material_component()->bind();
+			sphere_entity.mesh_component()->draw();
 
 			shape_transform.translation.x -= 6.0f;
 			cone_entity.set_local_transform(shape_transform);
 			gt::renderer::set_model_matrix(cone_entity);
-			cone_entity.material_component->bind();
-			cone_entity.mesh_component->draw();
+			cone_entity.material_component()->bind();
+			cone_entity.mesh_component()->draw();
 
 			shape_transform.translation.x += 3.0f;
 			shape_transform.translation.y += 4.0f;
@@ -185,7 +186,7 @@ int main(int argc, char* argv[])
 					gt::vec3f(1.0f, 0.0f, 0.0f),
 					cursin + static_cast<float>(-M_PI) / 2.0f);
 				light_entity.set_local_transform(shape_transform);
-				light_entity.light_component->shine(light_entity.global_transform());
+				light_entity.light_component()->shine(light_entity);
 
 				gt::renderer::get_text_shader()->activate();
 				gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
@@ -201,7 +202,7 @@ int main(int argc, char* argv[])
 					<< "Press G to view the geometry buffer.\n"
 					<< "Press Q to quit.\n"
 					<< the_light << '\n'
-					<< gt::renderer::camera().global_transform().translation << '\n';
+					<< gt::renderer::camera().global_transform() * gt::vec4f(0.0f, 0.0f, 0.0f, 1.0f) << '\n';
 				stream.close();
 				
 				glEnable(GL_CULL_FACE);

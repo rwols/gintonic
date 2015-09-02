@@ -39,7 +39,7 @@ public:
 	virtual ~light() BOOST_NOEXCEPT_OR_NOTHROW;
 	
 	// Shine the light given the SQT transform.
-	virtual void shine(const SQT&) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+	virtual void shine(const entity&) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
 
 	virtual void set_brightness(const float brightness);
 	float brightness() const BOOST_NOEXCEPT_OR_NOTHROW;
@@ -90,7 +90,7 @@ public:
 	// Shine the ambient light. Note that an ambient
 	// light doesn't do anything with the supplied SQT transform
 	// at all, it just lights all objects uniformly.
-	virtual void shine(const SQT&) const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void shine(const entity&) const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	// Stream output support for a ambient light.
 	friend std::ostream& operator << (std::ostream&, const ambient_light&);
@@ -133,7 +133,7 @@ public:
 	// Shine the directional light given the SQT transform.
 	// In the case of a directional light, only the rotation
 	// part of the SQT transform is used.
-	virtual void shine(const SQT&) const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void shine(const entity&) const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	// Stream output support for a directional light.
 	friend std::ostream& operator << (std::ostream&, const directional_light&);
@@ -190,7 +190,7 @@ public:
 
 	// Shine the point light given the SQT transform. The point light
 	// uses only the translation (position) part of the SQT transform.
-	virtual void shine(const SQT&) const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void shine(const entity&) const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	virtual void set_brightness(const float brightness);
 
@@ -256,7 +256,7 @@ public:
 	// Shine the spot light given the SQT transform. The spot light
 	// uses both the rotation part as well as the translation (position)
 	// part of the SQT transform. It does nothing with the scale part.
-	virtual void shine(const SQT&) const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void shine(const entity&) const BOOST_NOEXCEPT_OR_NOTHROW;
 
 	// Stream output support for a spot light.
 	friend std::ostream& operator << (std::ostream&, const spot_light&);

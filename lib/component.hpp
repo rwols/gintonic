@@ -1,21 +1,24 @@
 #ifndef gintonic_component_hpp
 #define gintonic_component_hpp
 
-#include "config.hpp"
+#include "entity.hpp"
 #include <memory>
-#include <boost/ptr_container/ptr_vector.hpp>
-#include "entity.hpp" // Needed for boost::ptr_vector
+#include <vector>
+#include <boost/iterator/indirect_iterator.hpp>
 
 namespace gintonic {
 
+// class entity; // Forward declaration.
+
 class component : public std::enable_shared_from_this<component>
 {
-public:
-	typedef boost::ptr_vector<entity>::iterator iterator;
-	typedef boost::ptr_vector<entity>::const_iterator const_iterator;
 protected:
-	boost::ptr_vector<entity> m_ents;
+	std::vector<entity*> m_ents;
+	void entity_died_handler(entity&);
 public:
+	typedef std::vector<entity*>::iterator iterator;
+	typedef std::vector<entity*>::const_iterator const_iterator;
+
 	inline iterator begin() BOOST_NOEXCEPT_OR_NOTHROW { return m_ents.begin(); }
 	inline iterator end() BOOST_NOEXCEPT_OR_NOTHROW { return m_ents.end(); }
 	inline const_iterator begin() const BOOST_NOEXCEPT_OR_NOTHROW { return m_ents.begin(); }

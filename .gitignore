@@ -18,6 +18,11 @@ doc/*.aux
 doc/*.fdb_latexmk
 doc/*.log
 doc/*.pdf
+doc/*.idx
+doc/*.ilg
+doc/*.ind
+doc/*.toc
+
 
 
 ##############################################

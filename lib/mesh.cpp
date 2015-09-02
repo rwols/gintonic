@@ -6,9 +6,9 @@ namespace gintonic {
 
 void mesh::attach(entity& e)
 {
-	if (e.mesh_component == this) return;
-	else if (e.mesh_component) e.mesh_component->detach(e);
-	e.mesh_component = this;
+	if (e.m_mesh_component == this) return;
+	else if (e.m_mesh_component) e.m_mesh_component->detach(e);
+	e.m_mesh_component = this;
 	m_ents.push_back(&e);
 }
 
@@ -16,9 +16,9 @@ void mesh::detach(entity& e)
 {
 	for (auto i = begin(); i != end(); ++i)
 	{
-		if (*i == e)
+		if (*i == &e)
 		{
-			e.mesh_component = nullptr;
+			e.m_mesh_component = nullptr;
 			m_ents.erase(i);
 			return;
 		}
@@ -107,7 +107,7 @@ mesh::vec4f::vec4f(const GLfloat x, const GLfloat y, const GLfloat z, const GLfl
 
 mesh::~mesh() BOOST_NOEXCEPT_OR_NOTHROW
 {
-	/* Empty on purpose. */
+	for (auto* e : m_ents) e->m_mesh_component = nullptr;
 }
 
 bool mesh::vec4f::operator==(const mesh::vec4f& other) const BOOST_NOEXCEPT_OR_NOTHROW

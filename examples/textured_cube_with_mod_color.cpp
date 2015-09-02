@@ -22,13 +22,24 @@ template <class FloatType> FloatType get_dt()
 
 int main(int argc, char* argv[])
 {
+	// Define a camera.
+	gt::proj_info projection_component;
+	gt::camera cam_component;
+	gt::entity cam_entity;
+	projection_component.attach(cam_entity);
+	cam_component.attach(cam_entity);
+
+	// Position the camera
+	cam_entity.set_translation(gt::vec3f(0.0f, 0.0f, 4.0f));
+	cam_component.add_mouse(gt::vec2f(0.0f, 0.0f));
+
 	try
 	{
-		gt::init_all("textured_cube_with_mod_color");
+		gt::init_all("textured_cube_with_mod_color", cam_entity);
 		gt::renderer::set_freeform_cursor(true);
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
 		gt::fontstream stream;
-		gt::opengl::unit_cube_PUN the_shape;
+		gt::unit_cube_PUN the_shape;
 		gt::material the_material(gt::vec4f(1.0f, 1.0f, 1.0f, 0.0f), gt::vec4f(0.0f, 0.0f, 0.0f, 1.0f), "../examples/bricks.jpg");
 		gt::renderer::show();
 		float curtime, dt;
@@ -42,26 +53,27 @@ int main(int argc, char* argv[])
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_W))
 			{
-				gt::get_default_camera_entity().move_forward(dt);
+				cam_entity.move_forward(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_A))
 			{
-				gt::get_default_camera_entity().move_left(dt);
+				cam_entity.move_left(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_S))
 			{
-				gt::get_default_camera_entity().move_backward(dt);
+				cam_entity.move_backward(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_D))
 			{
-				gt::get_default_camera_entity().move_right(dt);
+				cam_entity.move_right(dt);
 			}
 			if (gintonic::renderer::key(SDL_SCANCODE_SPACE))
 			{
-				gt::get_default_camera_entity().move_up(dt);
+				cam_entity.move_up(dt);
 			}
-			auto mousedelta = -gt::deg2rad(gt::renderer::mouse_delta()) / 4.0f;
-			gt::get_default_camera_entity().add_mousedelta(mousedelta);
+			auto mousedelta = gt::renderer::mouse_delta();
+			mousedelta = -gt::deg2rad(mousedelta) / 10.0f;
+			cam_component.add_mouse(mousedelta);
 			gt::renderer::begin_geometry_pass();
 			const auto yaxis = (1.0f + std::cos(curtime)) / 2.0f;
 			const auto zaxis = (1.0f + std::sin(curtime)) / 2.0f;
@@ -72,7 +84,7 @@ int main(int argc, char* argv[])
 			the_material.bind();
 			the_shape.draw();
 			gt::renderer::begin_light_pass();
-			gt::renderer::null_light_pass();
+			gt::renderer::ambient_light_pass();
 			gt::renderer::get_text_shader()->activate();
 			gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
 			glDisable(GL_CULL_FACE);
@@ -84,10 +96,10 @@ int main(int argc, char* argv[])
 				<< "Press Q to quit.\n"
 				<< "Elapsed time: " << std::fixed << std::setprecision(1) << curtime << " seconds\n"
 				<< "Frames per second: " << std::fixed << std::setprecision(1) << 1.0f / dt << '\n'
-				<< "Camera position: " << gt::get_default_camera_entity().global_transform().translation << '\n'
-				<< "Camera forward:  " << gt::get_default_camera_entity().global_transform().rotation.forward_direction() << '\n'
-				<< "Camera up:       " << gt::get_default_camera_entity().global_transform().rotation.up_direction() << '\n'
-				<< "Camera right:    " << gt::get_default_camera_entity().global_transform().rotation.right_direction() << std::endl;
+				<< "Camera position: " << cam_entity.local_transform().translation << '\n'
+				<< "Camera forward:  " << cam_entity.local_transform().rotation.forward_direction() << '\n'
+				<< "Camera up:       " << cam_entity.local_transform().rotation.up_direction() << '\n'
+				<< "Camera right:    " << cam_entity.local_transform().rotation.right_direction() << std::endl;
 			stream.close();
 			glEnable(GL_CULL_FACE);
 			gt::renderer::update();

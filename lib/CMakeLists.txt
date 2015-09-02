@@ -10,11 +10,11 @@ set(src_files
 	opengl/textures.cpp
 	opengl/vertex_array_object.cpp
 	SQT.cpp
-	actors.cpp
 	basic_shapes.cpp
 	box2f.cpp
 	box3f.cpp
 	camera.cpp
+	component.cpp
 	entity.cpp
 	exception.cpp
 	filesystem.cpp
@@ -29,10 +29,12 @@ set(src_files
 	mesh.cpp
 	octree.cpp
 	profiler.cpp
+	proj_info.cpp
 	quatf.cpp
 	renderer.cpp
 	shaders.cpp
 	skybox.cpp
+	static_mesh.cpp
 	timers.cpp
 	vec2f.cpp
 	vec3f.cpp

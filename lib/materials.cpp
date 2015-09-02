@@ -13,6 +13,59 @@
 // #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/export.hpp>
 #include <fstream>
+#include <fbxsdk/scene/shading/fbxsurfacematerial.h>
+#include <fbxsdk/scene/shading/fbxsurfacelambert.h>
+#include <fbxsdk/scene/shading/fbxsurfacephong.h>
+#include <fbxsdk/scene/shading/fbxtexture.h>
+#include <fbxsdk/scene/shading/fbxfiletexture.h>
+
+using FBX::FbxSurfaceMaterial;
+using FBX::FbxSurfaceLambert;
+using FBX::FbxSurfacePhong;
+using FBX::FbxTexture;
+using FBX::FbxFileTexture;
+using FBX::FbxCast;
+using FBX::FbxDouble;
+using FBX::FbxDouble3;
+
+namespace { // anonymous namespace
+
+std::size_t texture_count(
+	const FbxSurfaceMaterial* mat, 
+	const char* property)
+{
+	const auto prop = mat->FindProperty(property);
+	return prop.GetSrcObjectCount<FbxFileTexture>();
+}
+
+boost::filesystem::path get_texture_filename(
+	const FbxSurfaceMaterial* mat, 
+	const char* property, 
+	const std::size_t index)
+{
+	const auto prop = mat->FindProperty(property);
+	const auto file_prop = FbxCast<FbxFileTexture>(prop.GetSrcObject<FbxFileTexture>(index));
+	return file_prop->GetFileName();
+}
+
+float get_texture_factor(
+	const FbxSurfaceMaterial* mat,
+	const char* property)
+{
+	const auto prop = mat->FindProperty(property);
+	return static_cast<float>(prop.Get<FbxDouble>());
+}
+
+gintonic::vec3f get_material_color(
+	const FbxSurfaceMaterial* mat,
+	const char* property)
+{
+	const auto prop = mat->FindProperty(property);
+	const auto fbx_color = prop.Get<FbxDouble3>();
+	return gintonic::vec3f(static_cast<float>(fbx_color[0]), static_cast<float>(fbx_color[1]), static_cast<float>(fbx_color[2]));
+}
+
+} // anonymous namespace
 
 namespace gintonic {
 
@@ -163,15 +216,19 @@ void material::unsafe_release_texture(iter_type& iter)
 {
 	if (iter != s_textures.end())
 	{
-		if (--(std::get<1>(*iter)) == 0) // decreases reference count
+		auto& refcount = std::get<1>(*iter);
+		--refcount;
+		if (refcount == 0)
 		{
 			s_textures.erase(iter); // erases entry from the global container
+			iter = s_textures.end();
 		}
 	}
 }
 
 material::material()
 {
+	std::cout << "material::material num textures: " << s_textures.size() << '\n';
 	s_textures_lock.obtain();
 	m_diffuse_tex = s_textures.end();
 	m_specular_tex = s_textures.end();
@@ -248,6 +305,66 @@ material::material(
 	s_textures_lock.release();
 }
 
+material::material(const FbxSurfaceMaterial* fbxmat)
+{
+	std::cout << "\tFound material: " << fbxmat->GetName() << '\n';
+
+	const auto diffuse_count   = texture_count(fbxmat, FbxSurfaceMaterial::sDiffuse);
+	const auto specular_count  = texture_count(fbxmat, FbxSurfaceMaterial::sSpecular);
+	const auto normal_count    = texture_count(fbxmat, FbxSurfaceMaterial::sNormalMap);
+
+	const auto diffuse_factor  = get_texture_factor(fbxmat, FbxSurfaceMaterial::sDiffuseFactor);
+	const auto specular_factor = get_texture_factor(fbxmat, FbxSurfaceMaterial::sSpecularFactor);
+	const auto shininess       = get_texture_factor(fbxmat, FbxSurfaceMaterial::sShininess);
+
+	diffuse_color = vec4f(get_material_color(fbxmat, FbxSurfaceMaterial::sDiffuse), diffuse_factor);
+	specular_color = vec4f(get_material_color(fbxmat, FbxSurfaceMaterial::sSpecular), 1.0f);
+
+	specular_color *= specular_factor;
+	specular_color.w = shininess;
+
+	std::cout << "\tDiffuse color: " << diffuse_color << '\n';
+	std::cout << "\tSpecular color: " << specular_color << '\n';
+
+	s_textures_lock.obtain();
+
+	boost::filesystem::path tex_filename;
+	if (diffuse_count)
+	{
+		tex_filename = get_texture_filename(fbxmat, FbxSurfaceMaterial::sDiffuse, 0);
+		unsafe_obtain_texture(tex_filename, m_diffuse_tex);
+		std::cout << "\tDiffuse texture: " << tex_filename << '\n';
+	}
+	else
+	{
+		std::cout << "\tNo diffuse texture present.\n";
+		m_diffuse_tex = s_textures.end();
+	}
+	if (specular_count)
+	{
+		tex_filename = get_texture_filename(fbxmat, FbxSurfaceMaterial::sSpecular, 0);
+		unsafe_obtain_texture(tex_filename, m_specular_tex);
+		std::cout << "\tSpecular texture: " << tex_filename << '\n';
+	}
+	else
+	{
+		std::cout << "\tNo specular texture present.\n";
+		m_specular_tex = s_textures.end();
+	}
+	if (normal_count)
+	{
+		tex_filename = get_texture_filename(fbxmat, FbxSurfaceMaterial::sNormalMap, 0);
+		unsafe_obtain_texture(tex_filename, m_normal_tex);
+		std::cout << "\tNormal texture: " << tex_filename << '\n';
+	}
+	else
+	{
+		std::cout << "\tNo normal map present.\n";
+		m_normal_tex = s_textures.end();
+	}
+	s_textures_lock.release();
+}
+
 material::~material() BOOST_NOEXCEPT_OR_NOTHROW
 {
 	s_textures_lock.obtain();
@@ -255,12 +372,15 @@ material::~material() BOOST_NOEXCEPT_OR_NOTHROW
 	unsafe_release_texture(m_specular_tex);
 	unsafe_release_texture(m_normal_tex);
 	s_textures_lock.release();
+	for (auto* e : m_ents) e->m_material_component = nullptr;
 }
 
 material::material(const material& other)
-: diffuse_color(other.diffuse_color)
+: component(other)
+, diffuse_color(other.diffuse_color)
 , specular_color(other.specular_color)
 {
+	std::cout << "material::material(const material&): num textures: " << s_textures.size() << '\n';
 	s_textures_lock.obtain();
 	m_diffuse_tex = other.m_diffuse_tex;
 	m_specular_tex = other.m_specular_tex;
@@ -269,12 +389,15 @@ material::material(const material& other)
 	if (m_specular_tex != s_textures.end()) ++(std::get<1>(*m_specular_tex));
 	if (m_normal_tex != s_textures.end()) ++(std::get<1>(*m_normal_tex));
 	s_textures_lock.release();
+	std::cout << "material::material(const material&): num textures: " << s_textures.size() << '\n';
 }
 
 material::material(material&& other) BOOST_NOEXCEPT_OR_NOTHROW
-: diffuse_color(std::move(other.diffuse_color))
+: component(std::move(other))
+, diffuse_color(std::move(other.diffuse_color))
 , specular_color(std::move(other.specular_color))
 {
+	std::cout << "material::material(material&&): num textures: " << s_textures.size() << '\n';
 	s_textures_lock.obtain();
 	m_diffuse_tex = other.m_diffuse_tex;
 	m_specular_tex = other.m_specular_tex;
@@ -283,10 +406,13 @@ material::material(material&& other) BOOST_NOEXCEPT_OR_NOTHROW
 	other.m_specular_tex = s_textures.end();
 	other.m_normal_tex = s_textures.end();
 	s_textures_lock.release();
+	std::cout << "material::material(material&&): num textures: " << s_textures.size() << '\n';
 }
 
 material& material::operator = (const material& other)
 {
+	std::cout << "material::operator=(const material&): num textures: " << s_textures.size() << '\n';
+	component::operator=(other);
 	diffuse_color = other.diffuse_color;
 	specular_color = other.specular_color;
 	s_textures_lock.obtain();
@@ -300,11 +426,14 @@ material& material::operator = (const material& other)
 	if (m_specular_tex != s_textures.end()) ++(std::get<1>(*m_specular_tex));
 	if (m_normal_tex != s_textures.end()) ++(std::get<1>(*m_normal_tex));
 	s_textures_lock.release();
+	std::cout << "material::operator=(const material&): num textures: " << s_textures.size() << '\n';
 	return *this;
 }
 
 material& material::operator = (material&& other) BOOST_NOEXCEPT_OR_NOTHROW
 {
+	std::cout << "material::operator=(material&&): num textures: " << s_textures.size() << '\n';
+	component::operator=(std::move(other));
 	diffuse_color = std::move(other.diffuse_color);
 	specular_color = std::move(other.specular_color);
 	s_textures_lock.obtain();
@@ -318,14 +447,15 @@ material& material::operator = (material&& other) BOOST_NOEXCEPT_OR_NOTHROW
 	other.m_specular_tex = s_textures.end();
 	other.m_normal_tex = s_textures.end();
 	s_textures_lock.release();
+	std::cout << "material::operator=(material&&): num textures: " << s_textures.size() << '\n';
 	return *this;
 }
 
 void material::attach(entity& e)
 {
-	if (e.material_component == this) return;
-	else if (e.material_component) e.material_component->detach(e);
-	e.material_component = this;
+	if (e.m_material_component == this) return;
+	else if (e.m_material_component) e.m_material_component->detach(e);
+	e.m_material_component = this;
 	m_ents.push_back(&e);
 }
 
@@ -333,9 +463,9 @@ void material::detach(entity& e)
 {
 	for (auto i = begin(); i != end(); ++i)
 	{
-		if (*i == e)
+		if (*i == &e)
 		{
-			e.material_component = nullptr;
+			e.m_material_component = nullptr;
 			m_ents.erase(i);
 			return;
 		}

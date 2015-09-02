@@ -6,6 +6,7 @@
 #include "mat4f.hpp"
 #include "allocator.hpp"
 #include <list>
+#include <boost/signals2.hpp>
 
 namespace gintonic {
 
@@ -19,6 +20,7 @@ class AI;         // Forward declaration.
 class proj_info;  // Forward declaration.
 class camera;     // Forward declaration.
 class SQTstack;   // Forward declaration.
+class mat4fstack; // Forward declaration.
 class controller; // Forward declaration.
 
 class entity
@@ -32,67 +34,67 @@ public:
 private:
 
 	SQT m_local_transform;
-	SQT m_global_transform;
+	mat4f m_global_transform;
 
 	box3f m_local_bounding_box;
 	box3f m_global_bounding_box;
 
-	// Optional list of children of this entity.
 	children_datastructure_type m_children;
 
-	// Optional pointer to a parent entity.
-	// The MODEL->WORLD transformation matrix
-	// is influenced by the parent entity.
-	entity* m_parent = nullptr;
-
-	// Pointer to the octree.
-	octree* m_octree = nullptr;
-
-	controller* m_controller = nullptr;
+	entity*     m_parent               = nullptr;
+	octree*     m_octree               = nullptr;
+	controller* m_controller_component = nullptr;
+	mesh*       m_mesh_component       = nullptr;
+	material*   m_material_component   = nullptr;
+	light*      m_light_component      = nullptr;
+	rigid_body* m_rigid_body_component = nullptr;
+	logic*      m_logic_component      = nullptr;
+	AI*         m_AI_component         = nullptr;
+	camera*     m_camera_component     = nullptr;
+	proj_info*  m_proj_info_component  = nullptr;
 
 	friend class octree;
+	friend class controller;
+	friend class mesh;
+	friend class material;
+	friend class light;
+	friend class rigid_body;
+	friend class logic;
+	friend class AI;
+	friend class camera;
+	friend class proj_info;
 
-	void update_global_info(SQTstack&) BOOST_NOEXCEPT_OR_NOTHROW;
+	void update_global_info(mat4fstack&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void update_global_info_start() BOOST_NOEXCEPT_OR_NOTHROW;
-	void update_global_transform_and_bounding_box(const SQTstack&) BOOST_NOEXCEPT_OR_NOTHROW;
-	SQT compute_global_transform() const BOOST_NOEXCEPT_OR_NOTHROW;
-	void update_global_datamembers(const SQTstack&) BOOST_NOEXCEPT_OR_NOTHROW;
+	mat4f compute_global_transform() BOOST_NOEXCEPT_OR_NOTHROW;
+	void update_global_datamembers(const mat4fstack&) BOOST_NOEXCEPT_OR_NOTHROW;
 
 public:
 
-	// Optional components.
-	// One can set these if so desired.
-	mesh*       mesh_component       = nullptr;
-	material*   material_component   = nullptr;
-	light*      light_component      = nullptr;
-	rigid_body* rigid_body_component = nullptr;
-	logic*      logic_component      = nullptr;
-	AI*         AI_component         = nullptr;
-	camera*     camera_component     = nullptr;
-	proj_info*  proj_info_component  = nullptr;
-
+	boost::signals2::signal<void(entity&)> about_to_die;
+	boost::signals2::signal<void(entity&)> transform_changed;
+	
 	entity() = default;
-
+	
 	entity(
 		const SQT&   local_transform,
 		const box3f& local_bounding_box,
-		octree*      octree_root          = nullptr,
-		entity*      parent               = nullptr,
-		mesh*        mesh_component       = nullptr,
-		material*    material_component   = nullptr,
-		light*       light_component      = nullptr,
-		rigid_body*  rigid_body_component = nullptr,
-		logic*       logic_component      = nullptr,
-		AI*          AI_component         = nullptr,
-		camera*      camera_component     = nullptr,
-		proj_info*   proj_info_component  = nullptr);
+		octree*      octree_root         = nullptr,
+		entity*      parent              = nullptr);
 
-	entity(const entity&) = default;
+	/// You cannot copy entities. This could create cycles in the entity tree.
+	entity(const entity&) = delete;
+
+	/// You can move entities.
 	entity(entity&&) BOOST_NOEXCEPT_OR_NOTHROW;
-	entity& operator = (const entity&) = default;
+
+	/// You cannot copy entities. This could create cycles in the entity tree.
+	entity& operator = (const entity&) = delete;
+
+	/// You can move entities.
 	entity& operator = (entity&&) BOOST_NOEXCEPT_OR_NOTHROW;
 	
-	// Destructor.
+	/// Destructor.
 	virtual ~entity();
 
 	// These methods modify the entity's local SQT transform.
@@ -104,6 +106,9 @@ public:
 	void set_scale(const vec3f&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void multiply_scale(const vec3f&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_translation(const vec3f&) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_translation_x(const float) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_translation_y(const float) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_translation_z(const float) BOOST_NOEXCEPT_OR_NOTHROW;
 	void add_translation(const vec3f&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void set_rotation(const quatf&) BOOST_NOEXCEPT_OR_NOTHROW;
 	void post_multiply_rotation(const quatf&) BOOST_NOEXCEPT_OR_NOTHROW;
@@ -128,33 +133,6 @@ public:
 	void set_local_bounding_box(const box3f&);
 	void set_local_bounding_box(const vec2f& min_corner, const vec2f& max_corner);
 
-	void set_controller(controller&);
-	void unset_controller();
-
-	// Get a constant reference to the local SQT transform.
-	inline const SQT& local_transform() const BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return m_local_transform;
-	}
-
-	// Get a constant reference to the global SQT transform.
-	inline const SQT& global_transform() const BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return m_global_transform;
-	}
-
-	// Get a constant reference to the local bounding box.
-	inline const box3f& local_bounding_box() const BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return m_local_bounding_box;
-	}
-
-	// Get a constant reference to the global bounding box.
-	inline const box3f& global_bounding_box() const BOOST_NOEXCEPT_OR_NOTHROW
-	{
-		return m_global_bounding_box;
-	}
-
 	// Basic add child, remove child and set parent methods.
 	void add_child(entity&);
 	void remove_child(entity&);
@@ -162,16 +140,36 @@ public:
 	void unset_parent();
 	
 	// Basic getters.
-	inline       entity*  parent()            BOOST_NOEXCEPT_OR_NOTHROW { return m_parent; }
-	inline const entity*  parent()      const BOOST_NOEXCEPT_OR_NOTHROW { return m_parent; }
-	inline       iterator begin()             BOOST_NOEXCEPT_OR_NOTHROW { return m_children.begin(); }
-	inline       iterator end()               BOOST_NOEXCEPT_OR_NOTHROW { return m_children.end(); }
-	inline const_iterator begin()       const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.begin(); }
-	inline const_iterator end()         const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.end(); }
-	inline const_iterator cbegin()      const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.cbegin(); }
-	inline const_iterator cend()        const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.cend(); }
-	inline       octree*  octree_node()       BOOST_NOEXCEPT_OR_NOTHROW { return m_octree; }
-	inline const octree*  octree_node() const BOOST_NOEXCEPT_OR_NOTHROW { return m_octree; }
+	inline const SQT&        local_transform()      const BOOST_NOEXCEPT_OR_NOTHROW { return m_local_transform; }
+	inline const mat4f&      global_transform()     const BOOST_NOEXCEPT_OR_NOTHROW { return m_global_transform; }
+	inline const box3f&      local_bounding_box()   const BOOST_NOEXCEPT_OR_NOTHROW { return m_local_bounding_box; }
+	inline const box3f&      global_bounding_box()  const BOOST_NOEXCEPT_OR_NOTHROW { return m_global_bounding_box; }
+	inline       entity*     parent()                     BOOST_NOEXCEPT_OR_NOTHROW { return m_parent; }
+	inline const entity*     parent()               const BOOST_NOEXCEPT_OR_NOTHROW { return m_parent; }
+	inline       controller* controller_component()       BOOST_NOEXCEPT_OR_NOTHROW { return m_controller_component; }
+	inline const controller* controller_component() const BOOST_NOEXCEPT_OR_NOTHROW { return m_controller_component; }
+	inline       mesh*       mesh_component()             BOOST_NOEXCEPT_OR_NOTHROW { return m_mesh_component; }
+	inline const mesh*       mesh_component()       const BOOST_NOEXCEPT_OR_NOTHROW { return m_mesh_component; }
+	inline       material*   material_component()         BOOST_NOEXCEPT_OR_NOTHROW { return m_material_component; }
+	inline const material*   material_component()   const BOOST_NOEXCEPT_OR_NOTHROW { return m_material_component; }
+	inline       light*      light_component()            BOOST_NOEXCEPT_OR_NOTHROW { return m_light_component; }
+	inline const light*      light_component()      const BOOST_NOEXCEPT_OR_NOTHROW { return m_light_component; }
+	inline       rigid_body* rigid_body_component()       BOOST_NOEXCEPT_OR_NOTHROW { return m_rigid_body_component; }
+	inline const rigid_body* rigid_body_component() const BOOST_NOEXCEPT_OR_NOTHROW { return m_rigid_body_component; }
+	inline       AI*         AI_component()               BOOST_NOEXCEPT_OR_NOTHROW { return m_AI_component; }
+	inline const AI*         AI_component()         const BOOST_NOEXCEPT_OR_NOTHROW { return m_AI_component; }
+	inline       camera*     camera_component()           BOOST_NOEXCEPT_OR_NOTHROW { return m_camera_component; }
+	inline const camera*     camera_component()     const BOOST_NOEXCEPT_OR_NOTHROW { return m_camera_component; }
+	inline       proj_info*  proj_info_component()        BOOST_NOEXCEPT_OR_NOTHROW { return m_proj_info_component; }
+	inline const proj_info*  proj_info_component()  const BOOST_NOEXCEPT_OR_NOTHROW { return m_proj_info_component; }
+	inline       iterator    begin()                      BOOST_NOEXCEPT_OR_NOTHROW { return m_children.begin(); }
+	inline       iterator    end()                        BOOST_NOEXCEPT_OR_NOTHROW { return m_children.end(); }
+	inline const_iterator    begin()                const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.begin(); }
+	inline const_iterator    end()                  const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.end(); }
+	inline const_iterator    cbegin()               const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.cbegin(); }
+	inline const_iterator    cend()                 const BOOST_NOEXCEPT_OR_NOTHROW { return m_children.cend(); }
+	inline       octree*     octree_node()                BOOST_NOEXCEPT_OR_NOTHROW { return m_octree; }
+	inline const octree*     octree_node()          const BOOST_NOEXCEPT_OR_NOTHROW { return m_octree; }
 
 	// Comparison operators.
 	inline bool operator == (const entity& other) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -209,18 +207,6 @@ public:
 	// define custom new/delete operators.
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 };
-
-// Compute the squared distance between two entitities.
-inline float distance2(const entity& a, const entity& b) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	return distance2(a.global_transform(), b.global_transform());
-}
-
-// Compute the distance between two entities.
-inline float distance(const entity& a, const entity& b) BOOST_NOEXCEPT_OR_NOTHROW
-{
-	return distance(a.global_transform(), b.global_transform());
-}
 
 } // namespace gintonic
 

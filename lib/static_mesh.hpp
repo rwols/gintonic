@@ -19,7 +19,7 @@ class static_mesh : public mesh
 public:
 
 	static_mesh();
-	static_mesh(FBX::FbxMesh*, const GLenum usagehint = GL_STATIC_DRAW);
+	static_mesh(const FBX::FbxMesh*, const GLenum usagehint = GL_STATIC_DRAW);
 	virtual ~static_mesh();
 
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
@@ -29,7 +29,7 @@ public:
 		const std::vector<mat4f, allocator<mat4f>>& VM_matrices,
 		const std::vector<mat3f, allocator<mat3f>>& N_matrices) final;
 
-	void set_data(FBX::FbxMesh*, const GLenum usagehint = GL_STATIC_DRAW);
+	void set_data(const FBX::FbxMesh*, const GLenum usagehint = GL_STATIC_DRAW);
 
 private:
 

@@ -2,11 +2,10 @@
 #define gintonic_hpp
 
 #include "renderer.hpp"
-#include "actors.hpp"
 #include "entity.hpp"
 #include "octree.hpp"
 #include "materials.hpp"
-#include "mesh.hpp"
+#include "static_mesh.hpp"
 #include "shaders.hpp"
 #include "fonts.hpp"
 #include "basic_shapes.hpp"
@@ -15,6 +14,8 @@
 #include "skybox.hpp"
 #include "scancodes.hpp"
 #include "camera.hpp"
+#include "proj_info.hpp"
+#include "exception.hpp"
 
 namespace gintonic {
 

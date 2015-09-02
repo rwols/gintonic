@@ -9,6 +9,11 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>
 
+namespace FBX
+{
+	class FbxSurfaceMaterial; // Forward declaration.
+}
+
 namespace gintonic {
 
 class entity; // Forward declaration.
@@ -21,54 +26,53 @@ class material : public component
 {
 public:
 
-	// Bind the material.
-	virtual void bind(const bool instanced = false) 
-		const BOOST_NOEXCEPT_OR_NOTHROW;
+	/// Bind the material.
+	void bind(const bool instanced = false) const BOOST_NOEXCEPT_OR_NOTHROW;
 
-	// Needs implementation from base class component.
+	/// Needs implementation from base class component.
 	virtual void attach(entity&) final;
 
-	// Needs implementation from base class component.
+	/// Needs implementation from base class component.
 	virtual void detach(entity&) final;
 	
-	// Destructor.
+	/// Destructor.
 	virtual ~material() BOOST_NOEXCEPT_OR_NOTHROW;
 	
-	// Default constructor.
+	/// Default constructor.
 	material();
 
-	// Constructor that sets the diffuse color.
+	/// Constructor that sets the diffuse color.
 	material(
 		const vec4f& diffuse_color);
 
-	// Constructor that sets the diffuse color and the specular color.
+	/// Constructor that sets the diffuse color and the specular color.
 	material(
 		const vec4f& diffuse_color, 
 		const vec4f& specular_color);
 
-	// Constructor that sets the diffuse color,
-	// the specular color and
-	// the diffuse texture.
+	/// Constructor that sets the diffuse color,
+	/// the specular color and
+	/// the diffuse texture.
 	material(
 		const vec4f& diffuse_color, 
 		const vec4f& specular_color,
 		const boost::filesystem::path& diffuse_texture);
 
-	// Constructor that sets the diffuse color,
-	// the specular color,
-	// the diffuse texture and
-	// the specular texture.
+	/// Constructor that sets the diffuse color,
+	/// the specular color,
+	/// the diffuse texture and
+	/// the specular texture.
 	material(
 		const vec4f& diffuse_color, 
 		const vec4f& specular_color,
 		const boost::filesystem::path& diffuse_texture,
 		const boost::filesystem::path& specular_texture);
 
-	// Constructor that sets the diffuse color,
-	// the specular color,
-	// the diffuse texture,
-	// the specular texture and
-	// the normal texture.
+	/// Constructor that sets the diffuse color,
+	/// the specular color,
+	/// the diffuse texture,
+	/// the specular texture and
+	/// the normal texture.
 	material(
 		const vec4f& diffuse_color, 
 		const vec4f& specular_color,
@@ -76,19 +80,22 @@ public:
 		const boost::filesystem::path& specular_texture,
 		const boost::filesystem::path& normal_texture);
 
-	// Copy constructor.
+	/// Constructor that builds a material from an FbxSurfaceMaterial.
+	material(const FBX::FbxSurfaceMaterial*);
+
+	/// Copy constructor.
 	material(const material&);
 
-	// Move constructor.
+	/// Move constructor.
 	material(material&&) BOOST_NOEXCEPT_OR_NOTHROW;
 
-	// Copy assignment operator.
+	/// Copy assignment operator.
 	material& operator = (const material&);
 
-	// Move assignment operator.
+	/// Move assignment operator.
 	material& operator = (material&&) BOOST_NOEXCEPT_OR_NOTHROW;
 
-	// Static method that returns the default extension for a material.
+	/// Static method that returns the default extension for a material.
 	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		return ".gtm";
@@ -137,8 +144,8 @@ public:
 	// Don't use this for serialization, instead use the save/load methods.
 	friend std::ostream& operator << (std::ostream&, const material&);
 
-	// Needed because a material carries one or more vec4f's.
-	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+	// Needed because a material has two vec4f's as datamembers.
+	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
 protected:
 

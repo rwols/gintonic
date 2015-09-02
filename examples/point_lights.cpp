@@ -29,9 +29,21 @@ int main(int argc, char* argv[])
 		std::cerr << "(For example: " << argv[0] << " 1 1)\n";
 		return EXIT_FAILURE;
 	}
+
+	// Define a camera.
+	gt::proj_info projection_component;
+	gt::camera cam_component;
+	gt::entity cam_entity;
+	projection_component.attach(cam_entity);
+	cam_component.attach(cam_entity);
+
+	// Position the camera
+	cam_entity.set_translation(gt::vec3f(0.0f, 20.0f, 0.0f));
+	cam_component.add_mouse(gt::vec2f(0.0f, -static_cast<float>(M_PI) / 2.0f));
+	
 	try
 	{
-		gt::init_all("point_lights");
+		gt::init_all("point_lights", cam_entity);
 		
 		gt::renderer::set_freeform_cursor(true);
 
@@ -64,16 +76,29 @@ int main(int argc, char* argv[])
 				boolmatrix[i + numobjects][j + numobjects] = static_cast<bool>(rand() % 2);
 			}
 		}
-		
-		gt::opengl::unit_cube_PUNTB a_cube;
-		gt::opengl::unit_sphere_PUN a_sphere(16);
-		
-		std::vector<gt::point_light, gt::allocator<gt::point_light>> lights;
-		std::vector<gt::SQT, gt::allocator<gt::SQT>> light_transforms;
-		std::vector<gt::material, gt::allocator<gt::material>> light_materials;
+
+		// This data will probably be encapsulated
+		// in some sort of "world" or "level" class,
+		// along with all the other possible component classes.
+		std::list<gt::entity*> scene_entities;
+		std::list<gt::material*> scene_materials;
+		std::list<gt::mesh*> scene_meshes;
+		std::list<gt::light*> scene_lights;
+
+		scene_meshes.push_back(new gt::unit_cube_PUNTB());
+		auto* unit_cube_mesh = scene_meshes.back();
+
+		scene_meshes.push_back(new gt::unit_sphere_PUN(16));
+		auto* unit_sphere_mesh = scene_meshes.back();
+
 		gt::SQT shape_transform;
 
 		// Generate the lights
+		// First we create a "root light entity", its children
+		// will be the actual point lights.
+		scene_entities.push_back(new gt::entity);
+		auto* root_light = scene_entities.back();
+
 		for (int i = 0; i < numlights; ++i)
 		{
 			const gt::vec4f attenuation(1.0f, 1.0f, 8.0f, 0.0f);
@@ -91,37 +116,82 @@ int main(int argc, char* argv[])
 			color.y += ceiling;
 			color.z += ceiling;
 			intensity = {color.x, color.y, color.z, 9.0f};
-			lights.emplace_back(intensity, attenuation);
 			intensity.w = 0.0f;
-			light_materials.emplace_back(intensity, specularity);
-			light_transforms.emplace_back(gt::SQT());
-			light_transforms.back().scale = 0.1f;
+
+			const auto N = static_cast<float>(numlights);
+
+			shape_transform.scale = 0.1f;
+			shape_transform.translation.x = N * std::cos(2.0f * float(i) * static_cast<float>(M_PI) / N);
+			shape_transform.translation.y = 0.0f;
+			shape_transform.translation.z = N * std::sin(2.0f * float(i) * static_cast<float>(M_PI) / N);
+			gt::box3f bbox;
+
+			gt::entity* lightentity = new gt::entity(shape_transform, bbox, nullptr, root_light);
+			gt::light* lightcomponent = new gt::point_light(intensity, attenuation);
+			gt::material* matcomponent = new gt::material(intensity, specularity);
+			
+			lightcomponent->attach(*lightentity);
+			matcomponent->attach(*lightentity);
+			unit_sphere_mesh->attach(*lightentity);
+
+			scene_lights.push_back(lightcomponent);
+			scene_materials.push_back(matcomponent);
+			scene_entities.push_back(lightentity);
 		}
 
 		shape_transform.scale = 1.0f;
-		
-		gt::material cube_material(
-			gt::vec4f(1.0f, 1.0f, 1.0f,  1.0f), // base diffuse color
-			gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f), // base specular color
-			"../examples/bricks_COLOR.png",     // diffuse texture
-			"../examples/bricks_SPEC.png",      // specular texture
-			"../examples/bricks_NRM.png"        // normal texture
+
+		scene_materials.push_back(
+			new gt::material(
+				gt::vec4f(1.0f, 1.0f, 1.0f,  1.0f), // base diffuse color
+				gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f), // base specular color
+				"../examples/bricks.jpg",           // diffuse texture
+				"../examples/bricks_SPEC.png",      // specular texture
+				"../examples/bricks_NRM.png"        // normal texture
+			)
 		);
 
-		gt::material sphere_material(
-			gt::vec4f(1.0f, 1.0f, 1.0f,  1.0f), // base diffuse color
-			gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f), // base specular color
-			"../examples/bricks_COLOR.png",     // diffuse texture
-			"../examples/bricks_SPEC.png"       // specular texture
+		auto* brick_material_with_normal_map = scene_materials.back();
+
+		scene_materials.push_back(
+			new gt::material(
+				gt::vec4f(1.0f, 1.0f, 1.0f,  1.0f), // base diffuse color
+				gt::vec4f(1.0f, 1.0f, 1.0f, 20.0f), // base specular color
+				"../examples/bricks.jpg",           // diffuse texture
+				"../examples/bricks_SPEC.png"       // specular texture
+			)
 		);
 
-		// Orient the camera
-		gt::get_default_camera_entity().set_translation(gt::vec3f(0.0f, 20.0f, 0.0f));
-		gt::get_default_camera_entity().add_mousedelta(gt::vec2f(0.0f, -static_cast<float>(M_PI) / 2.0f));
+		auto* brick_material = scene_materials.back();
+
+		for (int i = -numobjects; i <= numobjects; ++i)
+		{
+			for (int j  = -numobjects; j <= numobjects; ++j)
+			{
+				// Draw a grid of (2*numobjects + 1)^2 rotating cubes/spheres :-)
+
+				shape_transform.translation.x = 3.0f * static_cast<float>(i);
+				shape_transform.translation.y = 0.0f;
+				shape_transform.translation.z = 3.0f * static_cast<float>(j);
+
+				gt::renderer::set_model_matrix(shape_transform);
+
+				gt::entity* e = new gt::entity(shape_transform, gt::box3f());
+				if (boolmatrix[i + numobjects][j + numobjects])
+				{
+					unit_cube_mesh->attach(*e);
+					brick_material_with_normal_map->attach(*e);
+				}
+				else
+				{
+					unit_sphere_mesh->attach(*e);
+					brick_material->attach(*e);
+				}
+				scene_entities.push_back(e);
+			}
+		}
 
 		float curtime = 0.0f, dt;
-		float current_cos, current_sin;
-		float yaxis, zaxis;
 		float attenuation_factor = 8.0f;
 		float light_intensity_value = 9.0f;
 		float light_elevation = 4.0f;
@@ -138,32 +208,29 @@ int main(int argc, char* argv[])
 			dt = get_dt<float>();
 			if (move_objects) curtime += dt;
 			
-			current_cos = std::cos(curtime);
-			current_sin = std::sin(curtime);
-			
 			if (gt::renderer::key_toggle_press(SDL_SCANCODE_Q))
 			{
 				gt::renderer::close();
 			}
 			if (gt::renderer::key(SDL_SCANCODE_W))
 			{
-				gt::get_default_camera_entity().move_forward(MOVE_SPEED * dt);
+				cam_entity.move_forward(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_A))
 			{
-				gt::get_default_camera_entity().move_left(MOVE_SPEED * dt);
+				cam_entity.move_left(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_S))
 			{
-				gt::get_default_camera_entity().move_backward(MOVE_SPEED * dt);
+				cam_entity.move_backward(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_D))
 			{
-				gt::get_default_camera_entity().move_right(MOVE_SPEED * dt);
+				cam_entity.move_right(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key(SDL_SCANCODE_SPACE))
 			{
-				gt::get_default_camera_entity().move_up(MOVE_SPEED * dt);
+				cam_entity.move_up(MOVE_SPEED * dt);
 			}
 			if (gt::renderer::key_toggle_press(SDL_SCANCODE_B))
 			{
@@ -211,60 +278,26 @@ int main(int argc, char* argv[])
 			}
 
 			auto mousedelta = gt::renderer::mouse_delta();
-			mousedelta = -gt::deg2rad(mousedelta) / 2.0f;
-			gt::get_default_camera_entity().add_mousedelta(mousedelta);
+			mousedelta = -gt::deg2rad(mousedelta) / 10.0f;
+			cam_component.add_mouse(mousedelta);
 			
 			gt::renderer::begin_geometry_pass();
 
-			yaxis = (1.0f + current_cos) / 2.0f;
-			zaxis = (1.0f + current_sin) / 2.0f;
-			rotation_axis = gt::vec3f(0.0f, yaxis, zaxis).normalize();
-			shape_transform.rotation = gt::quatf::axis_angle(rotation_axis, -curtime / 4.0f);
+			shape_transform.rotation = gt::quatf::axis_angle(gt::vec3f(0.0f, 1.0f, 0.0f), curtime);
+			shape_transform.translation.x = 0.0f;
+			shape_transform.translation.y = light_elevation + std::sin(curtime * 4.0f);
+			shape_transform.translation.z = 0.0f;
 
-			for (int i = -numobjects; i <= numobjects; ++i)
+			root_light->set_local_transform(shape_transform);
+
+			for (const auto* m : scene_meshes)
 			{
-				for (int j  = -numobjects; j <= numobjects; ++j)
+				for (const auto* e : *m)
 				{
-					// Draw a grid of (2*numobjects + 1)^2 rotating cubes/spheres :-)
-
-					shape_transform.translation.x = 3.0f * static_cast<float>(i);
-					shape_transform.translation.y = std::sin( i + j + curtime );
-					shape_transform.translation.z = 3.0f * static_cast<float>(j);
-
-					gt::renderer::set_model_matrix(shape_transform);
-					
-					if (boolmatrix[i + numobjects][j + numobjects])
-					{
-						cube_material.bind();
-						a_cube.draw();
-					}
-					else
-					{
-						sphere_material.bind();
-						a_sphere.draw();
-					}
+					gt::renderer::set_model_matrix(e->global_transform());
+					e->material_component()->bind();
+					e->mesh_component()->draw();
 				}
-			}
-
-			for (std::size_t i = 0; i < lights.size(); ++i)
-			{
-
-				const auto numlights = static_cast<float>(lights.size());
-				const auto radius = static_cast<float>(numlights);
-			
-				light_transforms[i].translation.x = radius 
-					* std::cos(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
-			
-				light_transforms[i].translation.y = light_elevation;
-			
-				light_transforms[i].translation.z = radius 
-					* std::sin(curtime + 2.0f * float(i) * static_cast<float>(M_PI) / numlights);
-			
-				gt::renderer::set_model_matrix(light_transforms[i]);
-			
-				light_materials[i].bind();
-			
-				gt::renderer::get_unit_sphere_P().draw();
 			}
 
 			if (show_gbuffer)
@@ -277,9 +310,9 @@ int main(int argc, char* argv[])
 			{
 				gt::renderer::begin_light_pass();
 
-				gt::renderer::null_light_pass();
-
-				for (std::size_t i = 0; i < lights.size(); ++i)
+				gt::renderer::ambient_light_pass();
+				
+				for (auto* l : scene_lights)
 				{
 					gt::vec4f attenuation;
 					switch (attenuation_type)
@@ -289,15 +322,18 @@ int main(int argc, char* argv[])
 						case 2:  attenuation = gt::vec4f(1.0f, 1.0f, attenuation_factor, 0.0f); break;
 						default: attenuation = gt::vec4f(1.0f, 1.0f, attenuation_factor, 0.0f); break;
 					}
-					lights[i].set_attenuation(attenuation);
-					lights[i].set_brightness(light_intensity_value);
-					lights[i].shine(light_transforms[i]);
+
+					reinterpret_cast<gt::point_light*>(l)->set_attenuation(attenuation);
+					reinterpret_cast<gt::point_light*>(l)->set_brightness(light_intensity_value);
+
+					for (const auto* e : *l)
+					{
+						e->light_component()->shine(*e);
+					}
 				}
 
 				gt::renderer::get_text_shader()->activate();
-				
 				gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
-
 				glDisable(GL_CULL_FACE);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

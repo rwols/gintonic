@@ -5,6 +5,11 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
+namespace FBX
+{
+	class FbxVector4; // Forward declaration.
+};
+
 namespace gintonic {
 
 union vec2f; // Forward declaration.
@@ -22,8 +27,6 @@ union vec3f; // Forward declaration.
 union quatf
 {
 private:
-
-	
 
 public:
 
@@ -55,6 +58,10 @@ public:
 	}
 
 	quatf(const float realpart, const vec3f& imaginarypart);
+
+	quatf(const FBX::FbxVector4&);
+
+	quatf& operator = (const FBX::FbxVector4&);
 
 	quatf operator * (const quatf& other) const BOOST_NOEXCEPT_OR_NOTHROW;
 

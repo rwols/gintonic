@@ -13,7 +13,8 @@ using namespace gintonic;
 
 BOOST_AUTO_TEST_CASE( serialization_of_materials )
 {
-	init_all("serialization_of_materials");
+	renderer::init_dummy(false);
+	boost::filesystem::current_path(get_executable_path());
 	const boost::filesystem::path filename = "delete_me";
 	{
 		material mat(
@@ -34,4 +35,56 @@ BOOST_AUTO_TEST_CASE( serialization_of_materials )
 
 	// clean up ...
 	boost::filesystem::remove(filename);
+}
+
+float randfloat()
+{
+	return static_cast<float>(std::rand()) / static_cast<float>(std::numeric_limits<decltype(std::rand())>::max());
+}
+
+template <class OutputIter>
+void add_a_material(OutputIter material_iter)
+{
+	vec4f diffcolor(randfloat(), randfloat(), randfloat(), 1.0f);
+	vec4f speccolor(randfloat(), randfloat(), randfloat(), 20.0f);
+	material mat(diffcolor, speccolor);
+	*material_iter = mat;
+	++material_iter;
+}
+
+BOOST_AUTO_TEST_CASE( reference_counting_of_textures )
+{
+	vec4f diffcolor(1.0f, 1.0f, 1.0f, 1.0f);
+	vec4f speccolor(1.0f, 1.0f, 1.0f, 1.0f);
+	renderer::init_dummy(false);
+	boost::filesystem::current_path(get_executable_path());
+	std::vector<material, allocator<material>> materials;
+	{
+		material mat1(diffcolor, speccolor, 
+			"../../examples/bricks.jpg", 
+			"../../examples/bricks_SPEC.png", 
+			"../../examples/bricks_NRM.png");
+
+		materials.push_back(mat1);
+		{
+			material mat2 = mat1;
+			mat2.diffuse_color.x = 0.0f;
+			materials.push_back(mat2);
+			{
+				material mat3(diffcolor, speccolor);
+				materials.push_back(mat3);
+			}
+		}
+	}
+	std::cout << "Number of materials: " << materials.size() << '\n';
+	add_a_material(std::back_inserter(materials));
+	std::cout << "Number of materials: " << materials.size() << '\n';
+	add_a_material(std::back_inserter(materials));
+	std::cout << "Number of materials: " << materials.size() << '\n';
+	add_a_material(std::back_inserter(materials));
+	std::cout << "Number of materials: " << materials.size() << '\n';
+	add_a_material(std::back_inserter(materials));
+	std::cout << "Number of materials: " << materials.size() << '\n';
+	add_a_material(std::back_inserter(materials));
+	std::cout << "Number of materials: " << materials.size() << '\n';
 }

@@ -49,7 +49,7 @@ void main()
 	float ambient_factor = 1.0f - diffuse_factor;
 
 	final_color = light.intensity.a * diffuse_factor * lambertian * light.intensity.rgb * diffuse.rgb 
-		+ ambient_factor * diffuse.rgb 
+		// + ambient_factor * diffuse.rgb 
 		+ spec_factor * specular.rgb * light.intensity.rgb;
-	// final_color += diffuse.rgb;
+		// + spec_factor * vec3(1.0f, 0.0f, 0.0f);
 }

@@ -66,7 +66,6 @@ namespace gintonic {
 		}
 		else 
 		{
-			printf("%s\n", dest);
 			boost::filesystem::path exec_path(dest);
 			return exec_path.parent_path();
 		}

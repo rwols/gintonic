@@ -2,6 +2,8 @@
 #include "vec2f.hpp"
 #include "vec3f.hpp"
 #include "vec4f.hpp"
+#define FBXSDK_NEW_API
+#include <fbxsdk/core/math/fbxvector4.h>
 
 namespace gintonic {
 
@@ -9,6 +11,24 @@ quatf::quatf(const float realpart, const vec3f& imaginarypart)
 {
 	data = imaginarypart.data;
 	w = realpart;
+}
+
+quatf::quatf(const FBX::FbxVector4& v)
+: x(static_cast<float>(v[0]))
+, y(static_cast<float>(v[1]))
+, z(static_cast<float>(v[2]))
+, w(static_cast<float>(v[3]))
+{
+	/* Empty on purpose. */
+}
+
+quatf& quatf::operator = (const FBX::FbxVector4& v)
+{
+	x = static_cast<float>(v[0]);
+	y = static_cast<float>(v[1]);
+	z = static_cast<float>(v[2]);
+	w = static_cast<float>(v[3]);
+	return *this;
 }
 
 vec3f quatf::apply_to(const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW

@@ -32,14 +32,19 @@ vec2 calculate_screen_position()
 	return vec2(gl_FragCoord.x / viewport_size.x, gl_FragCoord.y / viewport_size.y);
 }
 
-float quadraticpoly(in float a, in float b, in float c, in float x)
+float maxdot(in vec3 A, in vec3 B)
 {
-	return a * x * x + b * x + c;
+	return max(dot(A,B), 0.0f);
 }
 
-float clamppowmaxdot(in vec3 A, in vec3 B, in float power)
+float clamppowmaxdot(in vec3 A, in vec3 B, in float exponent)
 {
-	return clamp(pow(max(dot(A,B), 0.0f), power), 0.0f, 1.0f);
+	return clamp(pow(maxdot(A,B), exponent), 0.0f, 1.0f);
+}
+
+float quadratic_poly(in float a, in float b, in float c, in float x)
+{
+	return a * x * x + b * x + c;
 }
 
 void main()
@@ -60,33 +65,39 @@ void main()
 	float d = length(L);
 	
 	// Don't forget to normalize L.
-
 	L = normalize(L);
 
-	float maxdotNL = max(dot(N,L), 0.0f);
-
-	// The attenuation factor for a point light
+	// The attenuation factor for a spot light (same calculation as for a point light)
 	float att = 1.0f / (light.attenuation.x + light.attenuation.y * d + light.attenuation.z * d * d);
-	
+
 	// dc is the diffuse contribution.
-	float dc = light.intensity.a * diffuse.a * maxdotNL * att;
+	float dc = maxdot(N,L);
 
-	float spotfactor = 0.0f;
-	float specfactor = 0.0f;
 
-	if (maxdotNL > 0.0f)
+
+	float sc = 0.0f;
+	float spot = 0.0f;
+
+	if (dc > 0.0f)
 	{
-		spotfactor = clamppowmaxdot(-light.direction, L, light.attenuation.w);
+		spot = clamppowmaxdot(-light.direction, L, light.attenuation.w);
+		// Since we are in VIEW coordinates, the eye position is at the origin.
+		// Therefore the unit direction vector from the point on the surface P
+		// to the eye is givne by (0 - P) / (||0 - P||) = normalize(-P).
 		vec3 E = normalize(-P);
-		vec3 R = normalize(-reflect(L, N));
-		specfactor = clamppowmaxdot(R, E, specular.a);
-		specfactor *= spotfactor;
+
+		// We reflect the E direction *around* the surface normal.
+		// The idea is now that if the angle of incidence of the light is equal
+		// to the outgoing angle of incidence to the eye, we experience specularity.
+		vec3 R = reflect(E,N);
+
+		sc = clamppowmaxdot(R, E, specular.a);
+		sc *= spot;
 	}
 
-	dc *= spotfactor;
+	dc *= spot;
 
-	final_color = dc * light.intensity.rgb * diffuse.rgb 
-		+  (specfactor * specular.rgb * light.intensity.rgb);
+	final_color = light.intensity.a * att * diffuse.a * light.intensity.rgb * (dc * diffuse.rgb + sc * specular.rgb);
 
 	// Debug the sphere stencil pass
 	// final_color.r += 0.1f;

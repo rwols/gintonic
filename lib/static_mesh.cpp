@@ -10,6 +10,15 @@
 #define GT_MESH_VM_MATRIX 1
 #define GT_MESH_N_MATRIX 0
 
+#define GT_VERTEX_LAYOUT_POSITION 0
+#define GT_VERTEX_LAYOUT_TEXCOORD 1
+#define GT_VERTEX_LAYOUT_NORMAL 2
+#define GT_VERTEX_LAYOUT_PVM_MATRIX 3 // 4 5 6
+#define GT_VERTEX_LAYOUT_VM_MATRIX 7 // 8 9 10
+#define GT_VERTEX_LAYOUT_N_MATRIX 11 // 12 13
+#define GT_VERTEX_LAYOUT_FREE_14 14
+#define GT_VERTEX_LAYOUT_FREE_15 15
+
 namespace // anonymous namespace
 {
 
@@ -87,12 +96,12 @@ static_mesh::static_mesh()
 	/* Empty on purpose. */
 }
 
-virtual static_mesh::~static_mesh()
+static_mesh::~static_mesh()
 {
 	/* Empty on purpose. */
 }
 
-void static_mesh::set_data(FbxMesh* m, const GLenum usagehint)
+void static_mesh::set_data(const FbxMesh* m, const GLenum usagehint)
 {
 	int i, j, polyvertex, polygonsize, polygoncount, vertexid = 0;
 
@@ -127,10 +136,10 @@ void static_mesh::set_data(FbxMesh* m, const GLenum usagehint)
 	bool has_tangents = false;
 
 	// FBX calls the bitangent vectors binormals... sigh.
-	FbxGeometryElementUV* fbx_uvs = nullptr;
-	FbxGeometryElementNormal* fbx_normals = nullptr;
-	FbxGeometryElementTangent* fbx_tangents = nullptr;
-	FbxGeometryElementBinormal* fbx_binormals = nullptr;
+	const FbxGeometryElementUV* fbx_uvs = nullptr;
+	const FbxGeometryElementNormal* fbx_normals = nullptr;
+	const FbxGeometryElementTangent* fbx_tangents = nullptr;
+	const FbxGeometryElementBinormal* fbx_binormals = nullptr;
 
 	FbxStringList uvsetnames;
 	m->GetUVSetNames(uvsetnames);
@@ -314,7 +323,7 @@ void static_mesh::set_data(FbxMesh* m, const GLenum usagehint)
 	m_count = static_cast<GLsizei>(indices.size());
 }
 
-static_mesh::static_mesh(FbxMesh* m, const GLenum usagehint)
+static_mesh::static_mesh(const FbxMesh* m, const GLenum usagehint)
 : mesh(mesh::kStaticMesh)
 , m_matrix_buffer(GL_DYNAMIC_DRAW)
 , m_matrix_N_buffer(GL_DYNAMIC_DRAW)

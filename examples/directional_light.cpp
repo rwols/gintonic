@@ -22,10 +22,11 @@ template <class FloatType> FloatType get_dt()
 int main(int argc, char* argv[])
 {
 	// Define a camera.
-	gt::proj_info projection;
+	gt::proj_info projection_component;
+	gt::camera cam_component;
 	gt::entity cam_entity;
-	cam_entity.proj_info_component = &projection;
-	gt::camera cam_component(cam_entity);
+	projection_component.attach(cam_entity);
+	cam_component.attach(cam_entity);
 
 	// Position the camera
 	cam_entity.set_translation(gt::vec3f(-2.78f, 0.83f, 1.17f));
@@ -55,8 +56,6 @@ int main(int argc, char* argv[])
 				gt::vec3f(0.0f, 0.0f, 0.0f)),
 			gt::box3f{});
 
-		light_entity.light_component = &the_light;
-
 		gt::entity cube_entity(
 			gt::SQT(
 				gt::vec3f(1.0f, 1.0f, 1.0f),
@@ -66,8 +65,9 @@ int main(int argc, char* argv[])
 				gt::vec3f(-2.0f, -2.0f, -2.0f),
 				gt::vec3f( 2.0f,  2.0f,  2.0f)));
 
-		cube_entity.material_component = &the_material;
-		cube_entity.mesh_component = &the_shape;
+		the_material.attach(cube_entity);
+		the_shape.attach(cube_entity);
+		the_light.attach(light_entity);
 
 		gt::renderer::show();
 		float curtime, dt;
@@ -115,12 +115,12 @@ int main(int argc, char* argv[])
 
 			cube_entity.set_rotation(gt::quatf::axis_angle(rotation_axis, -curtime / 4.0f));
 			gt::renderer::set_model_matrix(cube_entity);
-			cube_entity.material_component->bind();
-			cube_entity.mesh_component->draw();
+			cube_entity.material_component()->bind();
+			cube_entity.mesh_component()->draw();
 
 			gt::renderer::begin_light_pass();
 
-			light_entity.light_component->shine(light_entity.global_transform());
+			light_entity.light_component()->shine(light_entity);
 
 			gt::renderer::get_text_shader()->activate();
 			gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
@@ -137,16 +137,16 @@ int main(int argc, char* argv[])
 				<< "Press Q to quit.\n"
 				<< the_light << '\n'
 				<< std::setprecision(2) << std::fixed << '\n'
-				<< "Camera RIGHT:    " << cam_entity.global_transform().rotation.right_direction() << '\n'
-				<< "Camera UP:       " << cam_entity.global_transform().rotation.up_direction() << '\n'
-				<< "Camera FORWARD:  " << cam_entity.global_transform().rotation.forward_direction() << '\n'
-				<< "Camera QUAT:     " << cam_entity.global_transform().rotation << '\n'
-				<< "Camera POSITION: " << cam_entity.global_transform().translation << "\n\n"
-				<< "Cube RIGHT:      " << cube_entity.global_transform().rotation.right_direction() << '\n'
-				<< "Cube UP:         " << cube_entity.global_transform().rotation.up_direction() << '\n'
-				<< "Cube FORWARD:    " << cube_entity.global_transform().rotation.forward_direction() << '\n'
-				<< "Cube QUAT:       " << cube_entity.global_transform().rotation << '\n'
-				<< "Cube POSITION:   " << cube_entity.global_transform().translation;
+				<< "Camera RIGHT:    " << cam_entity.local_transform().rotation.right_direction() << '\n'
+				<< "Camera UP:       " << cam_entity.local_transform().rotation.up_direction() << '\n'
+				<< "Camera FORWARD:  " << cam_entity.local_transform().rotation.forward_direction() << '\n'
+				<< "Camera QUAT:     " << cam_entity.local_transform().rotation << '\n'
+				<< "Camera POSITION: " << cam_entity.local_transform().translation << "\n\n"
+				<< "Cube RIGHT:      " << cube_entity.local_transform().rotation.right_direction() << '\n'
+				<< "Cube UP:         " << cube_entity.local_transform().rotation.up_direction() << '\n'
+				<< "Cube FORWARD:    " << cube_entity.local_transform().rotation.forward_direction() << '\n'
+				<< "Cube QUAT:       " << cube_entity.local_transform().rotation << '\n'
+				<< "Cube POSITION:   " << cube_entity.local_transform().translation;
 			stream.close();
 			
 			glEnable(GL_CULL_FACE);

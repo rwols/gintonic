@@ -1,5 +1,5 @@
-#ifndef gintonic_matrix_stack_hpp
-#define gintonic_matrix_stack_hpp
+#ifndef gintonic_SQTstack_hpp
+#define gintonic_SQTstack_hpp
 
 #include "SQT.hpp"
 #include "allocator.hpp"
@@ -12,7 +12,10 @@ class SQTstack
 {
 public:
 
-	SQTstack() = default;
+	SQTstack()
+	{
+		m_stack.push(SQT());
+	}
 
 	inline SQTstack(const SQT& sqt)
 	{

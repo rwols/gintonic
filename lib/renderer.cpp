@@ -5,6 +5,7 @@
 #include "exception.hpp"
 #include "vec4f.hpp"
 #include "camera.hpp"
+#include "proj_info.hpp"
 #include "entity.hpp"
 #include <iostream>
 #include <SDL.h>
@@ -152,9 +153,9 @@ namespace gintonic {
 		s_width = width;
 		s_height = height;
 		s_aspectratio = (float) s_width / (float) s_height;
-		if (s_camera->proj_info_component)
+		if (s_camera->proj_info_component())
 		{
-			s_camera->proj_info_component->update();
+			s_camera->proj_info_component()->update();
 		}
 		else
 		{
@@ -332,9 +333,9 @@ namespace gintonic {
 		//
 		// Update projection matrix
 		//
-		if (s_camera->proj_info_component)
+		if (s_camera->proj_info_component())
 		{
-			s_camera->proj_info_component->update();
+			s_camera->proj_info_component()->update();
 		}
 	}
 
@@ -346,9 +347,9 @@ namespace gintonic {
 	void renderer::set_camera(entity& camera)
 	{
 		s_camera = &camera;
-		if (s_camera->proj_info_component)
+		if (s_camera->proj_info_component())
 		{
-			s_camera->proj_info_component->update();
+			s_camera->proj_info_component()->update();
 		}
 	}
 
@@ -523,10 +524,10 @@ namespace gintonic {
 		}
 
 		// Update the WORLD->VIEW matrix.
-		const auto f = s_camera->global_transform().rotation.forward_direction();
-		const auto u = s_camera->global_transform().rotation.up_direction();
-		const auto r = s_camera->global_transform().rotation.right_direction();
-		const auto eye = s_camera->global_transform().translation;
+		const auto f = s_camera->global_transform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f);
+		const auto u = s_camera->global_transform() * vec4f(0.0f, 1.0f, 0.0f, 0.0f);
+		const auto r = s_camera->global_transform() * vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+		const auto eye = s_camera->global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f);
 
 		s_matrix_V.m00 = r.x;
 		s_matrix_V.m10 = u.x;
@@ -682,7 +683,7 @@ namespace gintonic {
 	{
 		if (s_matrix_P_dirty)
 		{
-			s_matrix_P = s_camera->proj_info_component->matrix;
+			s_matrix_P = s_camera->proj_info_component()->matrix;
 			s_matrix_P_dirty = false;
 		}
 	}

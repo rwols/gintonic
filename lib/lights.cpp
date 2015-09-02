@@ -12,9 +12,9 @@ namespace gintonic {
 
 void light::attach(entity& e)
 {
-	if (e.light_component == this) return;
-	else if (e.light_component) e.light_component->detach(e);
-	e.light_component = this;
+	if (e.m_light_component == this) return;
+	else if (e.m_light_component) e.m_light_component->detach(e);
+	e.m_light_component = this;
 	m_ents.push_back(&e);
 }
 
@@ -22,9 +22,9 @@ void light::detach(entity& e)
 {
 	for (auto i = begin(); i != end(); ++i)
 	{
-		if (*i == e)
+		if (*i == &e)
 		{
-			e.light_component = nullptr;
+			e.m_light_component = nullptr;
 			m_ents.erase(i);
 			return;
 		}
@@ -39,7 +39,7 @@ light::light(const vec4f& intensity)
 
 light::~light() BOOST_NOEXCEPT_OR_NOTHROW
 {
-	/* Empty on purpose. */
+	for (auto* e : m_ents) e->m_light_component = nullptr;
 }
 
 void light::set_brightness(const float brightness)
@@ -88,7 +88,7 @@ ambient_light::~ambient_light() BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-void ambient_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
+void ambient_light::shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	const auto& s = renderer::get_lp_ambient_shader();
 	s.activate();
@@ -118,7 +118,7 @@ directional_light::~directional_light() BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-void directional_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
+void directional_light::shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	const auto& s = renderer::get_lp_directional_shader();
 	s.activate();
@@ -134,10 +134,9 @@ void directional_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	// These uniforms are different for each directional_light.
 	s.set_light_intensity(intensity);
 
-	// const auto rot = renderer::camera().global_transform().apply_to_direction(t.rotation.direction());
-	const auto rot = renderer::matrix_V() * vec4f(t.rotation.direction(), 0.0f);
+	const auto light_dir = renderer::matrix_V() * (e.global_transform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f));
 	
-	s.set_light_direction(vec3f(rot.x, rot.y, rot.z));
+	s.set_light_direction(vec3f(light_dir.data));
 
 	renderer::get_unit_quad_P().draw();
 }
@@ -185,13 +184,13 @@ float point_light::cutoff_point() const BOOST_NOEXCEPT_OR_NOTHROW
 	return m_cutoff_point;
 }
 
-void point_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
+void point_light::shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	// The transformation data is delivered in WORLD coordinates.
 
 	SQT sphere_transform;
 	sphere_transform.scale = m_cutoff_point;
-	sphere_transform.translation = t.translation;
+	sphere_transform.translation = (e.global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
 
 	renderer::set_model_matrix(sphere_transform);
 
@@ -216,7 +215,7 @@ void point_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	const auto light_pos = renderer::camera().global_transform().apply_to_point(t.translation);
+	const auto light_pos = renderer::matrix_V() * (e.global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f));
 
 	renderer::begin_light_pass();
 
@@ -227,7 +226,7 @@ void point_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	pointshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	pointshader.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
 	pointshader.set_light_intensity(intensity);
-	pointshader.set_light_position(light_pos);
+	pointshader.set_light_position(vec3f(light_pos.data));
 	pointshader.set_light_attenuation(m_attenuation);
 	pointshader.set_matrix_PVM(renderer::matrix_PVM());
 	sphere.draw();
@@ -302,14 +301,13 @@ spot_light::~spot_light() BOOST_NOEXCEPT_OR_NOTHROW
 	 /* Empty on purpose. */
 }
 
-void spot_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
+void spot_light::shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW
 {
 	// The transformation data is delivered in WORLD coordinates.
 
 	SQT sphere_transform;
 	sphere_transform.scale = cutoff_point();
-	// sphere_transform.rotation = t.rotation;
-	sphere_transform.translation = t.translation;
+	sphere_transform.translation = (e.global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
 
 	renderer::set_model_matrix(sphere_transform);
 
@@ -334,8 +332,8 @@ void spot_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	const auto light_pos = renderer::camera().global_transform().apply_to_point(t.translation);
-	const auto light_dir = (renderer::camera().global_transform().rotation * t.rotation).direction();
+	const auto light_pos = renderer::matrix_V() * (e.global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f));
+	const auto light_dir = renderer::matrix_V() * (e.global_transform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f));
 
 	renderer::begin_light_pass();
 
@@ -346,8 +344,8 @@ void spot_light::shine(const SQT& t) const BOOST_NOEXCEPT_OR_NOTHROW
 	spotshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
 	spotshader.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
 	spotshader.set_light_intensity(intensity);
-	spotshader.set_light_position(light_pos);
-	spotshader.set_light_direction(light_dir);
+	spotshader.set_light_position(vec3f(light_pos.data));
+	spotshader.set_light_direction(vec3f(light_dir.data));
 	spotshader.set_light_attenuation(attenuation());
 	spotshader.set_matrix_PVM(renderer::matrix_PVM());
 	sphere.draw();

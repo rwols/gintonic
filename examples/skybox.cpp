@@ -21,13 +21,23 @@ template <class FloatType> FloatType get_dt()
 
 int main(int argc, char* argv[])
 {
+	// Define a camera.
+	gt::proj_info projection_component;
+	gt::camera cam_component;
+	gt::entity cam_entity;
+	projection_component.attach(cam_entity);
+	cam_component.attach(cam_entity);
+
+	// Position the camera
+	cam_entity.set_translation(gt::vec3f(-2.78f, 0.83f, 1.17f));
+	cam_component.add_mouse(gt::vec2f(-gt::deg2rad(60.0f), -gt::deg2rad(9.0f)));
 	try
 	{
-		gt::init_all("skybox");
+		gt::init_all("skybox", cam_entity);
 		gt::renderer::set_freeform_cursor(true);
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
 		gt::fontstream stream;
-		gt::opengl::unit_cube_PUN the_shape;
+		gt::unit_cube_PUN the_shape;
 		gt::material the_material(
 			gt::vec4f(1.0f, 1.0f, 1.0f, 0.0f), 
 			gt::vec4f(0.0f, 0.0f, 0.0f, 1.0f), 
@@ -44,63 +54,78 @@ int main(int argc, char* argv[])
 		gt::skybox the_skybox(gt::opengl::cube_texture(
 			"../resources/skybox/siege_rt.tga", // positive X
 			"../resources/skybox/siege_lf.tga", // negative X
-			"../resources/skybox/siege_up_flipped.tga", // positive Y
-			"../resources/skybox/siege_dn_flipped.tga", // negative Y
+			"../resources/skybox/siege_up.tga", // positive Y
+			"../resources/skybox/siege_dn.tga", // negative Y
 			"../resources/skybox/siege_bk.tga", // positive Z
 			"../resources/skybox/siege_ft.tga"  // negative Z
 		));
+
+		gt::entity cube_entity(
+			gt::SQT(
+				gt::vec3f(1.0f, 1.0f, 1.0f),
+				gt::quatf(1.0f, 0.0f, 0.0f, 0.0f),
+				gt::vec3f(0.f, 0.0f, 0.0f)),
+			gt::box3f(
+				gt::vec3f(-2.0f, -2.0f, -2.0f),
+				gt::vec3f( 2.0f,  2.0f,  2.0f)));
+
+		the_material.attach(cube_entity);
+		the_shape.attach(cube_entity);
+
 		gt::renderer::show();
 		float curtime, dt;
-		gt::get_default_camera_entity().proj_info_component->update();
+
 		while (!gt::renderer::should_close())
 		{
 			curtime = get_elapsed_time<float>();
 			dt = get_dt<float>();
-			if (gintonic::renderer::key_toggle_press(SDL_SCANCODE_Q))
+			if (gt::renderer::key_toggle_press(SDL_SCANCODE_Q))
 			{
-				gintonic::renderer::close();
+				gt::renderer::close();
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_W))
+			if (gt::renderer::key(SDL_SCANCODE_W))
 			{
-				gt::get_default_camera_entity().move_forward(dt);
+				cam_entity.move_forward(dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_A))
+			if (gt::renderer::key(SDL_SCANCODE_A))
 			{
-				gt::get_default_camera_entity().move_left(dt);
+				cam_entity.move_left(dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_S))
+			if (gt::renderer::key(SDL_SCANCODE_S))
 			{
-				gt::get_default_camera_entity().move_backward(dt);
+				cam_entity.move_backward(dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_D))
+			if (gt::renderer::key(SDL_SCANCODE_D))
 			{
-				gt::get_default_camera_entity().move_right(dt);
+				cam_entity.move_right(dt);
 			}
-			if (gintonic::renderer::key(SDL_SCANCODE_SPACE))
+			if (gt::renderer::key(SDL_SCANCODE_SPACE))
 			{
-				gt::get_default_camera_entity().move_up(dt);
+				cam_entity.move_up(dt);
 			}
-			auto mousedelta = gintonic::renderer::mouse_delta();
-			mousedelta = -gt::deg2rad(mousedelta) / 4.0f;
-			gt::get_default_camera_entity().add_mousedelta(mousedelta);
+			if (gt::renderer::key(SDL_SCANCODE_C))
+			{
+				cam_entity.move_down(dt);
+			}
 
-			// gt::get_default_camera_entity().add_translation(gt::vec3f(mousedelta.x, mousedelta.y, 0.0f));
-			// gt::get_default_camera_entity().look_at(cube_entity);
-			// gt::get_default_camera_entity().proj_info_component->update();
+			const auto mousedelta = -gt::deg2rad(gt::renderer::mouse_delta()) / 10.0f;
+			cam_component.add_mouse(mousedelta);
 			
 			gt::renderer::begin_geometry_pass();
+
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
 
 			const auto yaxis = (1.0f + std::cos(curtime)) / 2.0f;
 			const auto zaxis = (1.0f + std::sin(curtime)) / 2.0f;
 			const auto rotation_axis = gt::vec3f(0.0f, yaxis, zaxis).normalize();
-			gt::renderer::set_model_matrix(rotation_axis, -curtime / 4.0f);
-			the_material.bind();
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-			the_shape.draw();
+			cube_entity.set_rotation(gt::quatf::axis_angle(rotation_axis, -curtime / 4.0f));
+			gt::renderer::set_model_matrix(cube_entity);
+			cube_entity.material_component()->bind();
+			cube_entity.mesh_component()->draw();
 
 			gt::renderer::begin_light_pass();
-			gt::renderer::null_light_pass();
+			gt::renderer::ambient_light_pass();
 
 			glCullFace(GL_FRONT);
 			the_skybox.draw();
@@ -117,12 +142,9 @@ int main(int argc, char* argv[])
 				<< "Press Q to quit.\n"
 				<< "Elapsed time: " << std::fixed << std::setprecision(1) << curtime << " seconds\n"
 				<< "Frames per second: " << std::fixed << std::setprecision(1) << 1.0f / dt << '\n'
-				<< "Camera pos:   " << gt::renderer::camera()->global_transform().translation << '\n'
-				<< "Camera up:    " << gt::renderer::camera()->global_transform().rotation.up_direction() << '\n'
-				<< "Camera right: " << gt::renderer::camera()->global_transform().rotation.right_direction() << '\n';
-				// << "Camera position: " << gt::get_default_camera_entity().position << '\n'
-				// << "Camera up:       " << gt::get_default_camera_entity().up << '\n'
-				// << "Camera right:    " << gt::get_default_camera_entity().right << std::endl;
+				<< "Camera pos:   " << gt::renderer::camera().local_transform().translation << '\n'
+				<< "Camera up:    " << gt::renderer::camera().local_transform().rotation.up_direction() << '\n'
+				<< "Camera right: " << gt::renderer::camera().local_transform().rotation.right_direction() << '\n';
 			stream.close();
 			
 			gt::renderer::update();
