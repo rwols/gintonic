@@ -1,35 +1,72 @@
+/**
+ * @file allocator.hpp
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_allocator_hpp
 #define gintonic_allocator_hpp
 
 namespace gintonic {
 
-/*****************************************************************************
- * gintonic::allocator                                                       *
- *                                                                           *
- * Purpose: To be able to put SIMD types in containers, as well as classes   *
- * that contain SIMD types (e.g. vec3f et al)                                *
- ****************************************************************************/
+/**
+ * @brief Aligned allocator.
+ * @details The aligned allocator can be used with all STL
+ * containers so as to make sure that types are aligned on a
+ * given memory boundary.
+ * 
+ * @tparam T The type to allocate.
+ * @tparam Alignment The memory alignment. By default, this is
+ * set to 16.
+ */
 template <class T, std::size_t Alignment = 16> class allocator
 {
 public:
+
+	/// The pointer type.
 	typedef T* pointer;
+
+	/// The constant pointer type.
 	typedef const T* const_pointer;
+
+	/// The reference type.
 	typedef T& reference;
+
+	/// The constant reference type.
 	typedef const T& const_reference;
+
+	/// The value type.
 	typedef T value_type;
+
+	/// The size type.
 	typedef std::size_t size_type;
+
+	/// The difference type.
 	typedef ptrdiff_t difference_type;
 
+	/**
+	 * @brief Get the memory address.
+	 * @param t The reference to get the memory address from.
+	 * @return A pointer to the object.
+	 */
 	inline T* address(T& t) const
 	{
 		return std::addressof(t);
 	}
 
+	/**
+	 * @brief Get the memory address.
+	 * @param t The reference to get the memory address from.
+	 * @return A pointer to the object.
+	 */
 	inline const T * address(const T& t) const
 	{
 		return std::addressof(t);
 	}
 
+	/**
+	 * @brief The maximum allocation size.
+	 * @return The maximum allocation size.
+	 */
 	inline std::size_t max_size() const
 	{
 		// The following has been carefully written to be independent of
@@ -38,100 +75,87 @@ public:
 			/ sizeof(T);
 	}
 
-	// What follows is always the same for all allocators.
+	/// Rebind an allocator. Does nothing interesting.
 	template <typename U> struct rebind
 	{
 		typedef allocator<U, Alignment> other;
 	};
 
+	/// Always returns false.
 	inline bool operator!=(const allocator& other) const
 	{
 		return !(*this == other);
 	}
 
+	/**
+	 * @brief Copy construct an object.
+	 * @param p The location where to construct.
+	 * @param t The object to copy.
+	 */
 	inline void construct(T* const p, const T& t) const
 	{
 		new (p) T(t);
-		// void* const pv = static_cast<void*>(p);
-		// new (pv) T(t);
 	}
 
+	/**
+	 * @brief Explicitly call the destructor of an object.
+	 * @param p A constant pointer to destroy.
+	 */
 	inline void destroy(T * const p) const
 	{
 		p->~T();
 	}
 
-	// Returns true if and only if storage allocated from *this
-	// can be deallocated from other, and vice versa.
-	// Always returns true for stateless allocators.
+	/// Always returns true.
 	inline bool operator==(const allocator& other) const
 	{
 		return true;
 	}
 
-
-	// Default constructor, copy constructor, rebinding constructor, and
-	// destructor. Empty for stateless allocators.
+	/// Default constructor.
 	inline allocator() = default;
 
+	/// Default copy constructor.
 	inline allocator(const allocator&) = default;
 
+	/// Copy constructor from another template type U, but with the same alignment.
 	template <typename U> inline allocator(const allocator<U, Alignment>&) {}
 
+	/// Default destructor does nothing interesting.
 	inline ~allocator() {}
 
-
-	// The following will be different for each allocator.
+	/**
+	 * @brief Allocate a number of objects.
+	 * @param n The number of objects of type T to allocate.
+	 * @return A pointer to the first allocated object.
+	 */
 	inline T* allocate(const std::size_t n) const
 	{
-		// The return value of allocate(0) is unspecified.
-		// Mallocator returns NULL in order to avoid depending
-		// on malloc(0)'s implementation-defined behavior
-		// (the implementation can define malloc(0) to return NULL,
-		// in which case the bad_alloc check below would fire).
-		// All allocators can return NULL in this case.
-		// if (n == 0) 
-		// {
-		// 	return nullptr;
-		// }
-
-		// All allocators should contain an integer overflow check.
-		// The Standardization Committee recommends that std::length_error
-		// be thrown in the case of integer overflow.
-		// if (n > max_size())
-		// {
-		// 	throw std::length_error(
-		// 		"gintonic::allocator<T>::allocate() - Integer overflow.");
-		// }
-
-		// Mallocator wraps malloc().
-		// void* const pv = _mm_malloc(n * sizeof(T), Alignment);
-
-		// Allocators should throw std::bad_alloc in the case of memory 
-		// allocation failure.
-		// if (pv == nullptr)
-		// {
-		// 	throw std::bad_alloc();
-		// }
-
-		// return static_cast<T*>(pv);
-
 		return static_cast<T*>(_mm_malloc(n * sizeof(T), Alignment));
 	}
 
+	/**
+	 * @brief Deallocate a number of objects.
+	 * @param p A pointer to the first object.
+	 * @param n The number of objects to deallocate.
+	 */
 	inline void deallocate(T* const p, const std::size_t n) const
 	{
 		_mm_free(p);
 	}
 
-
-	// The following will be the same for all allocators that ignore hints.
+	/**
+	 * @brief Allocate a number of objects with a hint. The hint is ignored.
+	 * @param n The number of objects to allocate.
+	 * @return A pointer to the first allocated object.
+	 */
 	template <typename U>
 	inline T* allocate(const std::size_t n, const U* /* const hint */) const
 	{
 		return allocate(n);
 	}
 
+	/// You cannot copy an allocator.
 	allocator& operator=(const allocator&) = delete;
 };
 

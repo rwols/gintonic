@@ -1,3 +1,8 @@
+/**
+ * @file lights.hpp
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_lights_hpp
 #define gintonic_lights_hpp
 
@@ -12,55 +17,98 @@ namespace gintonic {
 
 class entity; // Forward declaration.
 
-/*****************************************************************************
-* gintonic::light                                                            *
-*****************************************************************************/
-
+/**
+ * @brief A light.
+ */
 class light : public component
 {
 public:
 
-	// Light intensity property.
+	/**
+	 * @brief The intensity of the light.
+	 * 
+	 * @details The first three components, the X, Y and Z values, define the
+	 * color of the light. The fourth component, the W value, defines the
+	 * intensity of the light.
+	 */
 	vec4f intensity;
 
-	// Needs implementation from base class component.
 	virtual void attach(entity&) final;
 
-	// Needs implementation from base class component.
 	virtual void detach(entity&) final;
 
-	// Default constructor.
+	/// Default constructor.
 	light() = default;
 
-	// Constructor that takes an intensity value.
+	/**
+	 * @brief Constructor.
+	 * 
+	 * @param intensity The intensity value.
+	 */
 	light(const vec4f& intensity);
 	
-	// Destructor.
+	/// Destructor.
 	virtual ~light() BOOST_NOEXCEPT_OR_NOTHROW;
 	
-	// Shine the light given the SQT transform.
-	virtual void shine(const entity&) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+	/**
+	 * @brief Shine the light using the global transform of the given entity.
+	 * @details Note that the renderer must be in the light pass stage.
+	 * 
+	 * @param e The entity to shine from.
+	 */
+	virtual void shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
 
+	/**
+	 * @brief Set the brightness, or intensity of the light.
+	 * 
+	 * @param brightness The new brightness value.
+	 */
 	virtual void set_brightness(const float brightness);
+
+	/**
+	 * @brief Get the brightness, or intensity of the light.
+	 * @return The current brightness, or intensity.
+	 */
 	float brightness() const BOOST_NOEXCEPT_OR_NOTHROW;
 
-	// Polymorphic output stream support for lights.
+	/**
+	 * @brief Polymorphic stream output operator.
+	 */
 	friend std::ostream& operator << (std::ostream&, const light*);
-	friend std::ostream& operator << (std::ostream&, const std::unique_ptr<light>&);
-	friend std::ostream& operator << (std::ostream&, const std::shared_ptr<light>&);
 
-	// Stream output support for a light.
-	friend std::ostream& operator << (std::ostream&, const light&);
+	/**
+	 * @brief Polymorphic stream output operator.
+	 */
+	friend std::ostream& operator << (
+		std::ostream&, 
+		const std::unique_ptr<light>&);
 
-	// Needed because a light carries one or more vec4f's.
+	/**
+	 * @brief Polymorphic stream output operator.
+	 */
+	friend std::ostream& operator << (
+		std::ostream&, 
+		const std::shared_ptr<light>&);
+
+	/**
+	 * @brief Polymorphic stream output operator.
+	 */
+	friend std::ostream& operator << (
+		std::ostream&, 
+		const light&);
+
+	//!@cond
 	GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(16);
+	//!@endcond
 
 private:
 
-	// Reimplement this method to support output streams.
-	virtual std::ostream& pretty_print(std::ostream&) const BOOST_NOEXCEPT_OR_NOTHROW;
+	/**
+	 * @brief Print the light to an outstream for debug purposes.
+	 */
+	virtual std::ostream& pretty_print(std::ostream&) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
 
-	// Serialization support.
 	friend boost::serialization::access;
 
 	template <class Archive> 
