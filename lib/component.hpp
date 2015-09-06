@@ -96,7 +96,8 @@ public:
 
 	/**
 	 * @brief One-past-the-end of the attached entities.
-	 * @return An iterator pointing to one-past-the-end of the attached entities.
+	 * @return An iterator pointing to one-past-the-end of the attached
+	 * entities.
 	 */
 	inline iterator end() BOOST_NOEXCEPT_OR_NOTHROW
 	{

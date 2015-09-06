@@ -1,3 +1,8 @@
+/**
+ * @file flyweights.hpp
+ * @author Raoul Wols
+ */
+
 #ifndef flyweights_hpp
 #define flyweights_hpp
 
