@@ -1,3 +1,8 @@
+/**
+ * @file textures.hpp
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_textures_hpp
 #define gintonic_textures_hpp
 
@@ -201,91 +206,320 @@ struct texture_parameters
 	std::array<GLint, 3> wrap;
 
 	/*!
-	\brief The constructor constructs sane and default values for the texture parameters.
+	\brief The constructor constructs sane and default values for the texture 
+	parameters.
 	*/
 	texture_parameters();
 };
 
+/**
+ * @brief Base class for textures.
+ * 
+ * @details The base class houses a few useful protected methods so that
+ * derivers can easily import image files from disk.
+ */
 class texture : public std::enable_shared_from_this<texture>
 {
 public:
 
+	/**
+	 * @brief Initialize textures.
+	 * @details This static method needs to be called after initializing the
+	 * renderer in order to use textures correctly.
+	 */
 	static void init();
 
+	/**
+	 * @brief Texture parameters.
+	 * @deprecated I will probably remove this later. It's pointless.
+	 */
 	static texture_parameters parameter;
 
+	/**
+	 * @brief Bind the texture with at the given texture unit index.
+	 * @param texture_unit The texture unit index.
+	 * @note In OpenGL, you are probably used to seeing GL_TEXTURE0,
+	 * GL_TEXTURE1, GL_TEXTURE2	and so on as texture units. But here we start
+	 * from the number 0. So, GL_TEXTURE0 corresponds to 0, GL_TEXTURE1
+	 * corresponds to 1, GL_TEXTURE2 corresponds to 2, and so on. This is to
+	 * unify the calling convention for setting up the sampler2D uniform in
+	 * shaders.
+	 */
 	virtual void bind(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
 
+	/// Destructor.
 	virtual ~texture();
 
+	/// Copy constructor.
 	texture(const texture&) = default;
+
+	/// Copy assignment operator.
 	texture& operator = (const texture&) = default;
+
+	/// Move constructor.
 	texture(texture&&);
+
+	/// Move assignment operator.
 	texture& operator = (texture&&);
-
-	// struct error : virtual exception {};
-	// struct empty_filename_error : virtual error {};
-	// struct not_a_regular_file_error : virtual error {};
-	// struct file_extension_error : virtual error {};
-	// struct handle_error : virtual error {};
-	// struct unknown_tga_format_error : virtual error {};
-	// struct png_ran_out_of_memory_error : virtual error {};
-	// struct png_read_error : virtual error {};
-	// struct png_invalid_signature_error : virtual error {};
-	// struct png_unknown_color_format_error : virtual error {};
-	// struct jpeg_read_error : virtual error {};
-
-	// #ifdef BOOST_MSVC
-	// struct wic_error : virtual error {};
-	// struct wic_initialization_error : virtual error {};
-	// typedef boost::error_info<struct tag_wic_errorcode, HRESULT> errinfo_wic;
-	// #endif
 
 protected:
 
+	/// Default constructor (does nothing).
 	texture() = default;
 
-	static void init_tga_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	/**
+	 * @brief Initialize a TGA image from disk.
+	 * 
+	 * @param filename The filepath to the TGA image.
+	 * @param width Will be set to the width of the image.
+	 * @param height Will be set to the height of the image.
+	 * @param format Will be set to the format of the image.
+	 * @param type Will be set to the type of the image.
+	 * @param data Will be filled with the contents of the image.
+	 * @exception May throw an exception.
+	 */
+	static void init_tga_image(
+		const boost::filesystem::path& filename, 
+		GLsizei& width, 
+		GLsizei& height, 
+		GLenum& format, 
+		GLenum& type, 
+		std::vector<char>& data);
+	
 	#ifdef BOOST_MSVC
-	static void init_wic_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+
+	/**
+	 * @brief Initialize most image formats from disk.
+	 * 
+	 * @param filename The filepath to the TGA image.
+	 * @param width Will be set to the width of the image.
+	 * @param height Will be set to the height of the image.
+	 * @param format Will be set to the format of the image.
+	 * @param type Will be set to the type of the image.
+	 * @param data Will be filled with the contents of the image.
+	 * @exception May throw an exception.
+	 */
+	static void init_wic_image(
+		const boost::filesystem::path& filename, 
+		GLsizei& width, 
+		GLsizei& height, 
+		GLenum& format, 
+		GLenum& type, 
+		std::vector<char>& data);
+
 	#elif defined __APPLE__
-	static void init_png_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	static void init_jpeg_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	
+	/**
+	 * @brief Initialize a PNG image formats from disk.
+	 * 
+	 * @param filename The filepath to the TGA image.
+	 * @param width Will be set to the width of the image.
+	 * @param height Will be set to the height of the image.
+	 * @param format Will be set to the format of the image.
+	 * @param type Will be set to the type of the image.
+	 * @param data Will be filled with the contents of the image.
+	 * @exception May throw an exception.
+	 */
+	static void init_png_image(
+		const boost::filesystem::path& filename, 
+		GLsizei& width, 
+		GLsizei& height, 
+		GLenum& format, 
+		GLenum& type, 
+		std::vector<char>& data);
+
+	/**
+	 * @brief Initialize a JPEG image formats from disk.
+	 * 
+	 * @param filename The filepath to the TGA image.
+	 * @param width Will be set to the width of the image.
+	 * @param height Will be set to the height of the image.
+	 * @param format Will be set to the format of the image.
+	 * @param type Will be set to the type of the image.
+	 * @param data Will be filled with the contents of the image.
+	 * @exception May throw an exception.
+	 */
+	static void init_jpeg_image(
+		const boost::filesystem::path& filename, 
+		GLsizei& width, 
+		GLsizei& height, 
+		GLenum& format, 
+		GLenum& type, 
+		std::vector<char>& data);
+
 	#elif defined __linux__
-	static void init_png_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
-	static void init_jpeg_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	
+	/**
+	 * @brief Initialize a PNG image formats from disk.
+	 * 
+	 * @param filename The filepath to the TGA image.
+	 * @param width Will be set to the width of the image.
+	 * @param height Will be set to the height of the image.
+	 * @param format Will be set to the format of the image.
+	 * @param type Will be set to the type of the image.
+	 * @param data Will be filled with the contents of the image.
+	 * @exception May throw an exception.
+	 */
+	static void init_png_image(
+		const boost::filesystem::path& filename, 
+		GLsizei& width, 
+		GLsizei& height, 
+		GLenum& format, 
+		GLenum& type, 
+		std::vector<char>& data);
+
+	/**
+	 * @brief Initialize a JPEG image formats from disk.
+	 * 
+	 * @param filename The filepath to the TGA image.
+	 * @param width Will be set to the width of the image.
+	 * @param height Will be set to the height of the image.
+	 * @param format Will be set to the format of the image.
+	 * @param type Will be set to the type of the image.
+	 * @param data Will be filled with the contents of the image.
+	 * @exception May throw an exception.
+	 */
+	static void init_jpeg_image(
+		const boost::filesystem::path& filename, 
+		GLsizei& width, 
+		GLsizei& height, 
+		GLenum& format, 
+		GLenum& type, 
+		std::vector<char>& data);
+
 	#else
+	
 	#error Platform not supported.
+	
 	#endif
-	static void init_generic_image(const boost::filesystem::path& filename, GLsizei& width, GLsizei& height, GLenum& format, GLenum& type, std::vector<char>& data);
+	
+	/**
+	 * @brief Initialize most image formats from disk.
+	 * 
+	 * @param filename The filepath to the TGA image.
+	 * @param width Will be set to the width of the image.
+	 * @param height Will be set to the height of the image.
+	 * @param format Will be set to the format of the image.
+	 * @param type Will be set to the type of the image.
+	 * @param data Will be filled with the contents of the image.
+	 * @exception May throw an exception.
+	 */
+	static void init_generic_image(
+		const boost::filesystem::path& filename, 
+		GLsizei& width, 
+		GLsizei& height, 
+		GLenum& format, 
+		GLenum& type, 
+		std::vector<char>& data);
 
 private:
 
 	static void release();
 };
 
+/**
+ * @brief Your basic two-dimensional texture object.
+ */
 class texture2d : public texture
 {
 public:
 
+	/**
+	 * @brief Constructor.
+	 * @param filename Initialize a texture2d with the given image located
+	 * at the filepath.
+	 * @exception exception Can throw an exception.
+	 */
 	texture2d(const boost::filesystem::path& filename);
 
+	/// Destructor.
 	virtual ~texture2d();
 
+	/// Copy constructor.
 	texture2d(const texture2d&) = default;
+
+	/// Copy assignment operator.
 	texture2d& operator = (const texture2d&) = default;
+
+	/// Move constructor.
 	texture2d(texture2d&&);
+
+	/// Move assignment operator.
 	texture2d& operator = (texture2d&&);
 
-	virtual void bind(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void bind(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW final;
 
+	/**
+	 * @brief Get the width of the texture.
+	 * @details The texture needs to be bound before calling this method.
+	 * 
+	 * @param level The mipmap level.
+	 * @return The width of the texture at the given mipmap level.
+	 */
 	GLint width(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Get the height of the texture.
+	 * @details The texture needs to be bound before calling this method.
+	 * 
+	 * @param level The mipmap level.
+	 * @return The height of the texture at the given mipmap level.
+	 */
 	GLint height(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Get the depth of the texture.
+	 * @details The texture needs to be bound before calling this method.
+	 * 
+	 * @param level The mipmap level.
+	 * @return The depth of the texture at the given mipmap level.
+	 * 
+	 * @deprecated The depth of a two-dimensional texture doesn't make any
+	 * sense.
+	 */
 	GLint depth(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
-	GLint internal_format(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Get the internal format of the texture.
+	 * @details The texture needs to be bound before calling this method.
+	 * 
+	 * @param level The mipmap level.
+	 * @return The internal format of the texture at the given mipmap level.
+	 */
+	GLint internal_format(const GLint level = 0) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Check wether this texture2d is compressed.
+	 * @details The texture needs to be bound before calling this method.
+	 * 
+	 * @param level The mipmap level.
+	 * @return True if the texture2d at the given mipmap level is compressed,
+	 * false otherwise.
+	 */
 	bool is_compressed(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Get the format of the texture.
+	 * @details The texture needs to be bound before calling this method.
+	 * 
+	 * @param level The mipmap level.
+	 * @return The format of the texture at the given mipmap level.
+	 */
 	GLint format(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
-	GLint compressed_size(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Get the compressed size of the texture.
+	 * @details The texture needs to be bound before calling this method.
+	 * 
+	 * @param level The mipmap level.
+	 * @return The compressed size of the texture at the given mipmap level.
+	 */
+	GLint compressed_size(const GLint level = 0) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/// Get the underlying OpenGL handle with a static_cast.
 	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW { return m_tex; }
 
 private:
@@ -293,10 +527,25 @@ private:
 	texture_object m_tex;
 };
 
+/**
+ * @brief Your basic cube texture.
+ * 
+ * @details A cube has six sides, so a cube texture needs six image files.
+ */
 class cube_texture : public texture
 {
 public:
 
+	/**
+	 * @brief Constructor.
+	 * 
+	 * @param positive_X_file The +X side.
+	 * @param negative_X_file The -X side.
+	 * @param positive_Y_file The +Y side.
+	 * @param negative_Y_file The -Y side.
+	 * @param positive_Z_file The +Z side.
+	 * @param negative_Z_file The -Z side.
+	 */
 	cube_texture(
 		const boost::filesystem::path& positive_X_file,
 		const boost::filesystem::path& negative_X_file,
@@ -305,14 +554,23 @@ public:
 		const boost::filesystem::path& positive_Z_file,
 		const boost::filesystem::path& negative_Z_file);
 
+	/// Destructor.
 	virtual ~cube_texture();
 
+	/// Copy constructor.
 	cube_texture(const cube_texture&) = default;
+
+	/// Copy assignment operator.
 	cube_texture& operator = (const cube_texture&) = default;
+
+	/// Move constructor.
 	cube_texture(cube_texture&&);
+
+	/// Move assignment operator.
 	cube_texture& operator = (cube_texture&&);
 
-	virtual void bind(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void bind(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW final;
 
 private:
 

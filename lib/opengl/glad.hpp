@@ -1,4 +1,3 @@
-
 #ifndef __glad_h_
 
 #ifdef __gl_h_

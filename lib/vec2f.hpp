@@ -1,3 +1,8 @@
+/**
+ * @file vec2f.hpp
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_vec2f_hpp
 #define gintonic_vec2f_hpp
 
@@ -10,18 +15,16 @@ namespace FBX
 	class FbxVector2; // Forward declaration.	
 }
 
-namespace gintonic
-{
-
-/*****************************************************************************
-* gintonic::vec2f                                                            *
-*****************************************************************************/
+namespace gintonic {
 
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
 #endif
 
+/**
+ * @brief Two-dimensional vector class that uses SSE.
+ */
 union vec2f
 {
 private:
@@ -33,10 +36,14 @@ public:
 
 	struct
 	{
+		/// The X-coordinate.
 		float x;
+		/// The Y-coordinate.
 		float y;
+		//!@cond
 		float dummy0;
 		float dummy1;
+		//!@endcond
 	};
 
 	inline vec2f() BOOST_NOEXCEPT_OR_NOTHROW

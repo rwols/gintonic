@@ -94,10 +94,13 @@ public:
 	typedef clock_type::duration duration_type;
 
 	/**
-	 * @name Initialization and shutdown procedures
+	 * @name Initialization and Shutdown Procedures
+	 * 
+	 * Functionality relating to initialization of the renderer and shutdown
+	 * mechanisms of the renderer. Context focusing is also present here.
 	 */
 	
-	//@{
+	///@{
 
 	/**
 	 * @brief Initialize the renderer.
@@ -174,13 +177,15 @@ public:
 	 */
 	static bool should_close() BOOST_NOEXCEPT_OR_NOTHROW;
 
-	//@}
+	///@}
 	
 	/**
-	 * @name Time management
+	 * @name Time Management
+	 * 
+	 * Functionality to obtain the delta time and the elapsed time.
 	 */
 
-	//@{
+	///@{
 
 	/**
 	 * @brief Get the delta time between two frames.
@@ -200,13 +205,16 @@ public:
 		return s_elapsed_time;
 	}
 
-	//@}
+	///@}
 	
 	/**
-	 * @name Camera, matrices and viewport
+	 * @name Camera, Matrices and Viewport Management
+	 * 
+	 * Functionality relating to the camera entity, the global matrices
+	 * and the viewport.
 	 */
 	
-	//@{
+	///@{
 
 	/**
 	 * @brief Set the camera.
@@ -342,7 +350,15 @@ public:
 		s_matrix_M = mat4f(std::forward<Args>(args)...);
 	}
 
-	//@}
+	///@}
+
+	/**
+	 * @name Keyboard and Mouse Management
+	 * 
+	 * Functionality relating to the keyboard and mouse input.
+	 */
+
+	///@{
 
 	/**
 	 * @brief Set the cursor position relative to the viewport.
@@ -384,12 +400,6 @@ public:
 	 * @brief Center the cursor to the center of the viewport.
 	 */
 	static void center_cursor() BOOST_NOEXCEPT_OR_NOTHROW;
-
-	/**
-	 * @brief Enable or disable virtual synchronization.
-	 * @param b True to enable, false to disable.
-	 */
-	static void vsync(const bool b);
 
 	/**
 	 * @brief Check if a given key is pressed down.
@@ -437,6 +447,23 @@ public:
 		return s_mouse_delta;
 	}
 
+	///@}
+
+	/**
+	 * @name Render state
+	 * 
+	 * Functions to change the state of the renderer. You will probably work
+	 * with these functions most of the time.
+	 */
+
+	///@{
+
+	/**
+	 * @brief Enable or disable virtual synchronization.
+	 * @param b True to enable, false to disable.
+	 */
+	static void vsync(const bool b);
+
 	#ifdef ENABLE_DEBUG_TRACE
 	/**
 	 * @brief Output to a debug stream on the renderer's viewport.
@@ -471,32 +498,6 @@ public:
 	 */
 	static void upload_all_matrices();
 
-	/// Event that fires when a character on the keyboard is typed.
-	static boost::signals2::signal<void(wchar_t)> char_typed;
-
-	/// Event that fires when the mouse has scrolled.
-	static boost::signals2::signal<void(double, double)> mouse_scrolled;
-
-	/// Event that fires when the mouse has moved.
-	static boost::signals2::signal<void(double, double)> mouse_moved;
-
-	/// Event that fires when a key is pressed.
-	static boost::signals2::signal<void(int, int, int, int)> key_pressed;
-
-	/// Event that fires when a mouse button is pressed.
-	static boost::signals2::signal<void(int, int, int)> mouse_pressed;
-
-	/// Event that fires when the window is resized.
-	static boost::signals2::signal<void(int, int)> window_resized;
-
-	/// Event that fires when the mouse has entered the window.
-	static boost::signals2::signal<void(void)> mouse_entered;
-
-	/// Event that fires when the mouse has left the window.
-	static boost::signals2::signal<void(void)> mouse_left;
-
-	/// Event that fires when the renderer is about to close.
-	static boost::signals2::signal<void(void)> about_to_close;
 
 	/**
 	 * @brief Get the name of the hardware (or software) renderer.
@@ -574,11 +575,52 @@ public:
 	 */
 	static void ambient_light_pass() BOOST_NOEXCEPT_OR_NOTHROW;
 
+	///@}
+
 	/**
-	 * @name Shader access
+	 * @name Events
+	 * 
+	 * The events that the renderer may fire.
+	 */
+
+	///@{
+
+	/// Event that fires when a character on the keyboard is typed.
+	static boost::signals2::signal<void(wchar_t)> char_typed;
+
+	/// Event that fires when the mouse has scrolled.
+	static boost::signals2::signal<void(double, double)> mouse_scrolled;
+
+	/// Event that fires when the mouse has moved.
+	static boost::signals2::signal<void(double, double)> mouse_moved;
+
+	/// Event that fires when a key is pressed.
+	static boost::signals2::signal<void(int, int, int, int)> key_pressed;
+
+	/// Event that fires when a mouse button is pressed.
+	static boost::signals2::signal<void(int, int, int)> mouse_pressed;
+
+	/// Event that fires when the window is resized.
+	static boost::signals2::signal<void(int, int)> window_resized;
+
+	/// Event that fires when the mouse has entered the window.
+	static boost::signals2::signal<void(void)> mouse_entered;
+
+	/// Event that fires when the mouse has left the window.
+	static boost::signals2::signal<void(void)> mouse_left;
+
+	/// Event that fires when the renderer is about to close.
+	static boost::signals2::signal<void(void)> about_to_close;
+
+	///@}
+
+	/**
+	 * @name Shader Access
+	 * 
+	 * The renderer houses all of the shaders.
 	 */
 	
-	//@{
+	///@{
 
 	/**
 	 * @brief Get a shader that does nothing.
@@ -788,13 +830,16 @@ public:
 		return s_text_shader;
 	}
 
-	//@}
+	///@}
 	
 	/**
-	 * @name Basic mesh shape access.
+	 * @name Basic Mesh Shape Access
+	 * 
+	 * The renderer houses some basic shapes. You can access them with these
+	 * functions.
 	 */
 	
-	//@{
+	///@{
 
 	/**
 	 * Get unit_quad_P.
@@ -841,7 +886,7 @@ public:
 		return *s_unit_cone_P;
 	}
 
-	//@}
+	///@}
 
 private:
 

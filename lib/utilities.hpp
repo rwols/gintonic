@@ -1,3 +1,8 @@
+/**
+ * @file utilities.hpp
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_utilities_hpp
 #define gintonic_utilities_hpp
 

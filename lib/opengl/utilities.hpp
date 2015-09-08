@@ -1,3 +1,8 @@
+/**
+ * @file opengl/utilities.hpp
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_opengl_utilities_hpp
 #define gintonic_opengl_utilities_hpp
 
@@ -66,6 +71,16 @@
 * Purpose: To simplify buffering a vector.                                   *
 *****************************************************************************/
 
+/**
+ * @brief Convenience function for 
+ * [glBufferData](https://www.opengl.org/sdk/docs/man3/xhtml/glBufferData.xml).
+ * 
+ * @tparam ContiguousArrayContainer The type of the STL-compliant
+ * contiguous array.
+ * @param target Specifies the target buffer object.
+ * @param v The contiguous array.
+ * @param usage Usage hint.
+ */
 template <class ContiguousArrayContainer>
 inline void gtBufferData(const GLenum target, 
 	const ContiguousArrayContainer& v, const GLenum usage)
@@ -81,6 +96,17 @@ inline void gtBufferData(const GLenum target,
 * Purpose: To simplify (sub)buffering a vector.                              *
 *****************************************************************************/
 
+/**
+ * @brief Convenience function for 
+ * [glBufferSubData](https://www.opengl.org/sdk/docs/man3/xhtml/glBufferSubData.xml).
+ * 
+ * @tparam T The type of the elements in the vector.
+ * @param target Specifies the target buffer object.
+ * @param element_offset Specifies the offset into the buffer object's data 
+ * store where data replacement will begin, measured in the size of T.
+ * @param num_elements Specifies the size in the size of T of the data store
+ * region being replaced.
+ */
 template <class T, class Alloc> inline void gtBufferSubData(
 	const GLenum target,
 	const std::size_t element_offset,

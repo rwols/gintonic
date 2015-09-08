@@ -1,3 +1,8 @@
+/**
+ * @file shaders.hpp
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_shaders_hpp
 #define gintonic_shaders_hpp
 
@@ -5,505 +10,1007 @@
 
 namespace gintonic {
 
-/*****************************************************************************
- * gintonic::matrix_PVM_shader                                               *
- ****************************************************************************/
-
+/**
+ * @brief A shader that only houses a matrix_PVM uniform.
+ * @details This shader should not be used directly but is really only here
+ * to serve as a base class for inheritance.
+ */
 class matrix_PVM_shader : public opengl::shader_program
 {
 public:
+
+	/// Default constructor.
 	matrix_PVM_shader();
+
+	/// Destructor.
 	virtual ~matrix_PVM_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+	
+	/**
+	 * @brief Set the matrix_PVM uniform variable in the shader.
+	 * @param m The matrix to set the matrix_PVM uniform variable to.
+	 */
 	void set_matrix_PVM(const mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	matrix_PVM_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	// Forwarding constructor.
 	matrix_PVM_shader( 
 		boost::filesystem::path vertex_shader,
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_matrix_PVM;
 };
 
-/*****************************************************************************
- * gintonic::matrix_PVM_VM_shader                                            *
- ****************************************************************************/
-
+/**
+ * @brief A shader that manages a matrix_PVM and a matrix_VM uniform.
+ * @details This shader should not be used directly but is really only here
+ * to serve as a base class for inheritance.
+ */
 class matrix_PVM_VM_shader : public matrix_PVM_shader
 {
 public:
+
+	/// Destructor.
 	virtual ~matrix_PVM_VM_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the matrix_VM uniform variable in the shader.
+	 * @param m The matrix to set the matrix_VM uniform variable to.
+	 */
 	void set_matrix_VM(const mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	matrix_PVM_VM_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	matrix_PVM_VM_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_matrix_VM;
 };
 
-/*****************************************************************************
- * gintonic::matrix_PVM_VM_N_shader                                          *
- ****************************************************************************/
-
+/**
+ * @brief A shader that manages a matrix_PVM, a matrix_VM and a matrix_N
+ * uniform.
+ * @details This shader should not be used directly but is really only here
+ * to serve as a base class for inheritance.
+ */
 class matrix_PVM_VM_N_shader : public matrix_PVM_VM_shader
 {
 public:
+
+	/// Destructor.
 	virtual ~matrix_PVM_VM_N_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the matrix_N uniform variable in the shader.
+	 * @param m The matrix to set the matrix_N uniform variable to.
+	 */
 	void set_matrix_N(const mat3f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	matrix_PVM_VM_N_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	matrix_PVM_VM_N_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_matrix_N;
 };
 
-/*****************************************************************************
- * gintonic::gp_shader                                                       *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with only a base diffuse color and base
+ * specular color.
+ */
 class gp_shader : public matrix_PVM_VM_N_shader
 {
 public:
+
+	/// Default constructor.
 	gp_shader();
+
+	/// Destructor.
 	virtual ~gp_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_diffuse_color(const vec4f&) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_specular_color(const vec4f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the diffuse base color of the material.
+	 * 
+	 * @details The uniform with the name "material.diffuse_color" will be
+	 * set to the given value. So such a uniform variable name must be part
+	 * of a struct with an instance variable name of "material". The struct
+	 * name can be anything you like.
+	 * 
+	 * @param c The color value.
+	 */
+	void set_diffuse_color(const vec4f& c) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the specular base color of the material.
+	 * 
+	 * @details The uniform with the name "material.specular_color" will be
+	 * set to the given value. So such a uniform variable name must be part
+	 * of a struct with an instance variable name of "material". The struct
+	 * name can be anything you like.
+	 * 
+	 * @param c The color value.
+	 */
+	void set_specular_color(const vec4f& c) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gp_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gp_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_diffuse_color;
 	GLuint loc_specular_color;
 };
 
-/*****************************************************************************
- * gintonic::gp_d_shader                                                     *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color and
+ * a diffuse texture.
+ */
 class gp_d_shader : public gp_shader
 {
 public:
+
+	/// Default constructor.
 	gp_d_shader();
+
+	/// Destructor.
 	virtual ~gp_d_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_diffuse_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the diffuse texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding diffuse texture was bound.
+	 * 
+	 * @param i The value for the diffuse texture sampler in the shader.
+	 */
+	void set_diffuse_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gp_d_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gp_d_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_diffuse_texture;
 };
 
-/*****************************************************************************
- * gintonic::gp_s_shader                                                     *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color and
+ * a specular texture.
+ */
 class gp_s_shader : public gp_shader
 {
 public:
+
+	/// Default constructor.
 	gp_s_shader();
+
+	/// Destructor.
 	virtual ~gp_s_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_specular_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the specular texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding specular texture was bound.
+	 * 
+	 * @param i The value for the specular texture sampler in the shader.
+	 */
+	void set_specular_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gp_s_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gp_s_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_specular_texture;
 };
 
-/*****************************************************************************
- * gintonic::gp_n_shader                                                     *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color and
+ * a normal texture.
+ */
 class gp_n_shader : public gp_shader
 {
 public:
+
+	/// Default constructor.
 	gp_n_shader();
+
+	/// Destructor.
 	virtual ~gp_n_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the normal texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding normal texture was bound.
+	 * 
+	 * @param i The value for the normal texture sampler in the shader.
+	 */
+	void set_normal_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gp_n_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gp_n_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_normal_texture;
 };
 
-/*****************************************************************************
- * gintonic::gp_ds_shader                                                    *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color, a
+ * diffuse texture and a specular texture.
+ */
 class gp_ds_shader : public gp_d_shader
 {
 public:
+
+	/// Default constructor.
 	gp_ds_shader();
+
+	/// Destructor.
 	virtual ~gp_ds_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_specular_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the specular texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding specular texture was bound.
+	 * 
+	 * @param i The value for the specular texture sampler in the shader.
+	 */
+	void set_specular_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gp_ds_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gp_ds_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_specular_texture;
 };
 
-/*****************************************************************************
- * gintonic::gp_dn_shader                                                    *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color, a
+ * diffuse texture and a normal texture.
+ */
 class gp_dn_shader : public gp_d_shader
 {
 public:
+
+	/// Default constructor.
 	gp_dn_shader();
+
+	/// Destructor.
 	virtual ~gp_dn_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the normal texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding normal texture was bound.
+	 * 
+	 * @param i The value for the normal texture sampler in the shader.
+	 */
+	void set_normal_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gp_dn_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gp_dn_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_normal_texture;
 };
 
-/*****************************************************************************
- * gintonic::gp_sn_shader                                                    *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color, a
+ * specular texture and a normal texture.
+ */
 class gp_sn_shader : public gp_s_shader
 {
 public:
+
+	/// Default constructor.
 	gp_sn_shader();
+
+	/// Destructor.
 	virtual ~gp_sn_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the normal texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding normal texture was bound.
+	 * 
+	 * @param i The value for the normal texture sampler in the shader.
+	 */
+	void set_normal_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gp_sn_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gp_sn_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_normal_texture;
 };
 
-/*****************************************************************************
- * gintonic::gp_dsn_shader                                                   *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color, a
+ * diffuse texture, specular texture and a normal texture.
+ */
 class gp_dsn_shader : public gp_ds_shader
 {
 public:
+
+	/// Default constructor.
 	gp_dsn_shader();
+
+	/// Destructor.
 	virtual ~gp_dsn_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the normal texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding normal texture was bound.
+	 * 
+	 * @param i The value for the normal texture sampler in the shader.
+	 */
+	void set_normal_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
 protected:
+
+	/// Forwarding constructor.
 	gp_dsn_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gp_dsn_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 private:
+
 	GLuint loc_normal_texture;
 };
-/*****************************************************************************
- * gintonic::gpi_shader                                                      *
- ****************************************************************************/
 
+/**
+ * @brief Geometry pass shader with only a base diffuse color and base
+ * specular color, instanced version.
+ */
 class gpi_shader : public opengl::shader_program
 {
 public:
+
+	/// Default constructor.
 	gpi_shader();
+
+	/// Destructor.
 	virtual ~gpi_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_diffuse_color(const vec4f&) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_specular_color(const vec4f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the diffuse base color of the material.
+	 * 
+	 * @details The uniform with the name "material.diffuse_color" will be
+	 * set to the given value. So such a uniform variable name must be part
+	 * of a struct with an instance variable name of "material". The struct
+	 * name can be anything you like.
+	 * 
+	 * @param c The color value.
+	 */
+	void set_diffuse_color(const vec4f& c) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the specular base color of the material.
+	 * 
+	 * @details The uniform with the name "material.specular_color" will be
+	 * set to the given value. So such a uniform variable name must be part
+	 * of a struct with an instance variable name of "material". The struct
+	 * name can be anything you like.
+	 * 
+	 * @param c The color value.
+	 */
+	void set_specular_color(const vec4f& c) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gpi_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gpi_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_diffuse_color;
 	GLuint loc_specular_color;
 };
 
-/*****************************************************************************
- * gintonic::gpi_d_shader                                                    *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color and
+ * a diffuse texture, instanced version.
+ */
 class gpi_d_shader : public gpi_shader
 {
 public:
+
+	/// Default constructor.
 	gpi_d_shader();
+
+	/// Destructor.
 	virtual ~gpi_d_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_diffuse_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the diffuse texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding diffuse texture was bound.
+	 * 
+	 * @param i The value for the diffuse texture sampler in the shader.
+	 */
+	void set_diffuse_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
 protected:
+
+	/// Forwarding constructor.
 	gpi_d_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gpi_d_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_diffuse_texture;
 };
 
-/*****************************************************************************
- * gintonic::gpi_s_shader                                                    *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color and
+ * a specular texture, instanced version.
+ */
 class gpi_s_shader : public gpi_shader
 {
 public:
+
+	/// Default constructor.
 	gpi_s_shader();
+
+	/// Destructor.
 	virtual ~gpi_s_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_specular_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the specular texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding specular texture was bound.
+	 * 
+	 * @param i The value for the specular texture sampler in the shader.
+	 */
+	void set_specular_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
 protected:
+
+	/// Forwarding constructor.
 	gpi_s_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gpi_s_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_specular_texture;
 };
 
-/*****************************************************************************
- * gintonic::gpi_n_shader                                                    *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color and
+ * a normal texture, instanced version.
+ */
 class gpi_n_shader : public gpi_shader
 {
 public:
+
+	/// Default constructor.
 	gpi_n_shader();
+
+	/// Destructor.
 	virtual ~gpi_n_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the normal texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding normal texture was bound.
+	 * 
+	 * @param i The value for the normal texture sampler in the shader.
+	 */
+	void set_normal_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gpi_n_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gpi_n_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_normal_texture;
 };
 
-/*****************************************************************************
- * gintonic::gpi_ds_shader                                                   *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color, a
+ * diffuse texture and a specular texture, instanced version.
+ */
 class gpi_ds_shader : public gpi_d_shader
 {
 public:
+
+	/// Default constructor.
 	gpi_ds_shader();
+
+	/// Destructor.
 	virtual ~gpi_ds_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_specular_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the specular texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding specular texture was bound.
+	 * 
+	 * @param i The value for the specular texture sampler in the shader.
+	 */
+	void set_specular_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gpi_ds_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gpi_ds_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_specular_texture;
 };
 
-/*****************************************************************************
- * gintonic::gpi_dn_shader                                                   *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color, a
+ * diffuse texture and a normal texture, instanced version.
+ */
 class gpi_dn_shader : public gpi_d_shader
 {
 public:
+
+	/// Default constructor.
 	gpi_dn_shader();
+
+	/// Destructor.
 	virtual ~gpi_dn_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the normal texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding normal texture was bound.
+	 * 
+	 * @param i The value for the normal texture sampler in the shader.
+	 */
+	void set_normal_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
 protected:
+
+	/// Forwarding constructor.
 	gpi_dn_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gpi_dn_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_normal_texture;
 };
 
-/*****************************************************************************
- * gintonic::gpi_sn_shader                                                   *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color, a
+ * specular texture and a normal texture, instanced version.
+ */
 class gpi_sn_shader : public gpi_s_shader
 {
 public:
+
+	/// Default constructor.
 	gpi_sn_shader();
+
+	/// Destructor.
 	virtual ~gpi_sn_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the normal texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding normal texture was bound.
+	 * 
+	 * @param i The value for the normal texture sampler in the shader.
+	 */
+	void set_normal_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gpi_sn_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gpi_sn_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_normal_texture;
 };
 
-/*****************************************************************************
- * gintonic::gpi_dsn_shader                                                  *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader with a diffuse color, a specular color, a
+ * diffuse texture, specular texture and a normal texture, instanced version.
+ */
 class gpi_dsn_shader : public gpi_ds_shader
 {
 public:
+
+	/// Default constructor.
 	gpi_dsn_shader();
+
+	/// Destructor.
 	virtual ~gpi_dsn_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_normal_texture(const GLint) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the normal texture sampler.
+	 * 
+	 * @details This value must be the same value that was given as the
+	 * active texture unit when the corresponding normal texture was bound.
+	 * 
+	 * @param i The value for the normal texture sampler in the shader.
+	 */
+	void set_normal_texture(const GLint i) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	gpi_dsn_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	gpi_dsn_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
 	GLuint loc_normal_texture;
 };
 
-/*****************************************************************************
- * gintonic::geometry_null_shader                                            *
- ****************************************************************************/
-
+/**
+ * @brief Geometry pass shader that does nothing at all.
+ */
 class geometry_null_shader : public matrix_PVM_VM_N_shader
 {
 public:
+
+	/// Default constructor.
 	geometry_null_shader();
+
+	/// Destructor.
 	virtual ~geometry_null_shader() BOOST_NOEXCEPT_OR_NOTHROW;
 };
 
-/*****************************************************************************
- * gintonic::lp_null_shader                                                  *
- ****************************************************************************/
-
+/**
+ * @brief Base class for light pass shaders.
+ */
 class lp_null_shader : public opengl::shader_program
 {
 public:
+
+	/// Default constructor.
 	lp_null_shader();
+
+	/// Destructor.
 	virtual ~lp_null_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer diffuse sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_DIFFUSE.
+	 * 
+	 * @param texture_unit The value for the geometry buffer diffuse sampler.
+	 * Must always be equal to renderer::GBUFFER_DIFFUSE.
+	 */
+	void set_gbuffer_diffuse(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the viewport size uniform variable.
+	 * @details You can query the viewport size with the static function
+	 * renderer::viewport_size.
+	 * 
+	 * @param size The size of the viewport. Should always use
+	 * renderer::viewport_size unless you have a specific reason not to.
+	 */
 	void set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	lp_null_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	lp_null_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_viewport_size;
 	GLuint loc_gbuffer_diffuse;
 };
 
-/*****************************************************************************
- * gintonic::lp_ambient_shader                                               *
- ****************************************************************************/
-
+/**
+ * @brief Light pass shader for an ambient light.
+ */
 class lp_ambient_shader : public lp_null_shader
 {
 public:
+
+	/// Default constructor.
 	lp_ambient_shader();
+
+	/// Destructor.
 	virtual ~lp_ambient_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the light intensity uniform variable.
+	 * @details The name of the uniform in the shader is assumed to be equal
+	 * to "light.intensity".
+	 * 
+	 * @param intensity The intensity value.
+	 */
+	void set_light_intensity(const vec4f& intensity) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	lp_ambient_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	lp_ambient_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_light_intensity;
 };
 
-/*****************************************************************************
- * gintonic::lp_directional_shader                                           *
- ****************************************************************************/
-
+/**
+ * @brief Light pass shader for a directional light.
+ */
 class lp_directional_shader : public lp_null_shader
 {
 public:
+
+	/// Default constructor.
 	lp_directional_shader();
+
+	/// Destructor.
 	virtual ~lp_directional_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer position sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_POSITION.
+	 * 
+	 * @param texture_unit The value for the geometry buffer position sampler.
+	 * Must always be equal to renderer::GBUFFER_POSITION.
+	 */
+	void set_gbuffer_position(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer specular sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_SPECULAR.
+	 * 
+	 * @param texture_unit The value for the geometry buffer specular sampler.
+	 * Must always be equal to renderer::GBUFFER_SPECULAR.
+	 */
+	void set_gbuffer_specular(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer normal sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_NORMAL.
+	 * 
+	 * @param texture_unit The value for the geometry buffer normal sampler.
+	 * Must always be equal to renderer::GBUFFER_NORMAL.
+	 */
+	void set_gbuffer_normal(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the light intensity uniform variable.
+	 * @details The name of the uniform in the shader is assumed to be equal
+	 * to "light.intensity".
+	 * 
+	 * @param intensity The intensity value.
+	 */
+	void set_light_intensity(const vec4f& intensity) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the light intensity uniform variable.
+	 * @details The name of the uniform in the shader is assumed to be equal
+	 * to "light.direction".
+	 * 
+	 * @param intensity The intensity value.
+	 */
+	void set_light_direction(const vec3f& direction) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	lp_directional_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	lp_directional_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_gbuffer_position;
 	GLuint loc_gbuffer_specular;
 	GLuint loc_gbuffer_normal;
@@ -511,32 +1018,121 @@ private:
 	GLuint loc_light_direction;
 };
 
-/*****************************************************************************
- * gintonic::lp_point_shader                                                 *
- ****************************************************************************/
-
+/**
+ * @brief Light pass shader for a point light.
+ */
 class lp_point_shader : public matrix_PVM_shader
 {
 public:
+
+	/// Default constructor.
 	lp_point_shader();
+
+	/// Destructor.
 	virtual ~lp_point_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the viewport size uniform variable.
+	 * @details You can query the viewport size with the static function
+	 * renderer::viewport_size.
+	 * 
+	 * @param size The size of the viewport. Should always use
+	 * renderer::viewport_size unless you have a specific reason not to.
+	 */
 	void set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_position(const vec3f& position) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_attenuation(const vec4f& attenuation) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer position sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_POSITION.
+	 * 
+	 * @param texture_unit The value for the geometry buffer position sampler.
+	 * Must always be equal to renderer::GBUFFER_POSITION.
+	 */
+	void set_gbuffer_position(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer diffuse sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_DIFFUSE.
+	 * 
+	 * @param texture_unit The value for the geometry buffer diffuse sampler.
+	 * Must always be equal to renderer::GBUFFER_DIFFUSE.
+	 */
+	void set_gbuffer_diffuse(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer specular sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_SPECULAR.
+	 * 
+	 * @param texture_unit The value for the geometry buffer specular sampler.
+	 * Must always be equal to renderer::GBUFFER_SPECULAR.
+	 */
+	void set_gbuffer_specular(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer normal sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_NORMAL.
+	 * 
+	 * @param texture_unit The value for the geometry buffer normal sampler.
+	 * Must always be equal to renderer::GBUFFER_NORMAL.
+	 */
+	void set_gbuffer_normal(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the light intensity uniform variable.
+	 * @details The name of the uniform in the shader is assumed to be equal
+	 * to "light.intensity".
+	 * 
+	 * @param intensity The intensity value.
+	 */
+	void set_light_intensity(const vec4f& intensity) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the light position uniform variable.
+	 * @details The name of the uniform in the shader is assumed to be equal
+	 * to "light.position".
+	 * 
+	 * @param position The position value.
+	 */
+	void set_light_position(const vec3f& position) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the light attenuation uniform variable.
+	 * @details The name of the uniform in the shader is assumed to be equal
+	 * to "light.attenuation".
+	 * 
+	 * @param attenuation The attenuation value.
+	 */
+	void set_light_attenuation(const vec4f& attenuation) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
 protected:
+
+	/// Forwarding constructor.
 	lp_point_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	lp_point_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_viewport_size;
 	GLuint loc_gbuffer_position;
 	GLuint loc_gbuffer_diffuse;
@@ -547,33 +1143,122 @@ private:
 	GLuint loc_light_attenuation;
 };
 
-/*****************************************************************************
- * gintonic::lp_spot_shader                                                  *
- ****************************************************************************/
-
+/**
+ * @brief Light pass shader for a spot light.
+ */
 class lp_spot_shader : public matrix_PVM_shader
 {
 public:
+
+	/// Default constructor.
 	lp_spot_shader();
+
+	/// Destructor.
 	virtual ~lp_spot_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the viewport size uniform variable.
+	 * @details You can query the viewport size with the static function
+	 * renderer::viewport_size.
+	 * 
+	 * @param size The size of the viewport. Should always use
+	 * renderer::viewport_size unless you have a specific reason not to.
+	 */
 	void set_viewport_size(const vec2f& size) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_position(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_specular(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_gbuffer_normal(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_intensity(const vec4f& intensity) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_position(const vec3f& position) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_light_attenuation(const vec4f& attenuation) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer position sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_POSITION.
+	 * 
+	 * @param texture_unit The value for the geometry buffer position sampler.
+	 * Must always be equal to renderer::GBUFFER_POSITION.
+	 */
+	void set_gbuffer_position(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer diffuse sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_DIFFUSE.
+	 * 
+	 * @param texture_unit The value for the geometry buffer diffuse sampler.
+	 * Must always be equal to renderer::GBUFFER_DIFFUSE.
+	 */
+	void set_gbuffer_diffuse(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer specular sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_SPECULAR.
+	 * 
+	 * @param texture_unit The value for the geometry buffer specular sampler.
+	 * Must always be equal to renderer::GBUFFER_SPECULAR.
+	 */
+	void set_gbuffer_specular(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the geometry buffer normal sampler.
+	 * 
+	 * @details This value must always be equal to 
+	 * renderer::GBUFFER_NORMAL.
+	 * 
+	 * @param texture_unit The value for the geometry buffer normal sampler.
+	 * Must always be equal to renderer::GBUFFER_NORMAL.
+	 */
+	void set_gbuffer_normal(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the light intensity uniform variable.
+	 * @details The name of the uniform in the shader is assumed to be equal
+	 * to "light.intensity".
+	 * 
+	 * @param intensity The intensity value.
+	 */
+	void set_light_intensity(const vec4f& intensity) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the light position uniform variable.
+	 * @details The name of the uniform in the shader is assumed to be equal
+	 * to "light.position".
+	 * 
+	 * @param position The position value.
+	 */
+	void set_light_position(const vec3f& position) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the light attenuation uniform variable.
+	 * @details The name of the uniform in the shader is assumed to be equal
+	 * to "light.attenuation".
+	 * 
+	 * @param attenuation The attenuation value.
+	 */
+	void set_light_attenuation(const vec4f& attenuation) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
 protected:
+
+	/// Forwarding constructor.
 	lp_spot_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	lp_spot_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_viewport_size;
 	GLuint loc_gbuffer_position;
 	GLuint loc_gbuffer_diffuse;
@@ -585,42 +1270,87 @@ private:
 	GLuint loc_light_attenuation;
 };
 
-/*****************************************************************************
- * gintonic::skybox_shader                                                   *
- ****************************************************************************/
-
+/**
+ * @brief Shader for a skybox.
+ */
 class skybox_shader : public opengl::shader_program
 {
 public:
+
+	/// Default constructor.
 	skybox_shader();
+
+	/// Destructor.
 	virtual ~skybox_shader() BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_matrix_PV(const mat4f& rotation_matrix) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_skybox_diffuse(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the matrix_PV uniform variable in the shader.
+	 * 
+	 * @param matrix The matrix_PV to set the uniform to.
+	 */
+	void set_matrix_PV(const mat4f& matrix) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the skybox diffuse sampler.
+	 * 
+	 * @param texture_unit The value of the active texture that the skybox
+	 * cube texture is bound for.
+	 */
+	void set_skybox_diffuse(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
 protected:
+
+	/// Forwarding constructor.
 	skybox_shader(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
+
+	/// Forwarding constructor.
 	skybox_shader( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
+
 	GLuint loc_matrix_PV;
 	GLuint loc_skybox_diffuse;
 };
 
-/*****************************************************************************
- * gintonic::text_shader                                                     *
- ****************************************************************************/
-
+/**
+ * @brief Simple shader for two-dimensional text.
+ */
 class text_shader : public opengl::shader_program
 {
 public:
+
+	/// Default constructor.
 	text_shader();
+
+	/// Destructor.
 	virtual ~text_shader() BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the text color uniform variable.
+	 * 
+	 * @param color The color of the text.
+	 */
 	void set_color(const vec3f& color) const BOOST_NOEXCEPT_OR_NOTHROW;
-	void set_texture(const GLint tex) const BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the text texture.
+	 * 
+	 * @details You don't use this method manually, but instead you use the
+	 * font mechanism (to be explained later).
+	 * 
+	 * @param texture_unit The same number as the active texture unit for the
+	 * text.
+	 */	
+	void set_texture(const GLint texture_unit) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
 private:
+	
 	GLuint loc_color;
 	GLuint loc_texture;
 };

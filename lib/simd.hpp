@@ -1,3 +1,8 @@
+/**
+ * @file simd.hpp
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_simd_hpp
 #define gintonic_simd_hpp
 

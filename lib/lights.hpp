@@ -18,7 +18,7 @@ namespace gintonic {
 class entity; // Forward declaration.
 
 /**
- * @brief A light.
+ * @brief A light. Virtual base component for inheritance.
  */
 class light : public component
 {
@@ -182,7 +182,7 @@ private:
 };
 
 /**
- * @details A directional light.
+ * @brief A directional light.
  *
  * @details Directional lights are one step above ambient lights in
  * complexity. They have no intrinsic position, and the only thing that a

@@ -20,7 +20,7 @@
 */
 
 /**
- *  \file scancodes.hpp
+ *  @file scancodes.hpp
  *
  *  Defines keyboard scancodes.
  */
