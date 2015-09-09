@@ -1,3 +1,10 @@
+/**
+ * @file fonts.hpp
+ * @brief Defines a font class and a fontstream class. You usually don't use
+ * fonts directly, but rather use fontstreams.
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_fonts_hpp
 #define gintonic_fonts_hpp
 
@@ -13,47 +20,105 @@
 
 namespace gintonic {
 
-	/* Use the flyweight mechanism to obtain a font. Use the fontstream class
-	 * to actually render text.
+	/**
+	 * @brief A font.
 	 */
 	class font 
 	: public object<font, std::tuple<boost::filesystem::path, int>>
 	{
 	public:
 
+		/**
+		 * @brief The character type. No widechar support.
+		 */
 		typedef char char_type;
 
+		/**
+		 * @brief Initialize fonts. Must be called before using any font.
+		 */
 		static void init();
+
+		/// Destructor.
 		virtual ~font();
+
+		/// You cannot copy fonts.
 		font(const font&) = delete;
+
+		/// You cannot copy fonts.
 		font& operator = (const font&) = delete;
 
+		/**
+		 * @brief Draw this font.
+		 * 
+		 * @details Some shader must be activated before calling this method.
+		 * 
+		 * @param text The text to render.
+		 * @param length The length of the text.
+		 * @param position The position, in `CLIP` space coordinates, of where
+		 * to start rendering the text.
+		 * @param scale The scale of the text.
+		 */
 		void draw(
-			const char* text,         // The text to draw
-			const std::size_t length, // The length of the text
-			const vec2f& position,    // The position in clip coordinates
-			const vec2f& scale)       // The scale (both x and y direction)
+			const char* text,
+			const std::size_t length,
+			const vec2f& position,
+			const vec2f& scale)
 		const BOOST_NOEXCEPT_OR_NOTHROW;
 
+		/**
+		 * @brief Draw this font.
+		 * 
+		 * @details Some shader must be activated before calling this method.
+		 * 
+		 * @param text The text to render.
+		 * @param position The position, in `CLIP` space coordinates, of where
+		 * to start rendering the text.
+		 * @param scale The scale of the text.
+		 */
 		void draw(
-			const std::string& text, // The text to draw
-			const vec2f& position,   // The position in clip coordinates
-			const vec2f& scale)      // The scale (both x and y direction)
+			const std::string& text,
+			const vec2f& position,
+			const vec2f& scale)
 		const BOOST_NOEXCEPT_OR_NOTHROW;
 
+		/**
+		 * @brief Draw this font.
+		 * 
+		 * @details Some shader must be activated before calling this method.
+		 * The scale is chosen such that it corresponds to the point size of
+		 * this font.
+		 * 
+		 * @param text The text to render.
+		 * @param length The length of the text.
+		 * @param position The position, in `CLIP` space coordinates, of where
+		 * to start rendering the text.
+		 */
 		void draw(
-			const char* text,         // The text to draw
-			const std::size_t length, // The length of the text
-			const vec2f& position)    // The position in clip coordinates
+			const char* text,
+			const std::size_t length,
+			const vec2f& position)
 		const BOOST_NOEXCEPT_OR_NOTHROW;
 
-		//
+		/**
+		 * @brief Draw this font.
+		 * 
+		 * @details Some shader must be activated before calling this method.
+		 * The scale is chosen such that it corresponds to the point size of
+		 * this font.
+		 * 
+		 * @param text The text to render.
+		 * @param position The position, in `CLIP` space coordinates, of where
+		 * to start rendering the text.
+		 */
 		void draw(
-			const std::string& text, // The text to draw 
-			const vec2f& position)   // The position in clip coordinates
+			const std::string& text,
+			const vec2f& position)
 		const BOOST_NOEXCEPT_OR_NOTHROW;
 
+		/// Move constructor.
 		font(font&&);
+
+		/// Move assignment operator.
 		font& operator = (font&&);
 
 	private:
@@ -61,12 +126,15 @@ namespace gintonic {
 		font(const key_type&);
 		font(key_type&&);
 
+		//!@cond
+		// We need to give boost::flyweights access to this class.
 		friend boost::flyweights::detail::optimized_key_value
 		<
 			key_type, 
 			font, 
 			key_extractor
 		>;
+		//!@endcond
 
 		virtual void construct_from_key() final;
 
@@ -90,6 +158,7 @@ namespace gintonic {
 		opengl::buffer_object m_vbo;
 	};
 
+	//!@cond
 	namespace detail
 	{
 		class fontstream
@@ -114,7 +183,11 @@ namespace gintonic {
 
 		};
 	} // namespace detail
+	//!@endcond
 
+	/**
+	 * @brief A font stream.
+	 */
 	typedef boost::iostreams::stream<detail::fontstream> fontstream;
 
 } // namespace gintonic

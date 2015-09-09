@@ -1,3 +1,9 @@
+/**
+ * @file static_mesh.hpp
+ * @brief Defines a static mesh class.
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_static_mesh_hpp
 #define gintonic_static_mesh_hpp
 
@@ -14,12 +20,27 @@ namespace FBX
 
 namespace gintonic {
 
+/**
+ * @brief Static mesh component.
+ */
 class static_mesh : public mesh
 {
 public:
 
+	/// Default constructor.
 	static_mesh();
-	static_mesh(const FBX::FbxMesh*, const GLenum usagehint = GL_STATIC_DRAW);
+
+	/**
+	 * @brief Construct a static_mesh from an FbxMesh.
+	 * 
+	 * @param m A constant pointer to the FbxMesh.
+	 * @param usagehint Specifies the usage hint to OpenGL. You probably want
+	 * this to always be GL_STATIC_DRAW.
+	 */
+	static_mesh(const FBX::FbxMesh* m, 
+		const GLenum usagehint = GL_STATIC_DRAW);
+
+	/// Destructor.
 	virtual ~static_mesh();
 
 	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
@@ -29,7 +50,15 @@ public:
 		const std::vector<mat4f, allocator<mat4f>>& VM_matrices,
 		const std::vector<mat3f, allocator<mat3f>>& N_matrices) final;
 
-	void set_data(const FBX::FbxMesh*, const GLenum usagehint = GL_STATIC_DRAW);
+	/**
+	 * @brief Set the static_mesh to the given FbxMesh.
+	 * 
+	 * @param m A constant pointer to the FbxMesh.
+	 * @param usagehint Specifies the usage hint to OpenGL. You probably want
+	 * this to always be GL_STATIC_DRAW.
+	 */
+	void set_data(const FBX::FbxMesh* m, 
+		const GLenum usagehint = GL_STATIC_DRAW);
 
 private:
 

@@ -1,6 +1,8 @@
 #include "static_mesh.hpp"
 #include "exception.hpp"
+#include "vec3f.hpp"
 #include <fbxsdk.h>
+#include <cassert>
 
 #define GT_MESH_INDEX 0
 #define GT_MESH_POSITION 1

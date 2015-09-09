@@ -1,3 +1,9 @@
+/**
+ * @file simd.hpp
+ * @brief Include this file if you need to use SSE types.
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_simd_hpp
 #define gintonic_simd_hpp
 
@@ -22,9 +28,36 @@
 	#include <spe.h>
 #endif
 
+/**
+ * @brief Broadcast the first coordinate to all four registers.
+ * @param v The SSE register.
+ * @return A new SSE type that contains only the first coordinate
+ * in all of its four registers.
+ */
 #define _mm_replicate_x_ps(v) _mm_shuffle_ps((v), (v), _MM_SHUFFLE(0,0,0,0))
+
+ /**
+ * @brief Broadcast the second coordinate to all four registers.
+ * @param v The SSE register.
+ * @return A new SSE type that contains only the second coordinate
+ * in all of its four registers.
+ */
 #define _mm_replicate_y_ps(v) _mm_shuffle_ps((v), (v), _MM_SHUFFLE(1,1,1,1))
+
+  /**
+ * @brief Broadcast the third coordinate to all four registers.
+ * @param v The SSE register.
+ * @return A new SSE type that contains only the third coordinate
+ * in all of its four registers.
+ */
 #define _mm_replicate_z_ps(v) _mm_shuffle_ps((v), (v), _MM_SHUFFLE(2,2,2,2))
+
+  /**
+ * @brief Broadcast the fourth coordinate to all four registers.
+ * @param v The SSE register.
+ * @return A new SSE type that contains only the fourth coordinate
+ * in all of its four registers.
+ */
 #define _mm_replicate_w_ps(v) _mm_shuffle_ps((v), (v), _MM_SHUFFLE(3,3,3,3))
 
 #endif

@@ -1,3 +1,9 @@
+/**
+ * @file lib/opengl/utilities.hpp
+ * @brief Defines various OpenGL utilities (functions and macros).
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_opengl_utilities_hpp
 #define gintonic_opengl_utilities_hpp
 
@@ -26,36 +32,39 @@
 
 #ifndef NDEBUG
 	#ifndef DEBUG_GL_ERROR
-	#define DEBUG_GL_ERROR                                            \
-		std::cerr << __FILE__ << ':' << __LINE__ << ": ";             \
-		switch(glGetError())                                          \
-		{                                                             \
-		case GL_NO_ERROR:                                             \
-			std::cerr << "GL_NO_ERROR\n"; break;                      \
-		case GL_INVALID_ENUM:                                         \
-			std::cerr << "GL_INVALID_ENUM\n"; break;                  \
-		case GL_INVALID_VALUE:                                        \
-			std::cerr << "GL_INVALID_VALUE\n"; break;                 \
-		case GL_INVALID_OPERATION:                                    \
-			std::cerr << "GL_INVALID_OPERATION\n"; break;             \
-		case GL_INVALID_FRAMEBUFFER_OPERATION:                        \
-			std::cerr << "GL_INVALID_FRAMEBUFFER_OPERATION\n"; break; \
-		case GL_OUT_OF_MEMORY:                                        \
-			std::cerr << "GL_OUT_OF_MEMORY\n"; break;                 \
-		}
-	#endif
 
-	#ifndef DEBUG_PRINT
-		#define DEBUG_PRINT std::cerr << __FILE__ << ':' << __LINE__ << '\n';
-	#endif
+		/**
+		 * @brief Put this somewhere between the lines to make a debug print
+		 * of the current file and line number and the result of glGetError().
+		 */
+		#define DEBUG_GL_ERROR                                            \
+			std::cerr << __FILE__ << ':' << __LINE__ << ": ";             \
+			switch(glGetError())                                          \
+			{                                                             \
+			case GL_NO_ERROR:                                             \
+				std::cerr << "GL_NO_ERROR\n"; break;                      \
+			case GL_INVALID_ENUM:                                         \
+				std::cerr << "GL_INVALID_ENUM\n"; break;                  \
+			case GL_INVALID_VALUE:                                        \
+				std::cerr << "GL_INVALID_VALUE\n"; break;                 \
+			case GL_INVALID_OPERATION:                                    \
+				std::cerr << "GL_INVALID_OPERATION\n"; break;             \
+			case GL_INVALID_FRAMEBUFFER_OPERATION:                        \
+				std::cerr << "GL_INVALID_FRAMEBUFFER_OPERATION\n"; break; \
+			case GL_OUT_OF_MEMORY:                                        \
+				std::cerr << "GL_OUT_OF_MEMORY\n"; break;                 \
+			}
+		#endif
 
 #else
-	#ifndef DEBUG_GL_ERROR
-		#define DEBUG_GL_ERROR // as nothing
-	#endif
 
-	#ifndef DEBUG_PRINT
-		#define DEBUG_PRINT // as nothing
+	#ifndef DEBUG_GL_ERROR
+
+		/**
+		 * @brief In a release build, this macro does nothing at all.
+		 */
+		#define DEBUG_GL_ERROR // as nothing
+
 	#endif
 
 #endif
@@ -66,6 +75,16 @@
 * Purpose: To simplify buffering a vector.                                   *
 *****************************************************************************/
 
+/**
+ * @brief Convenience function for 
+ * [glBufferData](https://www.opengl.org/sdk/docs/man3/xhtml/glBufferData.xml).
+ * 
+ * @tparam ContiguousArrayContainer The type of the STL-compliant
+ * contiguous array.
+ * @param target Specifies the target buffer object.
+ * @param v The contiguous array.
+ * @param usage Usage hint.
+ */
 template <class ContiguousArrayContainer>
 inline void gtBufferData(const GLenum target, 
 	const ContiguousArrayContainer& v, const GLenum usage)
@@ -81,6 +100,18 @@ inline void gtBufferData(const GLenum target,
 * Purpose: To simplify (sub)buffering a vector.                              *
 *****************************************************************************/
 
+/**
+ * @brief Convenience function for 
+ * [glBufferSubData](https://www.opengl.org/sdk/docs/man3/xhtml/glBufferSubData.xml).
+ * 
+ * @tparam T The type of the elements in the vector.
+ * @param target Specifies the target buffer object.
+ * @param element_offset Specifies the offset into the buffer object's data 
+ * store where data replacement will begin, measured in the size of T.
+ * @param num_elements Specifies the size in the size of T of the data store.
+ * @param v The vector to upload.
+ * region being replaced.
+ */
 template <class T, class Alloc> inline void gtBufferSubData(
 	const GLenum target,
 	const std::size_t element_offset,

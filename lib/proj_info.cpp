@@ -1,5 +1,6 @@
 #include "proj_info.hpp"
 #include "renderer.hpp"
+#include "entity.hpp"
 
 namespace gintonic {
 

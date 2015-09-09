@@ -1,3 +1,10 @@
+/**
+ * @file tuple.hpp
+ * @brief Includes the tuple header and defines how to serialize and hash
+ * tuples.
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_tuple_hpp
 #define gintonic_tuple_hpp
 
@@ -8,8 +15,12 @@
 namespace std {
 
 /*****************************************************************************
- * hash tuples (somewhat hacky)                                              *
+ * hash tuples (somewhat hacky).                                             *
+ * I'm not documenting this because hashing tuples is used implicitly.       *
  ****************************************************************************/
+
+//!@cond
+
 template<typename... T> struct hash<tuple<T...>> 
 {
 	inline size_t operator()(tuple<T...> const& arg) const BOOST_NOEXCEPT_OR_NOTHROW
@@ -96,6 +107,8 @@ void serialize(Archive & ar, std::tuple<Args...> & t,
 {
 	tuple_serializer<sizeof...(Args)>::serialize(ar, t, version);
 }
+
+//!@endcond
 
 } // namespace serialization
 } // namespace boost

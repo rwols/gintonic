@@ -1,3 +1,9 @@
+/**
+ * @file shader.hpp
+ * @brief Defines a templated OpenGL Shader Object.
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_opengl_shader_hpp
 #define gintonic_opengl_shader_hpp
 
@@ -8,17 +14,41 @@
 namespace gintonic {
 namespace opengl {
 
+/**
+ * @brief Encapsulates an
+ * [OpenGL Shader Object](https://www.opengl.org/wiki/Shader_Compilation).
+ * @tparam Type The shader type. Can be one of:
+ * * GL_VERTEX_SHADER
+ * * GL_TESS_CONTROL_SHADER
+ * * GL_TESS_EVALUATION_SHADER
+ * * GL_GEOMETRY_SHADER
+ * * GL_FRAGMENT_SHADER
+ * * GL_COMPUTE_SHADER
+ */
 template <GLint Type> class shader
 {
 public:
 	
+	/**
+	 * @brief Construct a shader from the given GLSL file.
+	 * @param p The filepath to a GLSL file.
+	 */
 	shader(const boost::filesystem::path& p);
 
+	/**
+	 * @brief Construct a shader from the given source_code object.
+	 * @param source The source_code object.
+	 */
 	shader(const source_code& source);
 
+	/// Destructor.
 	inline ~shader() BOOST_NOEXCEPT_OR_NOTHROW { glDeleteShader(m_handle); }
 
-	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW { return m_handle; }
+	/// Get the underlying OpenGL handle via a static_cast.
+	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW
+	{
+		return m_handle;
+	}
 
 private:
 	GLuint m_handle;
@@ -65,8 +95,19 @@ shader<Type>::shader(const source_code& source)
 	}
 }
 
-typedef shader<GL_VERTEX_SHADER>   vertex_shader;
+/**
+ * @brief Convenience typedef for a vertex shader.
+ */
+typedef shader<GL_VERTEX_SHADER> vertex_shader;
+
+/**
+ * @brief Convenience typedef for a fragment shader.
+ */
 typedef shader<GL_FRAGMENT_SHADER> fragment_shader;
+
+/**
+ * @brief Convenience typedef for a geometry shader.
+ */
 typedef shader<GL_GEOMETRY_SHADER> geometry_shader;
 
 } // namespace opengl
