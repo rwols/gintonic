@@ -31,15 +31,15 @@ installer, so no problem there. I recommend downloading the precompiled
 binaries of SDL2. The website of the Freetype project has some links to
 websites which provide precompiled binaries. I suggest making a separate
 folder for each dependency in your top-level directory. For instance,
-C:\Freetype, C:\SDL2, and so forth. The FBX SDK has an installer, so that's
-nice too. The FBX SDK will be installed in %programfiles%\Autodesk\FBX. Once
+C:\\Freetype, C:\\SDL2, and so forth. The FBX SDK has an installer, so that's
+nice too. The FBX SDK will be installed in %programfiles%\\Autodesk\\FBX. Once
 the dependencies are installed, you need to setup some environment variables.
 The top-level CMakeLists.txt file expects the following environment variables
 to be defined.
 
-* BOOST_ROOT: Location of Boost (e.g. C:\Boost)
-* SDL2: Location of the SDL2 directory (e.g. C:\SDL2)
-* FREETYPE_DIR: Location of the Freetype library (e.g. C:\Freetype)
+* BOOST_ROOT: Location of Boost (e.g. C:\\Boost)
+* SDL2: Location of the SDL2 directory (e.g. C:\\SDL2)
+* FREETYPE_DIR: Location of the Freetype library (e.g. C:\\Freetype)
 
 In addition, if for some reason CMake cannot find the FBX SDK, you can set an
 environment variable called FBX_ROOT to point to the root FBX folder.

@@ -1,5 +1,6 @@
 /**
- * @file buffer_object.hpp
+ * @file framebuffer.hpp
+ * @brief Defines an OpenGL Framebuffer Object.
  * @author Raoul Wols
  */
 

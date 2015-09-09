@@ -1,5 +1,6 @@
 /**
  * @file SQTstack.hpp
+ * @brief Defines a stack of SQTs.
  * @author Raoul Wols
  */
 

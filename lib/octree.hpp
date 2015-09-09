@@ -1,5 +1,6 @@
 /**
  * @file octree.hpp
+ * @brief Defines an octree datastructure.
  * @author Raoul Wols
  */
 

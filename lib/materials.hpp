@@ -1,5 +1,6 @@
 /**
  * @file materials.hpp
+ * @brief Defines, currently, only one material.
  * @author Raoul Wols
  */
 

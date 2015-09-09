@@ -1,5 +1,7 @@
 /**
  * @file profiler.hpp
+ * @brief Defines a profiler class and useful macros to use the profiler
+ * functionality.
  * @author Raoul Wols
  */
 
@@ -26,15 +28,38 @@
 #define PROFILER_MEM_LOG_FILE "mem_profile.csv"
 
 #ifdef WITH_PROFILING
+/**
+ * @brief Put this macro at the beginning of a function to profile it.
+ * 
+ * @param scope_name A string literal that should be equal to the name
+ * of the function or method.
+ */
 #define PROFILE(scope_name) ___profiler___ ___dont_touch_me___(scope_name);
 #else
+
+/**
+ * @brief In a release build, this macro does nothing.
+ * 
+ * @param scope_name A string literal that should be equal to the name
+ * of the function or method.
+ */
 #define PROFILE(scope_name)
 #endif
 
 #ifdef WITH_PROFILING
+
+/**
+ * @brief Put this macro at the end of the program.
+ * @details This macro will write the profiling results of all recorded
+ * functions and methods to a file. The filename is specifiec by the macro
+ * `PROFILER_CPU_LOG_FILE`.
+ */
 #define END_PROFILE \
 ___profiler___::write_log(PROFILER_CPU_LOG_FILE);
 #else
+/**
+ * @brief In a release build, this macro does nothing.
+ */
 #define END_PROFILE
 #endif
 

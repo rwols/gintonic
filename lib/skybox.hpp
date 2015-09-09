@@ -1,5 +1,6 @@
 /**
  * @file skybox.hpp
+ * @brief Defines a skybox class.
  * @author Raoul Wols
  */
 

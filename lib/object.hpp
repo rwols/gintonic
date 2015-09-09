@@ -1,5 +1,6 @@
 /**
  * @file object.hpp
+ * @brief Defines an object with a key.
  * @author Raoul Wols
  * @deprecated We probably want to remove this altogether.
  * The only class that inherits from this class is font. But font could do

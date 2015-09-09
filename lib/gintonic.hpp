@@ -1,5 +1,7 @@
 /**
  * @file gintonic.hpp
+ * @brief The mother-of-all includes. Also defines the mother-of-all init
+ * functions to initialize every subsystem.
  * @author Raoul Wols
  */
 

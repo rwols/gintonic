@@ -1,5 +1,7 @@
 /**
  * @file lights.hpp
+ * @brief Defines the light base class component and also defines all derived
+ * light classes.
  * @author Raoul Wols
  */
 
@@ -109,7 +111,10 @@ private:
 	virtual std::ostream& pretty_print(std::ostream&) const 
 		BOOST_NOEXCEPT_OR_NOTHROW;
 
+	//!@cond
+	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
+	//!@endcond
 
 	template <class Archive> 
 	void serialize(Archive& ar, const unsigned /*version*/)
@@ -171,8 +176,10 @@ private:
 	virtual std::ostream& pretty_print(std::ostream&) const 
 		BOOST_NOEXCEPT_OR_NOTHROW;
 
-	// Serialization support.
+	//!@cond
+	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
+	//!@endcond
 
 	template <class Archive> 
 	void serialize(Archive& ar, const unsigned /*version*/)
@@ -235,8 +242,10 @@ private:
 	virtual std::ostream& pretty_print(std::ostream&) const 
 		BOOST_NOEXCEPT_OR_NOTHROW;
 
-	// Serialization support.
+	//!@cond
+	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
+	//!@endcond
 
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)
@@ -351,8 +360,10 @@ private:
 	virtual std::ostream& pretty_print(std::ostream&) const 
 		BOOST_NOEXCEPT_OR_NOTHROW;
 
-	// Serialization support.
+	//!@cond
+	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
+	//!@endcond
 
 	template <class Archive>
 	void save(Archive& ar, const unsigned /*version*/) const
@@ -435,8 +446,10 @@ private:
 	// Reimplement this method to support output streams.
 	virtual std::ostream& pretty_print(std::ostream&) const BOOST_NOEXCEPT_OR_NOTHROW;
 
-	// Serialization support.
+	//!@cond
+	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
+	//!@endcond
 
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)

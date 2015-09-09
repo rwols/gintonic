@@ -1,5 +1,6 @@
 /**
  * @file textures.hpp
+ * @brief Defines various texture classes.
  * @author Raoul Wols
  */
 

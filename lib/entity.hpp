@@ -1,5 +1,6 @@
 /**
  * @file entity.hpp
+ * @brief Defines the entity class.
  * @author Raoul Wols
  */
 

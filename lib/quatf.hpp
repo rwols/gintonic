@@ -1,5 +1,6 @@
 /**
  * @file quatf.hpp
+ * @brief Defines a quaternion.
  * @author Raoul Wols
  */
 
@@ -152,7 +153,7 @@ public:
 
 	/**
 	 * @brief Construct a quaternion from a mouse delta.
-	 * @param The angles vector.
+	 * @param a The angles vector.
 	 * @return *this.
 	 */
 	quatf& set_mousedelta(const vec2f& a) BOOST_NOEXCEPT_OR_NOTHROW;
@@ -252,8 +253,8 @@ public:
 	 * @note This method does not work correctly. It needs implementation.
 	 */
 	static quatf look_at(
-		const vec3f& forward_direction,
-		const vec3f& up_direction);
+		const vec3f& eye_position,
+		const vec3f& subject_position);
 
 	/**
 	 * @brief Construct a rotation quaternion from the given mouse delta.
@@ -269,7 +270,10 @@ public:
 
 private:
 
+	//!@cond
+	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
+	//!@endcond
 
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)

@@ -1,5 +1,6 @@
 /**
  * @file basic_shapes.hpp
+ * @brief Defines several basic shapes that all inherit from mesh.
  * @author Raoul Wols
  */
 

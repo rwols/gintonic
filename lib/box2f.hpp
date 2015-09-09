@@ -1,5 +1,6 @@
 /**
  * @file box2f.hpp
+ * @brief Defines a two-dimensional axis-aligned bounding box.
  * @author Raoul Wols
  */
 

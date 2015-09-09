@@ -1,5 +1,6 @@
 /**
  * @file shader_program.hpp
+ * @brief Defines the base class for shader classes.
  * @author Raoul Wols
  */
 

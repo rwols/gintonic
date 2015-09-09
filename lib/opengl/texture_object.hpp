@@ -1,5 +1,6 @@
 /**
  * @file texture_object.hpp
+ * @brief Defines an OpenGL Texture Object.
  * @author Raoul Wols
  */
 

@@ -22,7 +22,9 @@
 /**
  *  @file scancodes.hpp
  *
- *  Defines keyboard scancodes.
+ *  @brief Defines keyboard scancodes.
+ *  
+ *  @author Sam Lantinga
  */
 
 #ifndef _SDL_scancode_h
@@ -32,8 +34,7 @@
  *  \brief The SDL keyboard scancode representation.
  *
  *  Values of this type are used to represent keyboard keys, among other places
- *  in the \link SDL_Keysym::scancode key.keysym.scancode \endlink field of the
- *  SDL_Event structure.
+ *  in the field of the SDL_Event structure.
  *
  *  The values in this enumeration are based on the USB usage page standard:
  *  http://www.usb.org/developers/devclass_docs/Hut1_12v2.pdf

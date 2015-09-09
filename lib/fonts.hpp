@@ -1,5 +1,7 @@
 /**
  * @file fonts.hpp
+ * @brief Defines a font class and a fontstream class. You usually don't use
+ * fonts directly, but rather use fontstreams.
  * @author Raoul Wols
  */
 
@@ -124,12 +126,15 @@ namespace gintonic {
 		font(const key_type&);
 		font(key_type&&);
 
+		//!@cond
+		// We need to give boost::flyweights access to this class.
 		friend boost::flyweights::detail::optimized_key_value
 		<
 			key_type, 
 			font, 
 			key_extractor
 		>;
+		//!@endcond
 
 		virtual void construct_from_key() final;
 

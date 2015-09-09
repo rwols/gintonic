@@ -56,7 +56,7 @@ if (BUILD_DOCUMENTATION)
 		message(FATAL_ERROR "Doxygen is needed to build the documentation.")
 	endif()
 	configure_file(Doxyfile.cmake ${CMAKE_BINARY_DIR}/Doxyfile)
-	add_custom_target(doc
+	add_custom_target(doc ALL
 		COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 		COMMENT "Generating documentation."

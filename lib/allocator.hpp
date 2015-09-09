@@ -1,5 +1,6 @@
 /**
  * @file allocator.hpp
+ * @brief Defines an aligned allocator for STL containers.
  * @author Raoul Wols
  */
 
@@ -78,6 +79,7 @@ public:
 	/// Rebind an allocator. Does nothing interesting.
 	template <typename U> struct rebind
 	{
+		/// The other allocator type. Alignment is the same.
 		typedef allocator<U, Alignment> other;
 	};
 

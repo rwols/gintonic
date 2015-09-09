@@ -1,3 +1,9 @@
+/**
+ * @file vertices.hpp
+ * @brief Defines various vertex types.
+ * @author Raoul Wols
+ */
+
 #ifndef vertices_hpp
 #define vertices_hpp
 
@@ -10,6 +16,8 @@
 	#pragma clang diagnostic ignored "-Wunused-parameter"
 #endif
 
+//!@cond
+// It's time to remove this set of macros in favor of the ones below.
 #define GINTONIC_VERTEX_LAYOUT_POSITION 0
 #define GINTONIC_VERTEX_LAYOUT_TEXCOORD 1
 #define GINTONIC_VERTEX_LAYOUT_NORMAL 2
@@ -18,14 +26,51 @@
 #define GINTONIC_VERTEX_LAYOUT_VM_MATRIX 5 // 6 7 mat3x4
 #define GINTONIC_VERTEX_LAYOUT_N_MATRIX 8 // 9 10 mat3x3
 #define GINTONIC_VERTEX_LAYOUT_COLOR 5
+//!@endcond
 
+/**
+ * @brief The standard attribute location of a vertex position.
+ */
 #define GT_VERTEX_LAYOUT_POSITION 0
+
+/**
+ * @brief The standard attribute location of a texture coordinate.
+ */
 #define GT_VERTEX_LAYOUT_TEXCOORD 1
+
+/**
+ * @brief The standard attribute location of a surface normal.
+ */
 #define GT_VERTEX_LAYOUT_NORMAL 2
+
+/**
+ * @brief The standard attribute location for the PVM matrix, for instanced
+ * rendering.
+ */
 #define GT_VERTEX_LAYOUT_PVM_MATRIX 3 // 4 5 6
+
+/**
+ * @brief The standard attribute location for the VM matrix, for instanced
+ * rendering.
+ */
 #define GT_VERTEX_LAYOUT_VM_MATRIX 7 // 8 9 10
+
+/**
+ * @brief The standard attribute location for the N matrix, for instanced
+ * rendering.
+ */
 #define GT_VERTEX_LAYOUT_N_MATRIX 11 // 12 13
+
+/**
+ * @brief Here's a free attribute slot. OpenGL guarantees at least 16
+ * attribute slots (though there can be more depending on the GPU).
+ */
 #define GT_VERTEX_LAYOUT_FREE_14 14
+
+/**
+ * @brief Here's a free attribute slot. OpenGL guarantees at least 16
+ * attribute slots (though there can be more depending on the GPU).
+ */
 #define GT_VERTEX_LAYOUT_FREE_15 15
 
 namespace FBX

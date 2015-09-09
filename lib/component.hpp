@@ -1,9 +1,15 @@
+/**
+ * @file component.hpp
+ * @brief Defines the base class for components.
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_component_hpp
 #define gintonic_component_hpp
 
 #include <memory>
 #include <vector>
-// #include <boost/iterator/indirect_iterator.hpp>
+#include "config.hpp"
 
 namespace gintonic {
 

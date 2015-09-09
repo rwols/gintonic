@@ -1,5 +1,6 @@
 /**
  * @file camera.hpp
+ * @brief Defines a camera component.
  * @author Raoul Wols
  */
 

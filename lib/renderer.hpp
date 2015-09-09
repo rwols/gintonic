@@ -1,5 +1,6 @@
 /**
  * @file renderer.hpp
+ * @brief Defines the renderer singleton class.
  * @author Raoul Wols
  */
 

@@ -1,5 +1,6 @@
 /**
  * @file mat4fstack.hpp
+ * @brief Defines a stack of four by four matrices.
  * @author Raoul Wols
  */
 

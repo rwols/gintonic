@@ -1,5 +1,6 @@
 /**
  * @file static_mesh.hpp
+ * @brief Defines a static mesh class.
  * @author Raoul Wols
  */
 

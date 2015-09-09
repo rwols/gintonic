@@ -1,5 +1,6 @@
 /**
  * @file mesh.hpp
+ * @brief Defines the mesh base class component.
  * @author Raoul Wols
  */
 
@@ -202,6 +203,7 @@ public:
 
 protected:
 
+	/// Constructor.
 	inline mesh(const mesh_type t) : m_type(t) {}
 
 private:

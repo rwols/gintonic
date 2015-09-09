@@ -1,5 +1,6 @@
 /**
  * @file locks.hpp
+ * @brief Defines various read and/or write locks.
  * @author Raoul Wols
  */
 

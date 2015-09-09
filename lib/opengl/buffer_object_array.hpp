@@ -1,5 +1,6 @@
 /**
  * @file buffer_object_array.hpp
+ * @brief Defines an array of OpenGL Buffer Objects.
  * @author Raoul Wols
  */
 

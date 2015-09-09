@@ -1,5 +1,6 @@
 /**
  * @file buffer_object.hpp
+ * @brief Defines the OpenGL Buffer Object class.
  * @author Raoul Wols
  */
 
@@ -136,7 +137,11 @@ public:
 	
 private:
 
+	//!@cond
+	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
+	//!@endcond
+
 	template <class Archive> void save(Archive& ar, 
 		const unsigned /*version*/) const
 	{
@@ -163,6 +168,7 @@ private:
 	BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
+//!@cond
 template <class C> 
 buffer_object::buffer_object(
 	const GLenum target, 
@@ -176,6 +182,7 @@ buffer_object::buffer_object(
 	gtBufferData(target, data, usage);
 	glBindBuffer(target, 0);
 }
+//!@endcond
 
 } // namespace opengl
 } // namespace gintonic

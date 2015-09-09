@@ -1,5 +1,6 @@
 /**
  * @file vertex_array_object_array.hpp
+ * @brief Defines an array of OpenGL Vertex Array Objects.
  * @author Raoul Wols
  */
 

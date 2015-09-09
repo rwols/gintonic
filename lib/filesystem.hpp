@@ -1,5 +1,7 @@
 /**
  * @file filesystem.hpp
+ * @brief Various filesystem utilities. Include this file
+ * instead of <boost/filesystem.hpp>.
  * @author Raoul Wols
  */
 

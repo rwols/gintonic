@@ -1,5 +1,7 @@
 /**
  * @file tuple.hpp
+ * @brief Includes the tuple header and defines how to serialize and hash
+ * tuples.
  * @author Raoul Wols
  */
 

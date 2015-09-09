@@ -1,5 +1,6 @@
 /**
  * @file SQT.hpp
+ * @brief Defines the SQT (scale, quaternion, translation) class.
  * @author Raoul Wols
  */
 
@@ -240,7 +241,10 @@ struct SQT
 
 private:
 
+	//!@cond
+	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
+	//!@endcond
 
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)

@@ -1,5 +1,6 @@
 /**
  * @file box3f.hpp
+ * @brief Defines a three-dimensional axis-aligned bounding box.
  * @author Raoul Wols
  */
 

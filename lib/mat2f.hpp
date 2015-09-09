@@ -1,5 +1,6 @@
 /**
  * @file mat2f.hpp
+ * @brief Defines a two by two matrix.
  * @author Raoul Wols
  */
 

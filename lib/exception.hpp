@@ -1,12 +1,14 @@
-/*!
-\file exception.hpp
-\author Raoul Wols
-*/
+/**
+ * @file exception.hpp
+ * @brief Defines an exception class that houses an std::string.
+ * @author Raoul Wols
+ */
 
 #ifndef exception_hpp
 #define exception_hpp
 
 #include <stdexcept>
+#include "config.hpp"
 
 namespace gintonic {
 

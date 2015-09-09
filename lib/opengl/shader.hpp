@@ -1,5 +1,6 @@
 /**
  * @file shader.hpp
+ * @brief Defines a templated OpenGL Shader Object.
  * @author Raoul Wols
  */
 
@@ -94,8 +95,19 @@ shader<Type>::shader(const source_code& source)
 	}
 }
 
-typedef shader<GL_VERTEX_SHADER>   vertex_shader;
+/**
+ * @brief Convenience typedef for a vertex shader.
+ */
+typedef shader<GL_VERTEX_SHADER> vertex_shader;
+
+/**
+ * @brief Convenience typedef for a fragment shader.
+ */
 typedef shader<GL_FRAGMENT_SHADER> fragment_shader;
+
+/**
+ * @brief Convenience typedef for a geometry shader.
+ */
 typedef shader<GL_GEOMETRY_SHADER> geometry_shader;
 
 } // namespace opengl

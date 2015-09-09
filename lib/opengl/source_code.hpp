@@ -1,5 +1,6 @@
 /**
  * @file source_code.hpp
+ * @brief Defines a class that encapsulates GLSL source code.
  * @author Raoul Wols
  */
 

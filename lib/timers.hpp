@@ -1,3 +1,9 @@
+/**
+ * @file timers.hpp
+ * @brief Defines various timer classes.
+ * @author Raoul Wols
+ */
+
 #ifndef gintonic_timers_hpp
 #define gintonic_timers_hpp
 

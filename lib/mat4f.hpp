@@ -1,5 +1,6 @@
 /**
  * @file mat4f.hpp
+ * @brief Defines a four by four matrix.
  * @author Raoul Wols
  */
 

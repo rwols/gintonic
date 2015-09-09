@@ -1,5 +1,6 @@
 /**
  * @file shaders.hpp
+ * @brief Defines all the shader classes.
  * @author Raoul Wols
  */
 
@@ -38,7 +39,7 @@ protected:
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
-	// Forwarding constructor.
+	/// Forwarding constructor.
 	matrix_PVM_shader( 
 		boost::filesystem::path vertex_shader,
 		boost::filesystem::path geometry_shader,
@@ -987,11 +988,11 @@ public:
 		BOOST_NOEXCEPT_OR_NOTHROW;
 
 	/**
-	 * @brief Set the light intensity uniform variable.
+	 * @brief Set the light direction uniform variable.
 	 * @details The name of the uniform in the shader is assumed to be equal
 	 * to "light.direction".
 	 * 
-	 * @param intensity The intensity value.
+	 * @param direction The direction value.
 	 */
 	void set_light_direction(const vec3f& direction) const 
 		BOOST_NOEXCEPT_OR_NOTHROW;
@@ -1232,6 +1233,16 @@ public:
 	 * @param position The position value.
 	 */
 	void set_light_position(const vec3f& position) const 
+		BOOST_NOEXCEPT_OR_NOTHROW;
+
+	/**
+	 * @brief Set the light direction uniform variable.
+	 * @details The name of the uniform in the shader is assumed to be equal
+	 * to "light.direction".
+	 * 
+	 * @param direction The direction value.
+	 */
+	void set_light_direction(const vec3f& direction) const 
 		BOOST_NOEXCEPT_OR_NOTHROW;
 
 	/**

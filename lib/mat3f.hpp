@@ -1,5 +1,6 @@
 /**
  * @file mat3f.hpp
+ * @brief Defines a three by three matrix.
  * @author Raoul Wols
  */
 

@@ -1,5 +1,7 @@
 /**
  * @file vector.hpp
+ * @brief Defines the OpenGL vector class wrapper and the array vector class
+ * wrapper.
  * @author Raoul Wols
  */
 
@@ -97,6 +99,7 @@ public:
 	 * reallocation strategy is to increase the size of the vector by 2.
 	 * 
 	 * @param v The std::vector to set the vector with.
+	 * @param usagehint Specifies the usage hint.
 	 * @tparam Alloc The allocator type of the std::vector.
 	 */
 	template <class Alloc>
@@ -141,7 +144,7 @@ public:
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param reserve Reserve this many elements.
+	 * @param usagehint Specifies the usage hint.
 	 */
 	vector_array(const GLenum usagehint)
 	{
@@ -216,6 +219,7 @@ public:
 	 * 
 	 * @param index The index into the array of vectors.
 	 * @param v The std::vector to set the vector with.
+	 * @param usagehint Specifies the usage hint.
 	 * @tparam Alloc The allocator type of the std::vector.
 	 */
 	template <class Alloc>

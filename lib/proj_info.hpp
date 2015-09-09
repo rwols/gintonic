@@ -1,5 +1,6 @@
 /**
  * @file proj_info.hpp
+ * @brief Defines the projection info component.
  * @author Raoul Wols
  */
 
@@ -7,6 +8,7 @@
 #define gintonic_proj_info_hpp
 
 #include "component.hpp"
+#include "mat4f.hpp"
 
 namespace gintonic {
 
