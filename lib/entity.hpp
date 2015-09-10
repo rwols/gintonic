@@ -133,8 +133,7 @@ public:
 	 * out with. 
 	 * 
 	 * @param octree_root If the entity should be part of an octree, you can
-	 * pass the
-	 * root of the octree here.
+	 * pass the root of the octree here.
 	 * 
 	 * @param parent Wether the entity should have a parent entity.
 	 */
