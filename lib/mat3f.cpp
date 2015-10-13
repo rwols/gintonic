@@ -32,7 +32,7 @@ mat3f::mat3f(const vec3f& column0, const vec3f& column1, const vec3f& column2)
 
 #endif
 
-vec3f mat3f::operator * (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+vec3f mat3f::operator * (const vec3f& v) const noexcept
 {
 	return vec3f(
 		m00 * v.x + m01 * v.y + m02 * v.z,
@@ -49,7 +49,7 @@ vec3f mat3f::operator * (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
 	// return _mm_add_ps(_mm_add_ps(m0, m1), m2);
 }
 
-mat3f mat3f::operator * (const mat3f& b) const BOOST_NOEXCEPT_OR_NOTHROW
+mat3f mat3f::operator * (const mat3f& b) const noexcept
 {
 	mat3f r;
 	// __m128 m0, m1, m2;
@@ -84,7 +84,7 @@ mat3f mat3f::operator * (const mat3f& b) const BOOST_NOEXCEPT_OR_NOTHROW
 	return r;
 }
 
-mat3f& mat3f::invert() BOOST_NOEXCEPT_OR_NOTHROW
+mat3f& mat3f::invert() noexcept
 {
 	const float A =   m11 * m22 - m12 * m21 ;
 	const float B = -(m10 * m22 - m12 * m20);
@@ -111,7 +111,7 @@ mat3f& mat3f::invert() BOOST_NOEXCEPT_OR_NOTHROW
 	return *this;
 }
 
-mat3f& mat3f::transpose() BOOST_NOEXCEPT_OR_NOTHROW
+mat3f& mat3f::transpose() noexcept
 {
 	std::swap(m01, m10);
 	std::swap(m02, m20);

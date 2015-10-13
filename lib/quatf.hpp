@@ -84,22 +84,22 @@ public:
 	quatf& operator = (const FBX::FbxVector4&);
 
 	/// Multiplication operator.
-	quatf operator * (const quatf& other) const BOOST_NOEXCEPT_OR_NOTHROW;
+	quatf operator * (const quatf& other) const noexcept;
 
 	/// Scalar multiplication operator.
-	inline quatf operator * (const float s) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline quatf operator * (const float s) const noexcept
 	{
 		return _mm_mul_ps(data, _mm_set1_ps(s));
 	}
 
 	/// Multiply-and-assign operator.
-	inline quatf& operator *= (const quatf& q) BOOST_NOEXCEPT_OR_NOTHROW
+	inline quatf& operator *= (const quatf& q) noexcept
 	{
 		return *this = *this * q;
 	}
 
 	/// Multiply-and-assign operator for scalars.
-	inline quatf& operator *= (const float s) BOOST_NOEXCEPT_OR_NOTHROW
+	inline quatf& operator *= (const float s) noexcept
 	{
 		data = _mm_mul_ps(data, _mm_set1_ps(s));
 		return *this;
@@ -115,7 +115,7 @@ public:
 	 * errors.
 	 * @return The conjugate of this quaternion.
 	 */
-	inline quatf conjugate() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline quatf conjugate() const noexcept
 	{
 		return quatf(w, -x, -y, -z);
 	}
@@ -125,38 +125,38 @@ public:
 	 * @param v The vector to apply the quaternion to.
 	 * @return The rotated vector.
 	 */
-	vec3f apply_to(const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f apply_to(const vec3f& v) const noexcept;
 
 	/**
 	 * @brief Get the forward direction.
 	 * @return The forward direction.
 	 */
-	vec3f forward_direction() const BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f forward_direction() const noexcept;
 
 	/**
 	 * @brief Get the right direction.
 	 * @return The right direction.
 	 */
-	vec3f right_direction() const BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f right_direction() const noexcept;
 
 	/**
 	 * @brief Get the up direction.
 	 * @return The up direction.
 	 */
-	vec3f up_direction() const BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f up_direction() const noexcept;
 
 	/**
 	 * @brief Get the forward direction.
 	 * @return The forward direction.
 	 */
-	vec3f direction() const BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f direction() const noexcept;
 
 	/**
 	 * @brief Construct a quaternion from a mouse delta.
 	 * @param a The angles vector.
 	 * @return *this.
 	 */
-	quatf& set_mousedelta(const vec2f& a) BOOST_NOEXCEPT_OR_NOTHROW;
+	quatf& set_mousedelta(const vec2f& a) noexcept;
 
 	/**
 	 * @brief Add a mouse delta to the current quaternion.
@@ -164,19 +164,19 @@ public:
 	 * @return *this.
 	 * @deprecated This method does not work correctly at the moment.
 	 */
-	quatf& add_mousedelta(const vec2f& a) BOOST_NOEXCEPT_OR_NOTHROW;
+	quatf& add_mousedelta(const vec2f& a) noexcept;
 
 	/**
 	 * @brief Get the squared length (or norm) of this quaternion.
 	 * @return The squared length of this quaternion.
 	 */
-	float length2() const BOOST_NOEXCEPT_OR_NOTHROW;
+	float length2() const noexcept;
 
 	/**
 	 * @brief Get the length (or norm) of this quaternion.
 	 * @return The length of this quaternion.
 	 */
-	inline float length() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline float length() const noexcept
 	{
 		return std::sqrt(length2());
 	}
@@ -185,19 +185,19 @@ public:
 	 * @brief Normalize this quaternion to unit length.
 	 * @return *this.
 	 */
-	inline quatf& normalize() BOOST_NOEXCEPT_OR_NOTHROW
+	inline quatf& normalize() noexcept
 	{
 		return operator*=(length2());
 	}
 
 	/// Equality comparison operator.
-	inline bool operator == (const quatf& other) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline bool operator == (const quatf& other) const noexcept
 	{
 		return x == other.x && y == other.y && z == other.z && w == other.w;
 	}
 
 	/// Inequality comparison operator.
-	inline bool operator != (const quatf& other) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline bool operator != (const quatf& other) const noexcept
 	{
 		return !operator==(other);
 	}
@@ -206,7 +206,7 @@ public:
 	 * @brief Add mouse delta to this quaternion.
 	 * @param angles The angles vector.
 	 */
-	void add_mouse(const vec2f& angles) BOOST_NOEXCEPT_OR_NOTHROW;
+	void add_mouse(const vec2f& angles) noexcept;
 
 	/**
 	 * @brief Construct a quaternion from an axis and an angle.

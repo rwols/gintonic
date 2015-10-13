@@ -56,13 +56,13 @@ public:
 	};
 
 	/// Get a value pointer to the raw array.
-	float* value_ptr() BOOST_NOEXCEPT_OR_NOTHROW
+	float* value_ptr() noexcept
 	{
 		return &m00;
 	}
 
 	/// Get a const value pointer to the raw array.
-	const float* value_ptr() const BOOST_NOEXCEPT_OR_NOTHROW
+	const float* value_ptr() const noexcept
 	{
 		return &m00;
 	}
@@ -109,16 +109,16 @@ public:
 	mat3f(const vec3f& rotation_axis, const float rotation_angle);
 
 	/// Apply this matrix to a vector.
-	vec3f operator * (const vec3f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f operator * (const vec3f&) const noexcept;
 
 	/// Multiply two matrices.
-	mat3f operator * (const mat3f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+	mat3f operator * (const mat3f&) const noexcept;
 
 	/// Invert this matrix.
-	mat3f& invert() BOOST_NOEXCEPT_OR_NOTHROW;
+	mat3f& invert() noexcept;
 
 	/// Tranpose this matrix.
-	mat3f& transpose() BOOST_NOEXCEPT_OR_NOTHROW;
+	mat3f& transpose() noexcept;
 
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();

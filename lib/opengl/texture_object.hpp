@@ -23,7 +23,7 @@ private:
 public:
 
 	/// Get the underlying OpenGL handle with a static_cast.
-	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline operator GLuint() const noexcept
 	{
 		return m_handle;
 	}
@@ -38,17 +38,17 @@ public:
 	texture_object& operator=(const texture_object& other) = delete;
 
 	/// You can, however, move construct a texture object.
-	inline texture_object(texture_object&& other) BOOST_NOEXCEPT_OR_NOTHROW 
+	inline texture_object(texture_object&& other) noexcept 
 	: m_handle(other.m_handle)
 	{
 		other.m_handle = 0;
 	}
 	
 	/// You can, however, move assign a texture object.
-	texture_object& operator=(texture_object&& other) BOOST_NOEXCEPT_OR_NOTHROW;
+	texture_object& operator=(texture_object&& other) noexcept;
 	
 	/// Destructor destroys the OpenGL handle.
-	inline ~texture_object() BOOST_NOEXCEPT_OR_NOTHROW
+	inline ~texture_object() noexcept
 	{
 		glDeleteTextures(1, &m_handle);
 	}

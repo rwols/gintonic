@@ -162,7 +162,7 @@ public:
 	 * @brief Get the size of the stack.
 	 * @return The size of the stack.
 	 */
-	inline std::size_t size() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline std::size_t size() const noexcept
 	{
 		return m_stack.size();
 	}

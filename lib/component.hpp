@@ -69,7 +69,7 @@ public:
 	component() = default;
 
 	/// Destructor.
-	virtual ~component() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~component() noexcept;
 
 	/// Copy constructor.
 	component(const component&) = default;
@@ -78,10 +78,10 @@ public:
 	component& operator = (const component&) = default;
 
 	/// Move constructor,
-	component(component&&) BOOST_NOEXCEPT_OR_NOTHROW;
+	component(component&&) noexcept;
 
 	/// Move assignment operator.
-	component& operator = (component&&) BOOST_NOEXCEPT_OR_NOTHROW;
+	component& operator = (component&&) noexcept;
 
 	//@}
 
@@ -95,7 +95,7 @@ public:
 	 * @brief The beginning of the attached entities.
 	 * @return An iterator to the beginning of the attached entities.
 	 */
-	inline iterator begin() BOOST_NOEXCEPT_OR_NOTHROW
+	inline iterator begin() noexcept
 	{
 		return m_ents.begin();
 	}
@@ -105,7 +105,7 @@ public:
 	 * @return An iterator pointing to one-past-the-end of the attached
 	 * entities.
 	 */
-	inline iterator end() BOOST_NOEXCEPT_OR_NOTHROW
+	inline iterator end() noexcept
 	{
 		return m_ents.end();
 	}
@@ -114,7 +114,7 @@ public:
 	 * @brief The beginning of the attached entities, constant version.
 	 * @return A constant iterator to the beginning of the attached entities.
 	 */
-	inline const_iterator begin() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const_iterator begin() const noexcept
 	{
 		return m_ents.begin();
 	}
@@ -124,7 +124,7 @@ public:
 	 * @return A constant iterator pointing to one-past-the-end of the
 	 * attached entities.
 	 */
-	inline const_iterator end() const BOOST_NOEXCEPT_OR_NOTHROW 
+	inline const_iterator end() const noexcept 
 	{
 		return m_ents.end();
 	}

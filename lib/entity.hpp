@@ -78,10 +78,10 @@ private:
 	friend class camera;
 	friend class proj_info;
 
-	void update_global_info(mat4fstack&) BOOST_NOEXCEPT_OR_NOTHROW;
-	void update_global_info_start() BOOST_NOEXCEPT_OR_NOTHROW;
-	mat4f compute_global_transform() BOOST_NOEXCEPT_OR_NOTHROW;
-	void update_global_datamembers(const mat4fstack&) BOOST_NOEXCEPT_OR_NOTHROW;
+	void update_global_info(mat4fstack&) noexcept;
+	void update_global_info_start() noexcept;
+	mat4f compute_global_transform() noexcept;
+	void update_global_datamembers(const mat4fstack&) noexcept;
 
 public:
 
@@ -148,13 +148,13 @@ public:
 	entity(const entity&) = delete;
 
 	/// You can move entities.
-	entity(entity&&) BOOST_NOEXCEPT_OR_NOTHROW;
+	entity(entity&&) noexcept;
 
 	/// You cannot copy entities. This could create cycles in the entity tree.
 	entity& operator = (const entity&) = delete;
 
 	/// You can move entities.
-	entity& operator = (entity&&) BOOST_NOEXCEPT_OR_NOTHROW;
+	entity& operator = (entity&&) noexcept;
 	
 	/// Destructor.
 	virtual ~entity();
@@ -174,7 +174,7 @@ public:
 	 * transform of all of its children.
 	 * @param s The new scale.
 	 */
-	void set_scale(const vec3f& s) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_scale(const vec3f& s) noexcept;
 
 	/**
 	 * @brief Multiply the current scale of the local SQT transform.
@@ -184,7 +184,7 @@ public:
 	 * 
 	 * @param s The scale to multiply the current local scale with.
 	 */
-	void multiply_scale(const vec3f& s) BOOST_NOEXCEPT_OR_NOTHROW;
+	void multiply_scale(const vec3f& s) noexcept;
 
 	/**
 	 * @brief Set the translation of the local SQT transform.
@@ -194,7 +194,7 @@ public:
 	 * 
 	 * @param t The new translation.
 	 */
-	void set_translation(const vec3f& t) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_translation(const vec3f& t) noexcept;
 
 	/**
 	 * @brief Set the translation's X-coordinate of the local SQT transform.
@@ -204,7 +204,7 @@ public:
 	 * 
 	 * @param x The new X-coordinate.
 	 */
-	void set_translation_x(const float x) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_translation_x(const float x) noexcept;
 
 	/**
 	 * @brief Set the translation's Y-coordinate of the local SQT transform.
@@ -214,7 +214,7 @@ public:
 	 * 
 	 * @param y The new Y-coordinate.
 	 */
-	void set_translation_y(const float y) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_translation_y(const float y) noexcept;
 
 	/**
 	 * @brief Set the translation's Z-coordinate of the local SQT transform.
@@ -224,7 +224,7 @@ public:
 	 * 
 	 * @param z The new Z-coordinate.
 	 */
-	void set_translation_z(const float z) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_translation_z(const float z) noexcept;
 
 	/**
 	 * @brief Add a translation to the current SQT transform's translation.
@@ -234,7 +234,7 @@ public:
 	 * 
 	 * @param t The translation to add.
 	 */
-	void add_translation(const vec3f& t) BOOST_NOEXCEPT_OR_NOTHROW;
+	void add_translation(const vec3f& t) noexcept;
 
 	/**
 	 * @brief Set the rotation quaternion of the local SQT transform.
@@ -244,7 +244,7 @@ public:
 	 * 
 	 * @param q The new rotation quaternion.
 	 */
-	void set_rotation(const quatf& q) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_rotation(const quatf& q) noexcept;
 
 	/**
 	 * @brief Post-multiply the current rotation of the local SQT transform.
@@ -254,7 +254,7 @@ public:
 	 * 
 	 * @param q The rotation quaternion to post-multiply with.
 	 */
-	void post_multiply_rotation(const quatf& q) BOOST_NOEXCEPT_OR_NOTHROW;
+	void post_multiply_rotation(const quatf& q) noexcept;
 
 	/**
 	 * @brief Pre-multiply the current rotation of the local SQT transform.
@@ -264,7 +264,7 @@ public:
 	 * 
 	 * @param q The rotation quaternion to pre-multiply with.
 	 */
-	void pre_multiply_rotation(const quatf& q) BOOST_NOEXCEPT_OR_NOTHROW;
+	void pre_multiply_rotation(const quatf& q) noexcept;
 
 	/**
 	 * @brief Set the local SQT transform of this entity.
@@ -274,7 +274,7 @@ public:
 	 * 
 	 * @param sqt The new SQT transform.
 	 */
-	void set_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_local_transform(const SQT& sqt) noexcept;
 
 	/**
 	 * @brief Post-add an SQT to the current local SQT transform.
@@ -284,7 +284,7 @@ public:
 	 * 
 	 * @param sqt The SQT transform to post-add.
 	 */
-	void post_add_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW;
+	void post_add_local_transform(const SQT& sqt) noexcept;
 
 	/**
 	 * @brief Pre-add an SQT to the current local SQT transform.
@@ -294,7 +294,7 @@ public:
 	 * 
 	 * @param sqt The SQT transform to pre-add.
 	 */
-	void pre_add_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW;
+	void pre_add_local_transform(const SQT& sqt) noexcept;
 
 	/**
 	 * @brief Move the entity in the direction of the local forward direction.
@@ -304,7 +304,7 @@ public:
 	 * 
 	 * @param amount The amount of translation.
 	 */
-	void move_forward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_forward(const float amount) noexcept;
 
 	/**
 	 * @brief Move the entity in the direction of the local backward
@@ -315,7 +315,7 @@ public:
 	 * 
 	 * @param amount The amount of translation.
 	 */
-	void move_backward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_backward(const float amount) noexcept;
 
 	/**
 	 * @brief Move the entity in the direction of the local right direction.
@@ -325,7 +325,7 @@ public:
 	 * 
 	 * @param amount The amount of translation.
 	 */
-	void move_right(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_right(const float amount) noexcept;
 
 	/**
 	 * @brief Move the entity in the direction of the local left direction.
@@ -335,7 +335,7 @@ public:
 	 * 
 	 * @param amount The amount of translation.
 	 */
-	void move_left(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_left(const float amount) noexcept;
 
 	/**
 	 * @brief Move the entity in the direction of the local up direction.
@@ -345,7 +345,7 @@ public:
 	 * 
 	 * @param amount The amount of translation.
 	 */
-	void move_up(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_up(const float amount) noexcept;
 
 	/**
 	 * @brief Move the entity in the direction of the local down direction.
@@ -355,14 +355,14 @@ public:
 	 * 
 	 * @param amount The amount of translation.
 	 */
-	void move_down(const float amount) BOOST_NOEXCEPT_OR_NOTHROW;
+	void move_down(const float amount) noexcept;
 
 	/**
 	 * @brief Get the local bounding box.
 	 * 
 	 * @return A constant reference to the local bounding box.
 	 */
-	inline const box3f& local_bounding_box() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const box3f& local_bounding_box() const noexcept
 	{
 		return m_local_bounding_box;
 	}
@@ -399,7 +399,7 @@ public:
 	 * 
 	 * @return A constant reference to the local SQT transform.
 	 */
-	inline const SQT& local_transform() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const SQT& local_transform() const noexcept
 	{
 		return m_local_transform;
 	}
@@ -461,7 +461,7 @@ public:
 	 * 
 	 * @return A pointer to the parent of this entity.
 	 */
-	inline entity* parent() BOOST_NOEXCEPT_OR_NOTHROW
+	inline entity* parent() noexcept
 	{
 		return m_parent;
 	}
@@ -473,7 +473,7 @@ public:
 	 * 
 	 * @return A constant pointer to the parent of this entity.
 	 */
-	inline const entity* parent() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const entity* parent() const noexcept
 	{
 		return m_parent;
 	}
@@ -483,7 +483,7 @@ public:
 	 * 
 	 * @return An iterator to the beginning of the children list.
 	 */
-	inline iterator begin() BOOST_NOEXCEPT_OR_NOTHROW
+	inline iterator begin() noexcept
 	{
 		return m_children.begin();
 	}
@@ -493,7 +493,7 @@ public:
 	 * 
 	 * @return An iterator to one-past-the-end of the children list.
 	 */
-	inline iterator end() BOOST_NOEXCEPT_OR_NOTHROW
+	inline iterator end() noexcept
 	{
 		return m_children.end();
 	}
@@ -503,7 +503,7 @@ public:
 	 * 
 	 * @return A const iterator to the beginning of the children list.
 	 */
-	inline const_iterator begin() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const_iterator begin() const noexcept
 	{
 		return m_children.begin();
 	}
@@ -513,7 +513,7 @@ public:
 	 * 
 	 * @return a const iterator to one-past-the-end of the children list.
 	 */
-	inline const_iterator end() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const_iterator end() const noexcept
 	{
 		return m_children.end();
 	}
@@ -523,7 +523,7 @@ public:
 	 * 
 	 * @return A const iterator to the beginning of the children list.
 	 */
-	inline const_iterator cbegin() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const_iterator cbegin() const noexcept
 	{
 		return m_children.cbegin();
 	}
@@ -533,7 +533,7 @@ public:
 	 * 
 	 * @return a const iterator to one-past-the-end of the children list.
 	 */
-	inline const_iterator cend() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const_iterator cend() const noexcept
 	{
 		return m_children.cend();
 	}
@@ -554,7 +554,7 @@ public:
 	 * @deprecated This method doesn't work. It's better to construct a view
 	 * matrix manually. Perhaps in the future I'll get around to fixing this.
 	 */
-	void get_view_matrix(mat4f& m) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void get_view_matrix(mat4f& m) const noexcept;
 
 	/**
 	 * @brief Get the global transformation matrix, i.e. from `MODEL` space
@@ -562,7 +562,7 @@ public:
 	 * 
 	 * @return A constant reference to the global transformation matrix.
 	 */
-	inline const mat4f& global_transform() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const mat4f& global_transform() const noexcept
 	{
 		return m_global_transform;
 	}
@@ -572,7 +572,7 @@ public:
 	 * 
 	 * @return A constant reference to the global bounding box.
 	 */
-	inline const box3f& global_bounding_box() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const box3f& global_bounding_box() const noexcept
 	{
 		return m_global_bounding_box;
 	}
@@ -592,7 +592,7 @@ public:
 	 * 
 	 * @return A pointer to the controller component of this entity.
 	 */
-	inline controller* controller_component() BOOST_NOEXCEPT_OR_NOTHROW
+	inline controller* controller_component() noexcept
 	{
 		return m_controller_component;
 	}
@@ -606,7 +606,7 @@ public:
 	 * @return A constant pointer to the controller component of this entity.
 	 */
 	inline const controller* controller_component() const 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return m_controller_component;
 	}
@@ -618,7 +618,7 @@ public:
 	 * 
 	 * @return A pointer to the mesh component of this entity.
 	 */
-	inline mesh* mesh_component() BOOST_NOEXCEPT_OR_NOTHROW
+	inline mesh* mesh_component() noexcept
 	{
 		return m_mesh_component;
 	}
@@ -630,7 +630,7 @@ public:
 	 * 
 	 * @return A constant pointer to the mesh component of this entity.
 	 */
-	inline const mesh* mesh_component() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const mesh* mesh_component() const noexcept
 	{
 		return m_mesh_component;
 	}
@@ -642,7 +642,7 @@ public:
 	 * 
 	 * @return A pointer to the material component of this entity.
 	 */
-	inline material* material_component() BOOST_NOEXCEPT_OR_NOTHROW
+	inline material* material_component() noexcept
 	{
 		return m_material_component;
 	}
@@ -655,7 +655,7 @@ public:
 	 * @return A constant pointer to the material component of this entity.
 	 */
 	inline const material* material_component() const
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return m_material_component;
 	}
@@ -667,7 +667,7 @@ public:
 	 * 
 	 * @return A pointer to the light component of this entity.
 	 */
-	inline light* light_component() BOOST_NOEXCEPT_OR_NOTHROW
+	inline light* light_component() noexcept
 	{
 		return m_light_component;
 	}
@@ -679,7 +679,7 @@ public:
 	 * 
 	 * @return A constant pointer to the light component of this entity.
 	 */
-	inline const light* light_component() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const light* light_component() const noexcept
 	{
 		return m_light_component;
 	}
@@ -691,7 +691,7 @@ public:
 	 * 
 	 * @return A pointer to the rigid_body component of this entity.
 	 */
-	inline rigid_body* rigid_body_component() BOOST_NOEXCEPT_OR_NOTHROW
+	inline rigid_body* rigid_body_component() noexcept
 	{
 		return m_rigid_body_component;
 	}
@@ -705,7 +705,7 @@ public:
 	 * @return A constant pointer to the rigid_body component of this entity.
 	 */
 	inline const rigid_body* rigid_body_component() const 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return m_rigid_body_component;
 	}
@@ -717,7 +717,7 @@ public:
 	 * 
 	 * @return A pointer to the AI component of this entity.
 	 */
-	inline AI* AI_component() BOOST_NOEXCEPT_OR_NOTHROW
+	inline AI* AI_component() noexcept
 	{
 		return m_AI_component;
 	}
@@ -729,7 +729,7 @@ public:
 	 * 
 	 * @return A constant pointer to the AI component of this entity.
 	 */
-	inline const AI* AI_component() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const AI* AI_component() const noexcept
 	{
 		return m_AI_component;
 	}
@@ -741,7 +741,7 @@ public:
 	 * 
 	 * @return A pointer to the camera component of this entity.
 	 */
-	inline camera* camera_component() BOOST_NOEXCEPT_OR_NOTHROW
+	inline camera* camera_component() noexcept
 	{
 		return m_camera_component;
 	}
@@ -753,7 +753,7 @@ public:
 	 * 
 	 * @return A constant pointer to the camera component of this entity.
 	 */
-	inline const camera* camera_component() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const camera* camera_component() const noexcept
 	{
 		return m_camera_component;
 	}
@@ -765,7 +765,7 @@ public:
 	 * 
 	 * @return A pointer to the proj_info component of this entity.
 	 */
-	inline proj_info*  proj_info_component() BOOST_NOEXCEPT_OR_NOTHROW
+	inline proj_info*  proj_info_component() noexcept
 	{
 		return m_proj_info_component;
 	}
@@ -779,7 +779,7 @@ public:
 	 * @return A constant pointer to the proj_info component of this entity.
 	 */
 	inline const proj_info*  proj_info_component() const
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return m_proj_info_component;
 	}
@@ -799,7 +799,7 @@ public:
 	 * 
 	 * @return A pointer to the octree node that this entity belongs to.
 	 */
-	inline octree* octree_node() BOOST_NOEXCEPT_OR_NOTHROW
+	inline octree* octree_node() noexcept
 	{
 		return m_octree;
 	}
@@ -812,7 +812,7 @@ public:
 	 * 
 	 * @return A const pointer to the octree node that this entity belongs to.
 	 */
-	inline const octree* octree_node() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const octree* octree_node() const noexcept
 	{
 		return m_octree;
 	}
@@ -834,7 +834,7 @@ public:
 	 * @return True if they live at the same memory address, false otherwise.
 	 */
 	inline bool operator == (const entity& other) const
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return this == &other;
 	}
@@ -849,7 +849,7 @@ public:
 	 * false otherwise.
 	 */
 	inline bool operator != (const entity& other) const 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return !operator==(other);
 	}
@@ -863,7 +863,7 @@ public:
 	 * entity's memory address. False otherwise.
 	 */
 	inline bool operator < (const entity& other) const 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return this < &other;
 	}
@@ -877,7 +877,7 @@ public:
 	 * to the other entity's memory address. False otherwise.
 	 */
 	inline bool operator >= (const entity& other) const
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return !operator<(other);
 	}
@@ -891,7 +891,7 @@ public:
 	 * entity's memory address. False otherwise.
 	 */
 	inline bool operator > (const entity& other) const 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return this > &other;
 	}
@@ -905,7 +905,7 @@ public:
 	 * the other entity's memory address. False otherwise.
 	 */
 	inline bool operator <= (const entity& other) const 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return !operator>(other);
 	}

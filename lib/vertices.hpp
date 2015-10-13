@@ -160,18 +160,18 @@ struct vertex_P
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_attributes() noexcept;
 
 	/**
 	 * @brief Disable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_attributes() noexcept;
 
 	/**
 	 * @brief The default filename extension for this type of vertex.
 	 * @return Always returns the string literal ".vp".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const char* extension() noexcept
 	{
 		return ".vp";
 	}
@@ -200,7 +200,7 @@ struct vertex_P
 	 * @param other Another vertex.
 	 * @return True if the vertices compare exactly equal, false otherwise.
 	 */
-	bool operator == (const vertex_P& other) const BOOST_NOEXCEPT_OR_NOTHROW;
+	bool operator == (const vertex_P& other) const noexcept;
 
 	/**
 	 * @brief Inequality comparison operator.
@@ -212,7 +212,7 @@ struct vertex_P
 	 * @return False if the vertices compare exactly equal, true otherwise.
 	 */
 	inline bool operator != (const vertex_P& other) const 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return !operator==(other);
 	}
@@ -301,18 +301,18 @@ struct vertex_PC
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_attributes() noexcept;
 
 	/**
 	 * @brief Disable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_attributes() noexcept;
 
 	/**
 	 * @brief The default filename extension for this type of vertex.
 	 * @return Always returns the string literal ".vpc".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const char* extension() noexcept
 	{
 		return ".vpc";
 	}
@@ -415,18 +415,18 @@ struct vertex_PU
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_attributes() noexcept;
 
 	/**
 	 * @brief Disable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_attributes() noexcept;
 
 	/**
 	 * @brief The default filename extension for this type of vertex.
 	 * @return Always returns the string literal ".vpu".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const char* extension() noexcept
 	{
 		return ".vpu";
 	}
@@ -530,18 +530,18 @@ struct vertex_PN
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_attributes() noexcept;
 
 	/**
 	 * @brief Disable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_attributes() noexcept;
 
 	/**
 	 * @brief The default filename extension for this type of vertex.
 	 * @return Always returns the string literal ".pn".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const char* extension() noexcept
 	{
 		return ".pn";
 	}
@@ -651,18 +651,18 @@ struct vertex_PCU
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_attributes() noexcept;
 
 	/**
 	 * @brief Disable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_attributes() noexcept;
 
 	/**
 	 * @brief The default filename extension for this type of vertex.
 	 * @return Always returns the string literal ".vpcu".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW 
+	inline static const char* extension() noexcept 
 	{ 
 		return ".vpcu"; 
 	}
@@ -780,18 +780,18 @@ struct vertex_PCUN
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_attributes() noexcept;
 
 	/**
 	 * @brief Disable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_attributes() noexcept;
 
 	/**
 	 * @brief The default filename extension for this type of vertex.
 	 * @return Always returns the string literal ".vpcun".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW 
+	inline static const char* extension() noexcept 
 	{ 
 		return ".vpcun"; 
 	}
@@ -902,18 +902,18 @@ struct vertex_PUN
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_attributes() noexcept;
 
 	/**
 	 * @brief Disable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_attributes() noexcept;
 
 	/**
 	 * @brief The default filename extension for this type of vertex.
 	 * @return Always returns the string literal ".vpun".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW 
+	inline static const char* extension() noexcept 
 	{ 
 		return ".vpun"; 
 	}
@@ -1031,18 +1031,18 @@ struct vertex_PCUNTB
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_attributes() noexcept;
 
 	/**
 	 * @brief Disable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_attributes() noexcept;
 
 	/**
 	 * @brief The default filename extension for this type of vertex.
 	 * @return Always returns the string literal ".vpcuntb".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW 
+	inline static const char* extension() noexcept 
 	{ 
 		return ".vpcuntb"; 
 	}
@@ -1169,18 +1169,18 @@ struct vertex_PUNTB
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_attributes() noexcept;
 
 	/**
 	 * @brief Disable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_attributes() noexcept;
 
 	/**
 	 * @brief The default filename extension for this type of vertex.
 	 * @return Always returns the string literal ".vpuntb".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW 
+	inline static const char* extension() noexcept 
 	{ 
 		return ".vpuntb"; 
 	}
@@ -1255,18 +1255,18 @@ struct vertex_PCUsg
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_attributes() noexcept;
 
 	/**
 	 * @brief Disable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_attributes() noexcept;
 
 	/**
 	 * @brief The default filename extension for this type of vertex.
 	 * @return Always returns the string literal ".vpcusg".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const char* extension() noexcept
 	{ 
 		return ".vpcusg"; 
 	}
@@ -1332,18 +1332,18 @@ struct vertex_text2d
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_attributes() noexcept;
 
 	/**
 	 * @brief Disable the vertex attributes in the bound OpenGL array buffer.
 	 */
-	static void disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_attributes() noexcept;
 
 	/**
 	 * @brief The default filename extension for this type of vertex.
 	 * @return Always returns the string literal ".text2d".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const char* extension() noexcept
 	{
 		return ".text2d";
 	}

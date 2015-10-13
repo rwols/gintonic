@@ -58,28 +58,28 @@ public:
 
 		/// Compares the names lexicographically.
 		inline bool operator <  (const uniform& other) const 
-			BOOST_NOEXCEPT_OR_NOTHROW
+			noexcept
 		{
 			return name < other.name;
 		}
 		
 		/// Compares the names lexicographically.
 		inline bool operator >= (const uniform& other) const 
-			BOOST_NOEXCEPT_OR_NOTHROW
+			noexcept
 		{
 			return !operator<(other); 
 		}
 
 		/// Compares the names lexicographically.
 		inline bool operator >  (const uniform& other) const 
-			BOOST_NOEXCEPT_OR_NOTHROW
+			noexcept
 		{
 			return name > other.name;
 		}
 
 		/// Compares the names lexicographically.
 		inline bool operator <= (const uniform& other) const 
-			BOOST_NOEXCEPT_OR_NOTHROW
+			noexcept
 		{
 			return !operator>(other);
 		}
@@ -101,10 +101,10 @@ public:
 	shader_program& operator = (shader_program&&);
 
 	/// Virtual destructor, so inheritance is possible.
-	virtual ~shader_program() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~shader_program() noexcept;
 
 	/// Get the underlying OpenGL handle with a static_cast.
-	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline operator GLuint() const noexcept
 	{
 		return m_handle;
 	}
@@ -113,12 +113,12 @@ public:
 	 * @brief You can call operator() on a shader_program to activate it.
 	 * @details This is just syntax-sugar.
 	 */
-	inline void operator()() const BOOST_NOEXCEPT_OR_NOTHROW { activate(); }
+	inline void operator()() const noexcept { activate(); }
 
 	/**
 	 * @brief Activate a shader_program (or: use this shader_program).
 	 */
-	void activate() const BOOST_NOEXCEPT_OR_NOTHROW;
+	void activate() const noexcept;
 	
 	/**
 	 * @brief Deactivate a shader_program (or: stop using this 
@@ -128,7 +128,7 @@ public:
 	 * implementation all that is done is calling the OpenGL API to use the
 	 * 0 (zero) shader_program.
 	 */
-	static void deactivate() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void deactivate() noexcept;
 
 protected:
 
@@ -177,13 +177,13 @@ protected:
 	 * is present in the shader.
 	 */
 	bool get_attrib_location(const GLchar* name, GLint& location) const 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Get the number of active attributes.
 	 * @return The number of active attributes.
 	 */
-	GLint num_active_attributes() const BOOST_NOEXCEPT_OR_NOTHROW;
+	GLint num_active_attributes() const noexcept;
 
 	/**
 	 * @brief Get the index'th attribute.
@@ -238,13 +238,13 @@ protected:
 	 * variables.
 	 */
 	bool get_uniform_location(const GLchar* name, GLint& location) const 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Get the number of active uniforms variables.
 	 * @return The number of active uniform varibles.
 	 */
-	GLint num_active_uniforms() const BOOST_NOEXCEPT_OR_NOTHROW;
+	GLint num_active_uniforms() const noexcept;
 
 	/**
 	 * @brief Get the index'th uniform variable.
@@ -802,7 +802,7 @@ protected:
 	 * @param value The value for the uniform.
 	 */
 	static void set_uniform(const GLint location, const GLfloat value) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Set a uniform with the given location to the given value.
@@ -812,7 +812,7 @@ protected:
 	 * @param value The value for the uniform.
 	 */
 	static void set_uniform(const GLint location, const vec2f& value) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Set a uniform with the given location to the given value.
@@ -822,7 +822,7 @@ protected:
 	 * @param value The value for the uniform.
 	 */
 	static void set_uniform(const GLint location, const vec3f& value) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Set a uniform with the given location to the given value.
@@ -832,7 +832,7 @@ protected:
 	 * @param value The value for the uniform.
 	 */
 	static void set_uniform(const GLint location, const vec4f& value) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Set a uniform with the given location to the given value.
@@ -842,7 +842,7 @@ protected:
 	 * @param value The value for the uniform.
 	 */
 	static void set_uniform(const GLint location, const mat3f& value) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Set a uniform with the given location to the given value.
@@ -852,7 +852,7 @@ protected:
 	 * @param value The value for the uniform.
 	 */
 	static void set_uniform(const GLint location, const mat4f& value) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Set a uniform with the given location to the given value.
@@ -862,7 +862,7 @@ protected:
 	 * @param value The value for the uniform.
 	 */
 	static void set_uniform(const GLint location, const GLint value) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 	
 	/**
 	 * @brief Set a uniform array with the given location to the given values.
@@ -872,7 +872,7 @@ protected:
 	 * @param values The values for the uniform.
 	 */
 	static void set_uniform(const GLint location, 
-		const std::vector<GLfloat>& values) BOOST_NOEXCEPT_OR_NOTHROW;
+		const std::vector<GLfloat>& values) noexcept;
 
 	/**
 	 * @brief Set a uniform array with the given location to the given values.
@@ -882,7 +882,7 @@ protected:
 	 * @param values The values for the uniform.
 	 */
 	static void set_uniform(const GLint location, 
-		const std::vector<GLint>& values) BOOST_NOEXCEPT_OR_NOTHROW;
+		const std::vector<GLint>& values) noexcept;
 
 	/**
 	 * @brief Set a uniform array with the given location to the given values.
@@ -894,7 +894,7 @@ protected:
 	 */
 	template <std::size_t Size> 
 	static void set_uniform(const GLint location, 
-		const std::array<GLfloat, Size>& values) BOOST_NOEXCEPT_OR_NOTHROW
+		const std::array<GLfloat, Size>& values) noexcept
 	{
 		glUniform1fv(location, Size, values.data());
 	}
@@ -909,7 +909,7 @@ protected:
 	 */
 	template <std::size_t Size>
 	static void set_uniform(const GLint location, 
-		const std::array<GLint, Size>& values) BOOST_NOEXCEPT_OR_NOTHROW
+		const std::array<GLint, Size>& values) noexcept
 	{
 		glUniform1iv(location, Size, values.data());
 	}

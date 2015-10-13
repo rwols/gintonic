@@ -126,7 +126,7 @@ inline almost_equal(const T x, const T y, int units_in_last_place)
  * @return The dot product of `lhs` and `rhs`.
  */
 inline float dot(const __m128& lhs, const __m128& rhs) 
-	BOOST_NOEXCEPT_OR_NOTHROW
+	noexcept
 {
 	#if GINTONIC_SSE_VERSION >= 41
 

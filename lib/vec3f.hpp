@@ -76,14 +76,14 @@ public:
 	};
 
 	/// Default constructor.
-	inline vec3f() BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f() noexcept
 	: dummy(0.0f)
 	{
 		/* Empty on purpose. */
 	}
 
 	/// Constructor that sets every coordinate to the given value.
-	inline vec3f(const float s) BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f(const float s) noexcept
 	: data(_mm_set1_ps(s))
 	{
 		/* Empty on purpose. */
@@ -91,48 +91,48 @@ public:
 
 	/// Constructor.
 	inline vec3f(const float a, const float b, const float c) 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	: x(a), y(b), z(c), dummy(0.0f)
 	{
 		/* Empty on purpose. */
 	}
 
 	/// Constructor for a raw SSE value.
-	inline vec3f(__m128 values) BOOST_NOEXCEPT_OR_NOTHROW : data(values)
+	inline vec3f(__m128 values) noexcept : data(values)
 	{
 		/* Empty on purpose. */
 	}
 
 	/// Initializer list constructor.
-	vec3f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f(std::initializer_list<float> init) noexcept;
 
 	/// Copy constructor.
-	inline vec3f(const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW : data(v.data)
+	inline vec3f(const vec3f& v) noexcept : data(v.data)
 	{
 		/* Empty on purpose. */
 	}
 
 	/// Move constructor.
-	inline vec3f(vec3f&& v) BOOST_NOEXCEPT_OR_NOTHROW : data(v.data)
+	inline vec3f(vec3f&& v) noexcept : data(v.data)
 	{
 		/* Empty on purpose. */
 	}
 
 	/// Constructor.
-	vec3f(const vec2f& v, const float z) BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f(const vec2f& v, const float z) noexcept;
 
 	/// Constructor. The quaternion needs to be a pure quaternion.
-	vec3f(const quatf&) BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f(const quatf&) noexcept;
 
 	/// Copy assignment operator.
-	inline vec3f& operator = (const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f& operator = (const vec3f& v) noexcept
 	{
 		data = v.data;
 		return *this;
 	}
 
 	/// Move assignment operator.
-	inline vec3f& operator = (vec3f&& v) BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f& operator = (vec3f&& v) noexcept
 	{
 		data = v.data;
 		return *this;
@@ -140,161 +140,161 @@ public:
 
 	/// Initializer list assignment operator.
 	vec3f& operator=(std::initializer_list<float> init) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/// Constructor that takes an FbxVector4.
-	vec3f(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f(const FBX::FbxVector4& v) noexcept;
 
 	/// Assignment operator that takes an FbxVector4.
-	vec3f& operator=(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f& operator=(const FBX::FbxVector4& v) noexcept;
 
 	/// Add-and-assign operator.
-	inline vec3f& operator += (const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f& operator += (const vec3f& v) noexcept
 	{
 		data = _mm_add_ps(data, v.data);
 		return *this;
 	}
 
 	/// Add-and-assign operator that first builds a vec3f.
-	inline vec3f& operator += (const float s) BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f& operator += (const float s) noexcept
 	{
 		data = _mm_add_ps(data, _mm_set1_ps(s));
 		return *this;
 	}
 
 	/// Subtract-and-assign operator.
-	inline vec3f& operator -= (const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f& operator -= (const vec3f& v) noexcept
 	{
 		data = _mm_sub_ps(data, v.data);
 		return *this;
 	}
 
 	/// Subtract-and-assign operator that first builds a vec3f.
-	inline vec3f& operator -= (const float s) BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f& operator -= (const float s) noexcept
 	{
 		data = _mm_sub_ps(data, _mm_set1_ps(s));
 		return *this;
 	}
 
 	/// Pointwise-multiply-and-assign operator.
-	inline vec3f& operator *= (const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f& operator *= (const vec3f& v) noexcept
 	{
 		data = _mm_mul_ps(data, v.data);
 		return *this;
 	}
 
 	/// Pointwise-multiply-and-assign operator.
-	inline vec3f& operator *= (const float s) BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f& operator *= (const float s) noexcept
 	{
 		data = _mm_mul_ps(data, _mm_load1_ps(&s));
 		return *this;
 	}
 
 	/// Pointwise-divide-and-assign operator.
-	inline vec3f& operator /= (float s) BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f& operator /= (float s) noexcept
 	{
 		s = 1.0f / s;
 		return operator*=(s);
 	}
 
 	/// Equality comparison operator.
-	inline bool operator == (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline bool operator == (const vec3f& v) const noexcept
 	{
 		return x == v.x && y == v.y && z == v.z;
 	}
 
 	/// Inequality comparison operator.
-	inline bool operator != (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline bool operator != (const vec3f& v) const noexcept
 	{
 		return !operator==(v);
 	}
 
 	/// Less-than comparison operator.
-	inline bool operator < (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline bool operator < (const vec3f& v) const noexcept
 	{
 		return x < v.x && y < v.y && z < v.z;
 	}
 
 	/// Greater-than-or-equal-to comparison operator.
-	inline bool operator >= (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline bool operator >= (const vec3f& v) const noexcept
 	{
 		return x >= v.x && y >= v.y && z >= v.z;
 	}
 
 	/// Greater-than comparison operator.
-	inline bool operator > (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline bool operator > (const vec3f& v) const noexcept
 	{
 		return x > v.x && y > v.y && z > v.z;
 	}
 
 	/// Less-than-or-equal-to comparison operator.
-	inline bool operator <= (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline bool operator <= (const vec3f& v) const noexcept
 	{
 		return x <= v.x && y <= v.y && z <= v.z;
 	}
 
 	/// Addition operator.
-	inline vec3f operator + (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f operator + (const vec3f& v) const noexcept
 	{
 		return _mm_add_ps(data, v.data);
 	}
 
 	/// Addition operator that first builds a vec3f.
-	inline vec3f operator + (const float s) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f operator + (const float s) const noexcept
 	{
 		return _mm_add_ps(data, _mm_set1_ps(s));
 	}
 
 	/// Addition operator that first builds a vec3f (from the left).
 	inline friend vec3f operator + (const float s, const vec3f& v) 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return _mm_add_ps(_mm_set1_ps(s), v.data);
 	}
 
 	/// "Take the negative" operator.
-	inline vec3f operator -() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f operator -() const noexcept
 	{
 		return _mm_mul_ps(_mm_set1_ps(-1.0f), data);
 	}
 
 	/// Subtraction operator.
-	inline vec3f operator - (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f operator - (const vec3f& v) const noexcept
 	{
 		return _mm_sub_ps(data, v.data);
 	}
 
 	/// Subtraction operator that first builds a vec3f.
-	inline vec3f operator - (const float s) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f operator - (const float s) const noexcept
 	{
 		return _mm_sub_ps(data, _mm_set1_ps(s));
 	}
 
 	/// Subtraction operator that first builds a vec3f (from the left).
 	inline friend vec3f operator - (const float s, const vec3f& v) 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return _mm_sub_ps(_mm_set1_ps(s), v.data);
 	}
 
 	/// Pointwise-multiplication operator.
-	inline vec3f operator * (const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f operator * (const vec3f& v) const noexcept
 	{
 		return _mm_mul_ps(data, v.data);
 	}
 
 	/// Pointwise-multiplication operator.
-	inline vec3f operator * (const float s) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f operator * (const float s) const noexcept
 	{
 		return _mm_mul_ps(data, _mm_load1_ps(&s));
 	}
 
 	/// Pointwise-multiplication operator (from the left).
 	friend vec3f operator * (const float lhs, const vec3f& rhs) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/// Division by scalar operator.
-	inline vec3f operator / (float s) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f operator / (float s) const noexcept
 	{
 		s = 1.0f / s;
 		return operator*(s);
@@ -302,7 +302,7 @@ public:
 
 	/// The dot product (also called inner product).
 	inline friend float dot(const vec3f& lhs, const vec3f& rhs) 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		#if GINTONIC_SSE_VERSION >= 41
 
@@ -337,39 +337,39 @@ public:
 	}
 
 	/// Get the squared length.
-	inline float length2() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline float length2() const noexcept
 	{
 		return dot(*this, *this);
 	}
 
 	/// Get the length.
-	inline float length() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline float length() const noexcept
 	{
 		return std::sqrt(length2());
 	}
 
 	/// Normalize this vec3f to unit length.
-	inline vec3f& normalize() BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f& normalize() noexcept
 	{
 		return operator/=(length());
 	}
 
 	/// Pointwise convert radians to degrees.
 	inline friend vec3f deg2rad(const vec3f& degrees) 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return _mm_mul_ps(degrees.data, _mm_set1_ps(0.0174532925f));
 	}
 
 	/// Pointwise convert degrees to radians.
 	inline friend vec3f rad2deg(const vec3f& radians) 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return _mm_mul_ps(radians.data, _mm_set1_ps(57.2957795f));
 	}
 
 	/// Convert a vec3f to an FbxVector4 with a static_cast.
-	operator FBX::FbxVector4() const BOOST_NOEXCEPT_OR_NOTHROW;
+	operator FBX::FbxVector4() const noexcept;
 
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
@@ -394,7 +394,7 @@ private:
 //!@cond
 // Implementation needs to be outside the class for MSVC.
 inline vec3f operator * (const float lhs, const vec3f& rhs) 
-	BOOST_NOEXCEPT_OR_NOTHROW
+	noexcept
 {
 	return _mm_mul_ps(_mm_load1_ps(&lhs), rhs.data);
 }
@@ -402,21 +402,21 @@ inline vec3f operator * (const float lhs, const vec3f& rhs)
 
 /// Get the squared distance between two vectors.
 inline float distance2(const vec3f& u, const vec3f& v) 
-	BOOST_NOEXCEPT_OR_NOTHROW
+	noexcept
 {
 	return (u-v).length2();
 }
 
 /// Get the distance between two vectors.
 inline float distance(const vec3f& u, const vec3f& v) 
-	BOOST_NOEXCEPT_OR_NOTHROW
+	noexcept
 {
 	return (u-v).length();
 }
 
 /// Mix two vectors.
 inline vec3f mix(const vec3f& u, const vec3f& v, const float a) 
-	BOOST_NOEXCEPT_OR_NOTHROW
+	noexcept
 {
 	return (1.0f - a) * u + a * v;
 }
@@ -430,7 +430,7 @@ inline vec3f mix(const vec3f& u, const vec3f& v, const float a)
  * 
  * @return `dot(u,v) * v`
  */
-inline vec3f project(const vec3f& u, const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
+inline vec3f project(const vec3f& u, const vec3f& v) noexcept
 {
 	return dot(u,v) * v;
 }
@@ -444,7 +444,7 @@ inline vec3f project(const vec3f& u, const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
  * 
  * @return `u - project(u, v)`
  */
-inline vec3f reject(const vec3f& u, const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
+inline vec3f reject(const vec3f& u, const vec3f& v) noexcept
 {
 	return u - project(u, v);
 }
@@ -458,21 +458,21 @@ inline vec3f reject(const vec3f& u, const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
  * 
  * @return `2.0f * project(u,v) - v`
  */
-inline vec3f reflect(const vec3f& u, const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
+inline vec3f reflect(const vec3f& u, const vec3f& v) noexcept
 {
 	return 2.0f * project(u,v) - v;
 }
 
 /// Output stream support for vectors.
 inline std::ostream& operator << (std::ostream& os, const vec3f& v) 
-	BOOST_NOEXCEPT_OR_NOTHROW
+	noexcept
 {
 	return os << v.x << ' ' << v.y << ' ' << v.z;
 }
 
 /// Input stream support for vectors.
 inline std::istream& operator >> (std::istream& is, vec3f& v) 
-	BOOST_NOEXCEPT_OR_NOTHROW
+	noexcept
 {
 	is >> v.x >> v.y >> v.z;
 	return is;

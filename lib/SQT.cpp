@@ -2,7 +2,7 @@
 
 namespace gintonic {
 
-SQT SQT::operator % (const SQT& other) const BOOST_NOEXCEPT_OR_NOTHROW
+SQT SQT::operator % (const SQT& other) const noexcept
 {
 	return SQT(
 		scale * other.scale, 
@@ -10,7 +10,7 @@ SQT SQT::operator % (const SQT& other) const BOOST_NOEXCEPT_OR_NOTHROW
 		translation + other.translation);
 }
 
-SQT& SQT::operator %= (const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW
+SQT& SQT::operator %= (const SQT& other) noexcept
 {
 	scale *= other.scale;
 	rotation *= other.rotation;
@@ -18,7 +18,7 @@ SQT& SQT::operator %= (const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW
 	return *this;
 }
 
-SQT SQT::inverse() const BOOST_NOEXCEPT_OR_NOTHROW
+SQT SQT::inverse() const noexcept
 {
 	return SQT(
 		vec3f(1.0f / scale.x, 1.0f / scale.y, 1.0f / scale.z),
@@ -26,7 +26,7 @@ SQT SQT::inverse() const BOOST_NOEXCEPT_OR_NOTHROW
 		-translation);
 }
 
-SQT& SQT::invert() BOOST_NOEXCEPT_OR_NOTHROW
+SQT& SQT::invert() noexcept
 {
 	scale.x = 1.0f / scale.x;
 	scale.y = 1.0f / scale.y;

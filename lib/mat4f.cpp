@@ -348,13 +348,13 @@ void mat4f::unproject_perspective(float& fieldofview, float& aspectratio, float&
 		// farplane = m(2,3) / (m(2,2) + T(1));
 }
 
-vec3f mat4f::apply_to_point(const vec3f& point) const BOOST_NOEXCEPT_OR_NOTHROW
+vec3f mat4f::apply_to_point(const vec3f& point) const noexcept
 {
 	const auto tmp = *this * vec4f(point, 1.0f);
 	return vec3f(tmp.x, tmp.y, tmp.z);
 }
 
-vec3f mat4f::apply_to_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW
+vec3f mat4f::apply_to_direction(const vec3f& direction) const noexcept
 {
 	const auto tmp = *this * vec4f(direction, 0.0f);
 	return vec3f(tmp.x, tmp.y, tmp.z);

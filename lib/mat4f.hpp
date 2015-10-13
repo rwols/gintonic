@@ -80,13 +80,13 @@ public:
 	};
 
 	/// Get a raw value pointer.
-	inline float* value_ptr() BOOST_NOEXCEPT_OR_NOTHROW
+	inline float* value_ptr() noexcept
 	{
 		return &m00;
 	}
 
 	/// Get a raw value pointer, const version.
-	inline const float* value_ptr() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const float* value_ptr() const noexcept
 	{
 		return &m00;
 	}
@@ -202,7 +202,7 @@ public:
 	mat4f& operator *= (const mat4f& other);
 
 	/// Addition operator.
-	inline mat4f operator + (const mat4f& other) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline mat4f operator + (const mat4f& other) const noexcept
 	{
 		return mat4f(
 			_mm_add_ps(data[0], other.data[0]), 
@@ -212,13 +212,13 @@ public:
 	}
 
 	/// Addition operator that first builds a diagonal matrix.
-	inline mat4f operator + (const float s) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline mat4f operator + (const float s) const noexcept
 	{
 		return *this + mat4f(s);
 	}
 
 	/// Subtraction operator.
-	inline mat4f operator - (const mat4f& other) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline mat4f operator - (const mat4f& other) const noexcept
 	{
 		return mat4f(
 			_mm_sub_ps(data[0], other.data[0]), 
@@ -228,7 +228,7 @@ public:
 	}
 
 	/// Subtraction operator that first builds a diagonal matrix.
-	inline mat4f operator - (const float s) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline mat4f operator - (const float s) const noexcept
 	{
 		return *this - mat4f(s);
 	}
@@ -240,7 +240,7 @@ public:
 	mat4f operator * (const mat4f& other) const;
 
 	/// Scalar multiplication operator.
-	inline mat4f operator * (const float s) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline mat4f operator * (const float s) const noexcept
 	{
 		const auto tmp = _mm_set1_ps(s);
 		return mat4f(
@@ -251,7 +251,7 @@ public:
 	}
 
 	/// Scalar multiplication operator (from the left).
-	inline friend mat4f operator * (const float s, const mat4f& m) BOOST_NOEXCEPT_OR_NOTHROW
+	inline friend mat4f operator * (const float s, const mat4f& m) noexcept
 	{
 		const auto tmp = _mm_set1_ps(s);
 		return mat4f(
@@ -262,7 +262,7 @@ public:
 	}
 
 	/// Transpose this matrix.
-	inline mat4f& transpose() BOOST_NOEXCEPT_OR_NOTHROW
+	inline mat4f& transpose() noexcept
 	{
 		std::swap(m01, m10);
 		std::swap(m02, m20);
@@ -274,10 +274,10 @@ public:
 	}
 
 	/// Assuming this is an affine matrix, apply this matrix to a point.
-	vec3f apply_to_point(const vec3f& point) const BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f apply_to_point(const vec3f& point) const noexcept;
 
 	/// Assuming this is an affine matrix, apply this matrix to a direction.
-	vec3f apply_to_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW;
+	vec3f apply_to_direction(const vec3f& direction) const noexcept;
 
 	/// Get the upper-left three by three submatrix.
 	mat3f upper_left_33() const;

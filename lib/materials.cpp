@@ -365,7 +365,7 @@ material::material(const FbxSurfaceMaterial* fbxmat)
 	s_textures_lock.release();
 }
 
-material::~material() BOOST_NOEXCEPT_OR_NOTHROW
+material::~material() noexcept
 {
 	s_textures_lock.obtain();
 	unsafe_release_texture(m_diffuse_tex);
@@ -392,7 +392,7 @@ material::material(const material& other)
 	std::cout << "material::material(const material&): num textures: " << s_textures.size() << '\n';
 }
 
-material::material(material&& other) BOOST_NOEXCEPT_OR_NOTHROW
+material::material(material&& other) noexcept
 : component(std::move(other))
 , diffuse_color(std::move(other.diffuse_color))
 , specular_color(std::move(other.specular_color))
@@ -430,7 +430,7 @@ material& material::operator = (const material& other)
 	return *this;
 }
 
-material& material::operator = (material&& other) BOOST_NOEXCEPT_OR_NOTHROW
+material& material::operator = (material&& other) noexcept
 {
 	std::cout << "material::operator=(material&&): num textures: " << s_textures.size() << '\n';
 	component::operator=(std::move(other));
@@ -472,7 +472,7 @@ void material::detach(entity& e)
 	}
 }
 
-void material::bind(const bool instanced) const BOOST_NOEXCEPT_OR_NOTHROW
+void material::bind(const bool instanced) const noexcept
 {
 	s_textures_lock.obtain();
 	if (instanced)
@@ -702,7 +702,7 @@ void material::bind(const bool instanced) const BOOST_NOEXCEPT_OR_NOTHROW
 	s_textures_lock.release();
 }
 
-bool material::has_diffuse_texture() const BOOST_NOEXCEPT_OR_NOTHROW
+bool material::has_diffuse_texture() const noexcept
 {
 	s_textures_lock.obtain();
 	bool result = (m_diffuse_tex != s_textures.end());
@@ -710,7 +710,7 @@ bool material::has_diffuse_texture() const BOOST_NOEXCEPT_OR_NOTHROW
 	return result;
 }
 
-bool material::has_specular_texture() const BOOST_NOEXCEPT_OR_NOTHROW
+bool material::has_specular_texture() const noexcept
 {
 	s_textures_lock.obtain();
 	bool result = (m_specular_tex != s_textures.end());
@@ -718,7 +718,7 @@ bool material::has_specular_texture() const BOOST_NOEXCEPT_OR_NOTHROW
 	return result;
 }
 
-bool material::has_normal_texture() const BOOST_NOEXCEPT_OR_NOTHROW
+bool material::has_normal_texture() const noexcept
 {
 	s_textures_lock.obtain();
 	bool result = (m_normal_tex != s_textures.end());
@@ -727,19 +727,19 @@ bool material::has_normal_texture() const BOOST_NOEXCEPT_OR_NOTHROW
 }
 
 const opengl::texture2d& material::diffuse_texture() const 
-BOOST_NOEXCEPT_OR_NOTHROW
+noexcept
 {
 	return std::get<2>(*m_diffuse_tex);
 }
 
 const opengl::texture2d& material::specular_texture() const 
-BOOST_NOEXCEPT_OR_NOTHROW
+noexcept
 {
 	return std::get<2>(*m_specular_tex);
 }
 
 const opengl::texture2d& material::normal_texture() const 
-BOOST_NOEXCEPT_OR_NOTHROW
+noexcept
 {
 	return std::get<2>(*m_normal_tex);
 }

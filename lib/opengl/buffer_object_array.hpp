@@ -30,7 +30,7 @@ public:
 	}
 
 	/// Destructor.
-	inline ~buffer_object_array() BOOST_NOEXCEPT_OR_NOTHROW
+	inline ~buffer_object_array() noexcept
 	{
 		glDeleteBuffers(Size, m_handles);
 	}
@@ -54,7 +54,7 @@ public:
 	 * @return The underlying OpenGL handle at the specified index.
 	 */
 	inline GLuint operator[](const GLuint index) const 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return m_handles[index]; 
 	}

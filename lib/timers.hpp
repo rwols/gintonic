@@ -30,10 +30,10 @@ public:
 	 * 
 	 * @param time_left Specifies the timing interval.
 	 */
-	timer(const duration_type& time_left) BOOST_NOEXCEPT_OR_NOTHROW;
+	timer(const duration_type& time_left) noexcept;
 
 	/// Destructor.
-	virtual ~timer() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~timer() noexcept;
 	
 	/**
 	 * @brief Update the timer with the given delta time from the renderer.
@@ -42,13 +42,13 @@ public:
 	 * renderer::delta_time() unless you have a specific reason not to.
 	 */
 	virtual void update(const duration_type& delta_time) 
-		BOOST_NOEXCEPT_OR_NOTHROW = 0;
+		noexcept = 0;
 
 	/**
 	 * @brief Get the current time left before the event fires.
 	 * @return The time left before the timer event fires.
 	 */
-	inline const duration_type& time_left() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const duration_type& time_left() const noexcept
 	{
 		return m_time_left;
 	}
@@ -57,7 +57,7 @@ public:
 	 * @brief Check wether this timer is expired.
 	 * @return True if the timer is expired, false if not.
 	 */
-	inline bool expired() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline bool expired() const noexcept
 	{
 		return m_expired;
 	}
@@ -65,14 +65,14 @@ public:
 	/**
 	 * @brief Explicitly set this timer to be expired.
 	 */
-	inline void set_expired() BOOST_NOEXCEPT_OR_NOTHROW { m_expired = true; }
+	inline void set_expired() noexcept { m_expired = true; }
 	
 	/**
 	 * @brief Reset the timer with a new firing timing interval.
 	 * @param time_left The event fire interval.
 	 */
 	virtual void reset(const duration_type& time_left)
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/// The event that fires periodically.
 	boost::signals2::signal<void(timer*)> action;
@@ -87,7 +87,7 @@ public:
 	 * renderer::delta_time() unless you have a specific reason not to.
 	 */
 	static void update_all(const duration_type& delta_time) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Add a new timer to the global timer container.
@@ -130,10 +130,10 @@ public:
 	one_shot_timer(const duration_type& time_left);
 
 	/// Destructor.
-	virtual ~one_shot_timer() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~one_shot_timer() noexcept;
 
 	virtual void update(const duration_type& dt) 
-		BOOST_NOEXCEPT_OR_NOTHROW final;
+		noexcept final;
 };
 
 /**
@@ -151,13 +151,13 @@ public:
 	loop_timer(const duration_type& time_left);
 
 	/// Destructor.
-	virtual ~loop_timer() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~loop_timer() noexcept;
 
 	virtual void update(const duration_type& dt) 
-		BOOST_NOEXCEPT_OR_NOTHROW final;
+		noexcept final;
 
 	virtual void reset(const duration_type& time_left) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 		
 private:
 	duration_type m_original_duration;

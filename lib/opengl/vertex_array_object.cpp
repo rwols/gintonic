@@ -10,7 +10,7 @@ vertex_array_object::vertex_array_object() : m_handle(0)
 }
 
 vertex_array_object& vertex_array_object::operator = (vertex_array_object&& other)
-	BOOST_NOEXCEPT_OR_NOTHROW
+	noexcept
 {
 	glDeleteVertexArrays(1, &m_handle);
 	m_handle = other.m_handle;

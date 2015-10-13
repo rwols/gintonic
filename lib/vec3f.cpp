@@ -7,7 +7,7 @@
 
 namespace gintonic {
 
-vec3f::vec3f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
+vec3f::vec3f(std::initializer_list<float> init) noexcept
 {
 	GINTONIC_ALIGNED(16) float temp[3];
 	std::copy(init.begin(), init.end(), temp);
@@ -17,19 +17,19 @@ vec3f::vec3f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
 	dummy = 0.0f;
 }
 
-vec3f::vec3f(const vec2f& v, const float z) BOOST_NOEXCEPT_OR_NOTHROW
+vec3f::vec3f(const vec2f& v, const float z) noexcept
 : x(v.x), y(v.y), z(z), dummy(0.0f)
 {
 	/* Empty on purpose. */
 }
 
-vec3f::vec3f(const quatf& q) BOOST_NOEXCEPT_OR_NOTHROW
+vec3f::vec3f(const quatf& q) noexcept
 : x(q.x), y(q.y), z(q.z), dummy(0.0f)
 {
 	/* Empty on purpose. */
 }
 
-vec3f::vec3f(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
+vec3f::vec3f(const FBX::FbxVector4& v) noexcept
 : x(static_cast<float>(v[0]))
 , y(static_cast<float>(v[1]))
 , z(static_cast<float>(v[2]))
@@ -38,7 +38,7 @@ vec3f::vec3f(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-vec3f& vec3f::operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
+vec3f& vec3f::operator=(std::initializer_list<float> init) noexcept
 {
 	GINTONIC_ALIGNED(16) float temp[3];
 	std::copy(init.begin(), init.end(), temp);
@@ -49,7 +49,7 @@ vec3f& vec3f::operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOT
 	return *this;
 }
 
-vec3f& vec3f::operator=(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
+vec3f& vec3f::operator=(const FBX::FbxVector4& v) noexcept
 {
 	x = static_cast<float>(v[0]);
 	y = static_cast<float>(v[1]);
@@ -58,7 +58,7 @@ vec3f& vec3f::operator=(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
 	return *this;
 }
 
-vec3f::operator FBX::FbxVector4() const BOOST_NOEXCEPT_OR_NOTHROW
+vec3f::operator FBX::FbxVector4() const noexcept
 {
 	return FBX::FbxVector4(x, y, z, 0.0);
 }

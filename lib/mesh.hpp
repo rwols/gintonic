@@ -46,7 +46,7 @@ public:
 	/**
 	 * @brief Draw the mesh.
 	 */
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+	virtual void draw() const noexcept = 0;
 
 	/**
 	 * @brief Draw the mesh instanced.
@@ -64,10 +64,10 @@ public:
 		const std::vector<mat3f, allocator<mat3f>>& N_matrices);
 
 	/// The type of the mesh.
-	inline mesh_type type() const BOOST_NOEXCEPT_OR_NOTHROW { return m_type; }
+	inline mesh_type type() const noexcept { return m_type; }
 
 	/// Destructor.
-	virtual ~mesh() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~mesh() noexcept;
 
 	/**
 	 * @brief An additional vector class that doesn't use SSE types.
@@ -91,10 +91,10 @@ public:
 		vec2f(const GLfloat x, const GLfloat y);
 
 		/// Equality comparison operator.
-		bool operator == (const vec2f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+		bool operator == (const vec2f&) const noexcept;
 
 		/// Inequality comparison operator.
-		bool operator != (const vec2f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+		bool operator != (const vec2f&) const noexcept;
 
 		/**
 		 * @brief Enables this vector type in the current OpenGL array buffer.
@@ -105,7 +105,7 @@ public:
 		 * 
 		 * @param index The index.
 		 */
-		static void enable_attribute(const GLuint index) BOOST_NOEXCEPT_OR_NOTHROW;
+		static void enable_attribute(const GLuint index) noexcept;
 	};
 
 	/**
@@ -139,10 +139,10 @@ public:
 		vec3f(const GLfloat x, const GLfloat y, const GLfloat z);
 
 		/// Equality comparison operator.
-		bool operator == (const vec3f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+		bool operator == (const vec3f&) const noexcept;
 
 		/// Inequality comparison operator.
-		bool operator != (const vec3f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+		bool operator != (const vec3f&) const noexcept;
 
 		/**
 		 * @brief Enables this vector type in the current OpenGL array buffer.
@@ -153,7 +153,7 @@ public:
 		 * 
 		 * @param index The index.
 		 */
-		static void enable_attribute(const GLuint index) BOOST_NOEXCEPT_OR_NOTHROW;
+		static void enable_attribute(const GLuint index) noexcept;
 	};
 
 	/**
@@ -184,10 +184,10 @@ public:
 		vec4f(const GLfloat x, const GLfloat y, const GLfloat z, const GLfloat w);
 
 		/// Equality comparison operator.
-		bool operator == (const vec4f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+		bool operator == (const vec4f&) const noexcept;
 	
 		/// Inequality comparison operator.
-		bool operator != (const vec4f&) const BOOST_NOEXCEPT_OR_NOTHROW;
+		bool operator != (const vec4f&) const noexcept;
 
 		/**
 		 * @brief Enables this vector type in the current OpenGL array buffer.
@@ -198,7 +198,7 @@ public:
 		 * 
 		 * @param index The index.
 		 */
-		static void enable_attribute(const GLuint index) BOOST_NOEXCEPT_OR_NOTHROW;
+		static void enable_attribute(const GLuint index) noexcept;
 	};
 
 protected:

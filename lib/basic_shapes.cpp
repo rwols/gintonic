@@ -35,7 +35,7 @@ unit_quad_P::unit_quad_P() : mesh(mesh::kStaticMesh)
 	glBindVertexArray(0);
 }
 
-void unit_quad_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_quad_P::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -67,7 +67,7 @@ unit_quad_PN::unit_quad_PN() : mesh(mesh::kStaticMesh)
 	glBindVertexArray(0);
 }
 
-void unit_quad_PN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_quad_PN::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -125,7 +125,7 @@ const vec3f& color_bottomleft, const vec3f& color_bottomright)
 
 unit_quad_PC::~unit_quad_PC() {}
 
-void unit_quad_PC::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_quad_PC::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -159,7 +159,7 @@ unit_quad_PU::unit_quad_PU() : mesh(mesh::kStaticMesh)
 
 unit_quad_PU::~unit_quad_PU() {}
 
-void unit_quad_PU::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_quad_PU::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -200,7 +200,7 @@ unit_cube_P::~unit_cube_P()
 
 }
 
-void unit_cube_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_cube_P::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -239,7 +239,7 @@ unit_cube_P_flipped::~unit_cube_P_flipped()
 
 }
 
-void unit_cube_P_flipped::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_cube_P_flipped::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -320,7 +320,7 @@ unit_cube_PU::~unit_cube_PU()
 
 }
 
-void unit_cube_PU::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_cube_PU::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -440,7 +440,7 @@ unit_cube_PUN::~unit_cube_PUN()
 
 }
 
-void unit_cube_PUN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_cube_PUN::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
@@ -556,7 +556,7 @@ unit_cube_PUN_flipped_normals::~unit_cube_PUN_flipped_normals()
 
 }
 
-void unit_cube_PUN_flipped_normals::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_cube_PUN_flipped_normals::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
@@ -706,7 +706,7 @@ unit_cube_PUNTB::unit_cube_PUNTB() : mesh(mesh::kStaticMesh)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
 }
 
-void unit_cube_PUNTB::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_cube_PUNTB::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
@@ -861,7 +861,7 @@ unit_cube_PUNTB_flipped_normals::unit_cube_PUNTB_flipped_normals() : mesh(mesh::
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
 }
 
-void unit_cube_PUNTB_flipped_normals::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_cube_PUNTB_flipped_normals::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
@@ -911,7 +911,7 @@ unit_sphere_P::unit_sphere_P(const unsigned short stacks, const unsigned short s
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 }
 
-void unit_sphere_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_sphere_P::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -973,7 +973,7 @@ unit_sphere_PU::~unit_sphere_PU()
 
 }
 
-void unit_sphere_PU::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_sphere_PU::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -989,7 +989,7 @@ struct sphere_face
 		const float s, 
 		const float t, 
 		gintonic::vec3f& pos, 
-		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+		gintonic::vec2f& uv) const noexcept = 0;
 };
 
 struct sphere_front_face : public sphere_face
@@ -999,7 +999,7 @@ struct sphere_front_face : public sphere_face
 		const float s, 
 		const float t, 
 		gintonic::vec3f& pos, 
-		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec2f& uv) const noexcept final
 	{
 		pos.x = 2.0f * s - 1.0f;
 		pos.y = 2.0f * t - 1.0f;
@@ -1017,7 +1017,7 @@ struct sphere_back_face : public sphere_face
 		const float s, 
 		const float t, 
 		gintonic::vec3f& pos, 
-		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec2f& uv) const noexcept final
 	{
 		pos.x = 2.0f * s - 1.0f;
 		pos.y = -(2.0f * t - 1.0f);
@@ -1035,7 +1035,7 @@ struct sphere_top_face : public sphere_face
 		const float s, 
 		const float t, 
 		gintonic::vec3f& pos, 
-		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec2f& uv) const noexcept final
 	{
 		pos.x = 2.0f * s - 1.0f;
 		pos.y = 1.0f;
@@ -1053,7 +1053,7 @@ struct sphere_bottom_face : public sphere_face
 		const float s, 
 		const float t, 
 		gintonic::vec3f& pos, 
-		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec2f& uv) const noexcept final
 	{
 		pos.x = 2.0f * s - 1.0f;
 		pos.y = -1.0f;
@@ -1071,7 +1071,7 @@ struct sphere_left_face : public sphere_face
 		const float s, 
 		const float t, 
 		gintonic::vec3f& pos, 
-		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec2f& uv) const noexcept final
 	{
 		pos.x = -1.0f;
 		pos.y = 2.0f * s - 1.0f;
@@ -1089,7 +1089,7 @@ struct sphere_right_face : public sphere_face
 		const float s, 
 		const float t, 
 		gintonic::vec3f& pos, 
-		gintonic::vec2f& uv) const BOOST_NOEXCEPT_OR_NOTHROW final
+		gintonic::vec2f& uv) const noexcept final
 	{
 		pos.x = 1.0f;
 		pos.y = 2.0f * s - 1.0f;
@@ -1193,7 +1193,7 @@ unit_sphere_PUN::~unit_sphere_PUN()
 
 }
 
-void unit_sphere_PUN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_sphere_PUN::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, nullptr);
@@ -1237,7 +1237,7 @@ unit_cone_P::~unit_cone_P()
 	/* Empty on purpose. */
 }
 
-void unit_cone_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_cone_P::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertices);
@@ -1311,7 +1311,7 @@ unit_cone_PN::~unit_cone_PN()
 	/* Empty on purpose. */
 }
 
-void unit_cone_PN::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_cone_PN::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
@@ -1369,7 +1369,7 @@ unit_cylinder_P::~unit_cylinder_P()
 
 }
 
-void unit_cylinder_P::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void unit_cylinder_P::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertices);

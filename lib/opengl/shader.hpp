@@ -42,10 +42,10 @@ public:
 	shader(const source_code& source);
 
 	/// Destructor.
-	inline ~shader() BOOST_NOEXCEPT_OR_NOTHROW { glDeleteShader(m_handle); }
+	inline ~shader() noexcept { glDeleteShader(m_handle); }
 
 	/// Get the underlying OpenGL handle via a static_cast.
-	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline operator GLuint() const noexcept
 	{
 		return m_handle;
 	}

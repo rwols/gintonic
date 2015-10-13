@@ -53,7 +53,7 @@ public:
 	 * 
 	 * @see skybox_shader
 	 */
-	void draw() const BOOST_NOEXCEPT_OR_NOTHROW;
+	void draw() const noexcept;
 
 private:
 

@@ -23,7 +23,7 @@ private:
 public:
 
 	/// Get the underlying OpenGL handle with a static_cast.
-	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline operator GLuint() const noexcept
 	{
 		return m_handle;
 	}
@@ -32,7 +32,7 @@ public:
 	vertex_array_object();
 
 	/// Destructor.
-	inline ~vertex_array_object() BOOST_NOEXCEPT_OR_NOTHROW
+	inline ~vertex_array_object() noexcept
 	{
 		glDeleteVertexArrays(1, &m_handle);
 	}
@@ -42,7 +42,7 @@ public:
 
 	/// Move constructor.
 	inline vertex_array_object(vertex_array_object&& other)
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	: m_handle(other.m_handle)
 	{
 		other.m_handle = 0;
@@ -53,11 +53,11 @@ public:
 	
 	/// Move assignment operator.
 	vertex_array_object& operator = (vertex_array_object&& other)
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	// template <class VertexType>
 	// void setup(const GLuint array_buffer) const 
-	// 	BOOST_NOEXCEPT_OR_NOTHROW
+	// 	noexcept
 	// {
 	// 	glBindVertexArray(m_handle);
 	// 	glBindBuffer(GL_ARRAY_BUFFER, array_buffer);
@@ -66,7 +66,7 @@ public:
 
 	// template <class VertexType>
 	// void setup(const GLuint array_buffer, 
-	// 	const GLuint element_array_buffer) const BOOST_NOEXCEPT_OR_NOTHROW
+	// 	const GLuint element_array_buffer) const noexcept
 	// {
 	// 	glBindVertexArray(m_handle);
 	// 	glBindBuffer(GL_ARRAY_BUFFER, array_buffer);

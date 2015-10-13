@@ -67,7 +67,7 @@ struct SQT
 	 * @param other Another SQT.
 	 * @return The added SQT.
 	 */
-	SQT operator % (const SQT& other) const BOOST_NOEXCEPT_OR_NOTHROW;
+	SQT operator % (const SQT& other) const noexcept;
 
 	/**
 	 * @brief Add an SQT to this SQT.
@@ -78,7 +78,7 @@ struct SQT
 	 * 
 	 * @param other Another SQT.
 	 */
-	SQT& operator %= (const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW;
+	SQT& operator %= (const SQT& other) noexcept;
 
 	/**
 	 * @brief Get the inverse of this SQT.
@@ -87,7 +87,7 @@ struct SQT
 	 * is taken. Observe then, if `sqt` is an SQT, then `sqt.inverse() % sqt == SQT();`
 	 * @return The inverse.
 	 */
-	SQT inverse() const BOOST_NOEXCEPT_OR_NOTHROW;
+	SQT inverse() const noexcept;
 
 	/**
 	 * @brief Make this SQT the inverse of itself.
@@ -96,7 +96,7 @@ struct SQT
 	 * is taken.
 	 * @return This.
 	 */
-	SQT& invert() BOOST_NOEXCEPT_OR_NOTHROW;
+	SQT& invert() noexcept;
 
 	/**
 	 * @brief Make this SQT look at another SQT.
@@ -107,7 +107,7 @@ struct SQT
 	 * 
 	 * @param other The SQT to look at.
 	 */
-	inline void look_at(const SQT& other) BOOST_NOEXCEPT_OR_NOTHROW
+	inline void look_at(const SQT& other) noexcept
 	{
 		rotation = quatf::look_at(translation, other.translation, vec3f(0.0f, 1.0f, 0.0f));
 	}
@@ -121,7 +121,7 @@ struct SQT
 	 * 
 	 * @param amount The amount of movement to apply.
 	 */
-	inline void move_forward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	inline void move_forward(const float amount) noexcept
 	{
 		translation += amount * rotation.forward_direction();
 	}
@@ -136,7 +136,7 @@ struct SQT
 	 * 
 	 * @param amount The amount of movement to apply.
 	 */
-	inline void move_backward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	inline void move_backward(const float amount) noexcept
 	{
 		translation -= amount * rotation.forward_direction();
 	}
@@ -150,7 +150,7 @@ struct SQT
 	 * 
 	 * @param amount The amount of movement to apply.
 	 */
-	inline void move_right(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	inline void move_right(const float amount) noexcept
 	{
 		translation += amount * rotation.right_direction();
 	}
@@ -165,7 +165,7 @@ struct SQT
 	 * 
 	 * @param amount The amount of movement to apply.
 	 */
-	inline void move_left(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	inline void move_left(const float amount) noexcept
 	{
 		translation -= amount * rotation.right_direction();
 	}
@@ -179,7 +179,7 @@ struct SQT
 	 * 
 	 * @param amount The amount of movement to apply.
 	 */
-	inline void move_up(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	inline void move_up(const float amount) noexcept
 	{
 		translation += amount * rotation.up_direction();
 	}
@@ -194,7 +194,7 @@ struct SQT
 	 * 
 	 * @param amount The amount of movement to apply.
 	 */
-	inline void move_down(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+	inline void move_down(const float amount) noexcept
 	{
 		translation -= amount * rotation.up_direction();
 	}
@@ -205,7 +205,7 @@ struct SQT
 	 * @param delta The vector of angles.
 	 * @deprecated Don't use this method.
 	 */
-	inline void add_mousedelta(const vec2f& delta) BOOST_NOEXCEPT_OR_NOTHROW
+	inline void add_mousedelta(const vec2f& delta) noexcept
 	{
 		rotation.add_mousedelta(delta);
 	}
@@ -218,7 +218,7 @@ struct SQT
 	 * @param point A point.
 	 * @return The scaled, rotated and translated point.
 	 */
-	inline vec3f apply_to_point(const vec3f& point) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f apply_to_point(const vec3f& point) const noexcept
 	{
 		return rotation.apply_to(point) * scale + translation;
 	}
@@ -230,7 +230,7 @@ struct SQT
 	 * @param direction A direction.
 	 * @return The scaled and rotated direction.
 	 */
-	inline vec3f apply_to_direction(const vec3f& direction) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline vec3f apply_to_direction(const vec3f& direction) const noexcept
 	{
 		return rotation.apply_to(direction);
 	}
@@ -264,7 +264,7 @@ private:
  * @param b Another SQT.
  * @return The squared distance from a to b.
  */
-inline float distance2(const SQT& a, const SQT& b) BOOST_NOEXCEPT_OR_NOTHROW
+inline float distance2(const SQT& a, const SQT& b) noexcept
 {
 	return distance2(a.translation, b.translation);
 }
@@ -278,7 +278,7 @@ inline float distance2(const SQT& a, const SQT& b) BOOST_NOEXCEPT_OR_NOTHROW
  * @param b Another SQT.
  * @return The distance from a to b.
  */
-inline float distance(const SQT& a, const SQT& b) BOOST_NOEXCEPT_OR_NOTHROW
+inline float distance(const SQT& a, const SQT& b) noexcept
 {
 	return distance(a.translation, b.translation);
 }

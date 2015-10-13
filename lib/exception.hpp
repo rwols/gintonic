@@ -43,7 +43,7 @@ public:
 	exception(const exception& other) = default;
 
 	/// Move constructor.
-	exception(exception&&) BOOST_NOEXCEPT_OR_NOTHROW;
+	exception(exception&&) noexcept;
 
 	/// Copy assignment operator.
 	exception& operator=(const exception&) = default;
@@ -52,13 +52,13 @@ public:
 	exception& operator=(exception&&);
 
 	/// Destructor.
-	virtual ~exception() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~exception() noexcept;
 
 	/**
 	 * @brief Get the exception message.
 	 * @return The exception message.
 	 */
-	virtual const char* what() const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual const char* what() const noexcept;
 
 	/**
 	 * @brief Append a string to the exception message.

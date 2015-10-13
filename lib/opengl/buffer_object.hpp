@@ -25,7 +25,7 @@ private:
 public:
 	
 	/// You can access the underlying OpenGL handle via a static_cast.
-	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline operator GLuint() const noexcept
 	{
 		return m_handle;
 	}
@@ -84,7 +84,7 @@ public:
 	 * 
 	 * @param other Another buffer_object.
 	 */
-	inline buffer_object(buffer_object&& other) BOOST_NOEXCEPT_OR_NOTHROW 
+	inline buffer_object(buffer_object&& other) noexcept 
 	: m_handle(other.m_handle)
 	{
 		other.m_handle = 0;
@@ -114,14 +114,14 @@ public:
 	 * 
 	 * @return *this.
 	 */
-	buffer_object& operator=(buffer_object&& other) BOOST_NOEXCEPT_OR_NOTHROW;
+	buffer_object& operator=(buffer_object&& other) noexcept;
 
 	/**
 	 * @brief Destructor.
 	 * @details The destructor makes a call to the OpenGL API to delete the
 	 * contents of the buffer via the encapsulated handle.
 	 */
-	inline ~buffer_object() BOOST_NOEXCEPT_OR_NOTHROW
+	inline ~buffer_object() noexcept
 	{
 		glDeleteBuffers(1, &m_handle);
 	}

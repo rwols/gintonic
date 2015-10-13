@@ -68,7 +68,7 @@ public:
 	 * @brief Get the size of the vector.
 	 * @return The size of the vector.
 	 */
-	inline GLsizei size() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline GLsizei size() const noexcept
 	{
 		return m_count;
 	}
@@ -77,7 +77,7 @@ public:
 	 * @brief Get the number of reserved elements of the vector.
 	 * @return The number of reserved elements of the vector.
 	 */
-	inline GLsizei reserved() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline GLsizei reserved() const noexcept
 	{
 		return m_reserved;
 	}
@@ -86,7 +86,7 @@ public:
 	 * @brief Bind the vector.
 	 * @details the Target template parameter will be used for the target.
 	 */
-	inline void bind() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline void bind() const noexcept
 	{
 		glBindBuffer(Target, m_vbo);
 	}
@@ -118,7 +118,7 @@ public:
 	/**
 	 * @brief Clear this vector of all its elements.
 	 */
-	inline void clear() BOOST_NOEXCEPT_OR_NOTHROW
+	inline void clear() noexcept
 	{
 		m_count = 0;
 	}
@@ -182,7 +182,7 @@ public:
 	 * @param index The index into the array.
 	 * @return The size of the vector at the index location.
 	 */
-	inline GLsizei size(const GLuint index) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline GLsizei size(const GLuint index) const noexcept
 	{
 		return m_count[index];
 	}
@@ -194,7 +194,7 @@ public:
 	 * @return The reserved size of the vector at the index location.
 	 */
 	inline GLsizei reserved(const GLuint index) const 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return m_reserved[index];
 	}
@@ -204,7 +204,7 @@ public:
 	 * @details the Target template parameter will be used for the target.
 	 * @param index The index into the array of vectors.
 	 */
-	inline void bind(const GLuint index) const BOOST_NOEXCEPT_OR_NOTHROW
+	inline void bind(const GLuint index) const noexcept
 	{
 		glBindBuffer(Target, m_vbo[index]);
 	}
@@ -250,7 +250,7 @@ public:
 	 * 
 	 * @param index The index into the array of vectors.
 	 */
-	inline void clear(const GLuint index) BOOST_NOEXCEPT_OR_NOTHROW
+	inline void clear(const GLuint index) noexcept
 	{
 		m_count[index] = 0;
 	}
@@ -258,7 +258,7 @@ public:
 	/**
 	 * @brief Clear all vectors in the array of vectors.
 	 */
-	inline void clear_all() BOOST_NOEXCEPT_OR_NOTHROW
+	inline void clear_all() noexcept
 	{
 		for (GLuint i = 0; i < Size; ++i) m_count[i] = 0;
 	}
