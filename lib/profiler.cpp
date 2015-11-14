@@ -42,9 +42,9 @@ void profiler::write_log(const char* log_file)
 	}
 }
 
-std::map<std::string, std::list<std::chrono::high_resolution_clock::duration>> 
+std::map<std::string, std::forward_list<std::chrono::high_resolution_clock::duration>> 
 profiler::s_log = 
-std::map<std::string, std::list<std::chrono::high_resolution_clock::duration>>();
+std::map<std::string, std::forward_list<std::chrono::high_resolution_clock::duration>>();
 
 } // end of namespace detail
 } // end of namespace gintonic

@@ -35,7 +35,7 @@
  * of the function or method.
  */
 #define PROFILE_FUNCTION \
-::gintonic::detail::profiler __dont_touch_me__(__PRETTY_FUNCTION__);
+::gintonic::detail::profiler __dont_touch_me__(GINTONIC_FUNC_SIGNATURE);
 #else
 #define PROFILE_FUNCTION
 #endif
