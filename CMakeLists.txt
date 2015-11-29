@@ -87,6 +87,7 @@ include_directories(
 	${OPENGL_INCLUDE_DIRS}
 	${FBX_INCLUDE_DIR}
 	${CMAKE_BINARY_DIR} # For the config file
+	"lib/lua-5.3.1/src" # For Lua
 	)
 
 if (WIN32)
