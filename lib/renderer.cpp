@@ -88,6 +88,8 @@ namespace gintonic {
 	lp_point_shader* renderer::s_lp_point_shader = nullptr;
 	lp_spot_shader* renderer::s_lp_spot_shader = nullptr;
 
+	sp_directional_shader* renderer::s_sp_directional_shader = nullptr;
+
 	skybox_shader* renderer::s_skybox_shader = nullptr;
 
 	text_shader* renderer::s_text_shader = nullptr;
@@ -941,6 +943,16 @@ namespace gintonic {
 		catch (exception& e)
 		{
 			e.prepend(": Failed to load lp_spot_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_sp_directional_shader = new sp_directional_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load sp_directional_shader: ");
 			e.prepend(name());
 			throw;
 		}

@@ -16,6 +16,7 @@
 #endif
 #include "glad.hpp"
 #include <vector>
+#include <array>
 #include <boost/config.hpp>
 
 /*****************************************************************************

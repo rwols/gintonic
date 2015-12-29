@@ -10,14 +10,19 @@
 
 #include "component.hpp"
 #include "vec4f.hpp"
+#include "mat4f.hpp"
 #include "SQT.hpp"
+#include "opengl/framebuffer.hpp"
+#include "opengl/texture_object.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/base_object.hpp>
+#include <map>
 
 namespace gintonic {
 
 class entity; // Forward declaration.
+class proj_info; // Forward declaration.
 
 /**
  * @brief A light. Virtual base component for inheritance.
@@ -35,9 +40,9 @@ public:
 	 */
 	vec4f intensity;
 
-	virtual void attach(entity&) final;
+	virtual void attach(entity&);
 
-	virtual void detach(entity&) final;
+	virtual void detach(entity&);
 
 	/// Default constructor.
 	light() = default;
@@ -59,6 +64,16 @@ public:
 	 * @param e The entity to shine from.
 	 */
 	virtual void shine(const entity& e) const noexcept = 0;
+
+	virtual void begin_shadow_pass(const entity& light_ent)
+	{
+		/* Put me in a CPP file */
+	}
+
+	virtual void render_shadow(const entity& geometry) const noexcept
+	{
+		/* Put me in a CPP file */
+	}
 
 	/**
 	 * @brief Set the brightness, or intensity of the light.
@@ -217,6 +232,10 @@ public:
 	/// Destructor.
 	virtual ~directional_light() noexcept;
 
+	virtual void attach(entity&);
+
+	virtual void detach(entity&);
+
 	/*
 	 * @brief Shine the light given the entity's global transformation.
 	 *
@@ -229,6 +248,10 @@ public:
 	 */
 	virtual void shine(const entity& e) const noexcept;
 
+	virtual void begin_shadow_pass(const entity& light_ent);
+
+	virtual void render_shadow(const entity& geometry) const noexcept;
+
 	/// Stream output support for a directional light.
 	friend std::ostream& operator << (std::ostream&, const directional_light&);
 
@@ -237,6 +260,20 @@ public:
 	//!@endcond
 
 private:
+
+	typedef std::map
+	<
+		const entity*, 
+		std::pair
+		<
+			std::shared_ptr<opengl::framebuffer>,
+			std::shared_ptr<opengl::texture_object>
+		>
+	> shadow_map_map_type;
+
+	mat4f m_current_matrix_PV;
+
+	shadow_map_map_type m_shadow_maps;
 
 	// Reimplement this method to support output streams.
 	virtual std::ostream& pretty_print(std::ostream&) const 

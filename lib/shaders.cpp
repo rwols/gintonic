@@ -1049,6 +1049,20 @@ lp_spot_shader::lp_spot_shader(
 }
 
 /*****************************************************************************
+ * gintonic::sp_directional_shader                                           *
+ ****************************************************************************/
+
+sp_directional_shader::sp_directional_shader()
+: matrix_PVM_shader("../s/lp_pvm.vs", "../s/null.fs")
+{
+	/* Empty on purpose. */
+}
+sp_directional_shader::~sp_directional_shader() noexcept
+{
+	/* Empty on purpose. */
+}
+
+/*****************************************************************************
  * gintonic::skybox_shader                                                   *
  ****************************************************************************/
 

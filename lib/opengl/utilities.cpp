@@ -6,6 +6,9 @@
 #include "../mat3f.hpp"
 #include "../mat4f.hpp"
 
+namespace gintonic {
+namespace opengl {
+
 void set_uniform(const GLint location, const GLint value) noexcept
 {
 	glUniform1i(location, value);
@@ -57,3 +60,6 @@ void set_uniform(const GLint location,
 {
 	glUniform1iv(location, values.size(), values.data());
 }
+
+} // namespace opengl
+} // namespace gintonic

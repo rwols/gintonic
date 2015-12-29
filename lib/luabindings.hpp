@@ -1,11 +1,9 @@
 #ifndef luabindings_hpp
 #define luabindings_hpp
 
-#include "selene/selene.h"
+#include <lua.hpp>
 
 namespace gintonic {
-
-sel::State get_lua_state();
 
 void luatest();
 

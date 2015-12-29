@@ -1282,6 +1282,19 @@ private:
 };
 
 /**
+ * @brief Shadow pass shader for a directional light.
+ */
+class sp_directional_shader : public matrix_PVM_shader
+{
+public:
+	/// Default constructor.
+	sp_directional_shader();
+
+	/// Destructor.
+	virtual ~sp_directional_shader() noexcept;
+};
+
+/**
  * @brief Shader for a skybox.
  */
 class skybox_shader : public opengl::shader_program

@@ -50,6 +50,8 @@ class lp_directional_shader; // Forward declaration.
 class lp_point_shader; // Forward declaration.
 class lp_spot_shader; // Forward declaration.
 
+class sp_directional_shader; // Forward declaration.
+
 class skybox_shader; // Forward declaration.
 
 class text_shader; // Forward declaration.
@@ -813,6 +815,11 @@ public:
 		return *s_lp_spot_shader;
 	}
 
+	inline static const sp_directional_shader& get_sp_directional_shader() noexcept
+	{
+		return *s_sp_directional_shader;
+	}
+
 	/**
 	 * @brief Get lp_skybox_shader.
 	 * @return lp_skybox_shader.
@@ -956,6 +963,8 @@ private:
 	static lp_directional_shader* s_lp_directional_shader;
 	static lp_point_shader* s_lp_point_shader;
 	static lp_spot_shader* s_lp_spot_shader;
+
+	static sp_directional_shader* s_sp_directional_shader;
 
 	static skybox_shader* s_skybox_shader;
 

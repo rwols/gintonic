@@ -52,6 +52,9 @@ public:
 	{
 		return m_handle;
 	}
+
+	void check_status() const noexcept;
+	void check_status(bool& r) const noexcept;
 };
 
 } // namespace opengl

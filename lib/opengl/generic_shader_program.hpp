@@ -157,11 +157,11 @@ public:
 		const auto r = std::find_if(begin(), end(), finder(name));
 		if (r == end())
 		{
-			throw uniform_not_found_error(
-				name, 
+			throw uniform_not_found_error( 
 				m_vertexshader, 
 				m_geometryshader, 
-				m_fragmentshader);
+				m_fragmentshader,
+				name);
 		}
 		else set_uniform(r->location, std::forward<Type>(value));
 	}

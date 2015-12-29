@@ -45,9 +45,10 @@ if (WIN32)
 	# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 	# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
 else ()
-	add_definitions(-std=c++11)
-	add_definitions(-Wall)
-	add_definitions(-msse3)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -msse3")
+	# add_definitions(-std=c++11)
+	# add_definitions(-Wall)
+	# add_definitions(-msse3)
 
 	if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\$$ORIGIN" 
