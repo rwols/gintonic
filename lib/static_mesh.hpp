@@ -43,7 +43,7 @@ public:
 	/// Destructor.
 	virtual ~static_mesh();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 	virtual void draw(
 		const std::vector<mat4f, allocator<mat4f>>& PVM_matrices,

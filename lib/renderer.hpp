@@ -50,6 +50,8 @@ class lp_directional_shader; // Forward declaration.
 class lp_point_shader; // Forward declaration.
 class lp_spot_shader; // Forward declaration.
 
+class sp_directional_shader; // Forward declaration.
+
 class skybox_shader; // Forward declaration.
 
 class text_shader; // Forward declaration.
@@ -136,12 +138,12 @@ public:
 	 * @brief Check wether the renderer is initialized.
 	 * @return True if the renderer is initialized, false if not.
 	 */
-	static bool is_initialized() BOOST_NOEXCEPT_OR_NOTHROW;
+	static bool is_initialized() noexcept;
 
 	/**
 	 * @brief Focus the OpenGL context on the current thread.
 	 */
-	static void focus_context() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void focus_context() noexcept;
 
 	/**
 	 * @brief Show the window of the renderer.
@@ -154,12 +156,12 @@ public:
 	 * operate on OpenGL objects without an OpenGL context, and the renderer
 	 * provides such an OpenGL context.
 	 */
-	static void show() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void show() noexcept;
 
 	/**
 	 * @brief Hide the window of the renderer.
 	 */
-	static void hide() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void hide() noexcept;
 
 	/**
 	 * @brief Request to close the renderer.
@@ -170,13 +172,13 @@ public:
 	 * When renderer::should_close returns false, you can stop the render
 	 * loop.
 	 */
-	static void close() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void close() noexcept;
 
 	/**
 	 * @brief Check wether you should stop the render loop.
 	 * @return True if you should stop the render loop, false if not.
 	 */
-	static bool should_close() BOOST_NOEXCEPT_OR_NOTHROW;
+	static bool should_close() noexcept;
 
 	///@}
 	
@@ -192,7 +194,7 @@ public:
 	 * @brief Get the delta time between two frames.
 	 * @return The delta time between two frames.
 	 */
-	inline static duration_type delta_time() BOOST_NOEXCEPT_OR_NOTHROW 
+	inline static duration_type delta_time() noexcept 
 	{
 		return s_delta_time;
 	}
@@ -201,7 +203,7 @@ public:
 	 * @brief Get the elapsed time since the renderer initialized.
 	 * @return The elapsed time since the renderer initialized.
 	 */
-	inline static duration_type elapsed_time() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static duration_type elapsed_time() noexcept
 	{
 		return s_elapsed_time;
 	}
@@ -229,7 +231,7 @@ public:
 	 * @brief Get the current camera entity.
 	 * @return A reference to the current camera entity.
 	 */
-	inline static entity& camera() BOOST_NOEXCEPT_OR_NOTHROW 
+	inline static entity& camera() noexcept 
 	{ 
 		return *s_camera; 
 	}
@@ -238,7 +240,7 @@ public:
 	 * @brief Get the viewport width.
 	 * @return The viewport width.
 	 */
-	inline static int width() BOOST_NOEXCEPT_OR_NOTHROW 
+	inline static int width() noexcept 
 	{ 
 		return s_width; 
 	}
@@ -247,7 +249,7 @@ public:
 	 * @brief Get the viewport height.
 	 * @return The viewport height.
 	 */
-	inline static int height() BOOST_NOEXCEPT_OR_NOTHROW 
+	inline static int height() noexcept 
 	{ 
 		return s_height; 
 	}
@@ -257,7 +259,7 @@ public:
 	 * @details The aspect ratio is the width divided by the height.
 	 * @return The aspect ratio.
 	 */
-	inline static float aspectratio() BOOST_NOEXCEPT_OR_NOTHROW 
+	inline static float aspectratio() noexcept 
 	{ 
 		return s_aspectratio; 
 	}
@@ -266,7 +268,7 @@ public:
 	 * Get the viewport width and height as a vec2f.
 	 * @return The viewport width and height as a vec2f.
 	 */
-	static vec2f viewport_size() BOOST_NOEXCEPT_OR_NOTHROW;
+	static vec2f viewport_size() noexcept;
 
 	/**
 	 * @brief Resize the viewport.
@@ -282,7 +284,7 @@ public:
 	 * @brief Get the `VIEW->CLIP` matrix.
 	 * @return A constant reference to the `VIEW->CLIP` matrix.
 	 */
-	inline static const mat4f& matrix_P() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const mat4f& matrix_P() noexcept
 	{
 		update_matrix_P();
 		return s_matrix_P;
@@ -292,7 +294,7 @@ public:
 	 * @brief Get the `WORLD->VIEW` matrix.
 	 * @return A constant reference to the `WORLD->VIEW` matrix.
 	 */
-	inline static const mat4f& matrix_V() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const mat4f& matrix_V() noexcept
 	{
 		return s_matrix_V;
 	}
@@ -301,7 +303,7 @@ public:
 	 * @brief Get the `MODEL->WORLD` matrix.
 	 * @return A constant reference to the `MODEL->WORLD` matrix.
 	 */
-	inline static const mat4f& matrix_M() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const mat4f& matrix_M() noexcept
 	{
 		return s_matrix_M;
 	}
@@ -310,7 +312,7 @@ public:
 	 * @brief Get the `MODEL->VIEW` matrix.
 	 * @return A constant reference to the `MODEL->VIEW` matrix.
 	 */
-	inline static const mat4f& matrix_VM() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const mat4f& matrix_VM() noexcept
 	{
 		update_matrix_VM();
 		return s_matrix_VM;
@@ -320,7 +322,7 @@ public:
 	 * @brief Get `MODEL->CLIP` matrix.
 	 * @return A constant reference to the `MODEL->CLIP` matrix.
 	 */
-	inline static const mat4f& matrix_PVM() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const mat4f& matrix_PVM() noexcept
 	{
 		update_matrix_PVM();
 		return s_matrix_PVM;
@@ -330,7 +332,7 @@ public:
 	 * @brief Get the `NORMAL` matrix.
 	 * @return A constant reference to the `NORMAL` matrix.
 	 */
-	inline static const mat3f& matrix_N() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const mat3f& matrix_N() noexcept
 	{
 		update_matrix_N();
 		return s_matrix_N;
@@ -371,7 +373,7 @@ public:
 	 */
 	static void set_cursor_position(
 		const double x, 
-		const double y) BOOST_NOEXCEPT_OR_NOTHROW;
+		const double y) noexcept;
 
 	/**
 	 * @brief Set wether the renderer should let the cursor act in a freeform
@@ -390,24 +392,24 @@ public:
 	/**
 	 * @brief Disable the cursor.
 	 */
-	static void disable_cursor() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void disable_cursor() noexcept;
 
 	/**
 	 * @brief Enable the cursor.
 	 */
-	static void enable_cursor() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void enable_cursor() noexcept;
 
 	/**
 	 * @brief Center the cursor to the center of the viewport.
 	 */
-	static void center_cursor() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void center_cursor() noexcept;
 
 	/**
 	 * @brief Check if a given key is pressed down.
 	 * @param keycode The SDL scancode. See scancodes.hpp.
 	 * @return True if the key is pressed down, false if not.
 	 */
-	static bool key(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW;
+	static bool key(const int keycode) noexcept;
 
 	/*
 	 * @brief Check if a given key was pressed down in the previous frame.
@@ -415,14 +417,14 @@ public:
 	 * @return True if the key was pressed down in the previous frame, false
 	 * if not.
 	 */
-	static bool key_prev(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW;
+	static bool key_prev(const int keycode) noexcept;
 
 	/**
 	 * @brief Check if a given toggle key is pressed down.
 	 * @param keycode The SDL scancode. See scancodes.hpp.
 	 * @return True if the toggle key was pressed down. False if not.
 	 */
-	static bool key_toggle_press(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW;
+	static bool key_toggle_press(const int keycode) noexcept;
 
 	/**
 	 * @brief Check if a given toggle key is released.
@@ -430,20 +432,20 @@ public:
 	 * @return True if the toggle key was released. False if not.
 	 */
 	static bool key_toggle_release(const int keycode) 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Check if a given mouse button is pressed.
 	 * @param buttoncode The SDL scancode. See scancodes.hpp.
 	 * @return True if the mouse button is pressed. False if not.
 	 */
-	static bool mousebutton(const int buttoncode) BOOST_NOEXCEPT_OR_NOTHROW;
+	static bool mousebutton(const int buttoncode) noexcept;
 	
 	/**
 	 * @brief Get the previous frame's mouse delta.
 	 * @return The previous frame's mouse delta.
 	 */
-	inline static const vec2f& mouse_delta() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const vec2f& mouse_delta() noexcept
 	{
 		return s_mouse_delta;
 	}
@@ -477,7 +479,7 @@ public:
 	 * @brief Update the renderer.
 	 * @details You need to call this method at the end of your render loop.
 	 */
-	static void update() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void update() noexcept;
 
 	/**
 	 * @deprecated
@@ -574,7 +576,7 @@ public:
 	 * @brief Do an ambient light pass. This should be called after the call
 	 * to renderer::begin_light_pass.
 	 */
-	static void ambient_light_pass() BOOST_NOEXCEPT_OR_NOTHROW;
+	static void ambient_light_pass() noexcept;
 
 	///@}
 
@@ -628,7 +630,7 @@ public:
 	 * @return A shader that does nothing.
 	 */
 	inline static const matrix_PVM_shader& get_null_shader() 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return *s_matrix_PVM_shader;
 	}
@@ -637,7 +639,7 @@ public:
 	 * @brief Get gp_shader.
 	 * @return gp_shader.
 	 */
-	inline static const gp_shader& get_gp_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gp_shader& get_gp_shader() noexcept
 	{
 		return *s_gp_shader;
 	}
@@ -646,7 +648,7 @@ public:
 	 * @brief Get gp_d_shader.
 	 * @return gp_d_shader.
 	 */
-	inline static const gp_d_shader& get_gp_d_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gp_d_shader& get_gp_d_shader() noexcept
 	{
 		return *s_gp_d_shader;
 	}
@@ -655,7 +657,7 @@ public:
 	 * @brief Get gp_s_shader.
 	 * @return gp_s_shader.
 	 */
-	inline static const gp_s_shader& get_gp_s_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gp_s_shader& get_gp_s_shader() noexcept
 	{
 		return *s_gp_s_shader;
 	}
@@ -664,7 +666,7 @@ public:
 	 * @brief Get gp_n_shader.
 	 * @return gp_n_shader.
 	 */
-	inline static const gp_n_shader& get_gp_n_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gp_n_shader& get_gp_n_shader() noexcept
 	{
 		return *s_gp_n_shader;
 	}
@@ -673,7 +675,7 @@ public:
 	 * @brief Get gp_ds_shader.
 	 * @return gp_ds_shader.
 	 */
-	inline static const gp_ds_shader& get_gp_ds_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gp_ds_shader& get_gp_ds_shader() noexcept
 	{
 		return *s_gp_ds_shader;
 	}
@@ -682,7 +684,7 @@ public:
 	 * @brief Get gp_dn_shader.
 	 * @return gp_dn_shader.
 	 */
-	inline static const gp_dn_shader& get_gp_dn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gp_dn_shader& get_gp_dn_shader() noexcept
 	{
 		return *s_gp_dn_shader;
 	}
@@ -691,7 +693,7 @@ public:
 	 * @brief Get gp_sn_shader.
 	 * @return gp_sn_shader.
 	 */
-	inline static const gp_sn_shader& get_gp_sn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gp_sn_shader& get_gp_sn_shader() noexcept
 	{
 		return *s_gp_sn_shader;
 	}
@@ -700,7 +702,7 @@ public:
 	 * @brief Get gp_dsn_shader.
 	 * @return gp_dsn_shader.
 	 */
-	inline static const gp_dsn_shader& get_gp_dsn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gp_dsn_shader& get_gp_dsn_shader() noexcept
 	{
 		return *s_gp_dsn_shader;
 	}
@@ -709,7 +711,7 @@ public:
 	 * @brief Get gpi_shader.
 	 * @return gpi_shader.
 	 */
-	inline static const gpi_shader& get_gpi_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gpi_shader& get_gpi_shader() noexcept
 	{
 		return *s_gpi_shader;
 	}
@@ -718,7 +720,7 @@ public:
 	 * @brief Get gpi_d_shader.
 	 * @return gpi_d_shader.
 	 */
-	inline static const gpi_d_shader& get_gpi_d_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gpi_d_shader& get_gpi_d_shader() noexcept
 	{
 		return *s_gpi_d_shader;
 	}
@@ -727,7 +729,7 @@ public:
 	 * @brief Get gpi_s_shader.
 	 * @return gpi_s_shader.
 	 */
-	inline static const gpi_s_shader& get_gpi_s_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gpi_s_shader& get_gpi_s_shader() noexcept
 	{
 		return *s_gpi_s_shader;
 	}
@@ -736,7 +738,7 @@ public:
 	 * @brief Get gpi_n_shader.
 	 * @return gpi_n_shader.
 	 */
-	inline static const gpi_n_shader& get_gpi_n_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gpi_n_shader& get_gpi_n_shader() noexcept
 	{
 		return *s_gpi_n_shader;
 	}
@@ -745,7 +747,7 @@ public:
 	 * @brief Get gpi_ds_shader.
 	 * @return gpi_ds_shader.
 	 */
-	inline static const gpi_ds_shader& get_gpi_ds_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gpi_ds_shader& get_gpi_ds_shader() noexcept
 	{
 		return *s_gpi_ds_shader;
 	}
@@ -754,7 +756,7 @@ public:
 	 * @brief Get gpi_dn_shader.
 	 * @return gpi_dn_shader.
 	 */
-	inline static const gpi_dn_shader& get_gpi_dn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gpi_dn_shader& get_gpi_dn_shader() noexcept
 	{
 		return *s_gpi_dn_shader;
 	}
@@ -763,7 +765,7 @@ public:
 	 * @brief Get gpi_sn_shader.
 	 * @return gpi_sn_shader.
 	 */
-	inline static const gpi_sn_shader& get_gpi_sn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gpi_sn_shader& get_gpi_sn_shader() noexcept
 	{
 		return *s_gpi_sn_shader;
 	}
@@ -772,7 +774,7 @@ public:
 	 * @brief Get gpi_dsn_shader.
 	 * @return gpi_dsn_shader.
 	 */
-	inline static const gpi_dsn_shader& get_gpi_dsn_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const gpi_dsn_shader& get_gpi_dsn_shader() noexcept
 	{
 		return *s_gpi_dsn_shader;
 	}
@@ -781,7 +783,7 @@ public:
 	 * @brief Get lp_ambient_shader.
 	 * @return lp_ambient_shader.
 	 */
-	inline static const lp_ambient_shader& get_lp_ambient_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const lp_ambient_shader& get_lp_ambient_shader() noexcept
 	{
 		return *s_lp_ambient_shader;
 	}
@@ -790,7 +792,7 @@ public:
 	 * @brief Get lp_directional_shader.
 	 * @return lp_directional_shader.
 	 */
-	inline static const lp_directional_shader& get_lp_directional_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const lp_directional_shader& get_lp_directional_shader() noexcept
 	{
 		return *s_lp_directional_shader;
 	}
@@ -799,7 +801,7 @@ public:
 	 * @brief Get lp_point_shader.
 	 * @return lp_point_shader.
 	 */
-	inline static const lp_point_shader& get_lp_point_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const lp_point_shader& get_lp_point_shader() noexcept
 	{
 		return *s_lp_point_shader;
 	}
@@ -808,16 +810,21 @@ public:
 	 * @brief Get lp_spot_shader.
 	 * @return lp_spot_shader.
 	 */
-	inline static const lp_spot_shader& get_lp_spot_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const lp_spot_shader& get_lp_spot_shader() noexcept
 	{
 		return *s_lp_spot_shader;
+	}
+
+	inline static const sp_directional_shader& get_sp_directional_shader() noexcept
+	{
+		return *s_sp_directional_shader;
 	}
 
 	/**
 	 * @brief Get lp_skybox_shader.
 	 * @return lp_skybox_shader.
 	 */
-	inline static const skybox_shader& get_skybox_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const skybox_shader& get_skybox_shader() noexcept
 	{
 		return *s_skybox_shader;
 	}
@@ -826,7 +833,7 @@ public:
 	 * @brief Get text_shader.
 	 * @return text_shader.
 	 */
-	inline static text_shader* get_text_shader() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static text_shader* get_text_shader() noexcept
 	{
 		return s_text_shader;
 	}
@@ -846,7 +853,7 @@ public:
 	 * Get unit_quad_P.
 	 * @return unit_quad_P
 	 */
-	inline static unit_quad_P& get_unit_quad_P() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static unit_quad_P& get_unit_quad_P() noexcept
 	{
 		return *s_unit_quad_P;
 	}
@@ -855,7 +862,7 @@ public:
 	 * Get unit_cube_P.
 	 * @return unit_cube_P
 	 */
-	inline static unit_cube_P& get_unit_cube_P() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static unit_cube_P& get_unit_cube_P() noexcept
 	{
 		return *s_unit_cube_P;
 	}
@@ -864,7 +871,7 @@ public:
 	 * Get unit_cube_P_flipped.
 	 * @return unit_cube_P_flipped
 	 */
-	inline static unit_cube_P_flipped& get_unit_cube_P_flipped() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static unit_cube_P_flipped& get_unit_cube_P_flipped() noexcept
 	{
 		return *s_unit_cube_P_flipped;
 	}
@@ -873,7 +880,7 @@ public:
 	 * Get unit_sphere_P.
 	 * @return unit_sphere_P
 	 */
-	inline static unit_sphere_P& get_unit_sphere_P() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static unit_sphere_P& get_unit_sphere_P() noexcept
 	{
 		return *s_unit_sphere_P;
 	}
@@ -882,7 +889,7 @@ public:
 	 * Get unit_cone_P.
 	 * @return unit_cone_P
 	 */
-	inline static unit_cone_P& get_unit_cone_P() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static unit_cone_P& get_unit_cone_P() noexcept
 	{
 		return *s_unit_cone_P;
 	}
@@ -956,6 +963,8 @@ private:
 	static lp_directional_shader* s_lp_directional_shader;
 	static lp_point_shader* s_lp_point_shader;
 	static lp_spot_shader* s_lp_spot_shader;
+
+	static sp_directional_shader* s_sp_directional_shader;
 
 	static skybox_shader* s_skybox_shader;
 

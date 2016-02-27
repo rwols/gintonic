@@ -31,12 +31,12 @@ int main(int argc, char* argv[])
 	// Position the camera
 	cam_entity.set_translation(gt::vec3f(-2.78f, 0.83f, 1.17f));
 	cam_component.add_mouse(gt::vec2f(-gt::deg2rad(60.0f), -gt::deg2rad(9.0f)));
-	
+
 	try
 	{
 		gt::init_all("directional_light", cam_entity);
 		gt::renderer::set_freeform_cursor(true);
-		
+
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
 		gt::fontstream stream;
 		gt::unit_cube_PUNTB the_shape;
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 		gt::renderer::show();
 		float curtime, dt;
 		gt::vec2f mousedelta;
-		
+
 		while (!gt::renderer::should_close())
 		{
 			curtime = get_elapsed_time<float>();
@@ -108,9 +108,9 @@ int main(int argc, char* argv[])
 
 			mousedelta = -gt::deg2rad(gt::renderer::mouse_delta()) / 10.0f;
 			cam_component.add_mouse(mousedelta);
-			
+
 			gt::renderer::begin_geometry_pass();
-			
+
 			const auto rotation_axis = gt::vec3f(0.0f, 0.0f, 1.0f);
 
 			cube_entity.set_rotation(gt::quatf::axis_angle(rotation_axis, -curtime / 4.0f));
@@ -124,13 +124,13 @@ int main(int argc, char* argv[])
 
 			gt::renderer::get_text_shader()->activate();
 			gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
-			
+
 			glDisable(GL_CULL_FACE);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			
+
 			stream.open(font_inconsolata);
-			
+
 			stream << "Move around with WASD.\n"
 				<< "Look around with the mouse.\n"
 				<< "Go up by holding the spacebar.\n"
@@ -148,9 +148,9 @@ int main(int argc, char* argv[])
 				<< "Cube QUAT:       " << cube_entity.local_transform().rotation << '\n'
 				<< "Cube POSITION:   " << cube_entity.local_transform().translation;
 			stream.close();
-			
+
 			glEnable(GL_CULL_FACE);
-			
+
 			gt::renderer::update();
 		}
 	}

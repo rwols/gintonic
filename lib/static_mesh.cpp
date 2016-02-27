@@ -333,7 +333,7 @@ static_mesh::static_mesh(const FbxMesh* m, const GLenum usagehint)
 	set_data(m, usagehint);
 }
 
-void static_mesh::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void static_mesh::draw() const noexcept
 {
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_count, GL_UNSIGNED_INT, nullptr);

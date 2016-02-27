@@ -35,7 +35,7 @@ camera::camera(entity& e)
 #define M_PIf2 static_cast<float>(M_PI) * 0.5f
 #define M_2PIf static_cast<float>(M_PI) * 2.0f
 
-void camera::add_mouse(const vec2f& amount) BOOST_NOEXCEPT_OR_NOTHROW
+void camera::add_mouse(const vec2f& amount) noexcept
 {
 	angles += amount;
 

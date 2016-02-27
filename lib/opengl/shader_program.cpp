@@ -80,14 +80,14 @@ shader_program::shader_program(
 	}
 }
 
-GLint shader_program::num_active_attributes() const BOOST_NOEXCEPT_OR_NOTHROW
+GLint shader_program::num_active_attributes() const noexcept
 {
 	GLint result;
 	glGetProgramiv(*this, GL_ACTIVE_ATTRIBUTES, &result);
 	return result;
 }
 
-GLint shader_program::num_active_uniforms() const BOOST_NOEXCEPT_OR_NOTHROW
+GLint shader_program::num_active_uniforms() const noexcept
 {
 	GLint result;
 	glGetProgramiv(*this, GL_ACTIVE_UNIFORMS, &result);
@@ -129,10 +129,10 @@ shader_program& shader_program::operator = (shader_program&& other)
 	return *this;
 }
 
-shader_program::~shader_program() BOOST_NOEXCEPT_OR_NOTHROW { glDeleteProgram(*this); }
+shader_program::~shader_program() noexcept { glDeleteProgram(*this); }
 
-void shader_program::activate() const BOOST_NOEXCEPT_OR_NOTHROW { glUseProgram(m_handle); }
-void shader_program::deactivate() BOOST_NOEXCEPT_OR_NOTHROW { glUseProgram(0); }
+void shader_program::activate() const noexcept { glUseProgram(m_handle); }
+void shader_program::deactivate() noexcept { glUseProgram(0); }
 
 GLint shader_program::get_uniform_location(const GLchar* name) const
 {
@@ -147,7 +147,7 @@ GLint shader_program::get_uniform_location(const GLchar* name) const
 	}
 }
 
-bool shader_program::get_uniform_location(const GLchar* name, GLint& location) const BOOST_NOEXCEPT_OR_NOTHROW
+bool shader_program::get_uniform_location(const GLchar* name, GLint& location) const noexcept
 {
 	location = glGetUniformLocation(*this, name);
 	return location == -1 ? false : true;
@@ -166,7 +166,7 @@ GLint shader_program::get_attrib_location(const GLchar* name) const
 	}
 }
 
-bool shader_program::get_attrib_location(const GLchar* name, GLint& location) const BOOST_NOEXCEPT_OR_NOTHROW
+bool shader_program::get_attrib_location(const GLchar* name, GLint& location) const noexcept
 {
 	location = glGetAttribLocation(*this, name);
 	return location == -1 ? false : true;
@@ -214,23 +214,23 @@ void shader_program::set_uniform(const char* uniformName, const GLint i) const
 {
 	glUniform1i(get_uniform_location(uniformName), i);
 }
-void shader_program::set_uniform(const GLint location, const GLfloat value) BOOST_NOEXCEPT_OR_NOTHROW
+void shader_program::set_uniform(const GLint location, const GLfloat value) noexcept
 {
 	glUniform1f(location, value);
 }
-void shader_program::set_uniform(const GLint location, const vec2f& v) BOOST_NOEXCEPT_OR_NOTHROW
+void shader_program::set_uniform(const GLint location, const vec2f& v) noexcept
 {
 	glUniform2f(location, v.x, v.y);
 }
-void shader_program::set_uniform(const GLint location, const vec3f& v) BOOST_NOEXCEPT_OR_NOTHROW
+void shader_program::set_uniform(const GLint location, const vec3f& v) noexcept
 {
 	glUniform3f(location, v.x, v.y, v.z);
 }
-void shader_program::set_uniform(const GLint location, const vec4f& v) BOOST_NOEXCEPT_OR_NOTHROW
+void shader_program::set_uniform(const GLint location, const vec4f& v) noexcept
 {
 	glUniform4f(location, v.x, v.y, v.z, v.w);
 }
-void shader_program::set_uniform(const GLint location, const mat3f& m) BOOST_NOEXCEPT_OR_NOTHROW
+void shader_program::set_uniform(const GLint location, const mat3f& m) noexcept
 {
 	// float temp[9];
 	// const float* ptr = m.value_ptr();
@@ -248,19 +248,19 @@ void shader_program::set_uniform(const GLint location, const mat3f& m) BOOST_NOE
 
 	glUniformMatrix3fv(location, 1, GL_FALSE, m.value_ptr());
 }
-void shader_program::set_uniform(const GLint location, const mat4f& m) BOOST_NOEXCEPT_OR_NOTHROW
+void shader_program::set_uniform(const GLint location, const mat4f& m) noexcept
 {
 	glUniformMatrix4fv(location, 1, GL_FALSE, m.value_ptr());
 }
-void shader_program::set_uniform(const GLint location, const GLint i) BOOST_NOEXCEPT_OR_NOTHROW
+void shader_program::set_uniform(const GLint location, const GLint i) noexcept
 {
 	glUniform1i(location, i);
 }
-void shader_program::set_uniform(const GLint location, const std::vector<GLfloat>& values) BOOST_NOEXCEPT_OR_NOTHROW
+void shader_program::set_uniform(const GLint location, const std::vector<GLfloat>& values) noexcept
 {
 	glUniform1fv(location, values.size(), values.data());
 }
-void shader_program::set_uniform(const GLint location, const std::vector<GLint>& values) BOOST_NOEXCEPT_OR_NOTHROW
+void shader_program::set_uniform(const GLint location, const std::vector<GLint>& values) noexcept
 {
 	glUniform1iv(location, values.size(), values.data());
 }

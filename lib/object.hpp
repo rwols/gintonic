@@ -36,7 +36,7 @@ public:
 	 * @brief Get the key.
 	 * @return A const reference to the key.
 	 */
-	inline const key_type& key() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const key_type& key() const noexcept
 	{
 		return m_key;
 	}
@@ -48,7 +48,7 @@ public:
 	 * @return True if the two objects compare equal, false otherwise.
 	 */
 	inline bool operator == (const object& other) 
-		const BOOST_NOEXCEPT_OR_NOTHROW
+		const noexcept
 	{
 		return key() == other.key();
 	}
@@ -60,7 +60,7 @@ public:
 	 * @return True if the two objects don't compare equal, false otherwise.
 	 */
 	inline bool operator != (const object& other) 
-		const BOOST_NOEXCEPT_OR_NOTHROW
+		const noexcept
 	{
 		return !operator==(other);
 	}
@@ -71,7 +71,7 @@ public:
 	 * different.
 	 * @return The number of objects in use.
 	 */
-	static std::size_t use_count() BOOST_NOEXCEPT_OR_NOTHROW
+	static std::size_t use_count() noexcept
 	{
 		return s_num_objects;
 	}
@@ -81,7 +81,7 @@ protected:
 	/**
 	 * @brief Destructor. Decreases the number of objects in use by one.
 	 */
-	inline virtual ~object() BOOST_NOEXCEPT_OR_NOTHROW
+	inline virtual ~object() noexcept
 	{
 		--s_num_objects;
 	}
@@ -109,7 +109,7 @@ protected:
 	 * @brief Constructor. Increases the number of objects in use by one.
 	 * @param key The key to move.
 	 */
-	object(key_type&& key) BOOST_NOEXCEPT_OR_NOTHROW 
+	object(key_type&& key) noexcept 
 	: m_key(std::move(key))
 	{
 		++s_num_objects;
@@ -126,7 +126,7 @@ protected:
 		 * @return The key.
 		 */
 		inline const key_type& operator()(const Derived& d) 
-			const BOOST_NOEXCEPT_OR_NOTHROW
+			const noexcept
 		{
 			return d.key();
 		}

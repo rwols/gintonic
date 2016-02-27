@@ -53,7 +53,7 @@ buffer_object& buffer_object::operator=(const buffer_object& other)
 	glBindBuffer(GL_COPY_READ_BUFFER, 0);
 	return *this;
 }
-buffer_object& buffer_object::operator=(buffer_object&& other) BOOST_NOEXCEPT_OR_NOTHROW
+buffer_object& buffer_object::operator=(buffer_object&& other) noexcept
 {
 	glDeleteBuffers(1, &m_handle);
 	m_handle = other.m_handle;

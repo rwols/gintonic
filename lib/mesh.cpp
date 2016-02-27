@@ -39,17 +39,17 @@ mesh::vec2f::vec2f(const GLfloat x, const GLfloat y)
 	/* Empty on purpose. */
 }
 
-bool mesh::vec2f::operator==(const mesh::vec2f& other) const BOOST_NOEXCEPT_OR_NOTHROW
+bool mesh::vec2f::operator==(const mesh::vec2f& other) const noexcept
 {
 	return x == other.x && y == other.y;
 }
 
-bool mesh::vec2f::operator!=(const mesh::vec2f& other) const BOOST_NOEXCEPT_OR_NOTHROW
+bool mesh::vec2f::operator!=(const mesh::vec2f& other) const noexcept
 {
 	return !operator==(other);
 }
 
-void mesh::vec2f::enable_attribute(const GLuint index) BOOST_NOEXCEPT_OR_NOTHROW
+void mesh::vec2f::enable_attribute(const GLuint index) noexcept
 {
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, sizeof(mesh::vec2f), nullptr);
@@ -71,17 +71,17 @@ mesh::vec3f::vec3f(const GLfloat x, const GLfloat y, const GLfloat z)
 	/* Empty on purpose. */
 }
 
-bool mesh::vec3f::operator==(const mesh::vec3f& other) const BOOST_NOEXCEPT_OR_NOTHROW
+bool mesh::vec3f::operator==(const mesh::vec3f& other) const noexcept
 {
 	return x == other.x && y == other.y && z == other.z;
 }
 
-bool mesh::vec3f::operator!=(const mesh::vec3f& other) const BOOST_NOEXCEPT_OR_NOTHROW
+bool mesh::vec3f::operator!=(const mesh::vec3f& other) const noexcept
 {
 	return !operator==(other);
 }
 
-void mesh::vec3f::enable_attribute(const GLuint index) BOOST_NOEXCEPT_OR_NOTHROW
+void mesh::vec3f::enable_attribute(const GLuint index) noexcept
 {
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, sizeof(mesh::vec3f), nullptr);
@@ -105,22 +105,22 @@ mesh::vec4f::vec4f(const GLfloat x, const GLfloat y, const GLfloat z, const GLfl
 	/* Empty on purpose. */
 }
 
-mesh::~mesh() BOOST_NOEXCEPT_OR_NOTHROW
+mesh::~mesh() noexcept
 {
 	for (auto* e : m_ents) e->m_mesh_component = nullptr;
 }
 
-bool mesh::vec4f::operator==(const mesh::vec4f& other) const BOOST_NOEXCEPT_OR_NOTHROW
+bool mesh::vec4f::operator==(const mesh::vec4f& other) const noexcept
 {
 	return x == other.x && y == other.y && z == other.z && w == other.w;
 }
 
-bool mesh::vec4f::operator!=(const mesh::vec4f& other) const BOOST_NOEXCEPT_OR_NOTHROW
+bool mesh::vec4f::operator!=(const mesh::vec4f& other) const noexcept
 {
 	return !operator==(other);
 }
 
-void mesh::vec4f::enable_attribute(const GLuint index) BOOST_NOEXCEPT_OR_NOTHROW
+void mesh::vec4f::enable_attribute(const GLuint index) noexcept
 {
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, sizeof(mesh::vec4f), nullptr);

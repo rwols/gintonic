@@ -88,6 +88,8 @@ namespace gintonic {
 	lp_point_shader* renderer::s_lp_point_shader = nullptr;
 	lp_spot_shader* renderer::s_lp_spot_shader = nullptr;
 
+	sp_directional_shader* renderer::s_sp_directional_shader = nullptr;
+
 	skybox_shader* renderer::s_skybox_shader = nullptr;
 
 	text_shader* renderer::s_text_shader = nullptr;
@@ -108,7 +110,7 @@ namespace gintonic {
 	boost::signals2::signal<void(void)> renderer::mouse_left;
 	boost::signals2::signal<void(void)> renderer::about_to_close;
 
-	BOOST_CONSTEXPR GLenum gbuffer_tex_internal[renderer::GBUFFER_COUNT] = 
+	constexpr GLenum gbuffer_tex_internal[renderer::GBUFFER_COUNT] = 
 	{
 		GL_RGBA32F, // GBUFFER_POSITION
 		GL_RGBA,    // GBUFFER_DIFFUSE
@@ -116,7 +118,7 @@ namespace gintonic {
 		GL_RGBA16F, // GBUFFER_NORMAL
 		GL_RGB      // GBUFFER_FINAL_COLOR
 	};
-	BOOST_CONSTEXPR GLenum gbuffer_tex_format[renderer::GBUFFER_COUNT] = 
+	constexpr GLenum gbuffer_tex_format[renderer::GBUFFER_COUNT] = 
 	{
 		GL_RGBA, // GBUFFER_POSITION
 		GL_RGBA, // GBUFFER_DIFFUSE
@@ -339,7 +341,7 @@ namespace gintonic {
 		}
 	}
 
-	bool renderer::is_initialized() BOOST_NOEXCEPT_OR_NOTHROW
+	bool renderer::is_initialized() noexcept
 	{
 		return s_window != nullptr;
 	}
@@ -353,12 +355,12 @@ namespace gintonic {
 		}
 	}
 
-	void renderer::focus_context() BOOST_NOEXCEPT_OR_NOTHROW
+	void renderer::focus_context() noexcept
 	{ 
 		SDL_GL_MakeCurrent(s_window, s_context); 
 	}
 
-	void renderer::set_cursor_position(const double x, const double y) BOOST_NOEXCEPT_OR_NOTHROW
+	void renderer::set_cursor_position(const double x, const double y) noexcept
 	{
 		SDL_WarpMouseInWindow(s_window, (int)x, (int)y);
 		SDL_FlushEvent(SDL_MOUSEMOTION);
@@ -369,17 +371,17 @@ namespace gintonic {
 		SDL_SetRelativeMouseMode(b? SDL_TRUE : SDL_FALSE);
 	}
 
-	void renderer::disable_cursor() BOOST_NOEXCEPT_OR_NOTHROW
+	void renderer::disable_cursor() noexcept
 	{ 
 		SDL_ShowCursor(0); 
 	}
 
-	void renderer::enable_cursor() BOOST_NOEXCEPT_OR_NOTHROW
+	void renderer::enable_cursor() noexcept
 	{ 
 		SDL_ShowCursor(1); 
 	}
 
-	void renderer::center_cursor() BOOST_NOEXCEPT_OR_NOTHROW
+	void renderer::center_cursor() noexcept
 	{
 		set_cursor_position(s_width / 2, s_height / 2);
 	}
@@ -389,53 +391,53 @@ namespace gintonic {
 		SDL_GL_SetSwapInterval(b? 1 : 0);
 	}
 
-	void renderer::show() BOOST_NOEXCEPT_OR_NOTHROW 
+	void renderer::show() noexcept 
 	{ 
 		SDL_ShowWindow(s_window); 
 	}
 
-	void renderer::hide() BOOST_NOEXCEPT_OR_NOTHROW 
+	void renderer::hide() noexcept 
 	{ 
 		SDL_HideWindow(s_window); 
 	}
 
-	void renderer::close() BOOST_NOEXCEPT_OR_NOTHROW
+	void renderer::close() noexcept
 	{
 		s_should_close = true;
 		about_to_close();
 	}
 
-	bool renderer::should_close() BOOST_NOEXCEPT_OR_NOTHROW
+	bool renderer::should_close() noexcept
 	{ 
 		return s_should_close; 
 	}
 
-	vec2f renderer::viewport_size() BOOST_NOEXCEPT_OR_NOTHROW
+	vec2f renderer::viewport_size() noexcept
 	{
 		return vec2f(static_cast<float>(s_width), static_cast<float>(s_height));
 	}
 
-	bool renderer::key(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
+	bool renderer::key(const int keycode) noexcept
 	{
 		return s_key_state[keycode] != 0;
 	}
 
-	bool renderer::key_prev(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
+	bool renderer::key_prev(const int keycode) noexcept
 	{
 		return s_key_prev_state[keycode] != 0;
 	}
 
-	bool renderer::key_toggle_press(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
+	bool renderer::key_toggle_press(const int keycode) noexcept
 	{
 		return key(keycode) && !key_prev(keycode);
 	}
 
-	bool renderer::key_toggle_release(const int keycode) BOOST_NOEXCEPT_OR_NOTHROW
+	bool renderer::key_toggle_release(const int keycode) noexcept
 	{
 		return !key(keycode) && key_prev(keycode);
 	}
 
-	bool renderer::mousebutton(const int buttoncode) BOOST_NOEXCEPT_OR_NOTHROW
+	bool renderer::mousebutton(const int buttoncode) noexcept
 	{
 		return 0 != (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(buttoncode));
 	}
@@ -454,7 +456,7 @@ namespace gintonic {
 		}
 	}
 
-	void renderer::update() BOOST_NOEXCEPT_OR_NOTHROW
+	void renderer::update() noexcept
 	{
 		#ifdef ENABLE_DEBUG_TRACE
 		get_text_shader()->activate();
@@ -524,30 +526,7 @@ namespace gintonic {
 		}
 
 		// Update the WORLD->VIEW matrix.
-		const auto f = s_camera->global_transform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f);
-		const auto u = s_camera->global_transform() * vec4f(0.0f, 1.0f, 0.0f, 0.0f);
-		const auto r = s_camera->global_transform() * vec4f(1.0f, 0.0f, 0.0f, 0.0f);
-		const auto eye = s_camera->global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-
-		s_matrix_V.m00 = r.x;
-		s_matrix_V.m10 = u.x;
-		s_matrix_V.m20 = -f.x;
-		s_matrix_V.m30 = 0.0f;
-
-		s_matrix_V.m01 = r.y;
-		s_matrix_V.m11 = u.y;
-		s_matrix_V.m21 = -f.y;
-		s_matrix_V.m31 = 0.0f;
-
-		s_matrix_V.m02 = r.z;
-		s_matrix_V.m12 = u.z;
-		s_matrix_V.m22 = -f.z;
-		s_matrix_V.m32 = 0.0f;
-
-		s_matrix_V.m03 = -dot(r, eye);
-		s_matrix_V.m13 = -dot(u, eye);
-		s_matrix_V.m23 =  dot(f, eye);
-		s_matrix_V.m33 = 1.0f;
+		s_camera->get_view_matrix(s_matrix_V);
 	}
 
 	void renderer::begin_geometry_pass()
@@ -555,7 +534,7 @@ namespace gintonic {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
 		glClear(GL_COLOR_BUFFER_BIT);
-		BOOST_CONSTEXPR GLenum DrawBuffers[4] = 
+		constexpr GLenum DrawBuffers[4] = 
 		{
 			GL_COLOR_ATTACHMENT0 + GBUFFER_POSITION, 
 			GL_COLOR_ATTACHMENT0 + GBUFFER_DIFFUSE, 
@@ -669,7 +648,7 @@ namespace gintonic {
 		glEnable(GL_CULL_FACE);
 	}
 
-	void renderer::ambient_light_pass() BOOST_NOEXCEPT_OR_NOTHROW
+	void renderer::ambient_light_pass() noexcept
 	{
 		const auto& s = get_lp_ambient_shader();
 		s.activate();
@@ -941,6 +920,16 @@ namespace gintonic {
 		catch (exception& e)
 		{
 			e.prepend(": Failed to load lp_spot_shader: ");
+			e.prepend(name());
+			throw;
+		}
+		try
+		{
+			s_sp_directional_shader = new sp_directional_shader();
+		}
+		catch (exception& e)
+		{
+			e.prepend(": Failed to load sp_directional_shader: ");
 			e.prepend(name());
 			throw;
 		}

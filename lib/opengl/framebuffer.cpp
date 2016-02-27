@@ -17,5 +17,22 @@ framebuffer& framebuffer::operator = (framebuffer&& other)
 	return *this;
 }
 
+void framebuffer::check_status() const noexcept
+{
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		throw std::runtime_error("Framebuffer status was not complete.");
+	}
+}
+
+void framebuffer::check_status(bool& r) const noexcept
+{
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		r = false;
+	}
+	else r = true;
+}
+
 } // namespace opengl
 } // namespace gintonic

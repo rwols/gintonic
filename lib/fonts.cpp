@@ -133,7 +133,7 @@ namespace gintonic {
 		glDeleteTextures(1, &m_tex);
 	}
 
-	void font::draw(const char* text, const std::size_t length, const vec2f& in_position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW
+	void font::draw(const char* text, const std::size_t length, const vec2f& in_position, const vec2f& scale) const noexcept
 	{
 		using vert = opengl::vertex_text2d;
 
@@ -187,19 +187,19 @@ namespace gintonic {
 		glBindVertexArray(0);
 	}
 
-	void font::draw(const std::string& text, const vec2f& position, const vec2f& scale) const BOOST_NOEXCEPT_OR_NOTHROW
+	void font::draw(const std::string& text, const vec2f& position, const vec2f& scale) const noexcept
 	{
 		
 		draw(text.c_str(), text.length(), position, scale);
 	}
 
-	void font::draw(const char* text, const std::size_t length, const vec2f& position) const BOOST_NOEXCEPT_OR_NOTHROW
+	void font::draw(const char* text, const std::size_t length, const vec2f& position) const noexcept
 	{
 		const vec2f scale(2.0f / (GLfloat)renderer::width(), 2.0f / (GLfloat)renderer::height());
 		draw(text, length, position, scale);
 	}
 
-	void font::draw(const std::string& text, const vec2f& position) const BOOST_NOEXCEPT_OR_NOTHROW
+	void font::draw(const std::string& text, const vec2f& position) const noexcept
 	{
 		draw(text.c_str(), text.length(), position);
 	}
@@ -221,7 +221,7 @@ namespace gintonic {
 			position.y = 1.0f - scale.y * static_cast<GLfloat>(std::get<1>(underlying_font.get_key()));	
 		}
 
-		std::streamsize fontstream::write(const char* text, const std::streamsize length) const BOOST_NOEXCEPT_OR_NOTHROW
+		std::streamsize fontstream::write(const char* text, const std::streamsize length) const noexcept
 		{
 			underlying_font.get().draw(text, static_cast<const std::size_t>(length), position, scale);
 			return length;

@@ -120,7 +120,7 @@ octree::~octree()
 	for (const auto* c : m_child) delete c;
 }
 
-bool octree::is_leaf() const BOOST_NOEXCEPT_OR_NOTHROW
+bool octree::is_leaf() const noexcept
 {
 	for (const auto* c : m_child) if (c) return false;
 	return true;

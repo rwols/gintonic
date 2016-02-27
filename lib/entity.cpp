@@ -24,7 +24,7 @@ entity::entity(
 	if (octree_root) octree_root->insert(this);
 }
 
-entity::entity(entity&& other) BOOST_NOEXCEPT_OR_NOTHROW
+entity::entity(entity&& other) noexcept
 : m_local_transform(std::move(other.m_local_transform))
 , m_global_transform(std::move(other.m_global_transform))
 , m_local_bounding_box(std::move(other.m_local_bounding_box))
@@ -47,7 +47,7 @@ entity::entity(entity&& other) BOOST_NOEXCEPT_OR_NOTHROW
 	}
 }
 
-entity& entity::operator = (entity&& other) BOOST_NOEXCEPT_OR_NOTHROW
+entity& entity::operator = (entity&& other) noexcept
 {
 	m_local_transform = std::move(other.m_local_transform);
 	m_global_transform = std::move(other.m_global_transform);
@@ -68,7 +68,7 @@ entity& entity::operator = (entity&& other) BOOST_NOEXCEPT_OR_NOTHROW
 	return *this;
 }
 
-void entity::update_global_info(mat4fstack& matrix_stack) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::update_global_info(mat4fstack& matrix_stack) noexcept
 {
 	matrix_stack.push(m_local_transform);
 	update_global_datamembers(matrix_stack);
@@ -79,7 +79,7 @@ void entity::update_global_info(mat4fstack& matrix_stack) BOOST_NOEXCEPT_OR_NOTH
 	matrix_stack.pop();
 }
 
-void entity::update_global_info_start() BOOST_NOEXCEPT_OR_NOTHROW
+void entity::update_global_info_start() noexcept
 {
 	mat4fstack matrix_stack(compute_global_transform());
 	update_global_datamembers(matrix_stack);
@@ -89,7 +89,7 @@ void entity::update_global_info_start() BOOST_NOEXCEPT_OR_NOTHROW
 	}
 }
 
-void entity::update_global_datamembers(const mat4fstack& matrix_stack) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::update_global_datamembers(const mat4fstack& matrix_stack) noexcept
 {
 	m_global_transform = matrix_stack.top();
 	const vec3f t(m_global_transform.data[3]);
@@ -98,152 +98,145 @@ void entity::update_global_datamembers(const mat4fstack& matrix_stack) BOOST_NOE
 	if (m_octree) m_octree->notify(this);
 }
 
-void entity::set_scale(const vec3f& scale) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::set_scale(const vec3f& scale) noexcept
 {
 	m_local_transform.scale = scale;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::multiply_scale(const vec3f& scale) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::multiply_scale(const vec3f& scale) noexcept
 {
 	m_local_transform.scale *= scale;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::set_translation(const vec3f& translation) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::set_translation(const vec3f& translation) noexcept
 {
 	m_local_transform.translation = translation;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::set_translation_x(const float x) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::set_translation_x(const float x) noexcept
 {
 	m_local_transform.translation.x = x;
 	update_global_info_start();
 	transform_changed(*this);
 }
-void entity::set_translation_y(const float y) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::set_translation_y(const float y) noexcept
 {
 	m_local_transform.translation.y = y;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::set_translation_z(const float z) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::set_translation_z(const float z) noexcept
 {
 	m_local_transform.translation.z = z;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::add_translation(const vec3f& translation) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::add_translation(const vec3f& translation) noexcept
 {
 	m_local_transform.translation += translation;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::set_rotation(const quatf& rotation) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::set_rotation(const quatf& rotation) noexcept
 {
 	m_local_transform.rotation = rotation;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::post_multiply_rotation(const quatf& rotation) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::post_multiply_rotation(const quatf& rotation) noexcept
 {
 	m_local_transform.rotation *= rotation;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::pre_multiply_rotation(const quatf& rotation) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::pre_multiply_rotation(const quatf& rotation) noexcept
 {
 	m_local_transform.rotation = rotation * m_local_transform.rotation;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::set_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::set_local_transform(const SQT& sqt) noexcept
 {
 	m_local_transform = sqt;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::post_add_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::post_add_local_transform(const SQT& sqt) noexcept
 {
 	m_local_transform %= sqt;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::pre_add_local_transform(const SQT& sqt) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::pre_add_local_transform(const SQT& sqt) noexcept
 {
 	m_local_transform = sqt % m_local_transform;
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::move_forward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::move_forward(const float amount) noexcept
 {
 	m_local_transform.translation += amount * m_local_transform.rotation.forward_direction();
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::move_backward(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::move_backward(const float amount) noexcept
 {
 	m_local_transform.translation -= amount * m_local_transform.rotation.forward_direction();
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::move_right(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::move_right(const float amount) noexcept
 {
 	m_local_transform.translation += amount * m_local_transform.rotation.right_direction();
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::move_left(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::move_left(const float amount) noexcept
 {
 	m_local_transform.translation -= amount * m_local_transform.rotation.right_direction();
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::move_up(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::move_up(const float amount) noexcept
 {
 	m_local_transform.translation += amount * m_local_transform.rotation.up_direction();
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-void entity::move_down(const float amount) BOOST_NOEXCEPT_OR_NOTHROW
+void entity::move_down(const float amount) noexcept
 {
 	m_local_transform.translation -= amount * m_local_transform.rotation.up_direction();
 	update_global_info_start();
 	transform_changed(*this);
 }
 
-mat4f entity::compute_global_transform() BOOST_NOEXCEPT_OR_NOTHROW
+mat4f entity::compute_global_transform() noexcept
 {
 	mat4f global_matrix(m_local_transform);
 	const auto* current_entity = m_parent;
 	while (current_entity)
 	{
-		if (current_entity == this)
-		{
-			#ifndef NDEBUG
-			throw std::logic_error("There's a cycle in the entitities.");
-			#else
-			break;
-			#endif
-		}
+		if (current_entity == this) break; // Cycle in the entity graph.
 		global_matrix = mat4f(current_entity->m_local_transform) * global_matrix;
 		current_entity = current_entity->m_parent;
 	}
@@ -297,21 +290,38 @@ void entity::unset_parent()
 	if (m_parent) m_parent->remove_child(*this); // Also sets m_parent to nullptr
 }
 
+void entity::get_view_matrix(mat4f& m) const noexcept
+{
+	const auto f = global_transform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f);
+	const auto u = global_transform() * vec4f(0.0f, 1.0f, 0.0f, 0.0f);
+	const auto r = global_transform() * vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+	const auto eye = global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+
+	m.m00 = r.x;
+	m.m10 = u.x;
+	m.m20 = -f.x;
+	m.m30 = 0.0f;
+
+	m.m01 = r.y;
+	m.m11 = u.y;
+	m.m21 = -f.y;
+	m.m31 = 0.0f;
+
+	m.m02 = r.z;
+	m.m12 = u.z;
+	m.m22 = -f.z;
+	m.m32 = 0.0f;
+
+	m.m03 = -dot(r, eye);
+	m.m13 = -dot(u, eye);
+	m.m23 =  dot(f, eye);
+	m.m33 = 1.0f;
+}
+
 entity::~entity()
 {
 	about_to_die(*this);
-	#ifndef NDEBUG
-	if (m_octree)
-	{
-		auto result = m_octree->erase(this);
-		if (result == 0)
-		{
-			throw std::logic_error("Entity was not present in the octree.");
-		}
-	}
-	#else
 	if (m_octree) m_octree->erase(this);
-	#endif
 	unset_parent();
 }
 

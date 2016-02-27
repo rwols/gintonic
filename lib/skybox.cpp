@@ -24,7 +24,7 @@ skybox& skybox::operator = (skybox&& other)
 	return *this;
 }
 
-void skybox::draw() const BOOST_NOEXCEPT_OR_NOTHROW
+void skybox::draw() const noexcept
 {
 	const auto& s = renderer::get_skybox_shader();
 	s.activate();

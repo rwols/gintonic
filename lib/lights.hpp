@@ -10,14 +10,19 @@
 
 #include "component.hpp"
 #include "vec4f.hpp"
+#include "mat4f.hpp"
 #include "SQT.hpp"
+#include "opengl/framebuffer.hpp"
+#include "opengl/texture_object.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/base_object.hpp>
+#include <map>
 
 namespace gintonic {
 
 class entity; // Forward declaration.
+class proj_info; // Forward declaration.
 
 /**
  * @brief A light. Virtual base component for inheritance.
@@ -35,9 +40,9 @@ public:
 	 */
 	vec4f intensity;
 
-	virtual void attach(entity&) final;
+	virtual void attach(entity&);
 
-	virtual void detach(entity&) final;
+	virtual void detach(entity&);
 
 	/// Default constructor.
 	light() = default;
@@ -50,7 +55,7 @@ public:
 	light(const vec4f& intensity);
 	
 	/// Destructor.
-	virtual ~light() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~light() noexcept;
 	
 	/**
 	 * @brief Shine the light using the global transform of the given entity.
@@ -58,7 +63,17 @@ public:
 	 * 
 	 * @param e The entity to shine from.
 	 */
-	virtual void shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+	virtual void shine(const entity& e) const noexcept = 0;
+
+	virtual void begin_shadow_pass(const entity& light_ent)
+	{
+		/* Put me in a CPP file */
+	}
+
+	virtual void render_shadow(const entity& geometry) const noexcept
+	{
+		/* Put me in a CPP file */
+	}
 
 	/**
 	 * @brief Set the brightness, or intensity of the light.
@@ -71,7 +86,7 @@ public:
 	 * @brief Get the brightness, or intensity of the light.
 	 * @return The current brightness, or intensity.
 	 */
-	float brightness() const BOOST_NOEXCEPT_OR_NOTHROW;
+	float brightness() const noexcept;
 
 	/**
 	 * @brief Polymorphic stream output operator.
@@ -109,7 +124,7 @@ private:
 	 * @brief Print the light to an outstream for debug purposes.
 	 */
 	virtual std::ostream& pretty_print(std::ostream&) const 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	//!@cond
 	// We need to give boost::serialization access to this class.
@@ -147,7 +162,7 @@ public:
 	ambient_light(const vec4f& intensity);
 
 	/// Destructor.
-	virtual ~ambient_light() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~ambient_light() noexcept;
 	
 	/**
 	 * @brief Shine the light using the global transformation of the given
@@ -159,7 +174,7 @@ public:
 	 * @param e The entity to use. Note that the global transformation is
 	 * used.
 	 */
-	virtual void shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void shine(const entity& e) const noexcept;
 
 	/**
 	 * @brief Output stream support.
@@ -174,7 +189,7 @@ private:
 
 	// Reimplement this method to support output streams.
 	virtual std::ostream& pretty_print(std::ostream&) const 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	//!@cond
 	// We need to give boost::serialization access to this class.
@@ -215,7 +230,11 @@ public:
 	directional_light(const vec4f& intensity);
 
 	/// Destructor.
-	virtual ~directional_light() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~directional_light() noexcept;
+
+	virtual void attach(entity&);
+
+	virtual void detach(entity&);
 
 	/*
 	 * @brief Shine the light given the entity's global transformation.
@@ -227,7 +246,11 @@ public:
 	 *
 	 * @param e The entity to use the global transform of.
 	 */
-	virtual void shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void shine(const entity& e) const noexcept;
+
+	virtual void begin_shadow_pass(const entity& light_ent);
+
+	virtual void render_shadow(const entity& geometry) const noexcept;
 
 	/// Stream output support for a directional light.
 	friend std::ostream& operator << (std::ostream&, const directional_light&);
@@ -238,9 +261,23 @@ public:
 
 private:
 
+	typedef std::map
+	<
+		const entity*, 
+		std::pair
+		<
+			std::shared_ptr<opengl::framebuffer>,
+			std::shared_ptr<opengl::texture_object>
+		>
+	> shadow_map_map_type;
+
+	mat4f m_current_matrix_PV;
+
+	shadow_map_map_type m_shadow_maps;
+
 	// Reimplement this method to support output streams.
 	virtual std::ostream& pretty_print(std::ostream&) const 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	//!@cond
 	// We need to give boost::serialization access to this class.
@@ -292,13 +329,13 @@ public:
 	point_light(const vec4f& intensity, const vec4f& attenuation);
 
 	/// Destructor.
-	virtual ~point_light() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~point_light() noexcept;
 
 	/**
 	 * @brief Get the attenuation.
 	 * @return The attenuation value.
 	 */
-	vec4f attenuation() const BOOST_NOEXCEPT_OR_NOTHROW;
+	vec4f attenuation() const noexcept;
 
 	// Set the attenuation value. Setting a new attenuation value
 	// also recalculates the cutoff radius (see below).
@@ -311,7 +348,7 @@ public:
 	 * 
 	 * @param a The attenuation value.
 	 */
-	void set_attenuation(const vec4f& a) BOOST_NOEXCEPT_OR_NOTHROW;
+	void set_attenuation(const vec4f& a) noexcept;
 	
 	/**
 	 * @brief Get the cutoff radius.
@@ -321,7 +358,7 @@ public:
 	 * 
 	 * @return The cutoff radius.
 	 */
-	float cutoff_point() const BOOST_NOEXCEPT_OR_NOTHROW;
+	float cutoff_point() const noexcept;
 
 	/**
 	 * @brief Shine the point light given the entity's global transform.
@@ -329,7 +366,7 @@ public:
 	 * @details In the case of a point light, only the translation part of
 	 * the global transformation matrix of the entity is used.
 	 */
-	virtual void shine(const entity&) const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void shine(const entity&) const noexcept;
 
 	/**
 	 * @brief Set the brightness.
@@ -354,11 +391,11 @@ private:
 
 	float m_cutoff_point;
 
-	void calculate_cutoff_radius() BOOST_NOEXCEPT_OR_NOTHROW;
+	void calculate_cutoff_radius() noexcept;
 
 	// Reimplement this method to support output streams.
 	virtual std::ostream& pretty_print(std::ostream&) const 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	//!@cond
 	// We need to give boost::serialization access to this class.
@@ -416,7 +453,7 @@ public:
 	spot_light(const vec4f& intensity, const vec4f& attenuation);
 
 	/// Destructor.
-	virtual ~spot_light() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~spot_light() noexcept;
 	
 	// Shine the spot light given the SQT transform. The spot light
 	// uses both the rotation part as well as the translation (position)
@@ -432,7 +469,7 @@ public:
 	 *
 	 * @param e The entity to use for the global transformation matrix.
 	 */
-	virtual void shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual void shine(const entity& e) const noexcept;
 
 	/// Stream output support for a spot light.
 	friend std::ostream& operator << (std::ostream&, const spot_light&);
@@ -444,7 +481,7 @@ public:
 private:
 
 	// Reimplement this method to support output streams.
-	virtual std::ostream& pretty_print(std::ostream&) const BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual std::ostream& pretty_print(std::ostream&) const noexcept;
 
 	//!@cond
 	// We need to give boost::serialization access to this class.

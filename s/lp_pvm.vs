@@ -5,6 +5,7 @@
 //
 // * lp_point.fs
 // * lp_spot.fs
+// * null.fs
 //
 
 #version 330 core

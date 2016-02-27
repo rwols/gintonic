@@ -66,7 +66,7 @@ public:
 	 * @param instanced Set wether we are doing instanced rendering or not.
 	 * The default is false.
 	 */
-	void bind(const bool instanced = false) const BOOST_NOEXCEPT_OR_NOTHROW;
+	void bind(const bool instanced = false) const noexcept;
 
 	//@}
 
@@ -89,7 +89,7 @@ public:
 	//@{
 	
 	/// Destructor.
-	virtual ~material() BOOST_NOEXCEPT_OR_NOTHROW;
+	virtual ~material() noexcept;
 
 	/**
 	 * @brief Default constructor.
@@ -172,13 +172,13 @@ public:
 	material(const material&);
 
 	/// Move constructor.
-	material(material&&) BOOST_NOEXCEPT_OR_NOTHROW;
+	material(material&&) noexcept;
 
 	/// Copy assignment operator.
 	material& operator = (const material&);
 
 	/// Move assignment operator.
-	material& operator = (material&&) BOOST_NOEXCEPT_OR_NOTHROW;
+	material& operator = (material&&) noexcept;
 
 	//@}
 
@@ -193,7 +193,7 @@ public:
 	 * 
 	 * @return Always returns the literal string ".gtm".
 	 */
-	inline static const char* extension() BOOST_NOEXCEPT_OR_NOTHROW
+	inline static const char* extension() noexcept
 	{
 		return ".gtm";
 	}
@@ -292,19 +292,19 @@ public:
 	 * @brief Check wether the material has a diffuse texture.
 	 * @return True if the material has a diffuse texture, false otherwise.
 	 */
-	bool has_diffuse_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+	bool has_diffuse_texture() const noexcept;
 
 	/**
 	 * @brief Check wether the material has a specular texture.
 	 * @return True if the material has a specular texture, false otherwise.
 	 */
-	bool has_specular_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+	bool has_specular_texture() const noexcept;
 
 	/**
 	 * @brief Check wether the material has a normal texture.
 	 * @return True if the material has a normal texture, false otherwise.
 	 */
-	bool has_normal_texture() const BOOST_NOEXCEPT_OR_NOTHROW;
+	bool has_normal_texture() const noexcept;
 
 	// Methods to obtain a const reference to various textures.
 	// Be sure to first check if the material has such textures.
@@ -317,7 +317,7 @@ public:
 	 * @return A constant reference to the diffuse texture.
 	 */
 	const opengl::texture2d& diffuse_texture() const
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Obtain a constant reference to the specular texture.
@@ -327,7 +327,7 @@ public:
 	 * @return A constant reference to the specular texture.
 	 */
 	const opengl::texture2d& specular_texture() const
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Obtain a constant reference to the normal texture.
@@ -337,7 +337,7 @@ public:
 	 * @return A constant reference to the normal texture.
 	 */
 	const opengl::texture2d& normal_texture() const
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Set the diffuse texture.

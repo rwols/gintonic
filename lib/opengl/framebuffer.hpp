@@ -48,10 +48,13 @@ public:
 	framebuffer& operator = (framebuffer&& other);
 
 	/// Get the underlying OpenGL with a static_cast.
-	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW 
+	inline operator GLuint() const noexcept 
 	{
 		return m_handle;
 	}
+
+	void check_status() const noexcept;
+	void check_status(bool& r) const noexcept;
 };
 
 } // namespace opengl

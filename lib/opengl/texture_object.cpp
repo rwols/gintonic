@@ -9,7 +9,7 @@ texture_object::texture_object() : m_handle(0)
 	if (!m_handle) throw std::bad_alloc();
 }
 
-texture_object& texture_object::operator=(texture_object&& other) BOOST_NOEXCEPT_OR_NOTHROW
+texture_object& texture_object::operator=(texture_object&& other) noexcept
 {
 	glDeleteTextures(1, &m_handle);
 	m_handle = other.m_handle;

@@ -45,9 +45,10 @@ if (WIN32)
 	# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 	# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
 else ()
-	add_definitions(-std=c++11)
-	add_definitions(-Wall)
-	add_definitions(-msse3)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -msse3")
+	# add_definitions(-std=c++11)
+	# add_definitions(-Wall)
+	# add_definitions(-msse3)
 
 	if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\$$ORIGIN" 
@@ -87,6 +88,7 @@ include_directories(
 	${OPENGL_INCLUDE_DIRS}
 	${FBX_INCLUDE_DIR}
 	${CMAKE_BINARY_DIR} # For the config file
+	"lib/lua-5.3.1/src" # For Lua
 	)
 
 if (WIN32)
@@ -113,13 +115,10 @@ if (WIN32)
 	endforeach()
 	list(GET SDL2_LIBRARY 1 SDL2_DLL)
 	string(REPLACE ".lib" ".dll" SDL2_DLL ${SDL2_DLL})
-	list(GET FBX_LIBRARY 3 FBX_Debug_DLL)
-	string(REPLACE ".lib" ".dll" FBX_Debug_DLL ${FBX_Debug_DLL})
-	list (GET FBX_LIBRARY 1 FBX_Release_DLL)
-	string(REPLACE ".lib" ".dll" FBX_Release_DLL ${FBX_Release_DLL})
+	string(REPLACE ".lib" ".dll" FBX_DLL ${FBX_LIBRARY})
 
-	set (DEBUG_DLLS ${Boost_DEBUG_DLLS} ${SDL2_DLL} ${FBX_Debug_DLL})
-	set (RELEASE_DLLS ${Boost_DLLS} ${SDL2_DLL} ${FBX_Release_DLL})
+	set (DEBUG_DLLS ${Boost_DEBUG_DLLS} ${SDL2_DLL} ${FBX_DLL})
+	set (RELEASE_DLLS ${Boost_DLLS} ${SDL2_DLL} ${FBX_DLL})
 
 	message(STATUS "Here's the list of debug DLLs:")
 	foreach (DLL ${DEBUG_DLLS})

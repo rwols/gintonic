@@ -7,6 +7,7 @@
 	#include <jpeglib.h> // The JPEG library.
 #endif
 #include <fstream>
+#include <sstream>
 #include "utilities.hpp"
 #include "../exception.hpp"
 #define STB_IMAGE_IMPLEMENTATION
@@ -127,13 +128,13 @@ texture_parameters::texture_parameters()
 
 texture_parameters texture::parameter = texture_parameters();
 
-// texture2d::texture2d(texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW
+// texture2d::texture2d(texture2d&& other) noexcept
 // : m_tex(other.m_tex)
 // {
 // 	other.m_tex = 0;
 // }
 
-// texture2d& texture2d::operator = (texture2d&& other) BOOST_NOEXCEPT_OR_NOTHROW
+// texture2d& texture2d::operator = (texture2d&& other) noexcept
 // {
 // 	glDeleteTextures(1, &m_tex);
 // 	m_tex = other.m_tex;
@@ -246,43 +247,43 @@ texture2d& texture2d::operator = (texture2d&& other)
 	return *this;
 }
 
-void texture2d::bind(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+void texture2d::bind(const GLint texture_unit) const noexcept
 {
 	glActiveTexture(GL_TEXTURE0 + texture_unit);
 	glBindTexture(GL_TEXTURE_2D, m_tex);
 }
 
-GLint texture2d::width(const GLint level) const BOOST_NOEXCEPT_OR_NOTHROW
+GLint texture2d::width(const GLint level) const noexcept
 {
 	GLint r;
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH, &r);
 	return r;
 }
-GLint texture2d::height(const GLint level) const BOOST_NOEXCEPT_OR_NOTHROW
+GLint texture2d::height(const GLint level) const noexcept
 {
 	GLint r;
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_HEIGHT, &r);
 	return r;
 }
-GLint texture2d::depth(const GLint level) const BOOST_NOEXCEPT_OR_NOTHROW
+GLint texture2d::depth(const GLint level) const noexcept
 {
 	GLint r;
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_DEPTH, &r);
 	return r;
 }
-GLint texture2d::internal_format(const GLint level) const BOOST_NOEXCEPT_OR_NOTHROW
+GLint texture2d::internal_format(const GLint level) const noexcept
 {
 	GLint r;
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &r);
 	return r;
 }
-bool texture2d::is_compressed(const GLint level) const BOOST_NOEXCEPT_OR_NOTHROW
+bool texture2d::is_compressed(const GLint level) const noexcept
 {
 	GLint r;
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED, &r);
 	return r == GL_TRUE ? true : false;
 }
-GLint texture2d::compressed_size(const GLint level) const BOOST_NOEXCEPT_OR_NOTHROW
+GLint texture2d::compressed_size(const GLint level) const noexcept
 {
 	GLint r;
 	glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &r);
@@ -389,7 +390,7 @@ cube_texture& cube_texture::operator = (cube_texture&& other)
 	return *this;
 }
 
-void cube_texture::bind(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW
+void cube_texture::bind(const GLint texture_unit) const noexcept
 {
 	glActiveTexture(GL_TEXTURE0 + texture_unit);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_tex);

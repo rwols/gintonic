@@ -53,7 +53,7 @@ public:
 	 * @details The projection info component updates itself given the
 	 * renderer's current viewport width and viewport height.
 	 */
-	void update() BOOST_NOEXCEPT_OR_NOTHROW;
+	void update() noexcept;
 
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();

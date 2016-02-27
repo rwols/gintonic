@@ -23,6 +23,7 @@
 #include "camera.hpp"
 #include "proj_info.hpp"
 #include "exception.hpp"
+#include "luabindings.hpp"
 
 namespace gintonic {
 

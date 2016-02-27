@@ -3,6 +3,7 @@
 #include "basic_shapes.hpp"
 #include "entity.hpp"
 #include "renderer.hpp"
+#include "proj_info.hpp"
 
 #ifdef ENABLE_DEBUG_TRACE
 	#include "fonts.hpp"
@@ -37,7 +38,7 @@ light::light(const vec4f& intensity)
 	/* Empty on purpose. */
 }
 
-light::~light() BOOST_NOEXCEPT_OR_NOTHROW
+light::~light() noexcept
 {
 	for (auto* e : m_ents) e->m_light_component = nullptr;
 }
@@ -47,7 +48,7 @@ void light::set_brightness(const float brightness)
 	intensity.w = brightness;
 }
 
-float light::brightness() const BOOST_NOEXCEPT_OR_NOTHROW
+float light::brightness() const noexcept
 {
 	return intensity.w;
 }
@@ -72,7 +73,7 @@ std::ostream& operator << (std::ostream& os, const light& l)
 	return l.pretty_print(os);
 }
 
-std::ostream& light::pretty_print(std::ostream& os) const BOOST_NOEXCEPT_OR_NOTHROW
+std::ostream& light::pretty_print(std::ostream& os) const noexcept
 {
 	return os << "{ (light) intensity: " << intensity << " }";
 }
@@ -83,12 +84,12 @@ ambient_light::ambient_light(const vec4f& intensity)
 	/* Empty on purpose. */
 }
 
-ambient_light::~ambient_light() BOOST_NOEXCEPT_OR_NOTHROW
+ambient_light::~ambient_light() noexcept
 {
 	/* Empty on purpose. */
 }
 
-void ambient_light::shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW
+void ambient_light::shine(const entity& e) const noexcept
 {
 	const auto& s = renderer::get_lp_ambient_shader();
 	s.activate();
@@ -102,7 +103,7 @@ std::ostream& operator << (std::ostream& os, const ambient_light& l)
 	return l.pretty_print(os);
 }
 
-std::ostream& ambient_light::pretty_print(std::ostream& os) const BOOST_NOEXCEPT_OR_NOTHROW
+std::ostream& ambient_light::pretty_print(std::ostream& os) const noexcept
 {
 	return os << "{ (ambient_light) intensity: " << intensity << " }";
 }
@@ -113,12 +114,58 @@ directional_light::directional_light(const vec4f& intensity)
 	/* Empty on purpose. */
 }
 
-directional_light::~directional_light() BOOST_NOEXCEPT_OR_NOTHROW
+directional_light::~directional_light() noexcept
 {
 	/* Empty on purpose. */
 }
 
-void directional_light::shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW
+#define SHADOW_QUALITY 1024
+
+void directional_light::attach(entity& e)
+{
+	// Don't forget to call the base method.
+	light::attach(e);
+
+	std::shared_ptr<opengl::framebuffer> framebuf(new opengl::framebuffer());
+	std::shared_ptr<opengl::texture_object> texture(new opengl::texture_object());
+
+	glBindTexture(GL_TEXTURE_2D, *texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, SHADOW_QUALITY, SHADOW_QUALITY, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, *framebuf);
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, *texture, 0);
+
+	// Disable writes to the color buffer
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+
+	framebuf->check_status();
+
+	// Everything went okay at this point. Add it to our map of shadow maps.
+	m_shadow_maps.emplace(&e, std::make_pair(framebuf, texture));
+
+	std::cerr << "Directional light " << this << " attached to entity " << &e << '\n';
+}
+
+void directional_light::detach(entity& e)
+{
+	const auto r = m_shadow_maps.find(&e);
+	assert(r != m_shadow_maps.end());
+	m_shadow_maps.erase(r);
+
+	// Don't forget to call the base method.
+	light::detach(e);
+
+	std::cerr << "Directional light " << this << " detached from entity " << &e << '\n';
+}
+
+void directional_light::shine(const entity& e) const noexcept
 {
 	const auto& s = renderer::get_lp_directional_shader();
 	s.activate();
@@ -141,12 +188,40 @@ void directional_light::shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW
 	renderer::get_unit_quad_P().draw();
 }
 
+void directional_light::begin_shadow_pass(const entity& light_ent)
+{
+	const auto r = m_shadow_maps.find(&light_ent);
+	if (r == m_shadow_maps.end())
+	{
+		// This light component is not attached to the given entity.
+		// We cannot fix the problem by attaching it at this point,
+		// because we have a const reference. We just throw an exception.
+		throw std::runtime_error("Light component is not attached to given entity.");
+	}
+	const auto* framebuf = r->second.first.get();
+	// const auto* texture = r->second.second.get();
+	glBindFramebuffer(GL_FRAMEBUFFER, *framebuf);
+	// glActiveTexture(GL_TEXTURE_2D, GL_TEXTURE0);
+	// glBindTexture(GL_TEXTURE_2D, *texture);
+	renderer::get_sp_directional_shader().activate();
+	mat4f world_to_light_space;
+	light_ent.get_view_matrix(world_to_light_space);
+	m_current_matrix_PV = light_ent.proj_info_component()->matrix * world_to_light_space;
+}
+
+void directional_light::render_shadow(const entity& geometry) const noexcept
+{
+	const auto matrix_PVM = m_current_matrix_PV * geometry.global_transform();
+	renderer::get_sp_directional_shader().set_matrix_PVM(matrix_PVM);
+	geometry.mesh_component()->draw();
+}
+
 std::ostream& operator << (std::ostream& os, const directional_light& l)
 {
 	return l.pretty_print(os);
 }
 
-std::ostream& directional_light::pretty_print(std::ostream& os) const BOOST_NOEXCEPT_OR_NOTHROW
+std::ostream& directional_light::pretty_print(std::ostream& os) const noexcept
 {
 	return os << "{ (directional_light) intensity: " << intensity << " }";
 }
@@ -163,28 +238,28 @@ point_light::point_light(const vec4f& intensity, const vec4f& attenuation)
 	set_attenuation(attenuation);
 }
 
-point_light::~point_light() BOOST_NOEXCEPT_OR_NOTHROW
+point_light::~point_light() noexcept
 {
 	/* Empty on purpose. */
 }
 
-void point_light::set_attenuation(const vec4f& att) BOOST_NOEXCEPT_OR_NOTHROW
+void point_light::set_attenuation(const vec4f& att) noexcept
 {
 	m_attenuation = att;
 	calculate_cutoff_radius();
 }
 
-vec4f point_light::attenuation() const BOOST_NOEXCEPT_OR_NOTHROW
+vec4f point_light::attenuation() const noexcept
 {
 	return m_attenuation;
 }
 
-float point_light::cutoff_point() const BOOST_NOEXCEPT_OR_NOTHROW
+float point_light::cutoff_point() const noexcept
 {
 	return m_cutoff_point;
 }
 
-void point_light::shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW
+void point_light::shine(const entity& e) const noexcept
 {
 	// The transformation data is delivered in WORLD coordinates.
 
@@ -240,7 +315,7 @@ void point_light::set_brightness(const float brightness)
 	calculate_cutoff_radius();
 }
 
-void point_light::calculate_cutoff_radius() BOOST_NOEXCEPT_OR_NOTHROW
+void point_light::calculate_cutoff_radius() noexcept
 {
 
 	// Let c be equal to intensity.w * max(intensity[0], intensity[1], intensity[2])
@@ -277,7 +352,7 @@ std::ostream& operator << (std::ostream& os, const point_light& l)
 	return l.pretty_print(os);
 }
 
-std::ostream& point_light::pretty_print(std::ostream& os) const BOOST_NOEXCEPT_OR_NOTHROW
+std::ostream& point_light::pretty_print(std::ostream& os) const noexcept
 {
 	return os << "{ (point_light) intensity: " << intensity
 		<< ", attenuation: " << m_attenuation
@@ -296,12 +371,12 @@ spot_light::spot_light(const vec4f& intensity, const vec4f& attenuation)
 	/* Empty on purpose. */
 }
 
-spot_light::~spot_light() BOOST_NOEXCEPT_OR_NOTHROW
+spot_light::~spot_light() noexcept
 {
 	 /* Empty on purpose. */
 }
 
-void spot_light::shine(const entity& e) const BOOST_NOEXCEPT_OR_NOTHROW
+void spot_light::shine(const entity& e) const noexcept
 {
 	// The transformation data is delivered in WORLD coordinates.
 
@@ -358,7 +433,7 @@ std::ostream& operator << (std::ostream& os, const spot_light& l)
 	return l.pretty_print(os);
 }
 
-std::ostream& spot_light::pretty_print(std::ostream& os) const BOOST_NOEXCEPT_OR_NOTHROW
+std::ostream& spot_light::pretty_print(std::ostream& os) const noexcept
 {
 	return os << "{ (spot_light) intensity: " << intensity
 		<< ", attenuation: " << attenuation()

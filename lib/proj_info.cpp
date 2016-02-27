@@ -25,7 +25,7 @@ void proj_info::detach(entity& e)
 	}
 }
 
-void proj_info::update() BOOST_NOEXCEPT_OR_NOTHROW
+void proj_info::update() noexcept
 {
 	// fieldofview = 60.0f;
 	switch (projection)

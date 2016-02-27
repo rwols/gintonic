@@ -45,6 +45,19 @@
 #define FBX ${FBX_NAMESPACE}
 #endif
 
+/*****************************************************************************
+* GINTONIC_FUNC_SIGNATURE                                                    *
+*                                                                            *
+* Purpose: Expands in a cross-platform way to the function signature of the  *
+* current function or method.                                                *
+*****************************************************************************/
+
+#ifdef BOOST_MSVC
+#define GINTONIC_FUNC_SIGNATURE __FUNCSIG__
+#else
+#define GINTONIC_FUNC_SIGNATURE __PRETTY_FUNCTION__
+#endif
+
 #cmakedefine ENABLE_DEBUG_TRACE
 #cmakedefine WITH_PROFILING
 #cmakedefine WITH_MEMORY_PROFILING

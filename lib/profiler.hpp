@@ -11,7 +11,7 @@
 #include <chrono>
 #include <map>
 #include <string>
-#include <list>
+#include <forward_list>
 #include <memory>
 #include <iostream>
 #include <boost/config.hpp>
@@ -34,16 +34,10 @@
  * @param scope_name A string literal that should be equal to the name
  * of the function or method.
  */
-#define PROFILE(scope_name) ___profiler___ ___dont_touch_me___(scope_name);
+#define PROFILE_FUNCTION \
+::gintonic::detail::profiler __dont_touch_me__(GINTONIC_FUNC_SIGNATURE);
 #else
-
-/**
- * @brief In a release build, this macro does nothing.
- * 
- * @param scope_name A string literal that should be equal to the name
- * of the function or method.
- */
-#define PROFILE(scope_name)
+#define PROFILE_FUNCTION
 #endif
 
 #ifdef WITH_PROFILING
@@ -51,19 +45,16 @@
 /**
  * @brief Put this macro at the end of the program.
  * @details This macro will write the profiling results of all recorded
- * functions and methods to a file. The filename is specifiec by the macro
- * `PROFILER_CPU_LOG_FILE`.
+ * functions and methods to a file.
  */
-#define END_PROFILE \
-___profiler___::write_log(PROFILER_CPU_LOG_FILE);
+#define FINALIZE_PROFILING(filename) \
+::gintonic::detail::profiler::write_log(filename);
 #else
-/**
- * @brief In a release build, this macro does nothing.
- */
-#define END_PROFILE
+#define FINALIZE_PROFILING(filename)
 #endif
 
 namespace gintonic {
+namespace detail {
 
 /**
  * @brief A profiler class.
@@ -77,7 +68,7 @@ namespace gintonic {
  * PROFILE(scope_name) and END_PROFILE will do nothing at all. You should not
  * use the profiler class directly but instead use the macros.
  */
-class ___profiler___
+class profiler
 {
 
 private:
@@ -85,7 +76,10 @@ private:
 	static std::map
 	<
 		std::string, 
-		std::list<std::chrono::high_resolution_clock::duration>
+		std::forward_list
+		<
+			std::chrono::high_resolution_clock::duration
+		>
 	> s_log;
 
 	const std::string m_scope_name;
@@ -99,7 +93,7 @@ public:
 	 * @tparam T The string type, usually just a const char*.
 	 * @param scope_name The name of the scope.
 	 */
-	template <class T> ___profiler___(T&& scope_name)
+	template <class T> profiler(T&& scope_name)
 	: m_scope_name(std::forward<T>(scope_name))
 	, m_t1(std::chrono::high_resolution_clock::now())
 	{}
@@ -107,7 +101,7 @@ public:
 	/**
 	 * @brief The destructor saves the timing of the scope to a global map.
 	 */
-	~___profiler___();
+	~profiler() noexcept;
 
 	/**
 	 * @brief Write the timing results as a CSV file.
@@ -116,6 +110,7 @@ public:
 	static void write_log(const char* log_file);
 };
 
+} // end of namespace detail
 } // end of namespace gintonic
 
 #endif

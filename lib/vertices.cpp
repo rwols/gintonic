@@ -33,16 +33,16 @@ vertex_P::vertex_P(const FbxVector4& p, const FbxColor& c, const FbxVector2& u, 
 }
 
 
-void vertex_P::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_P::enable_attributes() noexcept
 {
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_P), (const GLvoid*)offsetof(vertex_P, position));
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 }
-void vertex_P::disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_P::disable_attributes() noexcept
 {
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 }
-bool vertex_P::operator == (const vertex_P& other) const BOOST_NOEXCEPT_OR_NOTHROW
+bool vertex_P::operator == (const vertex_P& other) const noexcept
 {
 	return position[0] == other.position[0] && position[1] == other.position[1]
 		&& position[2] == other.position[2];
@@ -93,14 +93,14 @@ vertex_PC::vertex_PC(const FbxVector4& p, const FbxColor& c, const FbxVector2& u
 }
 
 
-void vertex_PC::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PC::enable_attributes() noexcept
 {
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PC), (const GLvoid*)offsetof(vertex_PC, position));
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PC), (const GLvoid*)offsetof(vertex_PC, color));
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
 }
-void vertex_PC::disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PC::disable_attributes() noexcept
 {
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
@@ -143,14 +143,14 @@ vertex_PU::vertex_PU(const FbxVector4& p, const FbxColor& c, const FbxVector2& u
 	uv[1] = static_cast<float>(u[1]);
 }
 
-void vertex_PU::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PU::enable_attributes() noexcept
 {
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PU), (const GLvoid*)offsetof(vertex_PU, position));
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PU), (const GLvoid*)offsetof(vertex_PU, uv));
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
 }
-void vertex_PU::disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PU::disable_attributes() noexcept
 {
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
@@ -194,14 +194,14 @@ vertex_PN::vertex_PN(const FbxVector4& p, const FbxColor& c, const FbxVector2& u
 	normal[1] = static_cast<float>(n[1]);
 	normal[2] = static_cast<float>(n[2]);
 }
-void vertex_PN::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PN::enable_attributes() noexcept
 {
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PN), (const GLvoid*)offsetof(vertex_PN, position));
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PN), (const GLvoid*)offsetof(vertex_PN, normal));
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
 }
-void vertex_PN::disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PN::disable_attributes() noexcept
 {
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
@@ -258,7 +258,7 @@ vertex_PCU::vertex_PCU(const FbxVector4& p, const FbxColor& c, const FbxVector2&
 	uv[1] = static_cast<float>(u[1]);
 }
 
-void vertex_PCU::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PCU::enable_attributes() noexcept
 {
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCU), (const GLvoid*)offsetof(vertex_PCU, position));
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PCU), (const GLvoid*)offsetof(vertex_PCU, color));
@@ -267,7 +267,7 @@ void vertex_PCU::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
 }
-void vertex_PCU::disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PCU::disable_attributes() noexcept
 {
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
@@ -336,7 +336,7 @@ vertex_PCUN::vertex_PCUN(const FbxVector4& p, const FbxColor& c, const FbxVector
 	normal[1] = static_cast<float>(n[1]);
 	normal[2] = static_cast<float>(n[2]);
 }
-void vertex_PCUN::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PCUN::enable_attributes() noexcept
 {
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUN), (const GLvoid*)offsetof(vertex_PCUN, position));
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUN), (const GLvoid*)offsetof(vertex_PCUN, color));
@@ -347,7 +347,7 @@ void vertex_PCUN::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
 }
-void vertex_PCUN::disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PCUN::disable_attributes() noexcept
 {
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
@@ -402,7 +402,7 @@ vertex_PUN::vertex_PUN(const FbxVector4& p, const FbxColor& c, const FbxVector2&
 	normal[1] = static_cast<float>(n[1]);
 	normal[2] = static_cast<float>(n[2]);
 }
-void vertex_PUN::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PUN::enable_attributes() noexcept
 {
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUN), (const GLvoid*)offsetof(vertex_PUN, position));
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PUN), (const GLvoid*)offsetof(vertex_PUN, uv));
@@ -411,7 +411,7 @@ void vertex_PUN::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_NORMAL);
 }
-void vertex_PUN::disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PUN::disable_attributes() noexcept
 {
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
@@ -495,7 +495,7 @@ vertex_PCUNTB::vertex_PCUNTB(const FbxVector4& p, const FbxColor& c, const FbxVe
 	bitangent[1] = static_cast<float>(b[1]);
 	bitangent[2] = static_cast<float>(b[2]);
 }
-void vertex_PCUNTB::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PCUNTB::enable_attributes() noexcept
 {
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, position));
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUNTB), (const GLvoid*)offsetof(vertex_PCUNTB, color));
@@ -510,7 +510,7 @@ void vertex_PCUNTB::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TANGENT);
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_BITANGENT);
 }
-void vertex_PCUNTB::disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PCUNTB::disable_attributes() noexcept
 {
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_COLOR);
@@ -591,7 +591,7 @@ vertex_PUNTB::vertex_PUNTB(const FbxVector4& p, const FbxColor& c, const FbxVect
 	bitangent[1] = static_cast<float>(b[1]);
 	bitangent[2] = static_cast<float>(b[2]);
 }
-void vertex_PUNTB::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PUNTB::enable_attributes() noexcept
 {
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, position));
 	glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_PUNTB), (const GLvoid*)offsetof(vertex_PUNTB, uv));
@@ -604,7 +604,7 @@ void vertex_PUNTB::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TANGENT);
 	glEnableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_BITANGENT);
 }
-void vertex_PUNTB::disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PUNTB::disable_attributes() noexcept
 {
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_POSITION);
 	glDisableVertexAttribArray(GINTONIC_VERTEX_LAYOUT_TEXCOORD);
@@ -633,7 +633,7 @@ vertex_PCUsg::vertex_PCUsg(const vec3f& p, const vec4f& c, const vec2f& u, const
 	shift = shift_value;
 	gamma = gamma_value;
 }
-void vertex_PCUsg::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PCUsg::enable_attributes() noexcept
 {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUsg), (const GLvoid*)offsetof(vertex_PCUsg, position));
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_PCUsg), (const GLvoid*)offsetof(vertex_PCUsg, color));
@@ -646,7 +646,7 @@ void vertex_PCUsg::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
 	glEnableVertexAttribArray(3);
 	glEnableVertexAttribArray(4);
 }
-void vertex_PCUsg::disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_PCUsg::disable_attributes() noexcept
 {
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
@@ -676,13 +676,13 @@ vertex_text2d::vertex_text2d(const vec2f& pos, const vec2f& texcoord)
 	pos_and_texcoord[2] = texcoord.x;
 	pos_and_texcoord[3] = texcoord.y;
 }
-void vertex_text2d::enable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_text2d::enable_attributes() noexcept
 {
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_text2d), (const GLvoid*)offsetof(vertex_text2d, pos_and_texcoord));
 	glEnableVertexAttribArray(0);
 
 }
-void vertex_text2d::disable_attributes() BOOST_NOEXCEPT_OR_NOTHROW
+void vertex_text2d::disable_attributes() noexcept
 {
 	glDisableVertexAttribArray(0);
 }

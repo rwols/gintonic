@@ -39,7 +39,7 @@ public:
 	 * 
 	 * @param angles The mouse delta.
 	 */
-	void add_mouse(const vec2f& angles) BOOST_NOEXCEPT_OR_NOTHROW;
+	void add_mouse(const vec2f& angles) noexcept;
 
 	virtual void attach(entity&) final;
 	virtual void detach(entity&) final;

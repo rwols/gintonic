@@ -246,7 +246,7 @@ public:
 	 * unify the calling convention for setting up the sampler2D uniform in
 	 * shaders.
 	 */
-	virtual void bind(const GLint texture_unit) const BOOST_NOEXCEPT_OR_NOTHROW = 0;
+	virtual void bind(const GLint texture_unit) const noexcept = 0;
 
 	/// Destructor.
 	virtual ~texture();
@@ -449,7 +449,7 @@ public:
 	texture2d& operator = (texture2d&&);
 
 	virtual void bind(const GLint texture_unit) const 
-		BOOST_NOEXCEPT_OR_NOTHROW final;
+		noexcept final;
 
 	/**
 	 * @brief Get the width of the texture.
@@ -458,7 +458,7 @@ public:
 	 * @param level The mipmap level.
 	 * @return The width of the texture at the given mipmap level.
 	 */
-	GLint width(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
+	GLint width(const GLint level = 0) const noexcept;
 
 	/**
 	 * @brief Get the height of the texture.
@@ -467,7 +467,7 @@ public:
 	 * @param level The mipmap level.
 	 * @return The height of the texture at the given mipmap level.
 	 */
-	GLint height(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
+	GLint height(const GLint level = 0) const noexcept;
 
 	/**
 	 * @brief Get the depth of the texture.
@@ -479,7 +479,7 @@ public:
 	 * @deprecated The depth of a two-dimensional texture doesn't make any
 	 * sense.
 	 */
-	GLint depth(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
+	GLint depth(const GLint level = 0) const noexcept;
 
 	/**
 	 * @brief Get the internal format of the texture.
@@ -489,7 +489,7 @@ public:
 	 * @return The internal format of the texture at the given mipmap level.
 	 */
 	GLint internal_format(const GLint level = 0) const 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/**
 	 * @brief Check wether this texture2d is compressed.
@@ -499,7 +499,7 @@ public:
 	 * @return True if the texture2d at the given mipmap level is compressed,
 	 * false otherwise.
 	 */
-	bool is_compressed(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
+	bool is_compressed(const GLint level = 0) const noexcept;
 
 	/**
 	 * @brief Get the format of the texture.
@@ -508,7 +508,7 @@ public:
 	 * @param level The mipmap level.
 	 * @return The format of the texture at the given mipmap level.
 	 */
-	GLint format(const GLint level = 0) const BOOST_NOEXCEPT_OR_NOTHROW;
+	GLint format(const GLint level = 0) const noexcept;
 
 	/**
 	 * @brief Get the compressed size of the texture.
@@ -518,10 +518,10 @@ public:
 	 * @return The compressed size of the texture at the given mipmap level.
 	 */
 	GLint compressed_size(const GLint level = 0) const 
-		BOOST_NOEXCEPT_OR_NOTHROW;
+		noexcept;
 
 	/// Get the underlying OpenGL handle with a static_cast.
-	inline operator GLuint() const BOOST_NOEXCEPT_OR_NOTHROW { return m_tex; }
+	inline operator GLuint() const noexcept { return m_tex; }
 
 private:
 
@@ -571,7 +571,7 @@ public:
 	cube_texture& operator = (cube_texture&&);
 
 	virtual void bind(const GLint texture_unit) const 
-		BOOST_NOEXCEPT_OR_NOTHROW final;
+		noexcept final;
 
 private:
 

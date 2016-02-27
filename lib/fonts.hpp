@@ -63,7 +63,7 @@ namespace gintonic {
 			const std::size_t length,
 			const vec2f& position,
 			const vec2f& scale)
-		const BOOST_NOEXCEPT_OR_NOTHROW;
+		const noexcept;
 
 		/**
 		 * @brief Draw this font.
@@ -79,7 +79,7 @@ namespace gintonic {
 			const std::string& text,
 			const vec2f& position,
 			const vec2f& scale)
-		const BOOST_NOEXCEPT_OR_NOTHROW;
+		const noexcept;
 
 		/**
 		 * @brief Draw this font.
@@ -97,7 +97,7 @@ namespace gintonic {
 			const char* text,
 			const std::size_t length,
 			const vec2f& position)
-		const BOOST_NOEXCEPT_OR_NOTHROW;
+		const noexcept;
 
 		/**
 		 * @brief Draw this font.
@@ -113,7 +113,7 @@ namespace gintonic {
 		void draw(
 			const std::string& text,
 			const vec2f& position)
-		const BOOST_NOEXCEPT_OR_NOTHROW;
+		const noexcept;
 
 		/// Move constructor.
 		font(font&&);
@@ -179,7 +179,7 @@ namespace gintonic {
 			std::streamsize write(
 				const char* text, 
 				const std::streamsize length) 
-			const BOOST_NOEXCEPT_OR_NOTHROW;
+			const noexcept;
 
 		};
 	} // namespace detail

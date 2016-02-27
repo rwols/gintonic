@@ -72,7 +72,7 @@ public:
 	 * 
 	 * @return The string representation of the source.
 	 */
-	inline const GLchar** string() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const GLchar** string() const noexcept
 	{
 		return const_cast<const GLchar**>(m_string);
 	}
@@ -83,7 +83,7 @@ public:
 	 * 
 	 * @return The number of source lines.
 	 */
-	inline GLsizei count() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline GLsizei count() const noexcept
 	{
 		return m_count;
 	}

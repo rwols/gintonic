@@ -7,7 +7,7 @@
 
 namespace gintonic {
 
-vec4f::vec4f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
+vec4f::vec4f(std::initializer_list<float> init) noexcept
 {
 	GINTONIC_ALIGNED(16) float temp[4];
 	std::copy(init.begin(), init.end(), temp);
@@ -17,25 +17,25 @@ vec4f::vec4f(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
 	w = temp[3];
 }
 
-vec4f::vec4f(const vec2f& v, const float z, const float w) BOOST_NOEXCEPT_OR_NOTHROW
+vec4f::vec4f(const vec2f& v, const float z, const float w) noexcept
 : x(v.x), y(v.y), z(z), w(w)
 {
 	/* Empty on purpose. */
 }
 
-vec4f::vec4f(const vec2f& a, const vec2f& b) BOOST_NOEXCEPT_OR_NOTHROW
+vec4f::vec4f(const vec2f& a, const vec2f& b) noexcept
 : x(a.x), y(a.y), z(b.x), w(b.y)
 {
 	/* Empty on purpose. */
 }
 
-vec4f::vec4f(const vec3f& v, const float w) BOOST_NOEXCEPT_OR_NOTHROW
+vec4f::vec4f(const vec3f& v, const float w) noexcept
 : x(v.x), y(v.y), z(v.z), w(w)
 {
 	/* Empty on purpose. */
 }
 
-vec4f::vec4f(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
+vec4f::vec4f(const FBX::FbxVector4& v) noexcept
 : x(static_cast<float>(v[0]))
 , y(static_cast<float>(v[1]))
 , z(static_cast<float>(v[2]))
@@ -44,7 +44,7 @@ vec4f::vec4f(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
 	/* Empty on purpose. */
 }
 
-vec4f& vec4f::operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOTHROW
+vec4f& vec4f::operator=(std::initializer_list<float> init) noexcept
 {
 	GINTONIC_ALIGNED(16) float temp[4];
 	std::copy(init.begin(), init.end(), temp);
@@ -55,7 +55,7 @@ vec4f& vec4f::operator=(std::initializer_list<float> init) BOOST_NOEXCEPT_OR_NOT
 	return *this;
 }
 
-vec4f& vec4f::operator=(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
+vec4f& vec4f::operator=(const FBX::FbxVector4& v) noexcept
 {
 	x = static_cast<float>(v[0]);
 	y = static_cast<float>(v[1]);
@@ -64,7 +64,7 @@ vec4f& vec4f::operator=(const FBX::FbxVector4& v) BOOST_NOEXCEPT_OR_NOTHROW
 	return *this;
 }
 
-vec4f::operator FBX::FbxVector4() const BOOST_NOEXCEPT_OR_NOTHROW
+vec4f::operator FBX::FbxVector4() const noexcept
 {
 	return FBX::FbxVector4(x, y, z, w);
 }

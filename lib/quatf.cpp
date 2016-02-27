@@ -31,13 +31,13 @@ quatf& quatf::operator = (const FBX::FbxVector4& v)
 	return *this;
 }
 
-vec3f quatf::apply_to(const vec3f& v) const BOOST_NOEXCEPT_OR_NOTHROW
+vec3f quatf::apply_to(const vec3f& v) const noexcept
 {
 	return (*this) * quatf(0.0f, v) * conjugate();
 	// return vec3f(temp.x, temp.y, temp.z);
 }
 
-vec3f quatf::forward_direction() const BOOST_NOEXCEPT_OR_NOTHROW
+vec3f quatf::forward_direction() const noexcept
 {
 	// return apply_to(vec3f(0.0f, 0.0f, -1.0f));
 	// const auto temp = (*this) * quatf(-z, -y, x, -w);
@@ -45,7 +45,7 @@ vec3f quatf::forward_direction() const BOOST_NOEXCEPT_OR_NOTHROW
 	return (*this) * quatf(-z, -y, x, -w);
 }
 
-vec3f quatf::right_direction() const BOOST_NOEXCEPT_OR_NOTHROW
+vec3f quatf::right_direction() const noexcept
 {
 	// return apply_to(vec3f(1.0f, 0.0f, 0.0f));
 	// const auto temp = (*this) * quatf(x, -w, z, -y);
@@ -53,7 +53,7 @@ vec3f quatf::right_direction() const BOOST_NOEXCEPT_OR_NOTHROW
 	return (*this) * quatf(x, w, z, -y);
 }
 
-vec3f quatf::up_direction() const BOOST_NOEXCEPT_OR_NOTHROW
+vec3f quatf::up_direction() const noexcept
 {
 	// return apply_to(vec3f(0.0f, 1.0f, 0.0f));
 	// const auto temp = (*this) * quatf(y, -z, w, x);
@@ -61,18 +61,18 @@ vec3f quatf::up_direction() const BOOST_NOEXCEPT_OR_NOTHROW
 	return (*this) * quatf(y, -z, w, x);
 }
 
-vec3f quatf::direction() const BOOST_NOEXCEPT_OR_NOTHROW
+vec3f quatf::direction() const noexcept
 {
 	return forward_direction();
 }
 
-quatf& quatf::set_mousedelta(const vec2f& angles) BOOST_NOEXCEPT_OR_NOTHROW
+quatf& quatf::set_mousedelta(const vec2f& angles) noexcept
 {
 	return *this = mouse(angles);
 		// * axis_agle(vec3f(0.0f, 0.0f, -1.0f), roll);
 }
 
-quatf& quatf::add_mousedelta(const vec2f& mousedelta) BOOST_NOEXCEPT_OR_NOTHROW
+quatf& quatf::add_mousedelta(const vec2f& mousedelta) noexcept
 {
 	// const float cx = std::cos(mousedelta.x * 0.5f);
 	// const float sx = std::sin(mousedelta.x * 0.5f);
@@ -99,14 +99,14 @@ quatf quatf::axis_angle(const vec3f& rotation_axis, const float rotation_angle)
 	return quatf(c, s * rotation_axis);
 }
 
-float quatf::length2() const BOOST_NOEXCEPT_OR_NOTHROW
+float quatf::length2() const noexcept
 {
 	__m128 l = _mm_mul_ps(data, data);
 	__m128 k = _mm_hadd_ps(l, l);
 	return _mm_cvtss_f32(_mm_hadd_ps(k, k));
 }
 
-quatf quatf::operator * (const quatf& other) const BOOST_NOEXCEPT_OR_NOTHROW
+quatf quatf::operator * (const quatf& other) const noexcept
 {
 	/* multiplication of two quaternions (x, y, z, w) x (a, b, c, d)      */
 	/* The product of two quaternions is:                                 */
@@ -235,34 +235,34 @@ quatf quatf::look_at(const vec3f& f, const vec3f& up)
 
 	if (tr > 0.0f)
 	{ 
-		S = std::sqrt(tr + 1.0) * 2.0f; // S=4*q.w 
+		S = std::sqrt(tr + 1.0f) * 2.0f; // S=4*q.w 
 		q.x = (m21 - m12) / S;
 		q.y = (m02 - m20) / S; 
 		q.z = (m10 - m01) / S;
-		q.w = 0.25 * S;
+		q.w = 0.25f * S;
 	}
 	else if ((m00 > m11) & (m00 > m22))
 	{ 
-		S = std::sqrt(1.0 + m00 - m11 - m22) * 2.0f; // S=4*q.x 
-		q.x = 0.25 * S;
+		S = std::sqrt(1.0f + m00 - m11 - m22) * 2.0f; // S=4*q.x 
+		q.x = 0.25f * S;
 		q.y = (m01 + m10) / S; 
 		q.z = (m02 + m20) / S;
 		q.w = (m21 - m12) / S;
 	}
 	else if (m11 > m22)
 	{ 
-		S = std::sqrt(1.0 + m11 - m00 - m22) * 2.0f; // S=4*q.y
+		S = std::sqrt(1.0f + m11 - m00 - m22) * 2.0f; // S=4*q.y
 		q.x = (m01 + m10) / S; 
-		q.y = 0.25 * S;
+		q.y = 0.25f * S;
 		q.z = (m12 + m21) / S;
 		q.w = (m02 - m20) / S;
 	}
 	else
 	{ 
-		S = std::sqrt(1.0 + m22 - m00 - m11) * 2.0f; // S=4*q.z
+		S = std::sqrt(1.0f + m22 - m00 - m11) * 2.0f; // S=4*q.z
 		q.x = (m02 + m20) / S;
 		q.y = (m12 + m21) / S;
-		q.z = 0.25 * S;
+		q.z = 0.25f * S;
 		q.w = (m10 - m01) / S;
 	}
 
@@ -279,7 +279,7 @@ quatf quatf::look_at(const vec3f& f, const vec3f& up)
 	return q;
 }
 
-void quatf::add_mouse(const vec2f& angles) BOOST_NOEXCEPT_OR_NOTHROW
+void quatf::add_mouse(const vec2f& angles) noexcept
 {
 	const auto rot = axis_angle(vec3f(0.0f, 1.0f, 0.0f), angles.x);
 	*this = axis_angle(rot.right_direction(), angles.y) * (*this) * rot;

@@ -29,7 +29,7 @@ public:
 	}
 
 	/// Destructor.
-	inline ~vertex_array_object_array() BOOST_NOEXCEPT_OR_NOTHROW
+	inline ~vertex_array_object_array() noexcept
 	{
 		glDeleteVertexArrays(Size, m_handles);
 	}
@@ -54,7 +54,7 @@ public:
 	 * @return The underlying OpenGL handle at the specified index.
 	 */
 	inline GLuint operator[](const GLuint index) const 
-		BOOST_NOEXCEPT_OR_NOTHROW
+		noexcept
 	{
 		return m_handles[index];
 	}

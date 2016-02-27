@@ -31,7 +31,7 @@ public:
 	/// Destructor.
 	virtual ~unit_quad_P();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 	
 private:
 	opengl::vertex_array_object m_vao;
@@ -53,7 +53,7 @@ public:
 	/// Destructor.
 	virtual ~unit_quad_PN();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -84,7 +84,7 @@ public:
 	/// Destructor.
 	virtual ~unit_quad_PC();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -106,7 +106,7 @@ public:
 	/// Destructor.
 	virtual ~unit_quad_PU();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -128,7 +128,7 @@ public:
 	/// Destructor.
 	virtual ~unit_cube_P();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -152,7 +152,7 @@ public:
 	/// Destructor.
 	virtual ~unit_cube_P_flipped();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -174,7 +174,7 @@ public:
 	/// Destructor.
 	virtual ~unit_cube_PU();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -196,7 +196,7 @@ public:
 	/// Destructor.
 	virtual ~unit_cube_PUN();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -221,7 +221,7 @@ public:
 	/// Destructor.
 	virtual ~unit_cube_PUN_flipped_normals();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -246,7 +246,7 @@ public:
 	/// Destructor.
 	virtual ~unit_cube_PUNTB();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -273,7 +273,7 @@ public:
 	/// Destructor.
 	virtual ~unit_cube_PUNTB_flipped_normals();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -300,7 +300,7 @@ public:
 	 */
 	unit_sphere_P(const unsigned short stacks, const unsigned short slices);
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 	/// Destructor.
 	virtual ~unit_sphere_P();
@@ -334,7 +334,7 @@ public:
 	/// Destructor.
 	virtual ~unit_sphere_PU();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -370,7 +370,7 @@ public:
 	/// Destructor.
 	virtual ~unit_sphere_PUN();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 private:
 	opengl::vertex_array_object m_vao;
@@ -400,7 +400,7 @@ public:
 	 */
 	unit_cone_P(const GLsizei divisions);
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 	/// Destructor.
 	virtual ~unit_cone_P();
@@ -438,7 +438,7 @@ public:
 	/// Destructor.
 	virtual ~unit_cone_PN();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 	/// The number of divisions. This cannot be changed.
 	const GLsizei divisions;
@@ -470,7 +470,7 @@ public:
 	/// Destructor.
 	virtual ~unit_cylinder_P();
 
-	virtual void draw() const BOOST_NOEXCEPT_OR_NOTHROW final;
+	virtual void draw() const noexcept final;
 
 	/// The number of divisions. This cannot be changed.
 	const GLsizei divisions;

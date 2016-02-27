@@ -6,7 +6,7 @@ exception::exception(const std::string& message) : m_message(message) {}
 exception::exception(std::string&& message) : m_message(std::move(message)) {}
 exception::exception(const char* message) : m_message(message) {}
 
-exception::exception(exception&& other) BOOST_NOEXCEPT_OR_NOTHROW
+exception::exception(exception&& other) noexcept
 : m_message(std::move(other.m_message))
 {
 	// When MSVC supports defaulted move constructors / destructors,
@@ -22,13 +22,13 @@ exception& exception::operator=(exception&& other)
 	return *this;
 }
 
-exception::~exception() BOOST_NOEXCEPT_OR_NOTHROW
+exception::~exception() noexcept
 {
 	// When MSVC supports defaulted move constructors / destructors,
 	// remove me.
 }
 
-const char* exception::what() const BOOST_NOEXCEPT_OR_NOTHROW
+const char* exception::what() const noexcept
 {
 	return m_message.c_str();
 }

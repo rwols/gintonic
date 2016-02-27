@@ -141,7 +141,7 @@ public:
 	 * @brief Get the axis-aligned bounding box of this octree.
 	 * @return A const reference to the axis-aligned bounding box.
 	 */
-	inline const box3f& bounds() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline const box3f& bounds() const noexcept
 	{
 		return m_bounds;
 	}
@@ -151,7 +151,7 @@ public:
 	 * @details An octree is a root if it has no parent.
 	 * @return True if this octree is a root, false otherwise.
 	 */
-	inline bool is_root() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline bool is_root() const noexcept
 	{
 		return !m_parent;
 	}
@@ -161,13 +161,13 @@ public:
 	 * @details An octree is a leaf if it has no children.
 	 * @return True if this octree is a leaf, false otherwise.
 	 */
-	bool is_leaf() const BOOST_NOEXCEPT_OR_NOTHROW;
+	bool is_leaf() const noexcept;
 
 	/**
 	 * @brief Check wether this octree has no entities it refers to.
 	 * @return True if it houses no entities, false otherwise.
 	 */
-	inline bool has_no_entities() const BOOST_NOEXCEPT_OR_NOTHROW
+	inline bool has_no_entities() const noexcept
 	{
 		return m_entities.empty();
 	}
