@@ -290,6 +290,34 @@ void entity::unset_parent()
 	if (m_parent) m_parent->remove_child(*this); // Also sets m_parent to nullptr
 }
 
+void entity::get_view_matrix(mat4f& m) const noexcept
+{
+	const auto f = global_transform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f);
+	const auto u = global_transform() * vec4f(0.0f, 1.0f, 0.0f, 0.0f);
+	const auto r = global_transform() * vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+	const auto eye = global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+
+	m.m00 = r.x;
+	m.m10 = u.x;
+	m.m20 = -f.x;
+	m.m30 = 0.0f;
+
+	m.m01 = r.y;
+	m.m11 = u.y;
+	m.m21 = -f.y;
+	m.m31 = 0.0f;
+
+	m.m02 = r.z;
+	m.m12 = u.z;
+	m.m22 = -f.z;
+	m.m32 = 0.0f;
+
+	m.m03 = -dot(r, eye);
+	m.m13 = -dot(u, eye);
+	m.m23 =  dot(f, eye);
+	m.m33 = 1.0f;
+}
+
 entity::~entity()
 {
 	about_to_die(*this);
