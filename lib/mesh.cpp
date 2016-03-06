@@ -4,26 +4,26 @@
 
 namespace gintonic {
 
-void mesh::attach(entity& e)
-{
-	if (e.m_mesh_component == this) return;
-	else if (e.m_mesh_component) e.m_mesh_component->detach(e);
-	e.m_mesh_component = this;
-	m_ents.push_back(&e);
-}
+// void mesh::attach(entity& e)
+// {
+// 	if (e.m_mesh_component == this) return;
+// 	else if (e.m_mesh_component) e.m_mesh_component->detach(e);
+// 	e.m_mesh_component = this;
+// 	m_ents.push_back(&e);
+// }
 
-void mesh::detach(entity& e)
-{
-	for (auto i = begin(); i != end(); ++i)
-	{
-		if (*i == &e)
-		{
-			e.m_mesh_component = nullptr;
-			m_ents.erase(i);
-			return;
-		}
-	}
-}
+// void mesh::detach(entity& e)
+// {
+// 	for (auto i = begin(); i != end(); ++i)
+// 	{
+// 		if (*i == &e)
+// 		{
+// 			e.m_mesh_component = nullptr;
+// 			m_ents.erase(i);
+// 			return;
+// 		}
+// 	}
+// }
 
 mesh::vec2f::vec2f(const FbxVector2& v)
 : x(static_cast<GLfloat>(v[0]))
@@ -105,10 +105,10 @@ mesh::vec4f::vec4f(const GLfloat x, const GLfloat y, const GLfloat z, const GLfl
 	/* Empty on purpose. */
 }
 
-mesh::~mesh() noexcept
-{
-	for (auto* e : m_ents) e->m_mesh_component = nullptr;
-}
+// mesh::~mesh() noexcept
+// {
+// 	for (auto* e : m_ents) e->m_mesh_component = nullptr;
+// }
 
 bool mesh::vec4f::operator==(const mesh::vec4f& other) const noexcept
 {

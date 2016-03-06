@@ -53,7 +53,8 @@ public:
 		return m_handle;
 	}
 
-	void check_status() const noexcept;
+	void bind(const GLenum token) const noexcept;
+	void check_status() const;
 	void check_status(bool& r) const noexcept;
 };
 

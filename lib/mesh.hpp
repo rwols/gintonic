@@ -29,7 +29,7 @@ namespace gintonic {
  * the current modelview and modelviewprojection matrices. When rendering
  * the mesh instanced, you need to supply the matrices yourself.
  */
-class mesh : public component
+class mesh : public std::enable_shared_from_this<mesh>
 {
 public:
 
@@ -40,8 +40,8 @@ public:
 		kDynamicMesh
 	};
 
-	virtual void attach(entity&);
-	virtual void detach(entity&);
+	// virtual void attach(entity&);
+	// virtual void detach(entity&);
 
 	/**
 	 * @brief Draw the mesh.
@@ -67,7 +67,7 @@ public:
 	inline mesh_type type() const noexcept { return m_type; }
 
 	/// Destructor.
-	virtual ~mesh() noexcept;
+	virtual ~mesh() noexcept = default;
 
 	/**
 	 * @brief An additional vector class that doesn't use SSE types.

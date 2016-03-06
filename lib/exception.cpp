@@ -1,4 +1,5 @@
 #include "exception.hpp"
+#include <string>
 
 namespace gintonic {
 

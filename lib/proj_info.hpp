@@ -18,15 +18,15 @@ namespace gintonic {
  * renderer information on what type of projection matrix to use for the given
  * camera entity.
  */
-class proj_info : public component
+class camera : public std::enable_shared_from_this<camera>
 {
 public:
 
-	/// Default constructor.
-	proj_info() = default;
+	// /// Default constructor.
+	// camera() = default;
 
-	/// Destructor.
-	virtual ~proj_info();
+	// /// Destructor.
+	// virtual ~camera();
 
 	/// Projection type. Either orthographic or perspective.
 	enum projection_type
@@ -40,13 +40,21 @@ public:
 
 	/// The field of view (FOV).
 	float fieldofview = 1.22173048f;
+	float width;
+	float height;
+	float nearplane;
+	float farplane;
 
 	/// The current projection matrix.
-	mat4f matrix;
+	mat4f projection_matrix;
 
-	virtual void attach(entity&) final;
+	vec2f angles;
 
-	virtual void detach(entity&) final;
+	void add_mouse(const vec2f& mouse_angles) noexcept;
+
+	// virtual void attach(entity&) final;
+
+	// virtual void detach(entity&) final;
 
 	/**
 	 * @brief Update this projection info component.

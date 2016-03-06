@@ -17,7 +17,12 @@ framebuffer& framebuffer::operator = (framebuffer&& other)
 	return *this;
 }
 
-void framebuffer::check_status() const noexcept
+void framebuffer::bind(const GLenum token) const noexcept
+{
+	glBindFramebuffer(token, m_handle);
+}
+
+void framebuffer::check_status() const
 {
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{

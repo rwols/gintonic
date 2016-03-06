@@ -28,6 +28,7 @@ class camera;     // Forward declaration.
 class SQTstack;   // Forward declaration.
 class mat4fstack; // Forward declaration.
 class controller; // Forward declaration.
+class shadow_buffer; // Forward declaration.
 
 /**
  * @brief Represents an entity in the world.
@@ -39,12 +40,12 @@ class controller; // Forward declaration.
  * is like a vector in that the component itself should have a small memory
  * footprint, while the data that they point to might be very memory-intensive.
  */
-class entity : public std::enable_shared_from_this
+class entity : public std::enable_shared_from_this<entity>
 {
 public:
 
 	/// The type of datastructure for the list of children.
-	typedef std::list<entity*> children_datastructure_type;
+	typedef std::list<std::shared_ptr<entity>> children_datastructure_type;
 
 	/// The iterator type for the list of children.
 	typedef children_datastructure_type::iterator iterator;
@@ -62,7 +63,8 @@ private:
 
 	children_datastructure_type m_children;
 
-	entity*     m_parent               = nullptr;
+	std::weak_ptr<entity> m_parent = std::shared_ptr<entity>(nullptr);
+
 	octree*     m_octree               = nullptr;
 	controller* m_controller_component = nullptr;
 	mesh*       m_mesh_component       = nullptr;
@@ -90,7 +92,56 @@ private:
 	mat4f compute_global_transform() noexcept;
 	void update_global_datamembers(const mat4fstack&) noexcept;
 
+	/**
+	 * @brief Constructor.
+	 *
+	 * @param local_transform The local transform that the entity starts out
+	 * with.
+	 *
+	 * @param local_bounding_box The local bounding box that the entity starts
+	 * out with.
+	 *
+	 * @param octree_root If the entity should be part of an octree, you can
+	 * pass the root of the octree here.
+	 * 
+	 * @param parent Wether the entity should have a parent entity.
+	 */
+	entity(
+		const SQT& local_transform,
+		const box3f& local_bounding_box,
+		octree* octree_root = nullptr,
+		std::shared_ptr<entity> parent = std::shared_ptr<entity>(nullptr));
+
+	/**
+	 * @brief Default constructor.
+	 *
+	 * @details The default constructor constructs an entity with a local
+	 * transform centered at the origin and with the standard unit axes of
+	 * three-dimensional space. It has a trivial local bounding box, so a
+	 * point. It has no parent and is not part of an octree.
+	 */
+	entity() = default;
+
 public:
+
+	std::shared_ptr<material> material;
+	std::shared_ptr<mesh> mesh;
+	std::shared_ptr<light> light;
+	std::shared_ptr<camera> camera;
+	std::shared_ptr<proj_info> proj_info;
+	std::unique_ptr<shadow_buffer> shadow_buffer;
+
+	template <class ComponentType>
+	ComponentType* get() noexcept
+	{
+		return reinterpret_cast<ComponentType*>(m_components[ComponentType::this_type].get());
+	};
+
+	template <class ComponentType>
+	const ComponentType* get() const noexcept
+	{
+		return reinterpret_cast<ComponentType*>(m_components[ComponentType::this_type].get());
+	}
 
 	/**
 	 * @name Events
@@ -110,7 +161,7 @@ public:
 	 *
 	 * @param e A reference to the entity whose global transform has changed.
 	 */
-	boost::signals2::signal<void(entity&)> transform_changed;
+	boost::signals2::signal<void(std::shared_ptr<entity>)> transform_changed;
 
 	//@}
 
@@ -121,18 +172,14 @@ public:
 	//@{
 
 	/**
-	 * @brief Default constructor.
-	 *
-	 * @details The default constructor constructs an entity with a local
-	 * transform centered at the origin and with the standard unit axes of
-	 * three-dimensional space. It has a trivial local bounding box, so a
-	 * point. It has no parent and is not part of an octree.
+	 * @brief Returns a shared pointer to a new entity.
+	 * @return A shared pointer to a new entity.
 	 */
-	entity() = default;
+	static std::shared_ptr<entity> create();
 
 	/**
-	 * @brief Constructor.
-	 *
+	 * @brief Returns a shared pointer to a new entity.
+	 * 
 	 * @param local_transform The local transform that the entity starts out
 	 * with.
 	 *
@@ -143,12 +190,14 @@ public:
 	 * pass the root of the octree here.
 	 * 
 	 * @param parent Wether the entity should have a parent entity.
+	 * 
+	 * @return A shared pointer a new entity.
 	 */
-	entity(
-		const SQT&   local_transform,
+	static std::shared_ptr<entity> create(
+		const SQT& local_transform, 
 		const box3f& local_bounding_box,
-		octree*      octree_root         = nullptr,
-		entity*      parent              = nullptr);
+		octree* octree_node = nullptr,
+		std::shared_ptr<entity> parent = std::shared_ptr<entity>(nullptr));
 
 	/// You cannot copy entities. This could create cycles in the entity tree.
 	entity(const entity&) = delete;
@@ -425,9 +474,9 @@ public:
 	 * is first removed from the entity. In the old parent entity, the child
 	 * entity is searched for and removed from the list.
 	 *
-	 * @param e The child entity.
+	 * @param child The child entity.
 	 */
-	void add_child(entity& e);
+	void add_child(std::shared_ptr<entity> child);
 
 	/**
 	 * @brief Remove a child entity of this entity.
@@ -435,9 +484,16 @@ public:
 	 * @details If the child entity is not present, then nothing will happen.
 	 * The parent pointer of the child entity will be set to null.
 	 *
-	 * @param e The child entity to remove.
+	 * @param child The child entity to remove.
 	 */
-	void remove_child(entity& e);
+	void remove_child(std::shared_ptr<entity> child);
+
+	/**
+	 * @brief Remove a child entity of this entity.
+	 *
+	 * @param iter An iterator pointing to a child.
+	 */
+	void remove_child(iterator child);
 
 	/**
 	 * @brief Set the parent of this entity.
@@ -446,9 +502,9 @@ public:
 	 * removed. In the parent's children list, this entity is searched for
 	 * and removed.
 	 *
-	 * @param e The parent entity.
+	 * @param parent The parent entity.
 	 */
-	void set_parent(entity& e);
+	void set_parent(std::shared_ptr<entity> parent);
 
 	/**
 	 * @brief Set this entity to have no parent.
@@ -464,10 +520,15 @@ public:
 	 * @brief Get a pointer to the parent of this entity.
 	 *
 	 * @details The pointer can be null, so be sure to check for that.
+	 * In order to get an actual pointer, use the following construct:
+	 * if (auto ptr = e->parent().lock())
+	 * {
+	 *   // do stuff with ptr
+	 * }
 	 *
-	 * @return A pointer to the parent of this entity.
+	 * @return A weak pointer to the parent of this entity.
 	 */
-	inline entity* parent() noexcept
+	inline std::weak_ptr<entity> parent() noexcept
 	{
 		return m_parent;
 	}
@@ -479,7 +540,7 @@ public:
 	 *
 	 * @return A constant pointer to the parent of this entity.
 	 */
-	inline const entity* parent() const noexcept
+	inline const std::weak_ptr<const entity> parent() const noexcept
 	{
 		return m_parent;
 	}
@@ -582,210 +643,210 @@ public:
 
 	//@}
 
-	/**
-	 * @name Components
-	 */
+	// /**
+	//  * @name Components
+	//  */
 
-	//@{
+	// //@{
 
-	/**
-	 * @brief Get a pointer to the controller component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A pointer to the controller component of this entity.
-	 */
-	inline controller* controller_component() noexcept
-	{
-		return m_controller_component;
-	}
+	// /**
+	//  * @brief Get a pointer to the controller component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A pointer to the controller component of this entity.
+	//  */
+	// inline controller* controller_component() noexcept
+	// {
+	// 	return m_controller_component;
+	// }
 
-	/**
-	 * @brief Get a constant pointer to the controller component of this
-	 * entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A constant pointer to the controller component of this entity.
-	 */
-	inline const controller* controller_component() const
-		noexcept
-	{
-		return m_controller_component;
-	}
+	// /**
+	//  * @brief Get a constant pointer to the controller component of this
+	//  * entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A constant pointer to the controller component of this entity.
+	//  */
+	// inline const controller* controller_component() const
+	// 	noexcept
+	// {
+	// 	return m_controller_component;
+	// }
 
-	/**
-	 * @brief Get a pointer to the mesh component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A pointer to the mesh component of this entity.
-	 */
-	inline mesh* mesh_component() noexcept
-	{
-		return m_mesh_component;
-	}
+	// /**
+	//  * @brief Get a pointer to the mesh component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A pointer to the mesh component of this entity.
+	//  */
+	// inline mesh* mesh_component() noexcept
+	// {
+	// 	return m_mesh_component;
+	// }
 
-	/**
-	 * @brief Get a constant pointer to the mesh component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A constant pointer to the mesh component of this entity.
-	 */
-	inline const mesh* mesh_component() const noexcept
-	{
-		return m_mesh_component;
-	}
+	// /**
+	//  * @brief Get a constant pointer to the mesh component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A constant pointer to the mesh component of this entity.
+	//  */
+	// inline const mesh* mesh_component() const noexcept
+	// {
+	// 	return m_mesh_component;
+	// }
 
-	/**
-	 * @brief Get a pointer to the material component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A pointer to the material component of this entity.
-	 */
-	inline material* material_component() noexcept
-	{
-		return m_material_component;
-	}
+	// /**
+	//  * @brief Get a pointer to the material component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A pointer to the material component of this entity.
+	//  */
+	// inline material* material_component() noexcept
+	// {
+	// 	return m_material_component;
+	// }
 
-	/**
-	 * @brief Get a constant pointer to the material component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A constant pointer to the material component of this entity.
-	 */
-	inline const material* material_component() const
-		noexcept
-	{
-		return m_material_component;
-	}
+	// /**
+	//  * @brief Get a constant pointer to the material component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A constant pointer to the material component of this entity.
+	//  */
+	// inline const material* material_component() const
+	// 	noexcept
+	// {
+	// 	return m_material_component;
+	// }
 
-	/**
-	 * @brief Get a pointer to the light component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A pointer to the light component of this entity.
-	 */
-	inline light* light_component() noexcept
-	{
-		return m_light_component;
-	}
+	// /**
+	//  * @brief Get a pointer to the light component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A pointer to the light component of this entity.
+	//  */
+	// inline light* light_component() noexcept
+	// {
+	// 	return m_light_component;
+	// }
 
-	/**
-	 * @brief Get a constant pointer to the light component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A constant pointer to the light component of this entity.
-	 */
-	inline const light* light_component() const noexcept
-	{
-		return m_light_component;
-	}
+	// /**
+	//  * @brief Get a constant pointer to the light component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A constant pointer to the light component of this entity.
+	//  */
+	// inline const light* light_component() const noexcept
+	// {
+	// 	return m_light_component;
+	// }
 
-	/**
-	 * @brief Get a pointer to the rigid_body component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A pointer to the rigid_body component of this entity.
-	 */
-	inline rigid_body* rigid_body_component() noexcept
-	{
-		return m_rigid_body_component;
-	}
+	// /**
+	//  * @brief Get a pointer to the rigid_body component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A pointer to the rigid_body component of this entity.
+	//  */
+	// inline rigid_body* rigid_body_component() noexcept
+	// {
+	// 	return m_rigid_body_component;
+	// }
 
-	/**
-	 * @brief Get a constant pointer to the rigid_body component of this
-	 * entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A constant pointer to the rigid_body component of this entity.
-	 */
-	inline const rigid_body* rigid_body_component() const
-		noexcept
-	{
-		return m_rigid_body_component;
-	}
+	// /**
+	//  * @brief Get a constant pointer to the rigid_body component of this
+	//  * entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A constant pointer to the rigid_body component of this entity.
+	//  */
+	// inline const rigid_body* rigid_body_component() const
+	// 	noexcept
+	// {
+	// 	return m_rigid_body_component;
+	// }
 
-	/**
-	 * @brief Get a pointer to the AI component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A pointer to the AI component of this entity.
-	 */
-	inline AI* AI_component() noexcept
-	{
-		return m_AI_component;
-	}
+	// /**
+	//  * @brief Get a pointer to the AI component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A pointer to the AI component of this entity.
+	//  */
+	// inline AI* AI_component() noexcept
+	// {
+	// 	return m_AI_component;
+	// }
 
-	/**
-	 * @brief Get a constant pointer to the AI component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A constant pointer to the AI component of this entity.
-	 */
-	inline const AI* AI_component() const noexcept
-	{
-		return m_AI_component;
-	}
+	// /**
+	//  * @brief Get a constant pointer to the AI component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A constant pointer to the AI component of this entity.
+	//  */
+	// inline const AI* AI_component() const noexcept
+	// {
+	// 	return m_AI_component;
+	// }
 
-	/**
-	 * @brief Get a pointer to the camera component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A pointer to the camera component of this entity.
-	 */
-	inline camera* camera_component() noexcept
-	{
-		return m_camera_component;
-	}
+	// /**
+	//  * @brief Get a pointer to the camera component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A pointer to the camera component of this entity.
+	//  */
+	// inline camera* camera_component() noexcept
+	// {
+	// 	return m_camera_component;
+	// }
 
-	/**
-	 * @brief Get a constant pointer to the camera component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A constant pointer to the camera component of this entity.
-	 */
-	inline const camera* camera_component() const noexcept
-	{
-		return m_camera_component;
-	}
+	// /**
+	//  * @brief Get a constant pointer to the camera component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A constant pointer to the camera component of this entity.
+	//  */
+	// inline const camera* camera_component() const noexcept
+	// {
+	// 	return m_camera_component;
+	// }
 
-	/**
-	 * @brief Get a pointer to the proj_info component of this entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A pointer to the proj_info component of this entity.
-	 */
-	inline proj_info*  proj_info_component() noexcept
-	{
-		return m_proj_info_component;
-	}
+	// /**
+	//  * @brief Get a pointer to the proj_info component of this entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A pointer to the proj_info component of this entity.
+	//  */
+	// inline proj_info*  proj_info_component() noexcept
+	// {
+	// 	return m_proj_info_component;
+	// }
 
-	/**
-	 * @brief Get a constant pointer to the proj_info component of this
-	 * entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
-	 * @return A constant pointer to the proj_info component of this entity.
-	 */
-	inline const proj_info*  proj_info_component() const
-		noexcept
-	{
-		return m_proj_info_component;
-	}
+	// /**
+	//  * @brief Get a constant pointer to the proj_info component of this
+	//  * entity.
+	//  *
+	//  * @details The pointer can be null, so be sure to check for that.
+	//  *
+	//  * @return A constant pointer to the proj_info component of this entity.
+	//  */
+	// inline const proj_info*  proj_info_component() const
+	// 	noexcept
+	// {
+	// 	return m_proj_info_component;
+	// }
 
 	//@}
 

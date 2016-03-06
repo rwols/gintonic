@@ -8,6 +8,7 @@
 #define exception_hpp
 
 #include <stdexcept>
+#include <string>
 #include "config.hpp"
 
 namespace gintonic {

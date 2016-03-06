@@ -24,7 +24,9 @@ int main(int argc, char* argv[])
 	// Define a camera.
 	gt::proj_info projection_component;
 	gt::camera cam_component;
-	gt::entity cam_entity;
+	// std::shared_ptr<entity> cam_entity = std::make_shared<entity>();
+	// cam_entity.add_component(new projection_component());
+	// cam_entity.add_component(new camera_component());
 	projection_component.attach(cam_entity);
 	cam_component.attach(cam_entity);
 
