@@ -44,7 +44,7 @@ set(src_files
 	opengl/shader_program.cpp
 	opengl/source_code.cpp
 	opengl/texture_object.cpp
-	opengl/textures.cpp
+	# opengl/textures.cpp
 	opengl/vertex_array_object.cpp
 	opengl/utilities.cpp
 	DirectionalShadowBuffer.cpp
@@ -52,6 +52,7 @@ set(src_files
 	PointShadowBuffer.cpp
 	SQT.cpp
 	SpotShadowBuffer.cpp
+	Texture2D.cpp
 	basic_shapes.cpp
 	box2f.cpp
 	box3f.cpp

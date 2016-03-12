@@ -146,8 +146,6 @@ bool initialize(const int argc, char** argv)
 	return true;
 }
 
-#define MOVE_SPEED 50.0f
-
 int main(int argc, char** argv)
 {
 	using namespace gintonic;
@@ -189,6 +187,18 @@ int main(int argc, char** argv)
 		if (renderer::key(SDL_SCANCODE_D))
 		{
 			lCameraEntity->move_right(gState.mMoveSpeed * lDeltaTime);
+		}
+		if (renderer::key(SDL_SCANCODE_SPACE))
+		{
+			lCameraEntity->move_up(gState.mMoveSpeed * lDeltaTime);
+		}
+		if (renderer::key(SDL_SCANCODE_C))
+		{
+			lCameraEntity->move_down(gState.mMoveSpeed * lDeltaTime);
+		}
+		if (renderer::key_toggle_press(SDL_SCANCODE_T))
+		{
+			renderer::setWireframeMode(!renderer::getWireframeMode());
 		}
 
 		const auto lMouseDelta = -deg2rad(renderer::mouse_delta()) / 10.0f;

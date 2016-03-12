@@ -591,7 +591,7 @@ namespace gintonic {
 		// }
 
 		// Illumination phase.
-
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		for (unsigned int i = 0; i < GBUFFER_FINAL_COLOR; ++i) 
 		{

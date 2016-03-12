@@ -487,6 +487,16 @@ public:
 	static void setWireframeMode(const bool yesOrNo) noexcept;
 
 	/**
+	 * @brief Query if the renderer is rendering in wireframe mode.
+	 * @return True if the renderer is rendering in wireframe mode,
+	 * false if the renderer is rendering normally.
+	 */
+	static bool getWireframeMode() noexcept
+	{
+		return sRenderInWireframeMode;
+	}
+
+	/**
 	 * @brief Enable or disable virtual synchronization.
 	 * @param b True to enable, false to disable.
 	 */
