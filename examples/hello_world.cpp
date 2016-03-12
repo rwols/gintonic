@@ -41,12 +41,12 @@ bool initialize(const int argc, char** argv)
 
 	// Create entity and camera.
 	auto lCamera = std::make_shared<Camera>();
-	lCamera->setName("Global", "DefaultCamera");
+	lCamera->setName("DefaultCamera");
 	lCamera->setNearPlane(0.01f);
 	lCamera->setFarPlane(100.0f);
 	lCamera->setProjectionType(Camera::kPerspectiveProjection);
-	auto lCameraEntity = Object<entity>::create();
-	lCameraEntity->setName("Global", "DefaultCamera");
+	auto lCameraEntity = std::make_shared<entity>();
+	lCameraEntity->setName("DefaultCamera");
 	lCameraEntity->set_rotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
 	lCameraEntity->set_scale(vec3f(1.0f, 1.0f, 1.0f));
 	lCameraEntity->camera = lCamera;
@@ -96,7 +96,7 @@ bool initialize(const int argc, char** argv)
 		auto lLightEntity = std::make_shared<gintonic::entity>();
 		auto lLight = std::shared_ptr<Light>(new DirectionalLight());
 		lLight->intensity = 1.0f;
-		lLightEntity->setName("Global", "DefaultDirectionalLight");
+		lLightEntity->setName("DefaultDirectionalLight");
 		lLightEntity->set_local_transform
 		(
 			SQT
@@ -110,7 +110,7 @@ bool initialize(const int argc, char** argv)
 				vec3f(0.0f, 0.0f, 0.0f)
 			)
 		);
-		lLight->setName("Global", "DefaultDirectionalLight");
+		lLight->setName("DefaultDirectionalLight");
 		lLightEntity->light = lLight;
 		gState.mEntities.push_back(lLightEntity);
 		gState.mLights.push_back(lLight);

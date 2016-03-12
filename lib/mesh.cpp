@@ -211,8 +211,7 @@ Mesh::Mesh(const aiMesh* pAssimpMesh)
 }
 
 Mesh::Mesh(const FbxMesh* pFbxMesh)
-: Object<Mesh>(pFbxMesh)
-, mMatrixBuffer(GL_DYNAMIC_DRAW)
+: mMatrixBuffer(GL_DYNAMIC_DRAW)
 , mNormalMatrixBuffer(GL_DYNAMIC_DRAW)
 {
 	setupInstancedRenderingMatrices();
@@ -358,19 +357,9 @@ void Mesh::set(const aiMesh* pAssimpMesh)
 
 void Mesh::set(const FbxMesh* pFbxMesh)
 {
+	setNameWithFbx(pFbxMesh);
+
 	int i, j, polyvertex, polygonsize, polygoncount, vertexid = 0;
-
-	// auto lGlobalName = boost::filesystem::path(pFbxMesh->GetNode()->GetScene()->GetSceneInfo()->Url.Get().Buffer()).stem().string();
-	// if (std::strcmp(pFbxMesh->GetName(), "") == 0)
-	// {
-	// 	setName(std::move(lGlobalName), pFbxMesh->GetNode()->GetName());
-	// }
-	// else
-	// {
-	// 	setName(std::move(lGlobalName), pFbxMesh->GetName());
-	// }
-
-	std::cerr << "\tFound mesh: " << getLocalName() << '\n';
 
 	if (pFbxMesh->IsTriangleMesh() == false)
 	{

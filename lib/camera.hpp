@@ -17,7 +17,7 @@ namespace gintonic {
 /**
  * @brief Camera component class.
  */
-class Camera : public Object<Camera>
+class Camera : public Object<Camera, std::string>
 {
 public:
 

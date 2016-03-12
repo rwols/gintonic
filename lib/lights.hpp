@@ -28,7 +28,7 @@ class proj_info; // Forward declaration.
 /**
  * @brief A light. Virtual base component for inheritance.
  */
-class Light : public Object<Light>
+class Light : public Object<Light, std::string>
 {
 public:
 

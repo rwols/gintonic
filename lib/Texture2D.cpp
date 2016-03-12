@@ -26,7 +26,7 @@ Texture2D::Texture2D(const FbxTexture* pFbxTexture)
 		// then append the filename. If this doesn't work,
 		// we go home.
 
-		// Some times this actually works.
+		// Sometimes this actually works.
 		
 		auto lFilename = boost::filesystem::path(
 			pFbxTexture->GetScene()->GetSceneInfo()->Url.Get().Buffer()).parent_path() 
@@ -53,7 +53,7 @@ void Texture2D::bind(const GLint textureUnit) const noexcept
 
 void Texture2D::loadFromFile(boost::filesystem::path filename)
 {
-	mFilename = std::move(filename);
+	setName(std::move(filename));
 	GLenum lFormat;
 	int lWidth;
 	int lHeight;
@@ -62,12 +62,12 @@ void Texture2D::loadFromFile(boost::filesystem::path filename)
 	auto lDeleter = [](unsigned char* ptr) { stbi_image_free(ptr); };
 
 	std::unique_ptr<unsigned char, decltype(lDeleter)> data(
-		stbi_load(mFilename.c_str(), &lWidth, &lHeight, &lComp, STBI_default), 
+		stbi_load(getName().c_str(), &lWidth, &lHeight, &lComp, STBI_default), 
 		lDeleter);
 
 	if (!data)
 	{
-		exception lException(mFilename.string());
+		exception lException(getName().string());
 		lException.append(" is invalid.");
 		throw lException;
 	}
@@ -80,7 +80,7 @@ void Texture2D::loadFromFile(boost::filesystem::path filename)
 		case STBI_rgb_alpha:  lFormat = GL_RGBA; break;
 		default:
 		{
-			exception lException(mFilename.string());
+			exception lException(getName().string());
 			lException.append(" has an unknown image format.");
 			throw lException;
 		}

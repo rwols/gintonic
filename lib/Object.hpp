@@ -13,78 +13,49 @@ namespace gintonic {
 
 template
 <
-	class Derived
+	class Derived,
+	class NameType
 >
 class Object : public std::enable_shared_from_this<Derived>
 {
-protected:
-
-	virtual ~Object() noexcept = default;
-
-	Object(const FbxNode* pFbxNode)
-	{
-		mGlobalName = boost::filesystem::path(pFbxNode->GetScene()->GetSceneInfo()->Url.Get().Buffer()).stem().string();
-		mLocalName = pFbxNode->GetName();
-		mFullName = mGlobalName + '.' + mLocalName;
-	}
-
-	Object(const FbxNodeAttribute* pFbxAttribute)
-	{
-		mGlobalName = boost::filesystem::path(pFbxAttribute->GetScene()->GetSceneInfo()->Url.Get().Buffer()).stem().string();
-		if (std::strcmp(pFbxAttribute->GetName(), "") == 0)
-		{
-			mLocalName = pFbxAttribute->GetNode()->GetName();
-		}
-		else
-		{
-			mLocalName = pFbxAttribute->GetName();
-		}
-		mFullName = mGlobalName + '.' + mLocalName;
-	}
-
 public:
 
 	Object() = default;
 
-	template <class StringType0, class StringType1>
-	Object(StringType0&& globalName, StringType1&& localName)
-	: mGlobalName(std::forward<StringType0>(globalName))
-	, mLocalName(std::forward<StringType1>(localName))
-	, mFullName(mGlobalName + '.' + mLocalName)
+	Object(const NameType& name)
+	: mName(name)
+	{
+		/* Empty on purpose. */
+	}
+
+	Object(NameType&& name)
+	: mName(std::move(name))
 	{
 		/* Empty on purpose. */
 	}
 
 	Object(const Object& other)
-	: mGlobalName(other.mGlobalName)
-	, mLocalName(other.mLocalName)
-	, mFullName(other.mFullName)
+	: mName(other.mName)
 	{
 		/* Don't copy the read_write_lock */
 	}
 
 	Object(Object&& other)
-	: mGlobalName(std::move(other.mGlobalName))
-	, mLocalName(std::move(other.mLocalName))
-	, mFullName(std::move(other.mFullName))
+	: mName(std::move(other.mName))
 	{
 		/* Don't move the read_write_lock */
 	}
 	
 	Object& operator = (const Object& other)
 	{
-		mGlobalName = other.mGlobalName;
-		mLocalName = other.mLocalName;
-		mFullName = other.mFullName;
+		mName = other.mName;
 		/* Don't copy the read_write_lock */
 		return *this;
 	}
 	
 	Object& operator = (Object&& other)
 	{
-		mGlobalName = std::move(other.mGlobalName);
-		mLocalName = std::move(other.mLocalName);
-		mFullName = std::move(other.mFullName);
+		mName = std::move(other.mName);
 		/* Don't move the read_write_lock */
 		return *this;
 	}
@@ -122,41 +93,15 @@ public:
 		mReadWriteLock.release_write();
 	}
 
-	template <class StringType>
-	void setGlobalName(StringType&& globalName)
+	template <class ArgType>
+	void setName(ArgType&& name)
 	{
-		mGlobalName = std::forward<StringType>(globalName);
-		mFullName = mGlobalName + '.' + mLocalName;
-	}
-
-	template <class StringType>
-	void setLocalName(StringType&& localName)
-	{
-		mLocalName = std::forward<StringType>(localName);
-		mFullName = mGlobalName + '.' + mLocalName;
-	}
-
-	template <class StringType0, class StringType1>
-	void setName(StringType0&& globalPart, StringType1&& localPart)
-	{
-		mGlobalName = std::forward<StringType0>(globalPart);
-		mLocalName = std::forward<StringType1>(localPart);
-		mFullName = mGlobalName + '.' + mLocalName;
+		mName = std::forward<ArgType>(name);
 	}
 	
-	inline const std::string& getGlobalName() const noexcept
+	inline const NameType& getName() const noexcept
 	{
-		return mGlobalName;
-	}
-
-	inline const std::string& getLocalName() const noexcept
-	{
-		return mLocalName;
-	}
-
-	inline const std::string& getName() const noexcept
-	{
-		return mFullName;
+		return mName;
 	}
 
 	struct NameComparer
@@ -164,22 +109,6 @@ public:
 		inline bool operator()(const Object& lhs, const Object& rhs)
 		{
 			return lhs.getName() == rhs.getName();
-		}
-	};
-
-	struct GlobalNameComparer
-	{
-		inline bool operator()(const Object& lhs, const Object& rhs)
-		{
-			return lhs.getGlobalName() == rhs.getGlobalName();
-		}
-	};
-
-	struct LocalNameComparer
-	{
-		inline bool operator()(const Object& lhs, const Object& rhs)
-		{
-			return lhs.getLocalName() == rhs.getLocalName();
 		}
 	};
 
@@ -196,29 +125,67 @@ public:
 		return os << object.mFullName;
 	}
 
+protected:
+
+	virtual ~Object() noexcept = default;
+
+	Object(const FbxNode* pFbxNode)
+	: mName(pFbxNode->GetName())
+	{
+		/* Empty on purpose. */
+	}
+
+	Object(const FbxNodeAttribute* pFbxAttribute)
+	{
+		if (std::strcmp(pFbxAttribute->GetName(), "") == 0)
+		{
+			mName = pFbxAttribute->GetNode()->GetName();
+		}
+		else
+		{
+			mName = pFbxAttribute->GetName();
+		}
+	}
+
+	Object(const FbxSurfaceMaterial* pFbxMaterial)
+	: mName(pFbxMaterial->GetName())
+	{
+		/* Empty on purpose. */
+	}
+
+	void setNameWithFbx(const FbxNode* pFbxNode)
+	{
+		mName = pFbxNode->GetName();
+	}
+
+	void setNameWithFbx(const FbxNodeAttribute* pFbxAttribute)
+	{
+		if (std::strcmp(pFbxAttribute->GetName(), "") == 0)
+		{
+			mName = pFbxAttribute->GetNode()->GetName();
+		}
+		else
+		{
+			mName = pFbxAttribute->GetName();
+		}
+	}
+
+	void setNameWithFbx(const FbxSurfaceMaterial* pFbxMaterial)
+	{
+		mName = pFbxMaterial->GetName();
+	}
+
 private:
-	std::string mGlobalName;
-	std::string mLocalName;
-	std::string mFullName;
+	NameType mName;
 	read_write_lock mReadWriteLock;
 
 	friend class boost::serialization::access;
 
 	template <class Archive>
-	void save(Archive& ar, const unsigned int /*version*/) const
+	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
-		ar & mGlobalName & mLocalName;
+		ar & mName;
 	}
-
-	template <class Archive>
-	void load(Archive& ar, const unsigned int /*version*/)
-	{
-		ar & mGlobalName & mLocalName;
-		mFullName = mGlobalName + '.' + mLocalName;
-	}
-
-	BOOST_SERIALIZATION_SPLIT_MEMBER();
-
 };
 
 

@@ -8,9 +8,10 @@
 #ifndef gintonic_fonts_hpp
 #define gintonic_fonts_hpp
 
+#include "opengl/texture_object.hpp"
 #include "opengl/buffer_object.hpp"
 #include "opengl/vertex_array_object.hpp"
-#include "object.hpp"
+#include "Object.hpp"
 #include "tuple.hpp"
 #include "filesystem.hpp"
 #include "vec2f.hpp"
@@ -23,8 +24,7 @@ namespace gintonic {
 	/**
 	 * @brief A font.
 	 */
-	class font 
-	: public object<font, std::tuple<boost::filesystem::path, int>>
+	class Font : public Object<Font, boost::filesystem::path>
 	{
 	public:
 
@@ -36,16 +36,14 @@ namespace gintonic {
 		/**
 		 * @brief Initialize fonts. Must be called before using any font.
 		 */
-		static void init();
+		// static void init();
+
+		Font(const char* filename);
+		Font(const std::string& filename);
+		Font(boost::filesystem::path filename);
 
 		/// Destructor.
-		virtual ~font();
-
-		/// You cannot copy fonts.
-		font(const font&) = delete;
-
-		/// You cannot copy fonts.
-		font& operator = (const font&) = delete;
+		virtual ~Font() = default;
 
 		/**
 		 * @brief Draw this font.
@@ -59,10 +57,10 @@ namespace gintonic {
 		 * @param scale The scale of the text.
 		 */
 		void draw(
-			const char* text,
-			const std::size_t length,
-			const vec2f& position,
-			const vec2f& scale)
+			const char*        text,
+			const std::size_t  length,
+			const vec2f&       position,
+			const vec2f&       scale)
 		const noexcept;
 
 		/**
@@ -77,8 +75,8 @@ namespace gintonic {
 		 */
 		void draw(
 			const std::string& text,
-			const vec2f& position,
-			const vec2f& scale)
+			const vec2f&       position,
+			const vec2f&       scale)
 		const noexcept;
 
 		/**
@@ -94,9 +92,9 @@ namespace gintonic {
 		 * to start rendering the text.
 		 */
 		void draw(
-			const char* text,
-			const std::size_t length,
-			const vec2f& position)
+			const char*        text,
+			const std::size_t  length,
+			const vec2f&       position)
 		const noexcept;
 
 		/**
@@ -112,35 +110,26 @@ namespace gintonic {
 		 */
 		void draw(
 			const std::string& text,
-			const vec2f& position)
+			const vec2f&       position)
 		const noexcept;
-
-		/// Move constructor.
-		font(font&&);
-
-		/// Move assignment operator.
-		font& operator = (font&&);
 
 	private:
 
-		font(const key_type&);
-		font(key_type&&);
+		// //!@cond
+		// // We need to give boost::flyweights access to this class.
+		// friend boost::flyweights::detail::optimized_key_value
+		// <
+		// 	key_type, 
+		// 	font, 
+		// 	key_extractor
+		// >;
+		// //!@endcond
 
-		//!@cond
-		// We need to give boost::flyweights access to this class.
-		friend boost::flyweights::detail::optimized_key_value
-		<
-			key_type, 
-			font, 
-			key_extractor
-		>;
-		//!@endcond
+		// virtual void construct_from_key() final;
 
-		virtual void construct_from_key() final;
+		// static void release();
 
-		static void release();
-
-		struct character_info
+		struct CharacterInfo
 		{
 			int16_t ax; // advance x
 			int16_t ay; // advance y
@@ -149,46 +138,45 @@ namespace gintonic {
 			int16_t bl; // bitmap left
 			int16_t bt; // bitmap top
 			GLfloat tx; // x offset of glyph in texture coordinates
-		} m_c[96];
+		} mChar[96];
 
-		GLsizei m_atlas_width, m_atlas_height;
+		GLsizei mAtlasWidth, mAtlasHeight;
 		
-		GLuint m_tex;
-		opengl::vertex_array_object m_vao;
-		opengl::buffer_object m_vbo;
+		opengl::texture_object mTextureObject;
+		opengl::vertex_array_object mVertexArrayObject;
+		opengl::buffer_object mBufferObject;
 	};
 
 	//!@cond
-	namespace detail
+	namespace Detail
 	{
-		class fontstream
+		class FontStream
 		{
 		public:
 
 			typedef char char_type;
 			typedef boost::iostreams::sink_tag category;
 
-			fontstream(const font::flyweight& f);
-			fontstream(font::flyweight&& f);
+			FontStream(std::shared_ptr<Font> f);
 
-			font::flyweight underlying_font;
+			std::shared_ptr<Font> underlyingFont;
 
 			vec2f scale;
 			vec2f position;
 
 			std::streamsize write(
-				const char* text, 
+				const char*           text, 
 				const std::streamsize length) 
 			const noexcept;
 
 		};
-	} // namespace detail
+	} // namespace Detail
 	//!@endcond
 
 	/**
 	 * @brief A font stream.
 	 */
-	typedef boost::iostreams::stream<detail::fontstream> fontstream;
+	typedef boost::iostreams::stream<Detail::FontStream> FontStream;
 
 } // namespace gintonic
 

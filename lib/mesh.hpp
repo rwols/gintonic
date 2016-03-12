@@ -35,7 +35,7 @@ namespace gintonic {
  * the current modelview and modelviewprojection matrices. When rendering
  * the mesh instanced, you need to supply the matrices yourself.
  */
-class Mesh : public Object<Mesh>
+class Mesh : public Object<Mesh, std::string>
 {
 public:
 

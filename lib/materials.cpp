@@ -323,10 +323,8 @@ Material::Material(
 }
 
 Material::Material(const FbxSurfaceMaterial* pFbxMaterial)
+: Object<Material, std::string>(pFbxMaterial)
 {
-	const auto lGlobalName = boost::filesystem::path(pFbxMaterial->GetScene()->GetSceneInfo()->Url.Get().Buffer()).stem().string();
-	setName(lGlobalName, pFbxMaterial->GetName());
-
 	std::cerr << "\tFound Material: " << pFbxMaterial->GetName() << '\n';
 
 	const auto lNumDiffuseTextures  = textureCount(pFbxMaterial, FbxSurfaceMaterial::sDiffuse);
@@ -354,7 +352,7 @@ Material::Material(const FbxSurfaceMaterial* pFbxMaterial)
 	{
 		auto pFbxTexture = getFbxTexture(pFbxMaterial, FbxSurfaceMaterial::sDiffuse, 0);
 		diffuseTexture = std::make_shared<Texture2D>(pFbxTexture);
-		std::cerr << "\tDiffuse texture: " << diffuseTexture->getFilename() << '\n';
+		std::cerr << "\tDiffuse texture: " << diffuseTexture->getName() << '\n';
 		// lFilename = getTextureFilename(pFbxMaterial, FbxSurfaceMaterial::sDiffuse, 0);
 		// try
 		// {
@@ -378,7 +376,7 @@ Material::Material(const FbxSurfaceMaterial* pFbxMaterial)
 	{
 		auto pFbxTexture = getFbxTexture(pFbxMaterial, FbxSurfaceMaterial::sSpecular, 0);
 		specularTexture = std::make_shared<Texture2D>(pFbxTexture);
-		std::cerr << "\tSpecular texture: " << specularTexture->getFilename() << '\n';
+		std::cerr << "\tSpecular texture: " << specularTexture->getName() << '\n';
 	}
 	else
 	{
@@ -389,7 +387,7 @@ Material::Material(const FbxSurfaceMaterial* pFbxMaterial)
 	{
 		auto pFbxTexture = getFbxTexture(pFbxMaterial, FbxSurfaceMaterial::sNormalMap, 0);
 		normalTexture = std::make_shared<Texture2D>(pFbxTexture);
-		std::cerr << "\tNormal texture: " << normalTexture->getFilename() << '\n';
+		std::cerr << "\tNormal texture: " << normalTexture->getName() << '\n';
 		// lFilename = getTextureFilename(pFbxMaterial, FbxSurfaceMaterial::sNormalMap, 0);
 		// unsafeObtainTexture(lFilename, mNormalTexture);
 		// std::cerr << "\tNormal texture: " << lFilename << '\n';
@@ -861,15 +859,15 @@ std::ostream& operator << (std::ostream& os, const Material& lMaterial)
 
 	if (lMaterial.diffuseTexture)
 	{
-		os << ", diffuseTexture: " << lMaterial.diffuseTexture->getFilename();
+		os << ", diffuseTexture: " << lMaterial.diffuseTexture->getName();
 	}
 	if (lMaterial.specularTexture)
 	{
-		os << ", specularTexture: " << lMaterial.specularTexture->getFilename();
+		os << ", specularTexture: " << lMaterial.specularTexture->getName();
 	}
 	if (lMaterial.normalTexture)
 	{
-		os << ", normalTexture: " << lMaterial.normalTexture->getFilename();
+		os << ", normalTexture: " << lMaterial.normalTexture->getName();
 	}
 	os << " }";
 	return os;

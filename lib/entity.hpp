@@ -43,7 +43,7 @@ class ShadowBuffer; // Forward declaration.
  * is like a vector in that the component itself should have a small memory
  * footprint, while the data that they point to might be very memory-intensive.
  */
-class entity : public Object<entity>
+class entity : public Object<entity, std::string>
 {
 public:
 

@@ -38,6 +38,10 @@ private:
 	FbxScene* mScene = nullptr;
 	::FbxImporter* mImporter;
 	void traverse(FbxNode*, std::shared_ptr<entity>, ResultStructure&);
+	std::shared_ptr<Material> processMaterial(FbxNode*, ResultStructure&);
+	std::shared_ptr<Mesh> processMesh(FbxNode*, ResultStructure&);
+	std::shared_ptr<Camera> processCamera(FbxNode*, ResultStructure&);
+	std::shared_ptr<Light> processLight(FbxNode*, ResultStructure&);
 };
 
 } // namespace gintonic

@@ -22,13 +22,13 @@ namespace gintonic {
 	// ALL the global variables.
 
 	#ifdef ENABLE_DEBUG_TRACE
-	font::flyweight* debug_font = nullptr;
-	fontstream* debug_stream = nullptr;
+	std::shared_ptr<Font> sDebugFont = nullptr;
+	FontStream* sDebugStream = nullptr;
 	#endif
 
-	SDL_Window* s_window = nullptr;
-	SDL_GLContext s_context;
-	SDL_Event s_event = SDL_Event();
+	SDL_Window* sWindow = nullptr;
+	SDL_GLContext sContext;
+	SDL_Event sEvent = SDL_Event();
 	
 	bool renderer::s_should_close = false;
 	bool renderer::s_fullscreen = false;
@@ -136,7 +136,7 @@ namespace gintonic {
 	};
 
 	#ifdef ENABLE_DEBUG_TRACE
-	fontstream& renderer::cerr() { return *debug_stream; }
+	FontStream& renderer::cerr() { return *sDebugStream; }
 	#endif
 
 	void renderer::getElapsedAndDeltaTime(double& elapsedTime, double& deltaTime)
@@ -186,7 +186,7 @@ namespace gintonic {
 
 		Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
 		if (s_fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-		s_window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
+		sWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 
 		// We start by trying to obtain an OpenGL 4.1 context.
 		SDL_GL_ResetAttributes();
@@ -195,14 +195,14 @@ namespace gintonic {
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-		s_context = SDL_GL_CreateContext(s_window);
-		if (!s_context)
+		sContext = SDL_GL_CreateContext(sWindow);
+		if (!sContext)
 		{
 			// Failed to get an OpenGL 4.1 context. Let's try an OpenGL 3.3 context.
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-			s_context = SDL_GL_CreateContext(s_window);
-			if (!s_context)
+			sContext = SDL_GL_CreateContext(sWindow);
+			if (!sContext)
 			{
 				// The user should update their drivers at this point...
 				release();
@@ -277,17 +277,16 @@ namespace gintonic {
 		// Initialize debug variables
 		//
 		#ifdef ENABLE_DEBUG_TRACE
-		font::init();
-		debug_font = new font::flyweight("../resources/Inconsolata-Regular.ttf", 20);
-		debug_stream = new fontstream();
-		debug_stream->open(*debug_font);
+		sDebugFont = std::make_shared<Font>("../resources/Inconsolata-Regular.ttf");
+		sDebugStream = new FontStream();
+		sDebugStream->open(sDebugFont);
 		#endif
 	}
 
 	void renderer::init_dummy(const bool construct_shaders)
 	{
 		Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
-		s_window = SDL_CreateWindow("dummy context", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 20, 20, flags);
+		sWindow = SDL_CreateWindow("dummy context", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 20, 20, flags);
 
 		// We start by trying to obtain an OpenGL 4.1 context.
 		SDL_GL_ResetAttributes();
@@ -296,14 +295,14 @@ namespace gintonic {
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-		s_context = SDL_GL_CreateContext(s_window);
-		if (!s_context)
+		sContext = SDL_GL_CreateContext(sWindow);
+		if (!sContext)
 		{
 			// Failed to get an OpenGL 4.1 context. Let's try an OpenGL 3.3 context.
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-			s_context = SDL_GL_CreateContext(s_window);
-			if (!s_context)
+			sContext = SDL_GL_CreateContext(sWindow);
+			if (!sContext)
 			{
 				// The user should update their drivers at this point...
 				release();
@@ -362,7 +361,7 @@ namespace gintonic {
 
 	bool renderer::is_initialized() noexcept
 	{
-		return s_window != nullptr;
+		return sWindow != nullptr;
 	}
 
 	void renderer::setCameraEntity(std::shared_ptr<entity> cameraEntity)
@@ -381,12 +380,12 @@ namespace gintonic {
 
 	void renderer::focus_context() noexcept
 	{ 
-		SDL_GL_MakeCurrent(s_window, s_context); 
+		SDL_GL_MakeCurrent(sWindow, sContext); 
 	}
 
 	void renderer::set_cursor_position(const double x, const double y) noexcept
 	{
-		SDL_WarpMouseInWindow(s_window, (int)x, (int)y);
+		SDL_WarpMouseInWindow(sWindow, (int)x, (int)y);
 		SDL_FlushEvent(SDL_MOUSEMOTION);
 	}
 
@@ -422,12 +421,12 @@ namespace gintonic {
 
 	void renderer::show() noexcept 
 	{ 
-		SDL_ShowWindow(s_window); 
+		SDL_ShowWindow(sWindow); 
 	}
 
 	void renderer::hide() noexcept 
 	{ 
-		SDL_HideWindow(s_window); 
+		SDL_HideWindow(sWindow); 
 	}
 
 	void renderer::close() noexcept
@@ -473,15 +472,15 @@ namespace gintonic {
 
 	void renderer::release()
 	{
-		if (s_context) // deletes shaders, textures, framebuffers, etc.
+		if (sContext) // deletes shaders, textures, framebuffers, etc.
 		{
-			SDL_GL_DeleteContext(s_context);
-			s_context = nullptr;
+			SDL_GL_DeleteContext(sContext);
+			sContext = nullptr;
 		}
-		if (s_window)
+		if (sWindow)
 		{
-			SDL_DestroyWindow(s_window);
-			s_window = nullptr;
+			SDL_DestroyWindow(sWindow);
+			sWindow = nullptr;
 		}
 	}
 
@@ -626,7 +625,7 @@ namespace gintonic {
 		// glDisable(GL_CULL_FACE);
 		// glEnable(GL_BLEND);
 		// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		// debug_stream->close();
+		// sDebugStream->close();
 		// #endif
 
 		// glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -636,10 +635,10 @@ namespace gintonic {
 
 		// glClear(GL_COLOR_BUFFER_BIT);
 		
-		SDL_GL_SwapWindow(s_window);
+		SDL_GL_SwapWindow(sWindow);
 
 		// #ifdef ENABLE_DEBUG_TRACE
-		// debug_stream->open(*debug_font);
+		// sDebugStream->open(*sDebugFont);
 		// #endif
 		
 		s_prev_elapsed_time = s_elapsed_time;
@@ -650,12 +649,12 @@ namespace gintonic {
 		s_key_state = SDL_GetKeyboardState(nullptr);
 
 		s_mouse_delta = 0.0f;
-		while (SDL_PollEvent(&s_event))
+		while (SDL_PollEvent(&sEvent))
 		{
-			switch (s_event.type)
+			switch (sEvent.type)
 			{
 			case SDL_WINDOWEVENT:
-				switch (s_event.window.event)
+				switch (sEvent.window.event)
 				{
 					case SDL_WINDOWEVENT_ENTER:
 						mouse_entered();
@@ -664,7 +663,7 @@ namespace gintonic {
 						mouse_left();
 						break;
 					case SDL_WINDOWEVENT_RESIZED:
-						resize((int)s_event.window.data1, (int)s_event.window.data2);
+						resize((int)sEvent.window.data1, (int)sEvent.window.data2);
 						window_resized(s_width, s_height);
 						break;
 				}
@@ -674,8 +673,8 @@ namespace gintonic {
 			case SDL_KEYUP:
 				break;
 			case SDL_MOUSEMOTION:
-				s_mouse_delta.x += (float)s_event.motion.xrel;
-				s_mouse_delta.y += (float)s_event.motion.yrel;
+				s_mouse_delta.x += (float)sEvent.motion.xrel;
+				s_mouse_delta.y += (float)sEvent.motion.yrel;
 				break;
 			case SDL_QUIT:
 				close();
@@ -768,7 +767,7 @@ namespace gintonic {
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 	}
 
-	void renderer::blit_drawbuffers_to_screen(fontstream& stream)
+	void renderer::blit_drawbuffers_to_screen(FontStream& stream)
 	{
 		// Take s_fbo as the active framebuffer.
 		// We blit the geometry stuff into yet another color attachment.

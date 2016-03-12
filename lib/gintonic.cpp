@@ -18,7 +18,7 @@ void initializeEverything(const char* window_title, std::shared_ptr<entity> came
 
 	renderer::init(window_title, std::move(camera), true, 800, 640);
 	// opengl::texture2d::init();
-	font::init();
+	// font::init();
 	std::atexit(release);
 }
 

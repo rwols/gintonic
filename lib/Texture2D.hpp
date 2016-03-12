@@ -3,7 +3,7 @@
 #include "opengl/texture_object.hpp"
 #include "filesystem.hpp"
 #include "config.hpp"
-#include <memory>
+#include "Object.hpp"
 
 namespace FBX
 {
@@ -12,7 +12,7 @@ namespace FBX
 
 namespace gintonic {
 
-class Texture2D : public std::enable_shared_from_this<Texture2D>
+class Texture2D : public Object<Texture2D, boost::filesystem::path>
 {
 public:
 
@@ -29,15 +29,9 @@ public:
 
 	void bind(const GLint textureUnit) const noexcept;
 
-	inline const boost::filesystem::path& getFilename() const noexcept
-	{
-		return mFilename;
-	}
-
 private:
 
 	opengl::texture_object mTextureObject;
-	boost::filesystem::path mFilename;
 
 	void loadFromFile(boost::filesystem::path);
 

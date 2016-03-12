@@ -6,6 +6,43 @@
 #include "mesh.hpp"
 #include "exception.hpp"
 
+/* anonymous */ namespace {
+
+template <class ForwardIter>
+typename ForwardIter::value_type 
+checkForDuplicate(
+	const FbxNode* currentNode, 
+	const FbxObject* nodeAttribute, 
+	ForwardIter first, 
+	ForwardIter last)
+{
+	if (std::strcmp(nodeAttribute->GetName(), "") == 0)
+	{
+		while (first != last)
+		{
+			if ((*first)->getName() == currentNode->GetName())
+			{
+				return *first;
+			}
+			++first;
+		}
+	}
+	else
+	{
+		while (first != last)
+		{
+			if ((*first)->getName() == nodeAttribute->GetName())
+			{
+				return *first;
+			}
+			++first;
+		}
+	}
+	return nullptr;
+}
+
+} // anonymous namespace
+
 namespace gintonic {
 
 FbxImporter::FbxImporter()
@@ -47,7 +84,8 @@ FbxImporter::ResultStructure FbxImporter::loadFromFile(const char* filename)
 
 void FbxImporter::traverse(FbxNode* pNode, std::shared_ptr<entity> parent, ResultStructure& result)
 {
-	auto lNewEntity = Object<entity>::create(pNode);
+	auto lNewEntity = std::make_shared<entity>(pNode);
+	// auto lNewEntity = Object<entity, std::string>::create(pNode);
 	result.entities.push_back(lNewEntity);
 
 	std::cerr << "\nFound FBX Node: " << lNewEntity->getName() << "\n\n";
@@ -69,105 +107,107 @@ void FbxImporter::traverse(FbxNode* pNode, std::shared_ptr<entity> parent, Resul
 		std::cerr << "\tParent node: " << parent->getName() << '\n';
 	}
 
-	if (pNode->GetMesh())
-	{
-		std::shared_ptr<Mesh> lMesh;
-		for (std::size_t i = 0; i < result.meshes.size(); ++i)
-		{
-			if (result.meshes[i]->getLocalName() == pNode->GetMesh()->GetName())
-			{
-				lMesh = result.meshes[i];
-				break;
-			}
-		}
-		if (!lMesh)
-		{
-			lMesh = Object<Mesh>::create(pNode->GetMesh());
-			result.meshes.push_back(lMesh);
-		}
+	lNewEntity->mesh     = processMesh(pNode, result);
+	lNewEntity->material = processMaterial(pNode, result);
+	lNewEntity->light    = processLight(pNode, result);
+	lNewEntity->camera   = processCamera(pNode, result);
 
-		lNewEntity->mesh = lMesh;
-
-		if (pNode->GetMaterialCount())
-		{
-			std::shared_ptr<Material> lMaterial;
-			for (std::size_t i = 0; i < result.materials.size(); ++i)
-			{
-				if (result.materials[i]->getLocalName() == pNode->GetMaterial(0)->GetName())
-				{
-					lMaterial = result.materials[i];
-					break;
-				}
-			}
-			if (!lMaterial)
-			{
-				lMaterial = Object<Material>::create(pNode->GetMaterial(0));
-				result.materials.push_back(lMaterial);
-			}
-
-			lNewEntity->material = lMaterial;
-		}
-		else
-		{
-			exception lException("Mesh with name ");
-			lException.append(lMesh->getName());
-			lException.append(" has no material attached to it.");
-			throw lException;
-		}
-
-		std::cerr << "\tMesh: " << lNewEntity->mesh->getName() << '\n';
-		std::cerr << "\tMaterial: " << lNewEntity->material->getName() << '\n';
-	}
-	if (pNode->GetLight())
-	{
-		std::shared_ptr<Light> lLight;
-		for (std::size_t i = 0; i < result.lights.size(); ++i)
-		{
-			if (result.lights[i]->getLocalName() == pNode->GetLight()->GetName())
-			{
-				lLight = result.lights[i];
-				break;
-			}
-		}
-
-		if (!lLight)
-		{
-			lLight = Light::create(pNode->GetLight());
-			result.lights.push_back(lLight);
-		}
-
-		lNewEntity->light = lLight;
-
-		std::cerr << "\tLight: " << lNewEntity->light->getName() << '\n';
-	}
-	if (pNode->GetCamera())
-	{
-		std::shared_ptr<Camera> lCamera;
-		for (std::size_t i = 0; i < result.cameras.size(); ++i)
-		{
-			std::string lFullName;
-			if (result.cameras[i]->getLocalName() == pNode->GetCamera()->GetName())
-			{
-				lCamera = result.cameras[i];
-				break;
-			}
-		}
-
-		if (!lCamera)
-		{
-			lCamera = Object<Camera>::create(pNode->GetCamera());
-			result.cameras.push_back(lCamera);
-		}
-
-		lNewEntity->camera = lCamera;
-
-		std::cerr << "\tCamera: " << lNewEntity->camera->getName() << '\n';
-
-	}
 	for (int i = 0; i < pNode->GetChildCount(); ++i)
 	{
 		traverse(pNode->GetChild(i), lNewEntity, result);
 	}
+}
+
+std::shared_ptr<Material> FbxImporter::processMaterial(FbxNode* pNode, ResultStructure& result)
+{
+	if (!pNode->GetMaterialCount())
+	{
+		return nullptr;
+	}
+	
+	auto lMaterial = checkForDuplicate(
+		pNode, 
+		pNode->GetMaterial(0), 
+		result.materials.begin(), 
+		result.materials.end());
+
+	if (!lMaterial)
+	{
+		lMaterial = std::make_shared<Material>(pNode->GetMaterial(0));
+	}
+
+	result.materials.push_back(lMaterial);
+	
+	return lMaterial;
+}
+
+std::shared_ptr<Mesh> FbxImporter::processMesh(FbxNode* pNode, ResultStructure& result)
+{
+	if (!pNode->GetMesh())
+	{
+		return nullptr;
+	}
+	
+	auto lMesh = checkForDuplicate(
+		pNode, 
+		pNode->GetMesh(), 
+		result.meshes.begin(), 
+		result.meshes.end());
+
+	if (!lMesh)
+	{
+		lMesh = std::make_shared<Mesh>(pNode->GetMesh());
+	}
+
+	result.meshes.push_back(lMesh);
+	
+	return lMesh;
+}
+
+std::shared_ptr<Camera> FbxImporter::processCamera(FbxNode* pNode, ResultStructure& result)
+{
+	if (!pNode->GetCamera())
+	{
+		return nullptr;
+	}
+	
+	auto lCamera = checkForDuplicate(
+		pNode, 
+		pNode->GetCamera(), 
+		result.cameras.begin(), 
+		result.cameras.end());
+
+	if (!lCamera)
+	{
+		lCamera = std::make_shared<Camera>(pNode->GetCamera());
+	}
+
+	result.cameras.push_back(lCamera);
+	
+	return lCamera;
+}
+
+std::shared_ptr<Light> FbxImporter::processLight(FbxNode* pNode, ResultStructure& result)
+{
+	if (!pNode->GetLight())
+	{
+		return nullptr;
+	}
+	
+	auto lLight = checkForDuplicate(
+		pNode, 
+		pNode->GetLight(), 
+		result.lights.begin(), 
+		result.lights.end());
+
+	if (!lLight)
+	{
+		lLight = Light::create(pNode->GetLight());
+	}
+
+	result.lights.push_back(lLight);
+	
+	return lLight;
 }
 
 } // namespace gintonic

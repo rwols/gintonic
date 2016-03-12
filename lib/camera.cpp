@@ -8,7 +8,7 @@ namespace gintonic {
 #define M_2PIf static_cast<float>(M_PI) * 2.0f
 
 Camera::Camera(const FbxCamera* pFbxCamera)
-: Object<Camera>(pFbxCamera)
+: Object<Camera, std::string>(pFbxCamera)
 {
 	// auto lGlobalName = boost::filesystem::path(pFbxCamera->GetScene()->GetSceneInfo()->Url.Get().Buffer()).stem().string();
 	// if (std::strcmp(pFbxCamera->GetName(), "") == 0)

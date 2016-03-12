@@ -90,14 +90,13 @@ std::shared_ptr<Light> Light::create(const FbxLight* pFbxLight)
 			break;
 		}
 	}
-	auto lGlobalName = boost::filesystem::path(pFbxLight->GetScene()->GetSceneInfo()->Url.Get().Buffer()).stem().string();
 	if (std::strcmp(pFbxLight->GetName(), "") == 0)
 	{
-		lLight->setName(std::move(lGlobalName), pFbxLight->GetName());
+		lLight->setName(pFbxLight->GetName());
 	}
 	else
 	{
-		lLight->setName(std::move(lGlobalName), pFbxLight->GetNode()->GetName());
+		lLight->setName(pFbxLight->GetNode()->GetName());
 	}
 	return lLight;
 }

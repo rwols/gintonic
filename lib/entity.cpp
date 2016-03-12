@@ -11,7 +11,7 @@
 namespace gintonic {
 
 entity::entity(const FbxNode* pFbxNode)
-: Object<entity>(pFbxNode)
+: Object<entity, std::string>(pFbxNode)
 {
 	// auto lGlobalName = boost::filesystem::path(pFbxNode->GetScene()->GetSceneInfo()->Url.Get().Buffer()).stem().string();
 	// setName(std::move(lGlobalName), pFbxNode->GetName());

@@ -39,7 +39,7 @@ namespace gintonic {
  * a value of true. Otherwise the default value of false is used to signal
  * that we are not rendering an instanced mesh.
  */
-class Material : public Object<Material>
+class Material : public Object<Material, std::string>
 {
 public:
 
@@ -486,7 +486,7 @@ private:
 	void save(Archive& ar, const unsigned /*version*/) const
 	{
 		// Serialize the base class.
-		ar & boost::serialization::base_object<Object<Material>>(*this);
+		ar & boost::serialization::base_object<Object<Material, std::string>>(*this);
 
 		// Serialize the diffuse color and the specular color.
 		ar & BOOST_SERIALIZATION_NVP(diffuseColor);
@@ -505,17 +505,17 @@ private:
 		if (lHasDiffuse)
 		{
 			// We carry a diffuse texture, serialize its filename.
-			ar & boost::serialization::make_nvp("diffuseTexture", diffuseTexture->getFilename());
+			ar & boost::serialization::make_nvp("diffuseTexture", diffuseTexture->getName());
 		}
 		if (lHasSpecular)
 		{
 			// We carry a specular texture, serialize its filename.
-			ar & boost::serialization::make_nvp("specularTexture", specularTexture->getFilename());
+			ar & boost::serialization::make_nvp("specularTexture", specularTexture->getName());
 		}
 		if (lHasNormal)
 		{
 			// We carry a normal texture, serialize its filename.
-			ar & boost::serialization::make_nvp("normalTexture", normalTexture->getFilename());
+			ar & boost::serialization::make_nvp("normalTexture", normalTexture->getName());
 		}
 	}
 
@@ -523,7 +523,7 @@ private:
 	void load(Archive& ar, const unsigned /*version*/)
 	{
 		// Deserialize the base class.
-		ar & boost::serialization::base_object<Object<Material>>(*this);
+		ar & boost::serialization::base_object<Object<Material, std::string>>(*this);
 
 		// Deserialize the diffuse color and specular color.
 		ar & diffuseColor;

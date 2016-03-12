@@ -505,9 +505,9 @@ public:
 	#ifdef ENABLE_DEBUG_TRACE
 	/**
 	 * @brief Output to a debug stream on the renderer's viewport.
-	 * @return A reference to a fontstream.
+	 * @return A reference to a FontStream.
 	 */
-	static fontstream& cerr();
+	static FontStream& cerr();
 	#endif
 
 	/**
@@ -603,9 +603,9 @@ public:
 	/**
 	 * @brief This will split the screen up itno four parts that show the
 	 * raw geometry buffers.
-	 * @param f A fontstream to denote the names of the geometry buffers.
+	 * @param f A FontStream to denote the names of the geometry buffers.
 	 */
-	static void blit_drawbuffers_to_screen(fontstream& f);
+	static void blit_drawbuffers_to_screen(FontStream& f);
 
 	/**
 	 * @brief Do an ambient light pass. This should be called after the call
