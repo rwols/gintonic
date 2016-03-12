@@ -5,10 +5,9 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_lights_hpp
-#define gintonic_lights_hpp
+#pragma once
 
-#include "component.hpp"
+#include "Object.hpp"
 #include "vec4f.hpp"
 #include "mat4f.hpp"
 #include "SQT.hpp"
@@ -19,6 +18,8 @@
 #include <boost/serialization/base_object.hpp>
 #include <map>
 
+#include <fbxsdk.h>
+
 namespace gintonic {
 
 class entity; // Forward declaration.
@@ -27,9 +28,11 @@ class proj_info; // Forward declaration.
 /**
  * @brief A light. Virtual base component for inheritance.
  */
-class light : public component
+class Light : public Object<Light>
 {
 public:
+
+	static std::shared_ptr<Light> create(const FbxLight*);
 
 	/**
 	 * @brief The intensity of the light.
@@ -40,22 +43,22 @@ public:
 	 */
 	vec4f intensity;
 
-	virtual void attach(entity&);
+	// virtual void attach(entity&);
 
-	virtual void detach(entity&);
+	// virtual void detach(entity&);
 
 	/// Default constructor.
-	light() = default;
+	Light() = default;
 
 	/**
 	 * @brief Constructor.
 	 * 
 	 * @param intensity The intensity value.
 	 */
-	light(const vec4f& intensity);
+	Light(const vec4f& intensity);
 	
 	/// Destructor.
-	virtual ~light() noexcept;
+	virtual ~Light() noexcept = default;
 	
 	/**
 	 * @brief Shine the light using the global transform of the given entity.
@@ -65,12 +68,12 @@ public:
 	 */
 	virtual void shine(const entity& e) const noexcept = 0;
 
-	virtual void begin_shadow_pass(const entity& light_ent)
+	virtual void beginShadowPass(const entity& light_ent)
 	{
 		/* Put me in a CPP file */
 	}
 
-	virtual void render_shadow(const entity& geometry) const noexcept
+	virtual void renderShadow(const entity& geometry) const noexcept
 	{
 		/* Put me in a CPP file */
 	}
@@ -80,7 +83,7 @@ public:
 	 * 
 	 * @param brightness The new brightness value.
 	 */
-	virtual void set_brightness(const float brightness);
+	virtual void setBrightness(const float brightness);
 
 	/**
 	 * @brief Get the brightness, or intensity of the light.
@@ -88,31 +91,33 @@ public:
 	 */
 	float brightness() const noexcept;
 
+	virtual void initializeShadowBuffer(std::shared_ptr<entity> lightEntity) const = 0;
+
 	/**
 	 * @brief Polymorphic stream output operator.
 	 */
-	friend std::ostream& operator << (std::ostream&, const light*);
+	friend std::ostream& operator << (std::ostream&, const Light*);
 
 	/**
 	 * @brief Polymorphic stream output operator.
 	 */
 	friend std::ostream& operator << (
 		std::ostream&, 
-		const std::unique_ptr<light>&);
+		const std::unique_ptr<Light>&);
 
 	/**
 	 * @brief Polymorphic stream output operator.
 	 */
 	friend std::ostream& operator << (
 		std::ostream&, 
-		const std::shared_ptr<light>&);
+		const std::shared_ptr<Light>&);
 
 	/**
 	 * @brief Polymorphic stream output operator.
 	 */
 	friend std::ostream& operator << (
 		std::ostream&, 
-		const light&);
+		const Light&);
 
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
@@ -123,7 +128,7 @@ private:
 	/**
 	 * @brief Print the light to an outstream for debug purposes.
 	 */
-	virtual std::ostream& pretty_print(std::ostream&) const 
+	virtual std::ostream& prettyPrint(std::ostream&) const 
 		noexcept;
 
 	//!@cond
@@ -147,22 +152,22 @@ private:
  * light. It is probably sufficient to have exactly one ambient light per
  * scene.
  */
-class ambient_light : public light
+class AmbientLight : public Light
 {
 public:
 
 	/// Default constructor.
-	ambient_light() = default;
+	AmbientLight() = default;
 
 	/**
 	 * @brief Constructor.
 	 * 
 	 * @param intensity The intensity value.
 	 */
-	ambient_light(const vec4f& intensity);
+	AmbientLight(const vec4f& intensity);
 
 	/// Destructor.
-	virtual ~ambient_light() noexcept;
+	virtual ~AmbientLight() noexcept = default;
 	
 	/**
 	 * @brief Shine the light using the global transformation of the given
@@ -176,10 +181,15 @@ public:
 	 */
 	virtual void shine(const entity& e) const noexcept;
 
+	virtual void initializeShadowBuffer(std::shared_ptr<entity> lightEntity) const
+	{
+		/* Empty on purpose. */
+	}
+
 	/**
 	 * @brief Output stream support.
 	 */
-	friend std::ostream& operator << (std::ostream&, const ambient_light&);
+	friend std::ostream& operator << (std::ostream&, const AmbientLight&);
 
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
@@ -188,7 +198,7 @@ public:
 private:
 
 	// Reimplement this method to support output streams.
-	virtual std::ostream& pretty_print(std::ostream&) const 
+	virtual std::ostream& prettyPrint(std::ostream&) const 
 		noexcept;
 
 	//!@cond
@@ -199,7 +209,7 @@ private:
 	template <class Archive> 
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(light);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Light);
 	}
 };
 
@@ -215,26 +225,22 @@ private:
  * compared to the surface of the earth, a very good approximation of the
  * sun's rays is to assume they are in fact uniform in one direction.
  */
-class directional_light : public ambient_light
+class DirectionalLight : public AmbientLight
 {
 public:
 
 	/// Default constructor.
-	directional_light() = default;
+	DirectionalLight() = default;
 	
 	/**
 	 * @brief Constructor.
 	 * 
 	 * @param intensity The intensity value.
 	 */
-	directional_light(const vec4f& intensity);
+	DirectionalLight(const vec4f& intensity);
 
 	/// Destructor.
-	virtual ~directional_light() noexcept;
-
-	virtual void attach(entity&);
-
-	virtual void detach(entity&);
+	virtual ~DirectionalLight() noexcept = default;
 
 	/*
 	 * @brief Shine the light given the entity's global transformation.
@@ -248,12 +254,14 @@ public:
 	 */
 	virtual void shine(const entity& e) const noexcept;
 
-	virtual void begin_shadow_pass(const entity& light_ent);
+	virtual void initializeShadowBuffer(std::shared_ptr<entity> lightEntity) const;
 
-	virtual void render_shadow(const entity& geometry) const noexcept;
+	virtual void beginShadowPass(const entity& light_ent);
+
+	virtual void renderShadow(const entity& geometry) const noexcept;
 
 	/// Stream output support for a directional light.
-	friend std::ostream& operator << (std::ostream&, const directional_light&);
+	friend std::ostream& operator << (std::ostream&, const DirectionalLight&);
 
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
@@ -261,22 +269,8 @@ public:
 
 private:
 
-	typedef std::map
-	<
-		const entity*, 
-		std::pair
-		<
-			std::shared_ptr<opengl::framebuffer>,
-			std::shared_ptr<opengl::texture_object>
-		>
-	> shadow_map_map_type;
-
-	mat4f m_current_matrix_PV;
-
-	shadow_map_map_type m_shadow_maps;
-
 	// Reimplement this method to support output streams.
-	virtual std::ostream& pretty_print(std::ostream&) const 
+	virtual std::ostream& prettyPrint(std::ostream&) const 
 		noexcept;
 
 	//!@cond
@@ -287,7 +281,7 @@ private:
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ambient_light);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AmbientLight);
 	}
 };
 
@@ -306,19 +300,19 @@ private:
  * the light contribution is multiplied by a factor of
  * \f$ 1/ \left( a_x + a_y d + a_z d^2 \right) \f$.
  */
-class point_light : public light
+class PointLight : public Light
 {
 public:
 
 	/// Default constructor.
-	point_light() = default;
+	PointLight() = default;
 
 	/**
 	 * @brief Constructor.
 	 * 
 	 * @param intensity The intensity value.
 	 */
-	point_light(const vec4f& intensity);
+	PointLight(const vec4f& intensity);
 	
 	/**
 	 * @brief Constructor.
@@ -326,10 +320,10 @@ public:
 	 * @param intensity The intensity value.
 	 * @param attenuation The attenuation value.
 	 */
-	point_light(const vec4f& intensity, const vec4f& attenuation);
+	PointLight(const vec4f& intensity, const vec4f& attenuation);
 
 	/// Destructor.
-	virtual ~point_light() noexcept;
+	virtual ~PointLight() noexcept = default;
 
 	/**
 	 * @brief Get the attenuation.
@@ -348,7 +342,7 @@ public:
 	 * 
 	 * @param a The attenuation value.
 	 */
-	void set_attenuation(const vec4f& a) noexcept;
+	void setAttenuation(const vec4f& a) noexcept;
 	
 	/**
 	 * @brief Get the cutoff radius.
@@ -358,7 +352,7 @@ public:
 	 * 
 	 * @return The cutoff radius.
 	 */
-	float cutoff_point() const noexcept;
+	float cutoffPoint() const noexcept;
 
 	/**
 	 * @brief Shine the point light given the entity's global transform.
@@ -368,6 +362,8 @@ public:
 	 */
 	virtual void shine(const entity&) const noexcept;
 
+	virtual void initializeShadowBuffer(std::shared_ptr<entity> lightEntity) const;
+
 	/**
 	 * @brief Set the brightness.
 	 *
@@ -376,10 +372,10 @@ public:
 	 * 
 	 * @param brightness The brightness value.
 	 */
-	virtual void set_brightness(const float brightness);
+	virtual void setBrightness(const float brightness);
 
 	/// Stream output support for a point light.
-	friend std::ostream& operator << (std::ostream&, const point_light&);
+	friend std::ostream& operator << (std::ostream&, const PointLight&);
 
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
@@ -387,14 +383,14 @@ public:
 
 private:
 
-	vec4f m_attenuation;
+	vec4f mAttenuation;
 
-	float m_cutoff_point;
+	float mCutoffPoint;
 
-	void calculate_cutoff_radius() noexcept;
+	void calculateCutoffRadius() noexcept;
 
 	// Reimplement this method to support output streams.
-	virtual std::ostream& pretty_print(std::ostream&) const 
+	virtual std::ostream& prettyPrint(std::ostream&) const 
 		noexcept;
 
 	//!@cond
@@ -405,17 +401,17 @@ private:
 	template <class Archive>
 	void save(Archive& ar, const unsigned /*version*/) const
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(light);
-		ar & boost::serialization::make_nvp("attenuation", m_attenuation);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Light);
+		ar & boost::serialization::make_nvp("attenuation", mAttenuation);
 	}
 
 	template <class Archive>
 	void load(Archive& ar, const unsigned /*version*/)
 	{
 		vec4f att;
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(light);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Light);
 		ar & boost::serialization::make_nvp("attenuation", att);
-		set_attenuation(att);
+		setAttenuation(att);
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER();
@@ -430,19 +426,19 @@ private:
  * direction. Just as with a a point light, it also carries an attenuation
  * value.
  */
-class spot_light : public point_light
+class SpotLight : public PointLight
 {
 public:
 
 	/// Default constructor.
-	spot_light() = default;
+	SpotLight() = default;
 
 	/**
 	 * @brief Constructor.
 	 *
 	 * @param intensity The intensity value.
 	 */
-	spot_light(const vec4f& intensity);
+	SpotLight(const vec4f& intensity);
 	
 	/**
 	 * @brief Constructor.
@@ -450,10 +446,10 @@ public:
 	 * @param intensity The intensity value.
 	 * @param attenuation The attenuation value.
 	 */
-	spot_light(const vec4f& intensity, const vec4f& attenuation);
+	SpotLight(const vec4f& intensity, const vec4f& attenuation);
 
 	/// Destructor.
-	virtual ~spot_light() noexcept;
+	virtual ~SpotLight() noexcept = default;
 	
 	// Shine the spot light given the SQT transform. The spot light
 	// uses both the rotation part as well as the translation (position)
@@ -471,8 +467,10 @@ public:
 	 */
 	virtual void shine(const entity& e) const noexcept;
 
+	virtual void initializeShadowBuffer(std::shared_ptr<entity> lightEntity) const;
+
 	/// Stream output support for a spot light.
-	friend std::ostream& operator << (std::ostream&, const spot_light&);
+	friend std::ostream& operator << (std::ostream&, const SpotLight&);
 
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
@@ -481,7 +479,7 @@ public:
 private:
 
 	// Reimplement this method to support output streams.
-	virtual std::ostream& pretty_print(std::ostream&) const noexcept;
+	virtual std::ostream& prettyPrint(std::ostream&) const noexcept;
 
 	//!@cond
 	// We need to give boost::serialization access to this class.
@@ -491,10 +489,8 @@ private:
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(point_light);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(PointLight);
 	}
 };
 
 } // namespace gintonic
-
-#endif

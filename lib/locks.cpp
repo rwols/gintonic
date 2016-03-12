@@ -38,7 +38,7 @@ read_write_lock::read_write_lock()
 	/* Empty on purpose. */
 }
 
-void read_write_lock::obtain_read() 
+void read_write_lock::obtain_read() const
 {
 	std::unique_lock<std::mutex> lock(m_mut);
 	while (m_waiting_writers != 0) m_reader.wait(lock);
@@ -46,7 +46,7 @@ void read_write_lock::obtain_read()
 	lock.unlock();
 }
 
-void read_write_lock::release_read() 
+void read_write_lock::release_read() const
 {
 	std::unique_lock<std::mutex> lock(m_mut);
 	--m_active_readers;

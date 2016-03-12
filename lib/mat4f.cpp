@@ -5,6 +5,8 @@
 #include "mat3f.hpp"
 #include "SQT.hpp"
 #include "entity.hpp"
+#include <sstream> // for operator <<
+#include <iomanip> // for operator <<
 
 namespace gintonic {
 
@@ -111,6 +113,14 @@ mat4f::mat4f(const SQT& transform)
 mat4f::mat4f(const entity& e) : mat4f(e.global_transform())
 {
 	/* Empty on purpose. */
+}
+
+mat4f::mat4f(const aiMatrix4x4& m)
+{
+	data[0] = _mm_set_ps(m.d1, m.c1, m.b1, m.a1);
+	data[1] = _mm_set_ps(m.d2, m.c2, m.b2, m.a2);
+	data[2] = _mm_set_ps(m.d3, m.c3, m.b3, m.a3);
+	data[3] = _mm_set_ps(m.d4, m.c4, m.b4, m.a4);
 }
 
 mat4f::mat4f(const mat3f& rotation_part)
@@ -337,15 +347,77 @@ mat4f& mat4f::set_inverse_perspective(const float fieldofview, const float aspec
 
 void mat4f::unproject_perspective(float& fieldofview, float& aspectratio, float& nearplane, float& farplane)
 {
+	// This seems to fail my unit test for some reason ?
+
 	fieldofview = 2.0f * std::atan(1.0f / m11);
 	aspectratio = m11 / m00;
 	nearplane = m23 / (m22 - 1.0f);
 	farplane = m23 / (m22 + 1.0f);
+}
 
-		// fov = T(2) * std::atan(1 / m(1,1));
-		// aspectratio = m(1,1) / m(0,0);
-		// nearplane = m(2,3) / (m(2,2) - T(1));
-		// farplane = m(2,3) / (m(2,2) + T(1));
+void mat4f::decompose(vec3f& scale, quatf& rotation, vec3f& translation) const
+{
+	// SIMDify this...
+
+	mat4f tmp(*this);
+	translation = tmp.data[3];
+	translation.dummy = 0.0f;
+	tmp.data[3] = _mm_set1_ps(0.0f);
+	vec3f column(tmp.data[0]);
+	column.dummy = 0.0f;
+	scale.x = column.length();
+	column = tmp.data[1];
+	column.dummy = 0.0f;
+	scale.y = column.length();
+	column = tmp.data[2];
+	column.dummy = 0.0f;
+	scale.z = column.length();
+
+	tmp.data[0] = _mm_mul_ps(_mm_set1_ps(1.0f / scale.x), tmp.data[0]);
+	tmp.data[1] = _mm_mul_ps(_mm_set1_ps(1.0f / scale.y), tmp.data[1]);
+	tmp.data[2] = _mm_mul_ps(_mm_set1_ps(1.0f / scale.z), tmp.data[2]);
+
+
+	// Converting a rotation matrix to a quaternion is a bitch!
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+	const float trace = tmp.m00 + tmp.m11 + tmp.m22;
+	if (trace > 0)
+	{ 
+		const float S = std::sqrt(trace + 1.0f) * 2.0f; // S=4*qw 
+		rotation.w = 0.25f * S;
+		rotation.x = (tmp.m21 - tmp.m12) / S;
+		rotation.y = (tmp.m02 - tmp.m20) / S; 
+		rotation.z = (tmp.m10 - tmp.m01) / S; 
+	}
+	else if ((tmp.m00 > tmp.m11) && (tmp.m00 > tmp.m22))
+	{ 
+		const float S = std::sqrt(1.0f + tmp.m00 - tmp.m11 - tmp.m22) * 2.0f; // S=4*rotation.x 
+		rotation.w = (tmp.m21 - tmp.m12) / S;
+		rotation.x = 0.25f * S;
+		rotation.y = (tmp.m01 + tmp.m10) / S; 
+		rotation.z = (tmp.m02 + tmp.m20) / S; 
+	}
+	else if (tmp.m11 > tmp.m22)
+	{ 
+		const float S = std::sqrt(1.0f + tmp.m11 - tmp.m00 - tmp.m22) * 2.0f; // S=4*rotation.y
+		rotation.w = (tmp.m02 - tmp.m20) / S;
+		rotation.x = (tmp.m01 + tmp.m10) / S; 
+		rotation.y = 0.25f * S;
+		rotation.z = (tmp.m12 + tmp.m21) / S; 
+	}
+	else
+	{ 
+		const float S = std::sqrt(1.0f + tmp.m22 - tmp.m00 - tmp.m11) * 2.0f; // S=4*rotation.z
+		rotation.w = (tmp.m10 - tmp.m01) / S;
+		rotation.x = (tmp.m02 + tmp.m20) / S;
+		rotation.y = (tmp.m12 + tmp.m21) / S;
+		rotation.z = 0.25f * S;
+	}
+}
+
+void mat4f::decompose(SQT& sqt) const
+{
+	decompose(sqt.scale, sqt.rotation, sqt.translation);
 }
 
 vec3f mat4f::apply_to_point(const vec3f& point) const noexcept
@@ -363,6 +435,41 @@ vec3f mat4f::apply_to_direction(const vec3f& direction) const noexcept
 mat3f mat4f::upper_left_33() const
 {
 	return mat3f(vec3f(data[0]), vec3f(data[1]), vec3f(data[2]));
+}
+
+std::ostream& operator << (std::ostream& os, const mat4f& m)
+{
+	const auto lTransposedCopy = mat4f(m).transpose();
+	typename std::aligned_storage<4 * sizeof(float), 16>::type lFloats;
+	std::size_t lFieldWidth(0);
+	for (int i = 0; i < 4; ++i)
+	{
+		_mm_store_ps(reinterpret_cast<float*>(&lFloats), lTransposedCopy.data[i]);
+		for (int j = 0; j < 4; ++j)
+		{
+			std::stringstream lField;
+			lField << *(reinterpret_cast<float*>(&lFloats) + j);
+			lField.seekg(0, std::ios::end);
+			if (lFieldWidth < lField.tellg()) lFieldWidth = lField.tellg();
+		}
+	}
+
+	for (int i = 0; i < 4; ++i)
+	{
+		_mm_store_ps(reinterpret_cast<float*>(&lFloats), lTransposedCopy.data[i]);
+		os << '[' << std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 0) << ' '
+			<< std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 1) << ' '
+			<< std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 2) << ' '
+			<< std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 3) << ']';
+		if (i != 3) os << '\n';
+	}
+
+	return os;
+
+	// return os << m.m00 << ' ' << m.m10 << ' ' << m.m20 << ' ' << m.m30 << ' '
+	// 	<< m.m01 << ' ' << m.m11 << ' ' << m.m21 << ' ' << m.m31 << ' '
+	// 	<< m.m02 << ' ' << m.m12 << ' ' << m.m22 << ' ' << m.m32 << ' '
+	// 	<< m.m03 << ' ' << m.m13 << ' ' << m.m23 << ' ' << m.m33;
 }
 
 } // namespace gintonic

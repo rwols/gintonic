@@ -15,9 +15,9 @@
 #define GT_VERTEX_LAYOUT_FREE_14 14
 #define GT_VERTEX_LAYOUT_FREE_15 15
 
-layout(location = GT_VERTEX_LAYOUT_POSITION)   in vec4 in_position;
-layout(location = GT_VERTEX_LAYOUT_TEXCOORD)   in vec4 in_texcoord;
-layout(location = GT_VERTEX_LAYOUT_NORMAL)     in vec4 in_tangent;
+layout(location = GT_VERTEX_LAYOUT_POSITION)   in vec4 iSlot0;
+layout(location = GT_VERTEX_LAYOUT_TEXCOORD)   in vec4 iSlot1;
+layout(location = GT_VERTEX_LAYOUT_NORMAL)     in vec4 iSlot2;
 // layout(location = GT_VERTEX_LAYOUT_PVM_MATRIX) in mat4 in_matrix_PVM;
 // layout(location = GT_VERTEX_LAYOUT_VM_MATRIX)  in mat4 in_matrix_VM;
 // layout(location = GT_VERTEX_LAYOUT_N_MATRIX)   in mat3 in_matrix_N;
@@ -26,28 +26,28 @@ uniform mat4 matrix_PVM;
 uniform mat4 matrix_VM;
 uniform mat3 matrix_N;
 
-out vec3 v_position; // in VIEW space
-out vec2 v_texcoord;
-out mat3 v_matrix_T; // TANGENT->VIEW matrix
+out vec3 viewPosition; // in VIEW space
+out vec2 texCoords;
+out mat3 tangentMatrix; // TANGENT->VIEW matrix
 
 void main()
 {
 	// Retrieve the packed data.
-	vec4 P = vec4(in_position.xyz, 1.0f);
-	vec3 N = vec3(in_position.w, in_texcoord.zw);
-	vec3 T = in_tangent.xyz;
-	vec3 B = in_tangent.w * cross(N, T);
+	vec4 localPosition  = vec4(iSlot0.xyz, 1.0f);
+	vec3 localNormal    = iSlot1.xyz;
+	vec3 localTangent   = iSlot2.xyz;
+	vec3 localBitangent = iSlot2.w * cross(localNormal, localTangent);
+	texCoords = vec2(iSlot0.w, iSlot1.w);
 
 	// Do the usual calculations
-	gl_Position = matrix_PVM * P;
-	v_position = (matrix_VM * P).xyz;
-	v_texcoord = in_texcoord.xy;
-
+	gl_Position  = matrix_PVM * localPosition;
+	viewPosition = (matrix_VM * localPosition).xyz;
+	
 	// Transform the normal, tangent and bitangent vectors
 	// from MODEL (or LOCAL) space to VIEW (or CAMERA) space
-	T = matrix_N * T;
-	B = matrix_N * B;
-	N = matrix_N * N;
+	localTangent   = matrix_N * localTangent;
+	localBitangent = matrix_N * localBitangent;
+	localNormal    = matrix_N * localNormal;
 
 	// Gramm-Schmidt orthonormalization
 	// Not sure if this is really necessary...
@@ -55,5 +55,5 @@ void main()
 	// B = normalize(B - dot(N,B) * N - dot(T,B) * T);
 
 	// matrix that goes from TANGENT space to VIEW space
-	v_matrix_T = mat3(T, B, N);
+	tangentMatrix = mat3(localTangent, localBitangent, localNormal);
 }

@@ -2,6 +2,11 @@
 
 namespace gintonic {
 
+SQT::SQT(const mat4f& affineMatrix)
+{
+	affineMatrix.decompose(*this);
+}
+
 SQT SQT::operator % (const SQT& other) const noexcept
 {
 	return SQT(
@@ -38,7 +43,10 @@ SQT& SQT::invert() noexcept
 
 std::ostream& operator << (std::ostream& os, const SQT& sqt)
 {
-	return os << sqt.scale << ' ' << sqt.rotation << ' ' << sqt.translation;
+	os << "Scale: " << sqt.scale 
+		<< ", Rotation: " << sqt.rotation 
+		<< ", Translation: " << sqt.translation;
+	return os;
 }
 
 std::istream& operator >> (std::istream& is, SQT& sqt)

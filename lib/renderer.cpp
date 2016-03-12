@@ -6,6 +6,9 @@
 #include "vec4f.hpp"
 #include "camera.hpp"
 #include "proj_info.hpp"
+#include "materials.hpp"
+#include "mesh.hpp"
+#include "lights.hpp"
 #include "entity.hpp"
 #include <iostream>
 #include <SDL.h>
@@ -29,6 +32,7 @@ namespace gintonic {
 	
 	bool renderer::s_should_close = false;
 	bool renderer::s_fullscreen = false;
+	bool renderer::sRenderInWireframeMode = false;
 	int renderer::s_width = 800;
 	int renderer::s_height = 640;
 	float renderer::s_aspectratio = (float)renderer::s_width / (float)renderer::s_height;
@@ -61,7 +65,11 @@ namespace gintonic {
 	GLuint renderer::s_depth_texture;
 	GLuint renderer::s_shadow_texture;
 
-	entity* renderer::s_camera = nullptr;
+	std::shared_ptr<entity> renderer::sCameraEntity = std::shared_ptr<entity>(nullptr);
+
+	write_lock renderer::sEntityQueueLock;
+	std::vector<std::shared_ptr<entity>> renderer::sFutureQueue;
+	std::vector<std::shared_ptr<entity>> renderer::sCurrentQueue;
 
 	matrix_PVM_shader* renderer::s_matrix_PVM_shader = nullptr;
 
@@ -131,7 +139,15 @@ namespace gintonic {
 	fontstream& renderer::cerr() { return *debug_stream; }
 	#endif
 
-	void renderer::init(const char* title, entity& cam, const bool fullscreen, const int width, const int height)
+	void renderer::getElapsedAndDeltaTime(double& elapsedTime, double& deltaTime)
+	{
+		using std::chrono::duration_cast;
+		using std::chrono::nanoseconds;
+		elapsedTime = static_cast<double>(duration_cast<nanoseconds>(elapsed_time()).count()) / double(1e9);
+		deltaTime = static_cast<double>(duration_cast<nanoseconds>(delta_time()).count()) / double(1e9);
+	}
+
+	void renderer::init(const char* title, std::shared_ptr<entity> cameraEntity, const bool fullscreen, const int width, const int height)
 	{
 		bool was_already_initialized;
 		if (is_initialized())
@@ -150,18 +166,22 @@ namespace gintonic {
 		}
 		if (was_already_initialized == false) std::atexit(SDL_Quit);
 
-		s_camera = &cam;
+		sCameraEntity = std::move(cameraEntity);
 		s_fullscreen = fullscreen;
 		s_width = width;
 		s_height = height;
 		s_aspectratio = (float) s_width / (float) s_height;
-		if (s_camera->proj_info_component())
+		if (sCameraEntity->camera)
 		{
-			s_camera->proj_info_component()->update();
+			sCameraEntity->camera->setWidth(static_cast<float>(s_width));
+			sCameraEntity->camera->setHeight(static_cast<float>(s_height));
+			// sCameraEntity->camera->setNearPlane(0.01f);
+			// sCameraEntity->camera->setFarPlane(100.0f);
+			// sCameraEntity->camera->setProjection(camera::kPerspectiveProjection);
 		}
 		else
 		{
-			throw std::runtime_error("Expected a valid entity with a projection component.");
+			throw std::runtime_error("Expected a valid entity with a camera component.");
 		}
 
 		Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
@@ -205,6 +225,7 @@ namespace gintonic {
 		if (was_already_initialized == false) std::atexit(renderer::release);
 		
 		vsync(true);
+		glClearColor(0.03, 0.03, 0.03, 0.0);
 		
 		s_start_time = clock_type::now();
 
@@ -335,10 +356,8 @@ namespace gintonic {
 		//
 		// Update projection matrix
 		//
-		if (s_camera->proj_info_component())
-		{
-			s_camera->proj_info_component()->update();
-		}
+		sCameraEntity->camera->setWidth(static_cast<float>(s_width));
+		sCameraEntity->camera->setHeight(static_cast<float>(s_height));
 	}
 
 	bool renderer::is_initialized() noexcept
@@ -346,12 +365,17 @@ namespace gintonic {
 		return s_window != nullptr;
 	}
 
-	void renderer::set_camera(entity& camera)
+	void renderer::setCameraEntity(std::shared_ptr<entity> cameraEntity)
 	{
-		s_camera = &camera;
-		if (s_camera->proj_info_component())
+		sCameraEntity = std::move(cameraEntity);
+		if (sCameraEntity->camera)
 		{
-			s_camera->proj_info_component()->update();
+			sCameraEntity->camera->setWidth(static_cast<float>(s_width));
+			sCameraEntity->camera->setHeight(static_cast<float>(s_height));
+		}
+		else
+		{
+			throw std::runtime_error("entity is missing a camera component.");
 		}
 	}
 
@@ -389,6 +413,11 @@ namespace gintonic {
 	void renderer::vsync(const bool b) 
 	{ 
 		SDL_GL_SetSwapInterval(b? 1 : 0);
+	}
+
+	void renderer::setWireframeMode(const bool yesOrNo) noexcept
+	{
+		sRenderInWireframeMode = yesOrNo;
 	}
 
 	void renderer::show() noexcept 
@@ -458,25 +487,160 @@ namespace gintonic {
 
 	void renderer::update() noexcept
 	{
-		#ifdef ENABLE_DEBUG_TRACE
-		get_text_shader()->activate();
-		get_text_shader()->set_color(vec3f(1.0f, 1.0f, 1.0f));
-		glDisable(GL_CULL_FACE);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		debug_stream->close();
-		#endif
+		sEntityQueueLock.obtain();
+		sCurrentQueue.swap(sFutureQueue);
+		sFutureQueue.clear();
+		sEntityQueueLock.release();
+
+		std::vector<entity*> lShadowCastingGeometryEntities;
+		std::vector<entity*> lNonShadowCastingGeometryEntities;
+		std::vector<entity*> lShadowCastingLightEntities;
+		std::vector<entity*> lNonShadowCastingLightEntities;
+
+		for (auto lEntity : sCurrentQueue)
+		{
+			if (lEntity->castsShadow)
+			{
+				if (lEntity->mesh && lEntity->material)
+				{
+					lShadowCastingGeometryEntities.push_back(lEntity.get());
+				}
+				if (lEntity->light)
+				{
+					lShadowCastingLightEntities.push_back(lEntity.get());
+					if (!lEntity->shadowBuffer) lEntity->light->initializeShadowBuffer(lEntity);
+				}
+			}
+			else
+			{
+				if (lEntity->mesh && lEntity->material)
+				{
+					lNonShadowCastingGeometryEntities.push_back(lEntity.get());
+				}
+				if (lEntity->light)
+				{
+					lNonShadowCastingLightEntities.push_back(lEntity.get());
+				}
+			}
+		}
+
+		// Geometry collection phase.
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
+		// glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
+		// glClear(GL_COLOR_BUFFER_BIT);
+		constexpr GLenum DrawBuffers[4] = 
+		{
+			GL_COLOR_ATTACHMENT0 + GBUFFER_POSITION, 
+			GL_COLOR_ATTACHMENT0 + GBUFFER_DIFFUSE, 
+			GL_COLOR_ATTACHMENT0 + GBUFFER_SPECULAR, 
+			GL_COLOR_ATTACHMENT0 + GBUFFER_NORMAL
+		}; 
+		glDrawBuffers(4, DrawBuffers);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDepthMask(GL_TRUE);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+
+		if (sRenderInWireframeMode)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		}
+		else
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+
+		for (auto* lEntity : lShadowCastingGeometryEntities)
+		{
+			set_model_matrix(lEntity->global_transform());
+			lEntity->material->bind();
+			lEntity->mesh->draw();
+		}
+		for (auto* lEntity : lNonShadowCastingGeometryEntities)
+		{
+			set_model_matrix(lEntity->global_transform());
+			lEntity->material->bind();
+			lEntity->mesh->draw();
+		}
+
+		// Shadow collection phase.
+		// for (auto lEntity : sCurrentQueue)
+		// {
+		// 	if (lEntity->castsShadow)
+		// 	{
+		// 		if (lEntity->light)
+		// 		{
+		// 			if (!lEntity->shadowBuffer)
+		// 			{
+		// 				lEntity->light->setupShadowBuffer(lEntity);
+		// 			}
+		// 			lEntity->light->prepareShadowPass(lEntity);
+		// 			for (auto lGeometryEntity : sCurrentQueue)
+		// 			{
+		// 				if (lGeometryEntity->castsShadow)
+		// 				{
+		// 					set_model_matrix(lEntity.global_transform());
+		// 					lGeometryEntity->mesh->draw();
+		// 					lEntity->light->renderShadow(lEntity, lGeometryEntity);
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
+
+		// Illumination phase.
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
-		glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
-		glBlitFramebuffer(0, 0, s_width, s_height, 0, 0, s_width, s_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		for (unsigned int i = 0; i < GBUFFER_FINAL_COLOR; ++i) 
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
+		}
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Ambient lighting
+		s_lp_ambient_shader->activate();
+		s_lp_ambient_shader->set_gbuffer_diffuse(GBUFFER_DIFFUSE);
+		s_lp_ambient_shader->set_viewport_size(viewport_size());
+		s_lp_ambient_shader->set_light_intensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
+		s_unit_quad_P->draw();
+		
+		for (auto* lEntity : lShadowCastingLightEntities)
+		{
+			lEntity->light->shine(*lEntity);
+		}
+		for (auto* lEntity : lNonShadowCastingLightEntities)
+		{
+			lEntity->light->shine(*lEntity);
+		}
+
+		// #ifdef ENABLE_DEBUG_TRACE
+		// get_text_shader()->activate();
+		// get_text_shader()->set_color(vec3f(1.0f, 1.0f, 1.0f));
+		// glDisable(GL_CULL_FACE);
+		// glEnable(GL_BLEND);
+		// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		// debug_stream->close();
+		// #endif
+
+		// glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		// glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
+		// glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
+		// glBlitFramebuffer(0, 0, s_width, s_height, 0, 0, s_width, s_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+		// glClear(GL_COLOR_BUFFER_BIT);
 		
 		SDL_GL_SwapWindow(s_window);
 
-		#ifdef ENABLE_DEBUG_TRACE
-		debug_stream->open(*debug_font);
-		#endif
+		// #ifdef ENABLE_DEBUG_TRACE
+		// debug_stream->open(*debug_font);
+		// #endif
 		
 		s_prev_elapsed_time = s_elapsed_time;
 		s_elapsed_time = clock_type::now() - s_start_time;
@@ -526,7 +690,7 @@ namespace gintonic {
 		}
 
 		// Update the WORLD->VIEW matrix.
-		s_camera->get_view_matrix(s_matrix_V);
+		sCameraEntity->get_view_matrix(s_matrix_V);
 	}
 
 	void renderer::begin_geometry_pass()
@@ -662,7 +826,7 @@ namespace gintonic {
 	{
 		if (s_matrix_P_dirty)
 		{
-			s_matrix_P = s_camera->proj_info_component()->matrix;
+			s_matrix_P = sCameraEntity->camera->projectionMatrix();
 			s_matrix_P_dirty = false;
 		}
 	}

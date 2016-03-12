@@ -15,9 +15,9 @@
 #define GT_VERTEX_LAYOUT_FREE_14 14
 #define GT_VERTEX_LAYOUT_FREE_15 15
 
-layout(location = GT_VERTEX_LAYOUT_POSITION)   in vec4 in_position;
-layout(location = GT_VERTEX_LAYOUT_TEXCOORD)   in vec4 in_texcoord;
-// layout(location = GT_VERTEX_LAYOUT_NORMAL)     in vec4 in_tangent;
+layout(location = GT_VERTEX_LAYOUT_POSITION)   in vec4 iSlot0;
+layout(location = GT_VERTEX_LAYOUT_TEXCOORD)   in vec4 iSlot1;
+// layout(location = GT_VERTEX_LAYOUT_NORMAL)     in vec4 iSlot2;
 // layout(location = GT_VERTEX_LAYOUT_PVM_MATRIX) in mat4 in_matrix_PVM;
 // layout(location = GT_VERTEX_LAYOUT_VM_MATRIX)  in mat4 in_matrix_VM;
 // layout(location = GT_VERTEX_LAYOUT_N_MATRIX)   in mat3 in_matrix_N;
@@ -26,18 +26,24 @@ uniform mat4 matrix_PVM;
 uniform mat4 matrix_VM;
 uniform mat3 matrix_N;
 
-out vec3 v_position;
-out vec2 v_texcoord;
-out vec3 v_normal;
+out vec3 viewPosition;
+out vec2 texCoords;
+out vec3 viewNormal;
 
 void main()
 {
-	vec4 P = vec4(in_position.xyz, 1.0f);
-	vec3 N = vec3(in_position.w, in_texcoord.zw);
+	//
+	// Unpack the mesh data
+	//
 
-	gl_Position = matrix_PVM * P;
-	v_position = (matrix_VM * P).xyz;
-	v_normal = matrix_N * N;
+	vec4 localPosition = vec4(iSlot0.xyz, 1.0f);
+	vec3 localNormal   = iSlot1.xyz;
+	texCoords          = vec2(iSlot0.w, iSlot1.w);
 
-	v_texcoord = in_texcoord.xy;
+	// clip space position
+	gl_Position  = matrix_PVM * localPosition;
+
+	viewPosition = (matrix_VM * localPosition).xyz;
+	
+	viewNormal = matrix_N * localNormal;
 }

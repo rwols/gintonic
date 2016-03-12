@@ -11,24 +11,27 @@
 #include "box3f.hpp"
 #include "mat4f.hpp"
 #include "allocator.hpp"
+#include "ShadowBuffer.hpp"
+#include "Object.hpp"
 #include <list>
 #include <boost/signals2.hpp>
+#include <fbxsdk.h>
 
 namespace gintonic {
 
 class octree;     // Forward declaration.
-class mesh;       // Forward declaration.
-class material;   // Forward declaration.
-class light;      // Forward declaration.
+class Mesh;       // Forward declaration.
+class Material;   // Forward declaration.
+class Light;      // Forward declaration.
 class rigid_body; // Forward declaration.
 class logic;      // Forward declaration.
 class AI;         // Forward declaration.
 class proj_info;  // Forward declaration.
-class camera;     // Forward declaration.
+class Camera;     // Forward declaration.
 class SQTstack;   // Forward declaration.
 class mat4fstack; // Forward declaration.
 class controller; // Forward declaration.
-class shadow_buffer; // Forward declaration.
+class ShadowBuffer; // Forward declaration.
 
 /**
  * @brief Represents an entity in the world.
@@ -40,7 +43,7 @@ class shadow_buffer; // Forward declaration.
  * is like a vector in that the component itself should have a small memory
  * footprint, while the data that they point to might be very memory-intensive.
  */
-class entity : public std::enable_shared_from_this<entity>
+class entity : public Object<entity>
 {
 public:
 
@@ -55,8 +58,8 @@ public:
 
 private:
 
-	SQT m_local_transform;
-	mat4f m_global_transform;
+	SQT mLocalTransform;
+	mat4f mGlobalTransform;
 
 	box3f m_local_bounding_box;
 	box3f m_global_bounding_box;
@@ -67,30 +70,34 @@ private:
 
 	octree*     m_octree               = nullptr;
 	controller* m_controller_component = nullptr;
-	mesh*       m_mesh_component       = nullptr;
-	material*   m_material_component   = nullptr;
-	light*      m_light_component      = nullptr;
+	Mesh*       m_mesh_component       = nullptr;
+	Material*   m_material_component   = nullptr;
+	Light*      m_light_component      = nullptr;
 	rigid_body* m_rigid_body_component = nullptr;
 	logic*      m_logic_component      = nullptr;
 	AI*         m_AI_component         = nullptr;
-	camera*     m_camera_component     = nullptr;
+	Camera*     m_camera_component     = nullptr;
 	proj_info*  m_proj_info_component  = nullptr;
 
 	friend class octree;
 	friend class controller;
-	friend class mesh;
-	friend class material;
-	friend class light;
+	friend class Mesh;
+	friend class Material;
+	friend class Light;
 	friend class rigid_body;
 	friend class logic;
 	friend class AI;
-	friend class camera;
+	friend class Camera;
 	friend class proj_info;
 
 	void update_global_info(mat4fstack&) noexcept;
 	void update_global_info_start() noexcept;
 	mat4f compute_global_transform() noexcept;
 	void update_global_datamembers(const mat4fstack&) noexcept;
+
+public:
+
+	entity(const FbxNode* pFbxNode);
 
 	/**
 	 * @brief Constructor.
@@ -122,26 +129,26 @@ private:
 	 */
 	entity() = default;
 
-public:
+	bool castsShadow = false;
 
-	std::shared_ptr<material> material;
-	std::shared_ptr<mesh> mesh;
-	std::shared_ptr<light> light;
-	std::shared_ptr<camera> camera;
+	std::shared_ptr<Material> material;
+	std::shared_ptr<Mesh> mesh;
+	std::shared_ptr<Light> light;
+	std::shared_ptr<Camera> camera;
 	std::shared_ptr<proj_info> proj_info;
-	std::unique_ptr<shadow_buffer> shadow_buffer;
+	std::unique_ptr<ShadowBuffer> shadowBuffer;
 
-	template <class ComponentType>
-	ComponentType* get() noexcept
-	{
-		return reinterpret_cast<ComponentType*>(m_components[ComponentType::this_type].get());
-	};
+	// template <class ComponentType>
+	// ComponentType* get() noexcept
+	// {
+	// 	return reinterpret_cast<ComponentType*>(m_components[ComponentType::this_type].get());
+	// };
 
-	template <class ComponentType>
-	const ComponentType* get() const noexcept
-	{
-		return reinterpret_cast<ComponentType*>(m_components[ComponentType::this_type].get());
-	}
+	// template <class ComponentType>
+	// const ComponentType* get() const noexcept
+	// {
+	// 	return reinterpret_cast<ComponentType*>(m_components[ComponentType::this_type].get());
+	// }
 
 	/**
 	 * @name Events
@@ -175,7 +182,7 @@ public:
 	 * @brief Returns a shared pointer to a new entity.
 	 * @return A shared pointer to a new entity.
 	 */
-	static std::shared_ptr<entity> create();
+	// static std::shared_ptr<entity> create();
 
 	/**
 	 * @brief Returns a shared pointer to a new entity.
@@ -193,11 +200,11 @@ public:
 	 * 
 	 * @return A shared pointer a new entity.
 	 */
-	static std::shared_ptr<entity> create(
-		const SQT& local_transform, 
-		const box3f& local_bounding_box,
-		octree* octree_node = nullptr,
-		std::shared_ptr<entity> parent = std::shared_ptr<entity>(nullptr));
+	// static std::shared_ptr<entity> create(
+	// 	const SQT& local_transform, 
+	// 	const box3f& local_bounding_box,
+	// 	octree* octree_node = nullptr,
+	// 	std::shared_ptr<entity> parent = std::shared_ptr<entity>(nullptr));
 
 	/// You cannot copy entities. This could create cycles in the entity tree.
 	entity(const entity&) = delete;
@@ -456,7 +463,7 @@ public:
 	 */
 	inline const SQT& local_transform() const noexcept
 	{
-		return m_local_transform;
+		return mLocalTransform;
 	}
 
 	//@}
@@ -628,7 +635,7 @@ public:
 	 */
 	inline const mat4f& global_transform() const noexcept
 	{
-		return m_global_transform;
+		return mGlobalTransform;
 	}
 
 	/**

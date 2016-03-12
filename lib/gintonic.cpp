@@ -8,7 +8,7 @@ void release()
 	// nothing atm
 }
 
-void init_all(const char* window_title, entity& camera)
+void initializeEverything(const char* window_title, std::shared_ptr<entity> camera)
 {
 	#ifdef BOOST_MSVC
 		boost::filesystem::current_path(get_executable_path());
@@ -16,7 +16,7 @@ void init_all(const char* window_title, entity& camera)
 		boost::filesystem::current_path(get_executable_path() / "..");
 	#endif
 
-	renderer::init(window_title, camera, true, 800, 640);
+	renderer::init(window_title, std::move(camera), true, 800, 640);
 	opengl::texture2d::init();
 	font::init();
 	std::atexit(release);

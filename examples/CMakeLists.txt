@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 set(executables basic_shapes
 	directional_light
 	fbx_viewer
+	hello_world
 	point_lights
 	rotating_square
 	skybox

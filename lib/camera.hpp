@@ -4,21 +4,27 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_camera_hpp
-#define gintonic_camera_hpp
+#pragma once
 
-#include "component.hpp"
+#include "Object.hpp"
 #include "vec2f.hpp"
 #include "mat4f.hpp"
+
+#include <fbxsdk.h>
 
 namespace gintonic {
 
 /**
  * @brief Camera component class.
  */
-class camera : public std::enable_shared_from_this<camera>
+class Camera : public Object<Camera>
 {
 public:
+
+	Camera() = default;
+	Camera(const FbxCamera*);
+
+	virtual ~Camera() noexcept = default;
 
 	/// Projection type. Either orthographic or perspective.
 	enum ProjectionType
@@ -32,9 +38,9 @@ public:
 
 	void setHeight(const float height);
 
-	void setNearplane(const float nearplane);
+	void setNearPlane(const float nearPlane);
 
-	void setFarplane(const float farplane);
+	void setFarPlane(const float farPlane);
 
 	void setFieldOfView(const float fieldOfView);
 
@@ -109,5 +115,3 @@ private:
 };
 
 } // namespace gintonic
-
-#endif

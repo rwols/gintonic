@@ -3,6 +3,7 @@
 
 #include "vec4f.hpp"
 #include "mat4f.hpp"
+#include "SQT.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>
@@ -106,6 +107,17 @@ BOOST_AUTO_TEST_CASE( constructor_test )
 	BOOST_CHECK_EQUAL(b.data[3][2], 0.0f);
 	BOOST_CHECK_EQUAL(b.data[3][3], 1.0f);
 	#endif
+
+	SQT sqt;
+
+	sqt.scale = vec3f(1.0f, 1.0f, 1.0f);
+	sqt.rotation = quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), M_PI / 2.0f);
+	sqt.translation = vec3f(0.0f, 0.0f, 100.0f);
+
+	mat4f matFromSQT(sqt);
+
+	std::cout << "SQT: " << sqt << '\n';
+	std::cout << "Matrix from SQT:\n" << matFromSQT << '\n';
 }
 
 BOOST_AUTO_TEST_CASE ( operators_test )
@@ -204,7 +216,9 @@ BOOST_AUTO_TEST_CASE ( various_functions_test )
 	float recovered_nearplane;
 	float recovered_farplane;
 
-	mat4f P(fieldofview, aspectratio, nearplane, farplane);
+	mat4f P;
+
+	P.set_perspective(fieldofview, aspectratio, nearplane, farplane);
 
 	std::cout << "The projection matrix is given by:\n";
 	std::cout << P << "\n\n";

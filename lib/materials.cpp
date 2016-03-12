@@ -13,11 +13,7 @@
 // #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/export.hpp>
 #include <fstream>
-#include <fbxsdk/scene/shading/fbxsurfacematerial.h>
-#include <fbxsdk/scene/shading/fbxsurfacelambert.h>
-#include <fbxsdk/scene/shading/fbxsurfacephong.h>
-#include <fbxsdk/scene/shading/fbxtexture.h>
-#include <fbxsdk/scene/shading/fbxfiletexture.h>
+#include <fbxsdk.h>
 
 using FBX::FbxSurfaceMaterial;
 using FBX::FbxSurfaceLambert;
@@ -30,7 +26,7 @@ using FBX::FbxDouble3;
 
 namespace { // anonymous namespace
 
-std::size_t texture_count(
+std::size_t textureCount(
 	const FbxSurfaceMaterial* mat, 
 	const char* property)
 {
@@ -38,7 +34,7 @@ std::size_t texture_count(
 	return prop.GetSrcObjectCount<FbxFileTexture>();
 }
 
-boost::filesystem::path get_texture_filename(
+boost::filesystem::path getTextureFilename(
 	const FbxSurfaceMaterial* mat, 
 	const char* property, 
 	const std::size_t index)
@@ -48,7 +44,7 @@ boost::filesystem::path get_texture_filename(
 	return file_prop->GetFileName();
 }
 
-float get_texture_factor(
+float getTextureFactor(
 	const FbxSurfaceMaterial* mat,
 	const char* property)
 {
@@ -56,7 +52,7 @@ float get_texture_factor(
 	return static_cast<float>(prop.Get<FbxDouble>());
 }
 
-gintonic::vec3f get_material_color(
+gintonic::vec3f getMaterialColor(
 	const FbxSurfaceMaterial* mat,
 	const char* property)
 {
@@ -70,21 +66,20 @@ gintonic::vec3f get_material_color(
 namespace gintonic {
 
 /*****************************************************************************
- * gintonic::material (base class for inheritance)                           *
+ * gintonic::Material (base class for inheritance)                           *
  ****************************************************************************/
 
-material::datastructure_type material::s_textures ;
-	// = material::datastructure_type();
+Material::DataStructureType Material::sTextures;
 
-write_lock material::s_textures_lock;
+write_lock Material::sTextureWriteLock;
 
-void material::save(std::ostream& output) const
+void Material::save(std::ostream& output) const
 {
 	eos::portable_oarchive archive(output);
-	archive & boost::serialization::make_nvp("material", *this);
+	archive & boost::serialization::make_nvp("Material", *this);
 }
 
-void material::save(const boost::filesystem::path& filename) const
+void Material::save(const boost::filesystem::path& filename) const
 {
 	#ifdef BOOST_MSVC
 		save(filename.string());
@@ -93,26 +88,26 @@ void material::save(const boost::filesystem::path& filename) const
 	#endif
 }
 
-void material::save(const std::string& filename) const
+void Material::save(const std::string& filename) const
 {
 	save(filename.c_str());
 }
 
-void material::save(const char* filename) const
+void Material::save(const char* filename) const
 {
 	std::ofstream output(filename, std::ios::binary);
 	save(output);
 }
 
-material material::load(std::istream& input)
+Material Material::load(std::istream& input)
 {
-	material m;
+	Material m;
 	eos::portable_iarchive archive(input);
-	archive & boost::serialization::make_nvp("material", m);
+	archive & boost::serialization::make_nvp("Material", m);
 	return m;
 }
 
-material material::load(const boost::filesystem::path& filename)
+Material Material::load(const boost::filesystem::path& filename)
 {
 	#ifdef BOOST_MSVC
 		return load(filename.string());
@@ -121,70 +116,70 @@ material material::load(const boost::filesystem::path& filename)
 	#endif
 }
 
-material material::load(const std::string& filename)
+Material Material::load(const std::string& filename)
 {
 	return load(filename.c_str());
 }
 
-material material::load(const char* filename)
+Material Material::load(const char* filename)
 {
 	std::ifstream input(filename, std::ios::binary);
 	return load(input);
 }
 
-void material::safe_obtain_texture(
+void Material::safeObtainTexture(
 	const boost::filesystem::path& filename, 
-	iter_type& iter)
+	IterType& iter)
 {
-	s_textures_lock.obtain();
-	iter = std::find_if(s_textures.begin(), s_textures.end(), 
-		[&filename](const material::item_type& tup)
+	sTextureWriteLock.obtain();
+	iter = std::find_if(sTextures.begin(), sTextures.end(), 
+		[&filename](const Material::ItemType& tup)
 	{
 		if (std::get<0>(tup) == filename) return true;
 		else return false;
 	});
-	if (iter == s_textures.end())
+	if (iter == sTextures.end())
 	{
 		// texture filename is not present in our global container,
 		// so we create a new texture2d initialized with a
 		// reference count of 1
-		try { s_textures.emplace_back(filename, 1, filename); }
+		try { sTextures.emplace_back(filename, 1, filename); }
 		catch (const exception&)
 		{
-			s_textures_lock.release();
+			sTextureWriteLock.release();
 			throw;
 		}
-		iter = std::prev(s_textures.end());
+		iter = std::prev(sTextures.end());
 	}
 	else
 	{
 		++(std::get<1>(*iter)); // increase reference count by 1
 	}
-	s_textures_lock.release();
+	sTextureWriteLock.release();
 }
 
-void material::unsafe_obtain_texture(
+void Material::unsafeObtainTexture(
 	const boost::filesystem::path& filename,
-	iter_type& iter)
+	IterType& iter)
 {
-	iter = std::find_if(s_textures.begin(), s_textures.end(),
-		[&filename](const material::item_type& tup)
+	iter = std::find_if(sTextures.begin(), sTextures.end(),
+		[&filename](const Material::ItemType& tup)
 	{
 		if (std::get<0>(tup) == filename) return true;
 		else return false;
 	});
-	if (iter == s_textures.end())
+	if (iter == sTextures.end())
 	{
 		// texture filename is not present in our global container,
 		// so we create a new texture2d initialized with a
 		// reference count of 1
-		try { s_textures.emplace_back(filename, 1, filename); }
+		try { sTextures.emplace_back(filename, 1, filename); }
 		catch (const exception&)
 		{
-			s_textures_lock.release();
+			sTextureWriteLock.release();
 			throw;
 		}
-		iter = std::prev(s_textures.end());
+		iter = std::prev(sTextures.end());
 	}
 	else
 	{
@@ -192,396 +187,408 @@ void material::unsafe_obtain_texture(
 	}
 }
 
-void material::safe_set_null_texture(iter_type& iter)
+void Material::safeSetNullTexture(IterType& iter)
 {
-	s_textures_lock.obtain();
-	iter = s_textures.end();
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	iter = sTextures.end();
+	sTextureWriteLock.release();
 }
 
-void material::safe_release_texture(iter_type& iter)
+void Material::safeReleaseTexture(IterType& iter)
 {
-	s_textures_lock.obtain();
-	if (iter != s_textures.end())
+	sTextureWriteLock.obtain();
+	if (iter != sTextures.end())
 	{
 		if (--(std::get<1>(*iter)) == 0) // decreases reference count
 		{
-			s_textures.erase(iter); // erases entry from the global container
+			sTextures.erase(iter); // erases entry from the global container
 		}
 	}
-	s_textures_lock.release();
+	sTextureWriteLock.release();
 }
 
-void material::unsafe_release_texture(iter_type& iter)
+void Material::unsafeReleaseTexture(IterType& iter)
 {
-	if (iter != s_textures.end())
+	if (iter != sTextures.end())
 	{
 		auto& refcount = std::get<1>(*iter);
 		--refcount;
 		if (refcount == 0)
 		{
-			s_textures.erase(iter); // erases entry from the global container
-			iter = s_textures.end();
+			sTextures.erase(iter); // erases entry from the global container
+			iter = sTextures.end();
 		}
 	}
 }
 
-material::material()
+Material::Material()
 {
-	std::cout << "material::material num textures: " << s_textures.size() << '\n';
-	s_textures_lock.obtain();
-	m_diffuse_tex = s_textures.end();
-	m_specular_tex = s_textures.end();
-	m_normal_tex = s_textures.end();
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	mDiffuseTexture = sTextures.end();
+	mSpecularTexture = sTextures.end();
+	mNormalTexture = sTextures.end();
+	sTextureWriteLock.release();
 }
 
-material::material(
-	const vec4f& diffuse_color)
-: diffuse_color(diffuse_color)
+Material::Material(
+	const vec4f& diffuseColor)
+: diffuseColor(diffuseColor)
 {
-	s_textures_lock.obtain();
-	m_diffuse_tex = s_textures.end();
-	m_specular_tex = s_textures.end();
-	m_normal_tex = s_textures.end();
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	mDiffuseTexture = sTextures.end();
+	mSpecularTexture = sTextures.end();
+	mNormalTexture = sTextures.end();
+	sTextureWriteLock.release();
 }
 
-material::material(
-	const vec4f& diffuse_color, 
-	const vec4f& specular_color)
-: diffuse_color(diffuse_color)
-, specular_color(specular_color)
+Material::Material(
+	const vec4f& diffuseColor, 
+	const vec4f& specularColor)
+: diffuseColor(diffuseColor)
+, specularColor(specularColor)
 {
-	s_textures_lock.obtain();
-	m_diffuse_tex = s_textures.end();
-	m_specular_tex = s_textures.end();
-	m_normal_tex = s_textures.end();
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	mDiffuseTexture = sTextures.end();
+	mSpecularTexture = sTextures.end();
+	mNormalTexture = sTextures.end();
+	sTextureWriteLock.release();
 }
 
-material::material(
-	const vec4f& diffuse_color, 
-	const vec4f& specular_color,
+Material::Material(
+	const vec4f& diffuseColor, 
+	const vec4f& specularColor,
 	const boost::filesystem::path& diffuse_texture)
-: diffuse_color(diffuse_color)
-, specular_color(specular_color)
+: diffuseColor(diffuseColor)
+, specularColor(specularColor)
 {
-	s_textures_lock.obtain();
-	unsafe_obtain_texture(diffuse_texture, m_diffuse_tex);
-	m_specular_tex = s_textures.end();
-	m_normal_tex = s_textures.end();
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	unsafeObtainTexture(diffuse_texture, mDiffuseTexture);
+	mSpecularTexture = sTextures.end();
+	mNormalTexture = sTextures.end();
+	sTextureWriteLock.release();
 }
 
-material::material(
-	const vec4f& diffuse_color, 
-	const vec4f& specular_color,
+Material::Material(
+	const vec4f& diffuseColor, 
+	const vec4f& specularColor,
 	const boost::filesystem::path& diffuse_texture,
 	const boost::filesystem::path& specular_texture)
-: diffuse_color(diffuse_color)
-, specular_color(specular_color)
+: diffuseColor(diffuseColor)
+, specularColor(specularColor)
 {
-	s_textures_lock.obtain();
-	unsafe_obtain_texture(diffuse_texture, m_diffuse_tex);
-	unsafe_obtain_texture(specular_texture, m_specular_tex);
-	m_normal_tex = s_textures.end();
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	unsafeObtainTexture(diffuse_texture, mDiffuseTexture);
+	unsafeObtainTexture(specular_texture, mSpecularTexture);
+	mNormalTexture = sTextures.end();
+	sTextureWriteLock.release();
 }
 
-material::material(
-	const vec4f& diffuse_color, 
-	const vec4f& specular_color,
+Material::Material(
+	const vec4f& diffuseColor, 
+	const vec4f& specularColor,
 	const boost::filesystem::path& diffuse_texture,
 	const boost::filesystem::path& specular_texture,
 	const boost::filesystem::path& normal_texture)
-: diffuse_color(diffuse_color)
-, specular_color(specular_color)
+: diffuseColor(diffuseColor)
+, specularColor(specularColor)
 {
-	s_textures_lock.obtain();
-	unsafe_obtain_texture(diffuse_texture, m_diffuse_tex);
-	unsafe_obtain_texture(specular_texture, m_specular_tex);
-	unsafe_obtain_texture(normal_texture, m_normal_tex);
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	unsafeObtainTexture(diffuse_texture, mDiffuseTexture);
+	unsafeObtainTexture(specular_texture, mSpecularTexture);
+	unsafeObtainTexture(normal_texture, mNormalTexture);
+	sTextureWriteLock.release();
 }
 
-material::material(const FbxSurfaceMaterial* fbxmat)
+Material::Material(const FbxSurfaceMaterial* pFbxMaterial)
 {
-	std::cout << "\tFound material: " << fbxmat->GetName() << '\n';
+	const auto lGlobalName = boost::filesystem::path(pFbxMaterial->GetScene()->GetSceneInfo()->Url.Get().Buffer()).stem().string();
+	setName(lGlobalName, pFbxMaterial->GetName());
 
-	const auto diffuse_count   = texture_count(fbxmat, FbxSurfaceMaterial::sDiffuse);
-	const auto specular_count  = texture_count(fbxmat, FbxSurfaceMaterial::sSpecular);
-	const auto normal_count    = texture_count(fbxmat, FbxSurfaceMaterial::sNormalMap);
+	std::cout << "\tFound Material: " << pFbxMaterial->GetName() << '\n';
 
-	const auto diffuse_factor  = get_texture_factor(fbxmat, FbxSurfaceMaterial::sDiffuseFactor);
-	const auto specular_factor = get_texture_factor(fbxmat, FbxSurfaceMaterial::sSpecularFactor);
-	const auto shininess       = get_texture_factor(fbxmat, FbxSurfaceMaterial::sShininess);
+	const auto lNumDiffuseTextures  = textureCount(pFbxMaterial, FbxSurfaceMaterial::sDiffuse);
+	const auto lNumSpecularTextures = textureCount(pFbxMaterial, FbxSurfaceMaterial::sSpecular);
+	const auto lNumNormalTextures   = textureCount(pFbxMaterial, FbxSurfaceMaterial::sNormalMap);
 
-	diffuse_color = vec4f(get_material_color(fbxmat, FbxSurfaceMaterial::sDiffuse), diffuse_factor);
-	specular_color = vec4f(get_material_color(fbxmat, FbxSurfaceMaterial::sSpecular), 1.0f);
+	const auto lDiffuseFactor  = getTextureFactor(pFbxMaterial, FbxSurfaceMaterial::sDiffuseFactor);
+	const auto lSpecularFactor = getTextureFactor(pFbxMaterial, FbxSurfaceMaterial::sSpecularFactor);
+	const auto lShininess      = getTextureFactor(pFbxMaterial, FbxSurfaceMaterial::sShininess);
 
-	specular_color *= specular_factor;
-	specular_color.w = shininess;
+	diffuseColor = vec4f(getMaterialColor(pFbxMaterial, FbxSurfaceMaterial::sDiffuse), lDiffuseFactor);
+	specularColor = vec4f(getMaterialColor(pFbxMaterial, FbxSurfaceMaterial::sSpecular), 1.0f);
 
-	std::cout << "\tDiffuse color: " << diffuse_color << '\n';
-	std::cout << "\tSpecular color: " << specular_color << '\n';
+	specularColor *= lSpecularFactor;
+	specularColor.w = lShininess;
 
-	s_textures_lock.obtain();
+	std::cout << "\tDiffuse color: " << diffuseColor << '\n';
+	std::cout << "\tSpecular color: " << specularColor << '\n';
 
-	boost::filesystem::path tex_filename;
-	if (diffuse_count)
+	sTextureWriteLock.obtain();
+
+	boost::filesystem::path lFilename;
+	if (lNumDiffuseTextures)
 	{
-		tex_filename = get_texture_filename(fbxmat, FbxSurfaceMaterial::sDiffuse, 0);
-		unsafe_obtain_texture(tex_filename, m_diffuse_tex);
-		std::cout << "\tDiffuse texture: " << tex_filename << '\n';
+		lFilename = getTextureFilename(pFbxMaterial, FbxSurfaceMaterial::sDiffuse, 0);
+		try
+		{
+			unsafeObtainTexture(lFilename, mDiffuseTexture);
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << "\tFailed to fetch texture " << lFilename << '\n';
+			lFilename = boost::filesystem::path(pFbxMaterial->GetScene()->GetSceneInfo()->Url.Get().Buffer()).parent_path() / lFilename;
+			std::cerr << "\tTrying " << lFilename << '\n';
+			unsafeObtainTexture(lFilename, mDiffuseTexture);
+		}
+		std::cout << "\tDiffuse texture: " << lFilename << '\n';
 	}
 	else
 	{
 		std::cout << "\tNo diffuse texture present.\n";
-		m_diffuse_tex = s_textures.end();
+		mDiffuseTexture = sTextures.end();
 	}
-	if (specular_count)
+	if (lNumSpecularTextures)
 	{
-		tex_filename = get_texture_filename(fbxmat, FbxSurfaceMaterial::sSpecular, 0);
-		unsafe_obtain_texture(tex_filename, m_specular_tex);
-		std::cout << "\tSpecular texture: " << tex_filename << '\n';
+		lFilename = getTextureFilename(pFbxMaterial, FbxSurfaceMaterial::sSpecular, 0);
+		unsafeObtainTexture(lFilename, mSpecularTexture);
+		std::cout << "\tSpecular texture: " << lFilename << '\n';
 	}
 	else
 	{
 		std::cout << "\tNo specular texture present.\n";
-		m_specular_tex = s_textures.end();
+		mSpecularTexture = sTextures.end();
 	}
-	if (normal_count)
+	if (lNumNormalTextures)
 	{
-		tex_filename = get_texture_filename(fbxmat, FbxSurfaceMaterial::sNormalMap, 0);
-		unsafe_obtain_texture(tex_filename, m_normal_tex);
-		std::cout << "\tNormal texture: " << tex_filename << '\n';
+		lFilename = getTextureFilename(pFbxMaterial, FbxSurfaceMaterial::sNormalMap, 0);
+		unsafeObtainTexture(lFilename, mNormalTexture);
+		std::cout << "\tNormal texture: " << lFilename << '\n';
 	}
 	else
 	{
 		std::cout << "\tNo normal map present.\n";
-		m_normal_tex = s_textures.end();
+		mNormalTexture = sTextures.end();
 	}
-	s_textures_lock.release();
+	sTextureWriteLock.release();
 }
 
-material::~material() noexcept
+Material::~Material() noexcept
 {
-	s_textures_lock.obtain();
-	unsafe_release_texture(m_diffuse_tex);
-	unsafe_release_texture(m_specular_tex);
-	unsafe_release_texture(m_normal_tex);
-	s_textures_lock.release();
-	for (auto* e : m_ents) e->m_material_component = nullptr;
+	sTextureWriteLock.obtain();
+	unsafeReleaseTexture(mDiffuseTexture);
+	unsafeReleaseTexture(mSpecularTexture);
+	unsafeReleaseTexture(mNormalTexture);
+	sTextureWriteLock.release();
+	// for (auto* e : m_ents) e->m_Material_component = nullptr;
 }
 
-material::material(const material& other)
-: component(other)
-, diffuse_color(other.diffuse_color)
-, specular_color(other.specular_color)
+Material::Material(const Material& other)
+// : component(other)
+: diffuseColor(other.diffuseColor)
+, specularColor(other.specularColor)
 {
-	std::cout << "material::material(const material&): num textures: " << s_textures.size() << '\n';
-	s_textures_lock.obtain();
-	m_diffuse_tex = other.m_diffuse_tex;
-	m_specular_tex = other.m_specular_tex;
-	m_normal_tex = other.m_normal_tex;
-	if (m_diffuse_tex != s_textures.end()) ++(std::get<1>(*m_diffuse_tex));
-	if (m_specular_tex != s_textures.end()) ++(std::get<1>(*m_specular_tex));
-	if (m_normal_tex != s_textures.end()) ++(std::get<1>(*m_normal_tex));
-	s_textures_lock.release();
-	std::cout << "material::material(const material&): num textures: " << s_textures.size() << '\n';
+	std::cout << "Material::Material(const Material&): num textures: " << sTextures.size() << '\n';
+	sTextureWriteLock.obtain();
+	mDiffuseTexture = other.mDiffuseTexture;
+	mSpecularTexture = other.mSpecularTexture;
+	mNormalTexture = other.mNormalTexture;
+	if (mDiffuseTexture != sTextures.end()) ++(std::get<1>(*mDiffuseTexture));
+	if (mSpecularTexture != sTextures.end()) ++(std::get<1>(*mSpecularTexture));
+	if (mNormalTexture != sTextures.end()) ++(std::get<1>(*mNormalTexture));
+	sTextureWriteLock.release();
+	std::cout << "Material::Material(const Material&): num textures: " << sTextures.size() << '\n';
 }
 
-material::material(material&& other) noexcept
-: component(std::move(other))
-, diffuse_color(std::move(other.diffuse_color))
-, specular_color(std::move(other.specular_color))
+Material::Material(Material&& other) noexcept
+// : component(std::move(other))
+: diffuseColor(std::move(other.diffuseColor))
+, specularColor(std::move(other.specularColor))
 {
-	std::cout << "material::material(material&&): num textures: " << s_textures.size() << '\n';
-	s_textures_lock.obtain();
-	m_diffuse_tex = other.m_diffuse_tex;
-	m_specular_tex = other.m_specular_tex;
-	m_normal_tex = other.m_normal_tex;
-	other.m_diffuse_tex = s_textures.end();
-	other.m_specular_tex = s_textures.end();
-	other.m_normal_tex = s_textures.end();
-	s_textures_lock.release();
-	std::cout << "material::material(material&&): num textures: " << s_textures.size() << '\n';
+	std::cout << "Material::Material(Material&&): num textures: " << sTextures.size() << '\n';
+	sTextureWriteLock.obtain();
+	mDiffuseTexture = other.mDiffuseTexture;
+	mSpecularTexture = other.mSpecularTexture;
+	mNormalTexture = other.mNormalTexture;
+	other.mDiffuseTexture = sTextures.end();
+	other.mSpecularTexture = sTextures.end();
+	other.mNormalTexture = sTextures.end();
+	sTextureWriteLock.release();
+	std::cout << "Material::Material(Material&&): num textures: " << sTextures.size() << '\n';
 }
 
-material& material::operator = (const material& other)
+Material& Material::operator = (const Material& other)
 {
-	std::cout << "material::operator=(const material&): num textures: " << s_textures.size() << '\n';
-	component::operator=(other);
-	diffuse_color = other.diffuse_color;
-	specular_color = other.specular_color;
-	s_textures_lock.obtain();
-	unsafe_release_texture(m_diffuse_tex);
-	unsafe_release_texture(m_specular_tex);
-	unsafe_release_texture(m_normal_tex);
-	m_diffuse_tex = other.m_diffuse_tex;
-	m_specular_tex = other.m_specular_tex;
-	m_normal_tex = other.m_normal_tex;
-	if (m_diffuse_tex != s_textures.end()) ++(std::get<1>(*m_diffuse_tex));
-	if (m_specular_tex != s_textures.end()) ++(std::get<1>(*m_specular_tex));
-	if (m_normal_tex != s_textures.end()) ++(std::get<1>(*m_normal_tex));
-	s_textures_lock.release();
-	std::cout << "material::operator=(const material&): num textures: " << s_textures.size() << '\n';
+	std::cout << "Material::operator=(const Material&): num textures: " << sTextures.size() << '\n';
+	// component::operator=(other);
+	diffuseColor = other.diffuseColor;
+	specularColor = other.specularColor;
+	sTextureWriteLock.obtain();
+	unsafeReleaseTexture(mDiffuseTexture);
+	unsafeReleaseTexture(mSpecularTexture);
+	unsafeReleaseTexture(mNormalTexture);
+	mDiffuseTexture = other.mDiffuseTexture;
+	mSpecularTexture = other.mSpecularTexture;
+	mNormalTexture = other.mNormalTexture;
+	if (mDiffuseTexture != sTextures.end()) ++(std::get<1>(*mDiffuseTexture));
+	if (mSpecularTexture != sTextures.end()) ++(std::get<1>(*mSpecularTexture));
+	if (mNormalTexture != sTextures.end()) ++(std::get<1>(*mNormalTexture));
+	sTextureWriteLock.release();
+	std::cout << "Material::operator=(const Material&): num textures: " << sTextures.size() << '\n';
 	return *this;
 }
 
-material& material::operator = (material&& other) noexcept
+Material& Material::operator = (Material&& other) noexcept
 {
-	std::cout << "material::operator=(material&&): num textures: " << s_textures.size() << '\n';
-	component::operator=(std::move(other));
-	diffuse_color = std::move(other.diffuse_color);
-	specular_color = std::move(other.specular_color);
-	s_textures_lock.obtain();
-	unsafe_release_texture(m_diffuse_tex);
-	unsafe_release_texture(m_specular_tex);
-	unsafe_release_texture(m_normal_tex);
-	m_diffuse_tex = other.m_diffuse_tex;
-	m_specular_tex = other.m_specular_tex;
-	m_normal_tex = other.m_normal_tex;
-	other.m_diffuse_tex = s_textures.end();
-	other.m_specular_tex = s_textures.end();
-	other.m_normal_tex = s_textures.end();
-	s_textures_lock.release();
-	std::cout << "material::operator=(material&&): num textures: " << s_textures.size() << '\n';
+	std::cout << "Material::operator=(Material&&): num textures: " << sTextures.size() << '\n';
+	// component::operator=(std::move(other));
+	diffuseColor = std::move(other.diffuseColor);
+	specularColor = std::move(other.specularColor);
+	sTextureWriteLock.obtain();
+	unsafeReleaseTexture(mDiffuseTexture);
+	unsafeReleaseTexture(mSpecularTexture);
+	unsafeReleaseTexture(mNormalTexture);
+	mDiffuseTexture = other.mDiffuseTexture;
+	mSpecularTexture = other.mSpecularTexture;
+	mNormalTexture = other.mNormalTexture;
+	other.mDiffuseTexture = sTextures.end();
+	other.mSpecularTexture = sTextures.end();
+	other.mNormalTexture = sTextures.end();
+	sTextureWriteLock.release();
+	std::cout << "Material::operator=(Material&&): num textures: " << sTextures.size() << '\n';
 	return *this;
 }
 
-void material::attach(entity& e)
-{
-	if (e.m_material_component == this) return;
-	else if (e.m_material_component) e.m_material_component->detach(e);
-	e.m_material_component = this;
-	m_ents.push_back(&e);
-}
+// void Material::attach(entity& e)
+// {
+// 	if (e.m_Material_component == this) return;
+// 	else if (e.m_Material_component) e.m_Material_component->detach(e);
+// 	e.m_Material_component = this;
+// 	m_ents.push_back(&e);
+// }
 
-void material::detach(entity& e)
-{
-	for (auto i = begin(); i != end(); ++i)
-	{
-		if (*i == &e)
-		{
-			e.m_material_component = nullptr;
-			m_ents.erase(i);
-			return;
-		}
-	}
-}
+// void Material::detach(entity& e)
+// {
+// 	for (auto i = begin(); i != end(); ++i)
+// 	{
+// 		if (*i == &e)
+// 		{
+// 			e.m_Material_component = nullptr;
+// 			m_ents.erase(i);
+// 			return;
+// 		}
+// 	}
+// }
 
-void material::bind(const bool instanced) const noexcept
+void Material::bind(const bool instanced) const noexcept
 {
-	s_textures_lock.obtain();
+	sTextureWriteLock.obtain();
 	if (instanced)
 	{
-		if (m_diffuse_tex != s_textures.end())
+		if (mDiffuseTexture != sTextures.end())
 		{
-			if (m_specular_tex != s_textures.end())
+			if (mSpecularTexture != sTextures.end())
 			{
-				if (m_normal_tex != s_textures.end())
+				if (mNormalTexture != sTextures.end())
 				{
 					// diffuse, specular, normal textures
 					const auto& s = renderer::get_gpi_dsn_shader();
 					s.activate();
-					s.set_diffuse_color(diffuse_color);
-					s.set_specular_color(specular_color);
+					s.set_diffuse_color(diffuseColor);
+					s.set_specular_color(specularColor);
 					s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
 					s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
 					s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-					std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
-					std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
-					std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+					std::get<2>(*mDiffuseTexture).bind(renderer::GBUFFER_TEX_DIFFUSE);
+					std::get<2>(*mSpecularTexture).bind(renderer::GBUFFER_TEX_SPECULAR);
+					std::get<2>(*mNormalTexture).bind(renderer::GBUFFER_TEX_NORMAL);
 				}
 				else
 				{
 					// diffuse and specular textures
 					const auto& s = renderer::get_gpi_ds_shader();
 					s.activate();
-					s.set_diffuse_color(diffuse_color);
-					s.set_specular_color(specular_color);
+					s.set_diffuse_color(diffuseColor);
+					s.set_specular_color(specularColor);
 					s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
 					s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
-					std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
-					std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+					std::get<2>(*mDiffuseTexture).bind(renderer::GBUFFER_TEX_DIFFUSE);
+					std::get<2>(*mSpecularTexture).bind(renderer::GBUFFER_TEX_SPECULAR);
 				}
 			}
-			else if (m_normal_tex != s_textures.end())
+			else if (mNormalTexture != sTextures.end())
 			{
 				// diffuse and normal textures
 				const auto& s = renderer::get_gpi_dn_shader();
 				s.activate();
-				s.set_diffuse_color(diffuse_color);
-				s.set_specular_color(specular_color);
+				s.set_diffuse_color(diffuseColor);
+				s.set_specular_color(specularColor);
 				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
 				s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-				std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
-				std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+				std::get<2>(*mDiffuseTexture).bind(renderer::GBUFFER_TEX_DIFFUSE);
+				std::get<2>(*mNormalTexture).bind(renderer::GBUFFER_TEX_NORMAL);
 			}
 			else
 			{
 				// diffuse texture
 				const auto& s = renderer::get_gpi_d_shader();
 				s.activate();
-				s.set_diffuse_color(diffuse_color);
-				s.set_specular_color(specular_color);
+				s.set_diffuse_color(diffuseColor);
+				s.set_specular_color(specularColor);
 				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
-				std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+				std::get<2>(*mDiffuseTexture).bind(renderer::GBUFFER_TEX_DIFFUSE);
 			}
 		}
-		else if (m_specular_tex != s_textures.end())
+		else if (mSpecularTexture != sTextures.end())
 		{
-			if (m_normal_tex != s_textures.end())
+			if (mNormalTexture != sTextures.end())
 			{
 				// specular and normal textures
 				const auto& s = renderer::get_gpi_sn_shader();
 				s.activate();
-				s.set_diffuse_color(diffuse_color);
-				s.set_specular_color(specular_color);
+				s.set_diffuse_color(diffuseColor);
+				s.set_specular_color(specularColor);
 				s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
 				s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-				std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
-				std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+				std::get<2>(*mSpecularTexture).bind(renderer::GBUFFER_TEX_SPECULAR);
+				std::get<2>(*mNormalTexture).bind(renderer::GBUFFER_TEX_NORMAL);
 			}
 			else
 			{
 				// specular texture
 				const auto& s = renderer::get_gpi_s_shader();
 				s.activate();
-				s.set_diffuse_color(diffuse_color);
-				s.set_specular_color(specular_color);
+				s.set_diffuse_color(diffuseColor);
+				s.set_specular_color(specularColor);
 				s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
-				std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+				std::get<2>(*mSpecularTexture).bind(renderer::GBUFFER_TEX_SPECULAR);
 			}
 		}
-		else if (m_normal_tex != s_textures.end())
+		else if (mNormalTexture != sTextures.end())
 		{
 			// normal texture
 			const auto& s = renderer::get_gpi_n_shader();
 			s.activate();
-			s.set_diffuse_color(diffuse_color);
-			s.set_specular_color(specular_color);
+			s.set_diffuse_color(diffuseColor);
+			s.set_specular_color(specularColor);
 			s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-			std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+			std::get<2>(*mNormalTexture).bind(renderer::GBUFFER_TEX_NORMAL);
 		}
 		else
 		{
 			// no textures at all
 			const auto& s = renderer::get_gpi_shader();
 			s.activate();
-			s.set_diffuse_color(diffuse_color);
-			s.set_specular_color(specular_color);
+			s.set_diffuse_color(diffuseColor);
+			s.set_specular_color(specularColor);
 		}
 	}
 	else // non-instanced rendering
 	{
-		if (m_diffuse_tex != s_textures.end())
+		if (mDiffuseTexture != sTextures.end())
 		{
-			if (m_specular_tex != s_textures.end())
+			if (mSpecularTexture != sTextures.end())
 			{
-				if (m_normal_tex != s_textures.end())
+				if (mNormalTexture != sTextures.end())
 				{
 					// diffuse, specular, normal textures
 					const auto& s = renderer::get_gp_dsn_shader();
@@ -589,14 +596,14 @@ void material::bind(const bool instanced) const noexcept
 					s.set_matrix_PVM(renderer::matrix_PVM());
 					s.set_matrix_VM(renderer::matrix_VM());
 					s.set_matrix_N(renderer::matrix_N());
-					s.set_diffuse_color(diffuse_color);
-					s.set_specular_color(specular_color);
+					s.set_diffuse_color(diffuseColor);
+					s.set_specular_color(specularColor);
 					s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
 					s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
 					s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-					std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
-					std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
-					std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+					std::get<2>(*mDiffuseTexture).bind(renderer::GBUFFER_TEX_DIFFUSE);
+					std::get<2>(*mSpecularTexture).bind(renderer::GBUFFER_TEX_SPECULAR);
+					std::get<2>(*mNormalTexture).bind(renderer::GBUFFER_TEX_NORMAL);
 				}
 				else
 				{
@@ -606,15 +613,15 @@ void material::bind(const bool instanced) const noexcept
 					s.set_matrix_PVM(renderer::matrix_PVM());
 					s.set_matrix_VM(renderer::matrix_VM());
 					s.set_matrix_N(renderer::matrix_N());
-					s.set_diffuse_color(diffuse_color);
-					s.set_specular_color(specular_color);
+					s.set_diffuse_color(diffuseColor);
+					s.set_specular_color(specularColor);
 					s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
 					s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
-					std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
-					std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+					std::get<2>(*mDiffuseTexture).bind(renderer::GBUFFER_TEX_DIFFUSE);
+					std::get<2>(*mSpecularTexture).bind(renderer::GBUFFER_TEX_SPECULAR);
 				}
 			}
-			else if (m_normal_tex != s_textures.end())
+			else if (mNormalTexture != sTextures.end())
 			{
 				// diffuse and normal textures
 				const auto& s = renderer::get_gp_dn_shader();
@@ -622,12 +629,12 @@ void material::bind(const bool instanced) const noexcept
 				s.set_matrix_PVM(renderer::matrix_PVM());
 				s.set_matrix_VM(renderer::matrix_VM());
 				s.set_matrix_N(renderer::matrix_N());
-				s.set_diffuse_color(diffuse_color);
-				s.set_specular_color(specular_color);
+				s.set_diffuse_color(diffuseColor);
+				s.set_specular_color(specularColor);
 				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
 				s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-				std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
-				std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+				std::get<2>(*mDiffuseTexture).bind(renderer::GBUFFER_TEX_DIFFUSE);
+				std::get<2>(*mNormalTexture).bind(renderer::GBUFFER_TEX_NORMAL);
 			}
 			else
 			{
@@ -637,15 +644,15 @@ void material::bind(const bool instanced) const noexcept
 				s.set_matrix_PVM(renderer::matrix_PVM());
 				s.set_matrix_VM(renderer::matrix_VM());
 				s.set_matrix_N(renderer::matrix_N());
-				s.set_diffuse_color(diffuse_color);
-				s.set_specular_color(specular_color);
+				s.set_diffuse_color(diffuseColor);
+				s.set_specular_color(specularColor);
 				s.set_diffuse_texture(renderer::GBUFFER_TEX_DIFFUSE);
-				std::get<2>(*m_diffuse_tex).bind(renderer::GBUFFER_TEX_DIFFUSE);
+				std::get<2>(*mDiffuseTexture).bind(renderer::GBUFFER_TEX_DIFFUSE);
 			}
 		}
-		else if (m_specular_tex != s_textures.end())
+		else if (mSpecularTexture != sTextures.end())
 		{
-			if (m_normal_tex != s_textures.end())
+			if (mNormalTexture != sTextures.end())
 			{
 				// specular and normal textures
 				const auto& s = renderer::get_gp_sn_shader();
@@ -653,12 +660,12 @@ void material::bind(const bool instanced) const noexcept
 				s.set_matrix_PVM(renderer::matrix_PVM());
 				s.set_matrix_VM(renderer::matrix_VM());
 				s.set_matrix_N(renderer::matrix_N());
-				s.set_diffuse_color(diffuse_color);
-				s.set_specular_color(specular_color);
+				s.set_diffuse_color(diffuseColor);
+				s.set_specular_color(specularColor);
 				s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
 				s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-				std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
-				std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+				std::get<2>(*mSpecularTexture).bind(renderer::GBUFFER_TEX_SPECULAR);
+				std::get<2>(*mNormalTexture).bind(renderer::GBUFFER_TEX_NORMAL);
 			}
 			else
 			{
@@ -668,13 +675,13 @@ void material::bind(const bool instanced) const noexcept
 				s.set_matrix_PVM(renderer::matrix_PVM());
 				s.set_matrix_VM(renderer::matrix_VM());
 				s.set_matrix_N(renderer::matrix_N());
-				s.set_diffuse_color(diffuse_color);
-				s.set_specular_color(specular_color);
+				s.set_diffuse_color(diffuseColor);
+				s.set_specular_color(specularColor);
 				s.set_specular_texture(renderer::GBUFFER_TEX_SPECULAR);
-				std::get<2>(*m_specular_tex).bind(renderer::GBUFFER_TEX_SPECULAR);
+				std::get<2>(*mSpecularTexture).bind(renderer::GBUFFER_TEX_SPECULAR);
 			}
 		}
-		else if (m_normal_tex != s_textures.end())
+		else if (mNormalTexture != sTextures.end())
 		{
 			// normal texture
 			const auto& s = renderer::get_gp_n_shader();
@@ -682,10 +689,10 @@ void material::bind(const bool instanced) const noexcept
 			s.set_matrix_PVM(renderer::matrix_PVM());
 			s.set_matrix_VM(renderer::matrix_VM());
 			s.set_matrix_N(renderer::matrix_N());
-			s.set_diffuse_color(diffuse_color);
-			s.set_specular_color(specular_color);
+			s.set_diffuse_color(diffuseColor);
+			s.set_specular_color(specularColor);
 			s.set_normal_texture(renderer::GBUFFER_TEX_NORMAL);
-			std::get<2>(*m_normal_tex).bind(renderer::GBUFFER_TEX_NORMAL);
+			std::get<2>(*mNormalTexture).bind(renderer::GBUFFER_TEX_NORMAL);
 		}
 		else
 		{
@@ -695,128 +702,128 @@ void material::bind(const bool instanced) const noexcept
 			s.set_matrix_PVM(renderer::matrix_PVM());
 			s.set_matrix_VM(renderer::matrix_VM());
 			s.set_matrix_N(renderer::matrix_N());
-			s.set_diffuse_color(diffuse_color);
-			s.set_specular_color(specular_color);
+			s.set_diffuse_color(diffuseColor);
+			s.set_specular_color(specularColor);
 		}
 	}
-	s_textures_lock.release();
+	sTextureWriteLock.release();
 }
 
-bool material::has_diffuse_texture() const noexcept
+bool Material::hasDiffuseTexture() const noexcept
 {
-	s_textures_lock.obtain();
-	bool result = (m_diffuse_tex != s_textures.end());
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	bool result = (mDiffuseTexture != sTextures.end());
+	sTextureWriteLock.release();
 	return result;
 }
 
-bool material::has_specular_texture() const noexcept
+bool Material::hasSpecularTexture() const noexcept
 {
-	s_textures_lock.obtain();
-	bool result = (m_specular_tex != s_textures.end());
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	bool result = (mSpecularTexture != sTextures.end());
+	sTextureWriteLock.release();
 	return result;
 }
 
-bool material::has_normal_texture() const noexcept
+bool Material::hasNormalTexture() const noexcept
 {
-	s_textures_lock.obtain();
-	bool result = (m_normal_tex != s_textures.end());
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	bool result = (mNormalTexture != sTextures.end());
+	sTextureWriteLock.release();
 	return result;
 }
 
-const opengl::texture2d& material::diffuse_texture() const 
+const opengl::texture2d& Material::diffuseTexture() const 
 noexcept
 {
-	return std::get<2>(*m_diffuse_tex);
+	return std::get<2>(*mDiffuseTexture);
 }
 
-const opengl::texture2d& material::specular_texture() const 
+const opengl::texture2d& Material::specularTexture() const 
 noexcept
 {
-	return std::get<2>(*m_specular_tex);
+	return std::get<2>(*mSpecularTexture);
 }
 
-const opengl::texture2d& material::normal_texture() const 
+const opengl::texture2d& Material::normalTexture() const 
 noexcept
 {
-	return std::get<2>(*m_normal_tex);
+	return std::get<2>(*mNormalTexture);
 }
 
-void material::set_diffuse_texture(const boost::filesystem::path& filename)
+void Material::setDiffuseTexture(const boost::filesystem::path& filename)
 {
-	s_textures_lock.obtain();
-	unsafe_release_texture(m_diffuse_tex);
-	unsafe_obtain_texture(filename, m_diffuse_tex);
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	unsafeReleaseTexture(mDiffuseTexture);
+	unsafeObtainTexture(filename, mDiffuseTexture);
+	sTextureWriteLock.release();
 }
 
-void material::set_specular_texture(const boost::filesystem::path& filename)
+void Material::setSpecularTexture(const boost::filesystem::path& filename)
 {
-	s_textures_lock.obtain();
-	unsafe_release_texture(m_diffuse_tex);
-	unsafe_obtain_texture(filename, m_specular_tex);
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	unsafeReleaseTexture(mDiffuseTexture);
+	unsafeObtainTexture(filename, mSpecularTexture);
+	sTextureWriteLock.release();
 }
 
-void material::set_normal_texture(const boost::filesystem::path& filename)
+void Material::setNormalTexture(const boost::filesystem::path& filename)
 {
-	s_textures_lock.obtain();
-	unsafe_release_texture(m_diffuse_tex);
-	unsafe_obtain_texture(filename, m_normal_tex);
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	unsafeReleaseTexture(mDiffuseTexture);
+	unsafeObtainTexture(filename, mNormalTexture);
+	sTextureWriteLock.release();
 }
 
-void material::clear_diffuse_texture()
+void Material::clearDiffuseTexture()
 {
-	s_textures_lock.obtain();
-	unsafe_release_texture(m_diffuse_tex);
-	m_diffuse_tex = s_textures.end();
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	unsafeReleaseTexture(mDiffuseTexture);
+	mDiffuseTexture = sTextures.end();
+	sTextureWriteLock.release();
 }
 
-void material::clear_specular_texture()
+void Material::clearSpecularTexture()
 {
-	s_textures_lock.obtain();
-	unsafe_release_texture(m_specular_tex);
-	m_specular_tex = s_textures.end();
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	unsafeReleaseTexture(mSpecularTexture);
+	mSpecularTexture = sTextures.end();
+	sTextureWriteLock.release();
 }
 
-void material::clear_normal_texture()
+void Material::clearNormalTexture()
 {
-	s_textures_lock.obtain();
-	unsafe_release_texture(m_normal_tex);
-	m_normal_tex = s_textures.end();
-	s_textures_lock.release();
+	sTextureWriteLock.obtain();
+	unsafeReleaseTexture(mNormalTexture);
+	mNormalTexture = sTextures.end();
+	sTextureWriteLock.release();
 }
 
-std::ostream& operator << (std::ostream& os, const material& mat)
+std::ostream& operator << (std::ostream& os, const Material& mat)
 {
 	// First print out the diffuse color and specular color.
-	os << "{ diffuse_color: " << mat.diffuse_color << ", specular_color: "
-		<< mat.specular_color;
+	os << "{ diffuseColor: " << mat.diffuseColor << ", specularColor: "
+		<< mat.specularColor;
 
 	// Obtain a lock on the global texture container.
-	material::s_textures_lock.obtain();
+	Material::sTextureWriteLock.obtain();
 
-	if (mat.m_diffuse_tex != material::s_textures.end())
+	if (mat.mDiffuseTexture != Material::sTextures.end())
 	{
-		os << ", diffuse_texture: " << std::get<2>(*mat.m_diffuse_tex);
+		os << ", diffuse_texture: " << std::get<2>(*mat.mDiffuseTexture);
 	}
-	if (mat.m_specular_tex != material::s_textures.end())
+	if (mat.mSpecularTexture != Material::sTextures.end())
 	{
-		os << ", specular_texture: " << std::get<2>(*mat.m_specular_tex);
+		os << ", specular_texture: " << std::get<2>(*mat.mSpecularTexture);
 	}
-	if (mat.m_normal_tex != material::s_textures.end())
+	if (mat.mNormalTexture != Material::sTextures.end())
 	{
-		os << ", normal_texture: " << std::get<2>(*mat.m_normal_tex);
+		os << ", normal_texture: " << std::get<2>(*mat.mNormalTexture);
 	}
 	os << " }";
 
 	// Release the lock on the global texture container.
-	material::s_textures_lock.release();
+	Material::sTextureWriteLock.release();
 
 	return os;
 }

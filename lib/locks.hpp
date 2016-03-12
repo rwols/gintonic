@@ -75,12 +75,12 @@ public:
 	/**
 	 * @brief Obtain a read lock. Multiple threads can get a read lock.
 	 */
-	void obtain_read();
+	void obtain_read() const;
 
 	/**
 	 * @brief Release a read lock.
 	 */
-	void release_read();
+	void release_read() const;
 
 	/**
 	 * @brief Obtain a write lock.
@@ -93,10 +93,10 @@ public:
 	void release_write();
 
 private:
-	std::mutex m_mut;
-	std::condition_variable m_reader;
-	std::condition_variable m_writer;
-	int m_active_readers;
+	mutable std::mutex m_mut;
+	mutable std::condition_variable m_reader;
+	mutable std::condition_variable m_writer;
+	mutable int m_active_readers;
 	int m_waiting_writers;
 	int m_active_writers;
 };

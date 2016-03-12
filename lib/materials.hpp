@@ -4,10 +4,9 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_materials_hpp
-#define gintonic_materials_hpp
+#pragma once
 
-#include "component.hpp"
+#include "Object.hpp"
 #include "vec4f.hpp"
 #include "locks.hpp"
 #include "opengl/textures.hpp"
@@ -38,10 +37,8 @@ class entity; // Forward declaration.
  * If the mesh is rendered instanced, you must give the material::bind method
  * a value of true. Otherwise the default value of false is used to signal
  * that we are not rendering an instanced mesh.
- * 
- * A material is a component.
  */
-class material : public component
+class Material : public Object<Material>
 {
 public:
 
@@ -76,9 +73,9 @@ public:
 
 	//@{
 
-	virtual void attach(entity&) final;
+	// virtual void attach(entity&) final;
 
-	virtual void detach(entity&) final;
+	// virtual void detach(entity&) final;
 
 	//@}
 
@@ -89,73 +86,73 @@ public:
 	//@{
 	
 	/// Destructor.
-	virtual ~material() noexcept;
+	virtual ~Material() noexcept;
 
 	/**
 	 * @brief Default constructor.
 	 */
-	material();
+	Material();
 
 
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param diffuse_color The base diffuse color property.
+	 * @param diffuseColor The base diffuse color property.
 	 */
-	material(
-		const vec4f& diffuse_color);
+	Material(
+		const vec4f& diffuseColor);
 
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param diffuse_color The base diffuse color property.
-	 * @param specular_color The base specular color property.
+	 * @param diffuseColor The base diffuse color property.
+	 * @param specularColor The base specular color property.
 	 */
-	material(
-		const vec4f& diffuse_color, 
-		const vec4f& specular_color);
+	Material(
+		const vec4f& diffuseColor, 
+		const vec4f& specularColor);
 
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param diffuse_color The base diffuse color property.
-	 * @param specular_color The base specular color property.
-	 * @param diffuse_texture The filepath to the diffuse texture.
+	 * @param diffuseColor The base diffuse color property.
+	 * @param specularColor The base specular color property.
+	 * @param diffuseTexture The filepath to the diffuse texture.
 	 */
-	material(
-		const vec4f& diffuse_color, 
-		const vec4f& specular_color,
-		const boost::filesystem::path& diffuse_texture);
+	Material(
+		const vec4f& diffuseColor, 
+		const vec4f& specularColor,
+		const boost::filesystem::path& diffuseTexture);
 
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param diffuse_color The base diffuse color property.
-	 * @param specular_color The base specular color property.
-	 * @param diffuse_texture The filepath to the diffuse texture.
-	 * @param specular_texture The filepath to the specular texture.
+	 * @param diffuseColor The base diffuse color property.
+	 * @param specularColor The base specular color property.
+	 * @param diffuseTexture The filepath to the diffuse texture.
+	 * @param specularTexture The filepath to the specular texture.
 	 */
-	material(
-		const vec4f& diffuse_color, 
-		const vec4f& specular_color,
-		const boost::filesystem::path& diffuse_texture,
-		const boost::filesystem::path& specular_texture);
+	Material(
+		const vec4f& diffuseColor, 
+		const vec4f& specularColor,
+		const boost::filesystem::path& diffuseTexture,
+		const boost::filesystem::path& specularTexture);
 
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param diffuse_color The base diffuse color property.
-	 * @param specular_color The base specular color property.
-	 * @param diffuse_texture The filepath to the diffuse texture.
-	 * @param specular_texture The filepath to the specular texture.
-	 * @param normal_texture The filepath to the normal texture.
+	 * @param diffuseColor The base diffuse color property.
+	 * @param specularColor The base specular color property.
+	 * @param diffuseTexture The filepath to the diffuse texture.
+	 * @param specularTexture The filepath to the specular texture.
+	 * @param normalTexture The filepath to the normal texture.
 	 */
-	material(
-		const vec4f& diffuse_color, 
-		const vec4f& specular_color,
-		const boost::filesystem::path& diffuse_texture,
-		const boost::filesystem::path& specular_texture,
-		const boost::filesystem::path& normal_texture);
+	Material(
+		const vec4f& diffuseColor, 
+		const vec4f& specularColor,
+		const boost::filesystem::path& diffuseTexture,
+		const boost::filesystem::path& specularTexture,
+		const boost::filesystem::path& normalTexture);
 
 	/**
 	 * @brief Constructor.
@@ -166,19 +163,19 @@ public:
 	 * 
 	 * @param fbxmat The FBX material.
 	 */
-	material(const FBX::FbxSurfaceMaterial* fbxmat);
+	Material(const FBX::FbxSurfaceMaterial* fbxmat);
 
 	/// Copy constructor.
-	material(const material&);
+	Material(const Material&);
 
 	/// Move constructor.
-	material(material&&) noexcept;
+	Material(Material&&) noexcept;
 
 	/// Copy assignment operator.
-	material& operator = (const material&);
+	Material& operator = (const Material&);
 
 	/// Move assignment operator.
-	material& operator = (material&&) noexcept;
+	Material& operator = (Material&&) noexcept;
 
 	//@}
 
@@ -245,7 +242,7 @@ public:
 	 * 
 	 * @return The deserialized material.
 	 */
-	static material load(std::istream& is);
+	static Material load(std::istream& is);
 
 	/**
 	 * @brief Deserialize a material from a file.
@@ -254,7 +251,7 @@ public:
 	 * 
 	 * @return The deserialized material.
 	 */
-	static material load(const boost::filesystem::path& p);
+	static Material load(const boost::filesystem::path& p);
 
 	/**
 	 * @brief Deserialize a material from a file.
@@ -263,7 +260,7 @@ public:
 	 * 
 	 * @return The deserialized material.
 	 */
-	static material load(const std::string& filename);
+	static Material load(const std::string& filename);
 
 	/**
 	 * @brief Deserialize a material from a file.
@@ -272,7 +269,7 @@ public:
 	 * 
 	 * @return The deserialized material.
 	 */
-	static material load(const char* filename);
+	static Material load(const char* filename);
 
 	//@}
 
@@ -283,28 +280,28 @@ public:
 	//@{
 
 	/// The diffuse color property.
-	vec4f diffuse_color;
+	vec4f diffuseColor;
 
 	/// The specular color property.
-	vec4f specular_color;
+	vec4f specularColor;
 
 	/**
 	 * @brief Check wether the material has a diffuse texture.
 	 * @return True if the material has a diffuse texture, false otherwise.
 	 */
-	bool has_diffuse_texture() const noexcept;
+	bool hasDiffuseTexture() const noexcept;
 
 	/**
 	 * @brief Check wether the material has a specular texture.
 	 * @return True if the material has a specular texture, false otherwise.
 	 */
-	bool has_specular_texture() const noexcept;
+	bool hasSpecularTexture() const noexcept;
 
 	/**
 	 * @brief Check wether the material has a normal texture.
 	 * @return True if the material has a normal texture, false otherwise.
 	 */
-	bool has_normal_texture() const noexcept;
+	bool hasNormalTexture() const noexcept;
 
 	// Methods to obtain a const reference to various textures.
 	// Be sure to first check if the material has such textures.
@@ -316,7 +313,7 @@ public:
 	 * texture before calling this method.
 	 * @return A constant reference to the diffuse texture.
 	 */
-	const opengl::texture2d& diffuse_texture() const
+	const opengl::texture2d& diffuseTexture() const
 		noexcept;
 
 	/**
@@ -326,7 +323,7 @@ public:
 	 * texture before calling this method.
 	 * @return A constant reference to the specular texture.
 	 */
-	const opengl::texture2d& specular_texture() const
+	const opengl::texture2d& specularTexture() const
 		noexcept;
 
 	/**
@@ -336,7 +333,7 @@ public:
 	 * texture before calling this method.
 	 * @return A constant reference to the normal texture.
 	 */
-	const opengl::texture2d& normal_texture() const
+	const opengl::texture2d& normalTexture() const
 		noexcept;
 
 	/**
@@ -344,36 +341,36 @@ public:
 	 * 
 	 * @param p The filepath to the diffuse texture.
 	 */
-	void set_diffuse_texture(const boost::filesystem::path& p);
+	void setDiffuseTexture(const boost::filesystem::path& p);
 
 	/**
 	 * @brief Set the specular texture.
 	 * 
 	 * @param p The filepath to the specular texture.
 	 */
-	void set_specular_texture(const boost::filesystem::path& p);
+	void setSpecularTexture(const boost::filesystem::path& p);
 
 	/**
 	 * @brief Set the normal texture.
 	 * 
 	 * @param p The filepath to the normal texture.
 	 */
-	void set_normal_texture(const boost::filesystem::path& p);
+	void setNormalTexture(const boost::filesystem::path& p);
 
 	/**
 	 * @brief Clear the diffuse texture.
 	 */
-	void clear_diffuse_texture();
+	void clearDiffuseTexture();
 
 	/**
 	 * @brief Clear the specular texture.
 	 */
-	void clear_specular_texture();
+	void clearSpecularTexture();
 
 	/**
 	 * @brief Clear the normal texture.
 	 */
-	void clear_normal_texture();
+	void clearNormalTexture();
 
 	//@}
 
@@ -385,7 +382,7 @@ public:
 	 * @param os The output stream.
 	 * @param m The material.
 	 */
-	friend std::ostream& operator << (std::ostream& os, const material& m);
+	friend std::ostream& operator << (std::ostream& os, const Material& m);
 
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
@@ -401,17 +398,17 @@ protected:
 		boost::filesystem::path, 
 		std::size_t, 
 		opengl::texture2d
-	> item_type;
+	> ItemType;
 
 	/**
 	 * @brief The datastructure type of the textures.
 	 */
-	typedef std::list<item_type> datastructure_type;
+	typedef std::list<ItemType> DataStructureType;
 	
 	/**
 	 * @brief The iterator type of the global textures list.
 	 */
-	typedef datastructure_type::iterator iter_type;
+	typedef DataStructureType::iterator IterType;
 
 	/**
 	 * @brief Attempt to set the iterator to a texture in the global map.
@@ -421,9 +418,9 @@ protected:
 	 * @param filename The filepath to the texture.
 	 * @param iter The iterator to set.
 	 */
-	static void safe_obtain_texture(
+	static void safeObtainTexture(
 		const boost::filesystem::path& filename, 
-		iter_type& iter);
+		IterType& iter);
 
 	/**
 	 * @brief Attempt to set the iterator to a texture in the global map.
@@ -433,9 +430,9 @@ protected:
 	 * @param filename The filepath to the texture.
 	 * @param iter The iterator to set.
 	 */
-	static void unsafe_obtain_texture(
+	static void unsafeObtainTexture(
 		const boost::filesystem::path& filename,
-		iter_type& iter);
+		IterType& iter);
 
 	/**
 	 * @brief Set the iterator to point to nothing.
@@ -444,7 +441,7 @@ protected:
 	 * 
 	 * @param iter The iterator to set.
 	 */
-	static void safe_set_null_texture(iter_type& iter);
+	static void safeSetNullTexture(IterType& iter);
 
 	/**
 	 * @brief Decrease the reference count of the iterator by one.
@@ -455,7 +452,7 @@ protected:
 	 * 
 	 * @param iter The iterator to release.
 	 */
-	static void safe_release_texture(iter_type& iter);
+	static void safeReleaseTexture(IterType& iter);
 
 	/**
 	 * @brief Decrease the reference count of the iterator by one.
@@ -466,13 +463,13 @@ protected:
 	 * 
 	 * @param iter The iterator to release.
 	 */
-	static void unsafe_release_texture(iter_type& iter);
+	static void unsafeReleaseTexture(IterType& iter);
 
 private:
 
-	static datastructure_type s_textures;
+	static DataStructureType sTextures;
 	
-	static write_lock s_textures_lock;
+	static write_lock sTextureWriteLock;
 
 	friend class boost::serialization::access;
 	
@@ -480,48 +477,48 @@ private:
 	void save(Archive& ar, const unsigned /*version*/) const
 	{
 		// Serialize the diffuse color and the specular color.
-		ar & BOOST_SERIALIZATION_NVP(diffuse_color);
-		ar & BOOST_SERIALIZATION_NVP(specular_color);
+		ar & BOOST_SERIALIZATION_NVP(diffuseColor);
+		ar & BOOST_SERIALIZATION_NVP(specularColor);
 
 		// Obtain a lock on the global texture container.
-		s_textures_lock.obtain(); 
+		sTextureWriteLock.obtain(); 
 
 		// Determine what textures we carry.
-		bool has_diffuse = m_diffuse_tex != s_textures.end();
-		bool has_specular = m_specular_tex != s_textures.end();
-		bool has_normal = m_normal_tex != s_textures.end();
+		bool lHasDiffuse = mDiffuseTexture != sTextures.end();
+		bool lHasSpecular = mSpecularTexture != sTextures.end();
+		bool lHasNormal = mNormalTexture != sTextures.end();
 
 		boost::filesystem::path filename;
 
 		// Serialize if we carry a diffuse texture.
-		ar & BOOST_SERIALIZATION_NVP(has_diffuse);
-		if (has_diffuse)
+		ar & BOOST_SERIALIZATION_NVP(lHasDiffuse);
+		if (lHasDiffuse)
 		{
 			// If we do, serialize the filename of the diffuse texture.
-			filename = std::get<0>(*m_diffuse_tex);
-			ar & boost::serialization::make_nvp("diffuse_texture", filename);
+			filename = std::get<0>(*mDiffuseTexture);
+			ar & boost::serialization::make_nvp("diffuseTexture", filename);
 		}
 
 		// Serialize if we carry a specular texture.
-		ar & BOOST_SERIALIZATION_NVP(has_specular);
-		if (has_specular)
+		ar & BOOST_SERIALIZATION_NVP(lHasSpecular);
+		if (lHasSpecular)
 		{
 			// If we do, serialize the filename of the specular texture.
-			filename = std::get<0>(*m_specular_tex);
-			ar & boost::serialization::make_nvp("specular_texture", filename);
+			filename = std::get<0>(*mSpecularTexture);
+			ar & boost::serialization::make_nvp("specularTexture", filename);
 		}
 
 		// Serialize if we carry a normal texture.
-		ar & BOOST_SERIALIZATION_NVP(has_normal);
-		if (has_normal)
+		ar & BOOST_SERIALIZATION_NVP(lHasNormal);
+		if (lHasNormal)
 		{
 			// If we do, serialize the filename of the normal texture.
-			filename = std::get<0>(*m_normal_tex);
-			ar & boost::serialization::make_nvp("normal_texture", filename);
+			filename = std::get<0>(*mNormalTexture);
+			ar & boost::serialization::make_nvp("normalTexture", filename);
 		}
 
 		// Release the lock on global texture container.
-		s_textures_lock.release(); 
+		sTextureWriteLock.release(); 
 	}
 
 	template <class Archive>
@@ -529,79 +526,77 @@ private:
 	{
 		// Load the diffuse color and the specular color.
 		// These are always present.
-		ar & BOOST_SERIALIZATION_NVP(diffuse_color);
-		ar & BOOST_SERIALIZATION_NVP(specular_color);
+		ar & BOOST_SERIALIZATION_NVP(diffuseColor);
+		ar & BOOST_SERIALIZATION_NVP(specularColor);
 
 		// Obtain a lock on the global texture container.
-		s_textures_lock.obtain();
+		sTextureWriteLock.obtain();
 
-		bool has_diffuse;
-		bool has_specular;
-		bool has_normal;
+		bool lHasDiffuse;
+		bool lHasSpecular;
+		bool lHasNormal;
 		boost::filesystem::path filename;
 
 		// Check if we need to load a diffuse texture.
-		ar & BOOST_SERIALIZATION_NVP(has_diffuse);
-		if (has_diffuse)
+		ar & BOOST_SERIALIZATION_NVP(lHasDiffuse);
+		if (lHasDiffuse)
 		{
 			// If we do, then retrieve the filename.
-			ar & boost::serialization::make_nvp("diffuse_texture", filename);
+			ar & boost::serialization::make_nvp("diffuseTexture", filename);
 			// Load the texture. We can do this the "unsafe" way since we
 			// already have a lock anyway.
-			unsafe_obtain_texture(filename, m_diffuse_tex);
+			unsafeObtainTexture(filename, mDiffuseTexture);
 		}
 		else
 		{
 			// Otherwise, set our diffuse iterator to point
 			// to the end of the global texture container.
-			m_diffuse_tex = s_textures.end();
+			mDiffuseTexture = sTextures.end();
 		}
 
 		// Check if we need to load a specular texture.
-		ar & BOOST_SERIALIZATION_NVP(has_specular);
-		if (has_specular)
+		ar & BOOST_SERIALIZATION_NVP(lHasSpecular);
+		if (lHasSpecular)
 		{
 			// If we do, then retrieve the filename.
-			ar & boost::serialization::make_nvp("specular_texture", filename);
+			ar & boost::serialization::make_nvp("specularTexture", filename);
 			// Load the texture. We can do this the "unsafe" way since we
 			// already have a lock anyway.
-			unsafe_obtain_texture(filename, m_specular_tex);
+			unsafeObtainTexture(filename, mSpecularTexture);
 		}
 		else
 		{
 			// Otherwise, set our diffuse iterator to point
 			// to the end of the global texture container.
-			m_specular_tex = s_textures.end();
+			mSpecularTexture = sTextures.end();
 		}
 
 		// Check if we need to load a normal texture.
-		ar & BOOST_SERIALIZATION_NVP(has_normal);
-		if (has_normal)
+		ar & BOOST_SERIALIZATION_NVP(lHasNormal);
+		if (lHasNormal)
 		{
 			// If we do, then retrieve the filename.
-			ar & boost::serialization::make_nvp("normal_texture", filename);
+			ar & boost::serialization::make_nvp("normalTexture", filename);
 			// Load the texture. We can do this the "unsafe" way since we
 			// already have a lock anyway.
-			unsafe_obtain_texture(filename, m_normal_tex);
+			unsafeObtainTexture(filename, mNormalTexture);
 		}
 		else
 		{
 			// Otherwise, set our normal iterator to point
 			// to the end of the global texture container.
-			m_normal_tex = s_textures.end();
+			mNormalTexture = sTextures.end();
 		}
 
 		// Release the lock on global texture container.
-		s_textures_lock.release();
+		sTextureWriteLock.release();
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER();
 
-	iter_type m_diffuse_tex;
-	iter_type m_specular_tex;
-	iter_type m_normal_tex;
+	IterType mDiffuseTexture;
+	IterType mSpecularTexture;
+	IterType mNormalTexture;
 };
 
 } // namespace gintonic
-
-#endif

@@ -23,23 +23,20 @@ int main(int argc, char** argv)
 		std::cerr << "Error: " << e.what() << '\n';
 		return EXIT_FAILURE;
 	}
-	
-	std::cout << "\nRenderer: " << gt::renderer::name() << '\n';
-	std::cout << "Version: " << gt::renderer::version() << '\n';
 
-	GLint num_extensions;
-	glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
-
-	if (list_extensions)
+	if (!list_extensions)
 	{
-		std::cout << "\nExtensions: ";
+		std::cout << gt::renderer::name() << '\n';
+		std::cout << gt::renderer::version() << '\n';
+	}
+	else
+	{
+		GLint num_extensions;
+		glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
 		for (GLint i = 0; i < num_extensions; ++i)
 		{
-			std::cout << glGetStringi(GL_EXTENSIONS, i);
-			if (i != num_extensions - 1) std::cout << ' ';
+			std::cout << glGetStringi(GL_EXTENSIONS, i) << '\n';
 		}
-		std::cout << "\n\n";
 	}
-
 	return EXIT_SUCCESS;
 }

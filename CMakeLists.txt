@@ -76,15 +76,20 @@ else ()
 	find_package(PNG REQUIRED)
 endif ()
 
-find_package(Freetype REQUIRED)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
+find_package(Freetype REQUIRED)
 find_package(FBX REQUIRED)
 find_package(SDL2 REQUIRED)
+find_package(assimp REQUIRED)
+
+# message(FATAL_ERROR assimp_INCLUDE_DIRS: ${assimp_INCLUDE_DIRS})
+# message(FATAL_ERROR assimp_LIBRARIES: ${assimp_LIBRARIES})
 
 include_directories(
 	${SDL2_INCLUDE_DIR}
 	${Boost_INCLUDE_DIR}
 	${FREETYPE_INCLUDE_DIRS}
+	${assimp_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIRS}
 	${FBX_INCLUDE_DIR}
 	${CMAKE_BINARY_DIR} # For the config file

@@ -9,6 +9,7 @@
 
 #include "vec3f.hpp"
 #include "quatf.hpp"
+#include "mat4f.hpp"
 
 namespace gintonic {
 
@@ -56,6 +57,16 @@ struct SQT
 	{
 		/* Empty on purpose. */
 	}
+
+	/**
+	 * @brief Constructor that takes an affine matrix.
+	 * 
+	 * @details It extracts the scale, rotation and translation from the matrix.
+	 * This will silently fail if the supplied matrix is not an affine transformation.
+	 * 
+	 * @param assimpMatrix The affine matrix.
+	 */
+	SQT(const mat4f& affineTransformation);
 
 	/**
 	 * @brief Add two SQTs together.

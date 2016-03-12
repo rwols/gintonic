@@ -30,10 +30,10 @@ namespace gintonic {
 /**
  * @brief Initialize all systems of the engine.
  * 
- * @param window_title The title of the window.
- * @param camera The entity to view the world through.
+ * @param windowTitle The title of the window.
+ * @param entityWithCamera The entity to view the world through.
  */
-void init_all(const char* window_title, entity& camera);
+void initializeEverything(const char* windowTitle, std::shared_ptr<entity> entityWithCamera);
 
 } // namespace gintonic
 

@@ -202,7 +202,9 @@ texture2d::texture2d(const boost::filesystem::path& filename)
 
 	if (!data)
 	{
-		throw exception("Image data ptr is null.");
+		exception lException(filestr.c_str());
+		lException.append(" is invalid.");
+		throw lException;
 	}
 
 	switch (comp)

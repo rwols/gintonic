@@ -91,7 +91,7 @@ bool get_element(
 namespace gintonic {
 
 static_mesh::static_mesh()
-: mesh(mesh::kStaticMesh)
+: Mesh(Mesh::kStaticMesh)
 , m_matrix_buffer(GL_DYNAMIC_DRAW)
 , m_matrix_N_buffer(GL_DYNAMIC_DRAW)
 {
@@ -115,13 +115,13 @@ void static_mesh::set_data(const FbxMesh* m, const GLenum usagehint)
 	}
 
 	std::vector<GLuint> indices;
-	std::vector<mesh::vec4f> positions;
-	std::vector<mesh::vec4f> uvs;
-	std::vector<mesh::vec4f> normals;
+	std::vector<Mesh::vec4f> positions;
+	std::vector<Mesh::vec4f> uvs;
+	std::vector<Mesh::vec4f> normals;
 
-	gintonic::mesh::vec4f position;
-	gintonic::mesh::vec4f texcoord;
-	gintonic::mesh::vec4f normal{0.0f, 0.0f, 0.0f, 1.0f};
+	gintonic::Mesh::vec4f position;
+	gintonic::Mesh::vec4f texcoord;
+	gintonic::Mesh::vec4f normal{0.0f, 0.0f, 0.0f, 1.0f};
 
 	FbxVector4 fbx_position;
 	FbxVector2 fbx_texcoord;
@@ -275,16 +275,16 @@ void static_mesh::set_data(const FbxMesh* m, const GLenum usagehint)
 	// Upload the (packed) vertex data in separate buffers to the GPU.
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_POSITION]);
 	gtBufferData(GL_ARRAY_BUFFER, positions, usagehint);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_TEXCOORD]);
 	gtBufferData(GL_ARRAY_BUFFER, uvs, usagehint);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
 
 	if (has_tangents)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_buffer[GT_MESH_NORMAL]);
 		gtBufferData(GL_ARRAY_BUFFER, normals, usagehint);
-		mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_NORMAL);
+		Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_NORMAL);
 	}
 
 	// Set up the matrix attributes for instanced rendering.
@@ -326,7 +326,7 @@ void static_mesh::set_data(const FbxMesh* m, const GLenum usagehint)
 }
 
 static_mesh::static_mesh(const FbxMesh* m, const GLenum usagehint)
-: mesh(mesh::kStaticMesh)
+: Mesh(Mesh::kStaticMesh)
 , m_matrix_buffer(GL_DYNAMIC_DRAW)
 , m_matrix_N_buffer(GL_DYNAMIC_DRAW)
 {

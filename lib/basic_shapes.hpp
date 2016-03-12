@@ -21,7 +21,7 @@ union vec3f; // Forward declaration.
  * @details A quad that spans [-1,+1] x [-1,+1] in the XZ-plane. This quad
  * only carries position (P) information in its vertices.
  */
-class unit_quad_P : public mesh
+class unit_quad_P : public Mesh
 {
 public:
 
@@ -43,7 +43,7 @@ private:
  * @details A quad that spans [-1,+1] x [-1,+1]. This quad carries position
  * (P) and normal (N) information, so it can be shaded by lights.
  */
-class unit_quad_PN : public mesh
+class unit_quad_PN : public Mesh
 {
 public:
 
@@ -66,7 +66,7 @@ private:
  * (P) and color (C) information. The color values are fixed. They are
  * determined at construction time.
  */
-class unit_quad_PC : public mesh
+class unit_quad_PC : public Mesh
 {
 public:
 
@@ -96,7 +96,7 @@ private:
  * @details A quad that spans [-1,+1] x [-1,+1]. This quad carries position
  * (P) and texture coordinates (U).
  */
-class unit_quad_PU : public mesh
+class unit_quad_PU : public Mesh
 {
 public:
 
@@ -118,7 +118,7 @@ private:
  * @details A unit cube that spans [-1,+1] x [-1,+1] x [-1,+1]. This cube
  * carries only position information.
  */
-class unit_cube_P : public mesh
+class unit_cube_P : public Mesh
 {
 public:
 
@@ -142,7 +142,7 @@ private:
  * that you can only see the cube when you are inside the cube, assuming
  * that culling is on and triangles are rendered counterclockwise.
  */
-class unit_cube_P_flipped : public mesh
+class unit_cube_P_flipped : public Mesh
 {
 public:
 
@@ -164,7 +164,7 @@ private:
  * @details A unit cube that spans [-1,+1] x [-1,+1] x [-1,+1]. This cube
  * carries position (P) and texture coordinates (U).
  */
-class unit_cube_PU : public mesh
+class unit_cube_PU : public Mesh
 {
 public:
 
@@ -186,7 +186,7 @@ private:
  * @details A unit cube that spans [-1,+1] x [-1,+1] x [-1,+1]. This cube
  * carries positions (P), texture coordinates (U) and normals (N).
  */
-class unit_cube_PUN : public mesh
+class unit_cube_PUN : public Mesh
 {
 public:
 
@@ -211,7 +211,7 @@ private:
  * that you can only see the cube when you are inside the cube, assuming
  * that culling is on and triangles are rendered counterclockwise.
  */
-class unit_cube_PUN_flipped_normals : public mesh
+class unit_cube_PUN_flipped_normals : public Mesh
 {
 public:
 
@@ -236,7 +236,7 @@ private:
  * carries positions (P), texture coordinates (U), normals (N), tangents (T)
  * and bitangents (B).
  */
-class unit_cube_PUNTB : public mesh
+class unit_cube_PUNTB : public Mesh
 {
 public:
 
@@ -263,7 +263,7 @@ private:
  * that you can only see the cube when you are inside the cube, assuming
  * that culling is on and triangles are rendered counterclockwise.
  */
-class unit_cube_PUNTB_flipped_normals : public mesh
+class unit_cube_PUNTB_flipped_normals : public Mesh
 {
 public:
 
@@ -286,7 +286,7 @@ private:
  * @details The quality is determined by the stacks and slices parameter of
  * the constructor.
  */
-class unit_sphere_P : public mesh
+class unit_sphere_P : public Mesh
 {
 public:
 
@@ -317,7 +317,7 @@ private:
  * @details The quality is determined by the stacks and slices parameter of
  * the constructor.
  */
-class unit_sphere_PU : public mesh
+class unit_sphere_PU : public Mesh
 {
 public:
 
@@ -348,7 +348,7 @@ private:
  * @details The quality is determined by the subdivisions parameter of the
  * constructor.
  */
-class unit_sphere_PUN : public mesh
+class unit_sphere_PUN : public Mesh
 {
 public:
 
@@ -387,7 +387,7 @@ private:
  * apply a rotation matrix that rotates 90 degrees around the X-axis to get
  * the cone point in the default [0,0,-1] direction.
  */
-class unit_cone_P : public mesh
+class unit_cone_P : public Mesh
 {
 public:
 
@@ -422,7 +422,7 @@ private:
  * apply a rotation matrix that rotates 90 degrees around the X-axis to get
  * the cone point in the default [0,0,-1] direction.
  */
-class unit_cone_PN : public mesh
+class unit_cone_PN : public Mesh
 {
 public:
 
@@ -454,7 +454,7 @@ private:
  * The base of the cylinder is -1 floats under the XZ-plane. The top of the
  * cylinder is +1 above the XZ-plane.
  */
-class unit_cylinder_P : public mesh
+class unit_cylinder_P : public Mesh
 {
 public:
 

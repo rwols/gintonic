@@ -47,7 +47,11 @@ set(src_files
 	opengl/textures.cpp
 	opengl/vertex_array_object.cpp
 	opengl/utilities.cpp
+	DirectionalShadowBuffer.cpp
+	FbxImporter.cpp
+	PointShadowBuffer.cpp
 	SQT.cpp
+	SpotShadowBuffer.cpp
 	basic_shapes.cpp
 	box2f.cpp
 	box3f.cpp
@@ -125,7 +129,8 @@ if (WIN32)
 		${Boost_LIBRARIES} 
 		${OPENGL_LIBRARIES} 
 		${SDL2_LIBRARY} 
-		${FREETYPE_LIBRARIES} 
+		${FREETYPE_LIBRARIES}
+		${assimp_LIBRARIES}
 		${FBX_LIBRARY} 
 		${CMAKE_THREAD_LIBS_INIT})
 elseif (APPLE)
@@ -136,7 +141,8 @@ elseif (APPLE)
 		${SDL2_LIBRARY} 
 		${JPEG_LIBRARIES} 
 		${PNG_LIBRARIES} 
-		${FREETYPE_LIBRARIES} 
+		${FREETYPE_LIBRARIES}
+		${assimp_LIBRARIES}
 		${FBX_LIBRARY_DEBUG} 
 		${CMAKE_THREAD_LIBS_INIT})
 else ()
@@ -147,7 +153,8 @@ else ()
 		${SDL2_LIBRARY} 
 		${JPEG_LIBRARIES} 
 		${PNG_LIBRARIES} 
-		${FREETYPE_LIBRARIES} 
+		${FREETYPE_LIBRARIES}
+		${assimp_LIBRARIES}
 		${FBX_LIBRARY_DEBUG} 
 		${CMAKE_THREAD_LIBS_INIT}
 		-ldl)

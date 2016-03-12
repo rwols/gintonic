@@ -9,6 +9,7 @@
 
 #include "component.hpp"
 #include "mat4f.hpp"
+#include "vec2f.hpp"
 
 namespace gintonic {
 
@@ -18,7 +19,7 @@ namespace gintonic {
  * renderer information on what type of projection matrix to use for the given
  * camera entity.
  */
-class camera : public std::enable_shared_from_this<camera>
+class proj_info : public std::enable_shared_from_this<proj_info>
 {
 public:
 

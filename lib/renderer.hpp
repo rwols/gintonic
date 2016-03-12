@@ -14,6 +14,7 @@
 #include "fonts.hpp"
 #include "mat3f.hpp"
 #include "mat4f.hpp"
+#include "locks.hpp"
 
 namespace gintonic  {
 
@@ -120,7 +121,7 @@ public:
 	 */
 	static void init(
 		const char* title, 
-		entity& camera, 
+		std::shared_ptr<entity> cameraEntity, 
 		const bool fullscreen, 
 		const int width, 
 		const int height);
@@ -208,6 +209,14 @@ public:
 		return s_elapsed_time;
 	}
 
+	/**
+	 * @brief Get the elapsed and delta time in seconds.
+	 * 
+	 * @param [out] elapsedTime This variable is set to the current elapsed time.
+	 * @param [out] deltaTime This variable is set to the delta time of the previous frame.
+	 */
+	static void getElapsedAndDeltaTime(double& elapsedTime, double& deltaTime);
+
 	///@}
 	
 	/**
@@ -225,15 +234,23 @@ public:
 	 * global transformation matrix of the given entity.
 	 * @param e The entity that will act as a camera.
 	 */
-	static void set_camera(entity& e);
+	static void setCameraEntity(std::shared_ptr<entity> cameraEntity);
+
+	template <class ForwardIter>
+	static void submitEntities(ForwardIter first, ForwardIter last)
+	{
+		sEntityQueueLock.obtain();
+		std::copy(first, last, std::back_inserter(sFutureQueue));
+		sEntityQueueLock.release();
+	}
 	
 	/**
 	 * @brief Get the current camera entity.
 	 * @return A reference to the current camera entity.
 	 */
-	inline static entity& camera() noexcept 
+	inline static std::shared_ptr<entity> getCameraEntity() noexcept 
 	{ 
-		return *s_camera; 
+		return sCameraEntity; 
 	}
 
 	/**
@@ -460,6 +477,14 @@ public:
 	 */
 
 	///@{
+
+	/**
+	 * @brief Enable or disable wireframe mode.
+	 * 
+	 * @param yesOrNo True if you want to render geometry in wireframe mode,
+	 * false if you want geometry to be rendered normally.
+	 */
+	static void setWireframeMode(const bool yesOrNo) noexcept;
 
 	/**
 	 * @brief Enable or disable virtual synchronization.
@@ -909,6 +934,7 @@ private:
 	
 	static bool s_should_close;
 	static bool s_fullscreen;
+	static bool sRenderInWireframeMode;
 	static int s_width;
 	static int s_height;
 	static float s_aspectratio;
@@ -937,7 +963,11 @@ private:
 	static GLuint s_depth_texture;
 	static GLuint s_shadow_texture;
 
-	static entity* s_camera;
+	static std::shared_ptr<entity> sCameraEntity;
+
+	static write_lock sEntityQueueLock;
+	static std::vector<std::shared_ptr<entity>> sFutureQueue;
+	static std::vector<std::shared_ptr<entity>> sCurrentQueue;
 
 	static matrix_PVM_shader* s_matrix_PVM_shader;
 

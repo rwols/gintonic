@@ -13,7 +13,7 @@ namespace gintonic {
 namespace opengl {
 
 /**
- * @brief Encapsulates an 
+ * @brief Encapsulates an
  * [OpenGL Texture Object](https://www.opengl.org/wiki/Texture)
  */
 class texture_object
@@ -38,19 +38,26 @@ public:
 	texture_object& operator=(const texture_object& other) = delete;
 
 	/// You can, however, move construct a texture object.
-	inline texture_object(texture_object&& other) noexcept 
+	inline texture_object(texture_object&& other) noexcept
 	: m_handle(other.m_handle)
 	{
 		other.m_handle = 0;
 	}
-	
+
 	/// You can, however, move assign a texture object.
 	texture_object& operator=(texture_object&& other) noexcept;
-	
+
 	/// Destructor destroys the OpenGL handle.
 	inline ~texture_object() noexcept
 	{
 		glDeleteTextures(1, &m_handle);
+	}
+
+	/// Bind a texture object to the specified texture unit.
+	inline void bind(const GLenum texture_type, const GLint texture_unit) const noexcept
+	{
+		glActiveTexture(GL_TEXTURE0 + texture_unit);
+		glBindTexture(texture_type, m_handle);
 	}
 };
 

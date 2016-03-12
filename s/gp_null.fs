@@ -13,19 +13,19 @@
 #define GBUFFER_TEXCOORD 4
 #define GBUFFER_COUNT 5
 
-in vec3 v_position;
-in vec3 v_normal;
+in vec3 viewPosition;
+in vec3 viewNormal;
 
-layout (location = GBUFFER_POSITION) out vec3 out_position;
-layout (location = GBUFFER_DIFFUSE) out vec4 out_diffuse;
-layout (location = GBUFFER_NORMAL) out vec3 out_normal;
+layout (location = GBUFFER_POSITION) out vec3 outPosition;
+layout (location = GBUFFER_DIFFUSE) out vec4 outDiffuse;
+layout (location = GBUFFER_NORMAL) out vec3 outNormal;
 
 void main()
 {
-	out_position = v_position;
+	outPosition = viewPosition;
 
 	// pure red, full ambient color, no diffuse contribution whatsoever.
-	out_diffuse = vec4(1.0f, 0.0f, 0.0f, 0.0f);
+	outDiffuse = vec4(1.0f, 0.0f, 0.0f, 0.0f);
 	
-	out_normal = normalize(v_normal);
+	outNormal = normalize(viewNormal);
 }

@@ -23,6 +23,8 @@
 	 */
 	#define GINTONIC_ALIGNED(x) __declspec(align(x))
 
+	#define GT_FUNCTION_NAME __FUNCSIG__
+
 #else
 
 	/**
@@ -31,6 +33,8 @@
 	 * @param x The memory boundary alignment. Usual values are 16 or 128.
 	 */
 	#define GINTONIC_ALIGNED(x) __attribute__ ((aligned(x)))
+
+	 #define GT_FUNCTION_NAME __PRETTY_FUNCTION__
 
 #endif
 

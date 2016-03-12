@@ -11,14 +11,14 @@
 #define GBUFFER_NORMAL 3
 #define GBUFFER_COUNT 4
 
-in vec3 v_position;
-in vec2 v_texcoord;
-in vec3 v_normal;
+in vec3 viewPosition;
+in vec2 texCoords;
+in vec3 viewNormal;
 
-layout (location = GBUFFER_POSITION) out vec3 out_position;
-layout (location = GBUFFER_DIFFUSE) out vec4 out_diffuse;
-layout (location = GBUFFER_SPECULAR) out vec4 out_specular;
-layout (location = GBUFFER_NORMAL) out vec3 out_normal;
+layout (location = GBUFFER_POSITION) out vec3 outPosition;
+layout (location = GBUFFER_DIFFUSE) out vec4 outDiffuse;
+layout (location = GBUFFER_SPECULAR) out vec4 outSpecular;
+layout (location = GBUFFER_NORMAL) out vec3 outNormal;
 
 uniform struct Material 
 {
@@ -30,10 +30,10 @@ uniform struct Material
 
 void main()
 {
-	out_position = v_position;
-	out_diffuse = material.diffuse_color;
-	out_diffuse *= texture(material.diffuse_texture, v_texcoord);
-	out_specular = material.specular_color;
-	out_specular *= texture(material.specular_texture, v_texcoord);
-	out_normal = normalize(v_normal);
+	outPosition = viewPosition;
+	outDiffuse = material.diffuse_color;
+	outDiffuse *= texture(material.diffuse_texture, texCoords);
+	outSpecular = material.specular_color;
+	outSpecular *= texture(material.specular_texture, texCoords);
+	outNormal = normalize(viewNormal);
 }

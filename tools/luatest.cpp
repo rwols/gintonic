@@ -7,7 +7,7 @@
 int main(int argc, char** argv) 
 {
 	std::cout << "\n\tVery crude interactive Lua interpreter.\n\n";
-	std::shared_ptr<lua_State> state(luaL_newstate(), lua_close);
+	std::unique_ptr<lua_State, decltype(lua_close)> state(luaL_newstate(), lua_close);
 	luaL_openlibs(state.get());
 	std::string line;
 	int error;

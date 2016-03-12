@@ -12,7 +12,7 @@
 
 namespace gintonic {
 
-unit_quad_P::unit_quad_P() : mesh(mesh::kStaticMesh)
+unit_quad_P::unit_quad_P() : Mesh(Mesh::kStaticMesh)
 {
 	#ifdef BOOST_MSVC
 	const int num_vertices = 4;
@@ -49,7 +49,7 @@ unit_quad_P::~unit_quad_P()
 	/* Empty on purpose. */
 }
 
-unit_quad_PN::unit_quad_PN() : mesh(mesh::kStaticMesh)
+unit_quad_PN::unit_quad_PN() : Mesh(Mesh::kStaticMesh)
 {
 	const opengl::vertex_PN quad[4] =
 	{
@@ -84,7 +84,7 @@ unit_quad_PN::~unit_quad_PN()
 unit_quad_PC::unit_quad_PC(
 const vec3f& color_topleft, const vec3f& color_topright,
 const vec3f& color_bottomleft, const vec3f& color_bottomright)
-: mesh(mesh::kStaticMesh)
+: Mesh(Mesh::kStaticMesh)
 {
 	std::vector<opengl::vertex_PC> quad(4);
 	quad[0].position[0] = -1.0f;
@@ -134,7 +134,7 @@ void unit_quad_PC::draw() const noexcept
 	glBindVertexArray(0);
 }
 
-unit_quad_PU::unit_quad_PU() : mesh(mesh::kStaticMesh)
+unit_quad_PU::unit_quad_PU() : Mesh(Mesh::kStaticMesh)
 {
 	#ifdef BOOST_MSVC
 	const int num_vertices = 4;
@@ -171,7 +171,7 @@ void unit_quad_PU::draw() const noexcept
 #define NUM_CUBE_INDICES 14
 #define NUM_CUBE_VERTICES 8
 
-unit_cube_P::unit_cube_P() : mesh(mesh::kStaticMesh)
+unit_cube_P::unit_cube_P() : Mesh(Mesh::kStaticMesh)
 {
 	const opengl::vertex_P cube_vertices[NUM_CUBE_VERTICES] =
 	{
@@ -209,7 +209,7 @@ void unit_cube_P::draw() const noexcept
 	glBindVertexArray(0);
 }
 
-unit_cube_P_flipped::unit_cube_P_flipped() : mesh(mesh::kStaticMesh)
+unit_cube_P_flipped::unit_cube_P_flipped() : Mesh(Mesh::kStaticMesh)
 {
 	const opengl::vertex_P cube_vertices[NUM_CUBE_VERTICES] =
 	{
@@ -249,7 +249,7 @@ void unit_cube_P_flipped::draw() const noexcept
 }
 
 
-unit_cube_PU::unit_cube_PU() : mesh(mesh::kStaticMesh)
+unit_cube_PU::unit_cube_PU() : Mesh(Mesh::kStaticMesh)
 {
 	const opengl::vertex_PU cube_vertices[24] =
 	{
@@ -329,9 +329,9 @@ void unit_cube_PU::draw() const noexcept
 	glBindVertexArray(0);
 }
 
-unit_cube_PUN::unit_cube_PUN() : mesh(mesh::kStaticMesh)
+unit_cube_PUN::unit_cube_PUN() : Mesh(Mesh::kStaticMesh)
 {
-	const mesh::vec4f cube_positions[24] =
+	const Mesh::vec4f cube_positions[24] =
 	{
 		// front
 		{-1.0f, -1.0f,  1.0f,  0.0f},
@@ -365,7 +365,7 @@ unit_cube_PUN::unit_cube_PUN() : mesh(mesh::kStaticMesh)
 		{ 1.0f,  1.0f,  1.0f,  1.0f}
 	};
 
-	const mesh::vec4f cube_texcoords[24] =
+	const Mesh::vec4f cube_texcoords[24] =
 	{
 		// front
 		{0.0f, 0.0f,  0.0f,  1.0f},
@@ -424,12 +424,12 @@ unit_cube_PUN::unit_cube_PUN() : mesh(mesh::kStaticMesh)
 	glBindVertexArray(m_vao);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[2]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
@@ -446,9 +446,9 @@ void unit_cube_PUN::draw() const noexcept
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
 }
 
-unit_cube_PUN_flipped_normals::unit_cube_PUN_flipped_normals() : mesh(mesh::kStaticMesh)
+unit_cube_PUN_flipped_normals::unit_cube_PUN_flipped_normals() : Mesh(Mesh::kStaticMesh)
 {
-	const mesh::vec4f cube_positions[24] =
+	const Mesh::vec4f cube_positions[24] =
 	{
 		// front
 		{-1.0f, -1.0f,  1.0f,  0.0f},
@@ -482,7 +482,7 @@ unit_cube_PUN_flipped_normals::unit_cube_PUN_flipped_normals() : mesh(mesh::kSta
 		{ 1.0f,  1.0f,  1.0f, -1.0f}
 	};
 
-	const mesh::vec4f cube_texcoords[24] =
+	const Mesh::vec4f cube_texcoords[24] =
 	{
 		// front
 		{0.0f, 0.0f,  0.0f, -1.0f},
@@ -540,12 +540,12 @@ unit_cube_PUN_flipped_normals::unit_cube_PUN_flipped_normals() : mesh(mesh::kSta
 	glBindVertexArray(m_vao);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[2]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
@@ -562,9 +562,9 @@ void unit_cube_PUN_flipped_normals::draw() const noexcept
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, nullptr);
 }
 
-unit_cube_PUNTB::unit_cube_PUNTB() : mesh(mesh::kStaticMesh)
+unit_cube_PUNTB::unit_cube_PUNTB() : Mesh(Mesh::kStaticMesh)
 {
-	const mesh::vec4f cube_positions[24] =
+	const Mesh::vec4f cube_positions[24] =
 	{
 		// front
 		{-1.0f, -1.0f,  1.0f,  0.0f},
@@ -598,7 +598,7 @@ unit_cube_PUNTB::unit_cube_PUNTB() : mesh(mesh::kStaticMesh)
 		{ 1.0f,  1.0f,  1.0f,  1.0f}
 	};
 
-	const mesh::vec4f cube_texcoords[24] =
+	const Mesh::vec4f cube_texcoords[24] =
 	{
 		// front
 		{0.0f, 0.0f,  0.0f,  1.0f},
@@ -632,7 +632,7 @@ unit_cube_PUNTB::unit_cube_PUNTB() : mesh(mesh::kStaticMesh)
 		{0.0f, 1.0f,  0.0f,  0.0f},
 	};
 
-	const mesh::vec4f cube_normals[24] =
+	const Mesh::vec4f cube_normals[24] =
 	{
 		// front
 		{1.0f, 0.0f, 0.0f, 1.0f},
@@ -691,16 +691,16 @@ unit_cube_PUNTB::unit_cube_PUNTB() : mesh(mesh::kStaticMesh)
 	glBindVertexArray(m_vao);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[2]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_normals, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_NORMAL);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Mesh::vec4f) * 24, cube_normals, GL_STATIC_DRAW);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_NORMAL);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[3]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
@@ -717,9 +717,9 @@ unit_cube_PUNTB::~unit_cube_PUNTB()
 	/* Empty on purpose. */
 }
 
-unit_cube_PUNTB_flipped_normals::unit_cube_PUNTB_flipped_normals() : mesh(mesh::kStaticMesh)
+unit_cube_PUNTB_flipped_normals::unit_cube_PUNTB_flipped_normals() : Mesh(Mesh::kStaticMesh)
 {
-	const mesh::vec4f cube_positions[24] =
+	const Mesh::vec4f cube_positions[24] =
 	{
 		// front
 		{-1.0f, -1.0f,  1.0f,  0.0f},
@@ -753,7 +753,7 @@ unit_cube_PUNTB_flipped_normals::unit_cube_PUNTB_flipped_normals() : mesh(mesh::
 		{ 1.0f,  1.0f,  1.0f,  1.0f}
 	};
 
-	const mesh::vec4f cube_texcoords[24] =
+	const Mesh::vec4f cube_texcoords[24] =
 	{
 		// front
 		{0.0f, 0.0f,  0.0f,  1.0f},
@@ -787,7 +787,7 @@ unit_cube_PUNTB_flipped_normals::unit_cube_PUNTB_flipped_normals() : mesh(mesh::
 		{0.0f, 1.0f,  0.0f,  0.0f},
 	};
 
-	const mesh::vec4f cube_normals[24] =
+	const Mesh::vec4f cube_normals[24] =
 	{
 		// front
 		{1.0f, 0.0f, 0.0f, 1.0f},
@@ -846,16 +846,16 @@ unit_cube_PUNTB_flipped_normals::unit_cube_PUNTB_flipped_normals() : mesh(mesh::
 	glBindVertexArray(m_vao);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Mesh::vec4f) * 24, cube_positions, GL_STATIC_DRAW);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Mesh::vec4f) * 24, cube_texcoords, GL_STATIC_DRAW);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[2]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh::vec4f) * 24, cube_normals, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_NORMAL);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Mesh::vec4f) * 24, cube_normals, GL_STATIC_DRAW);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_NORMAL);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[3]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLubyte) * 36, cube_indices, GL_STATIC_DRAW);
@@ -873,7 +873,7 @@ unit_cube_PUNTB_flipped_normals::~unit_cube_PUNTB_flipped_normals()
 }
 
 unit_sphere_P::unit_sphere_P(const unsigned short stacks, const unsigned short slices)
- : mesh(mesh::kStaticMesh)
+ : Mesh(Mesh::kStaticMesh)
 {
 	std::vector<opengl::vertex_P> vertices;
 	std::vector<unsigned short> indices;
@@ -926,7 +926,7 @@ unit_sphere_P::~unit_sphere_P()
 }
 
 unit_sphere_PU::unit_sphere_PU(const unsigned short stacks, const unsigned short slices)
- : mesh(mesh::kStaticMesh)
+ : Mesh(Mesh::kStaticMesh)
 {
 	std::vector<opengl::vertex_PU> vertices;
 	std::vector<unsigned short> indices;
@@ -1101,7 +1101,7 @@ struct sphere_right_face : public sphere_face
 };
 
 unit_sphere_PUN::unit_sphere_PUN(const unsigned short subdivisions)
- : mesh(mesh::kStaticMesh)
+ : Mesh(Mesh::kStaticMesh)
 {
 	if (subdivisions == 0)
 	{
@@ -1126,8 +1126,8 @@ unit_sphere_PUN::unit_sphere_PUN(const unsigned short subdivisions)
 
 	// std::vector<opengl::vertex_PUN> vertices;
 
-	std::vector<mesh::vec4f> positions;
-	std::vector<mesh::vec4f> texcoords;
+	std::vector<Mesh::vec4f> positions;
+	std::vector<Mesh::vec4f> texcoords;
 	std::vector<GLuint> indices;
 
 	GLuint counter(0);
@@ -1176,11 +1176,11 @@ unit_sphere_PUN::unit_sphere_PUN(const unsigned short subdivisions)
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[0]);
 	gtBufferData(GL_ARRAY_BUFFER, positions, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_POSITION);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffer[1]);
 	gtBufferData(GL_ARRAY_BUFFER, texcoords, GL_STATIC_DRAW);
-	mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_TEXCOORD);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_buffer[2]);
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
@@ -1200,7 +1200,7 @@ void unit_sphere_PUN::draw() const noexcept
 }
 
 unit_cone_P::unit_cone_P(const GLsizei divs)
-: mesh(mesh::kStaticMesh)
+: Mesh(Mesh::kStaticMesh)
 , divisions(divs+2)
 {
 	std::vector<opengl::vertex_P> vertices(2 * divisions);
@@ -1250,7 +1250,7 @@ void unit_cone_P::draw() const noexcept
 }
 
 unit_cone_PN::unit_cone_PN(const GLsizei divs)
-: mesh(mesh::kStaticMesh)
+: Mesh(Mesh::kStaticMesh)
 , divisions(divs+2)
 {
 	std::vector<opengl::vertex_PN> vertices(2 * divisions);
@@ -1323,7 +1323,7 @@ void unit_cone_PN::draw() const noexcept
 	glFrontFace(GL_CCW);
 }
 
-unit_cylinder_P::unit_cylinder_P(const GLsizei divs) : mesh(mesh::kStaticMesh), divisions(divs+2)
+unit_cylinder_P::unit_cylinder_P(const GLsizei divs) : Mesh(Mesh::kStaticMesh), divisions(divs+2)
 {
 	std::vector<opengl::vertex_P> vertices(4 * divisions);
 	GLfloat s_current, c_current, s_next, c_next;

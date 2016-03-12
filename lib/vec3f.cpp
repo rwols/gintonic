@@ -63,4 +63,15 @@ vec3f::operator FBX::FbxVector4() const noexcept
 	return FBX::FbxVector4(x, y, z, 0.0);
 }
 
+vec3f::vec3f(const aiVector3D& assimpVector) noexcept
+{
+	data = _mm_set_ps(0.0f, assimpVector.z, assimpVector.y, assimpVector.x);
+}
+
+vec3f& vec3f::operator=(const aiVector3D& assimpVector) noexcept
+{
+	data = _mm_set_ps(0.0f, assimpVector.z, assimpVector.y, assimpVector.x);
+	return *this;
+}
+
 } // namespace gintonic

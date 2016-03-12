@@ -15,29 +15,29 @@
 #define GT_VERTEX_LAYOUT_FREE_14 14
 #define GT_VERTEX_LAYOUT_FREE_15 15
 
-layout(location = GT_VERTEX_LAYOUT_POSITION)   in vec4 in_position;
-layout(location = GT_VERTEX_LAYOUT_TEXCOORD)   in vec4 in_texcoord;
+layout(location = GT_VERTEX_LAYOUT_POSITION)   in vec4 iSlot0;
+layout(location = GT_VERTEX_LAYOUT_TEXCOORD)   in vec4 iSlot1;
 // layout(location = GT_VERTEX_LAYOUT_NORMAL)     in vec4 in_tangent;
-layout(location = GT_VERTEX_LAYOUT_PVM_MATRIX) in mat4 in_matrix_PVM;
-layout(location = GT_VERTEX_LAYOUT_VM_MATRIX)  in mat4 in_matrix_VM;
-layout(location = GT_VERTEX_LAYOUT_N_MATRIX)   in mat3 in_matrix_N;
+layout(location = GT_VERTEX_LAYOUT_PVM_MATRIX) in mat4 iMatrix_PVM;
+layout(location = GT_VERTEX_LAYOUT_VM_MATRIX)  in mat4 iMatrix_VM;
+layout(location = GT_VERTEX_LAYOUT_N_MATRIX)   in mat3 iMatrix_N;
 
 // uniform mat4 matrix_PVM;
 // uniform mat4 matrix_VM;
 // uniform mat3 matrix_N;
 
-out vec3 v_position;
-out vec2 v_texcoord;
-out vec3 v_normal;
+out vec3 viewPosition;
+out vec2 texCoords;
+out vec3 viewNormal;
 
 void main()
 {
-	vec4 P = vec4(in_position.xyz, 1.0f);
-	vec3 N = vec3(in_position.w, in_texcoord.zw);
+	vec4 localPosition = vec4(iSlot0.xyz, 1.0f);
+	vec3 localNormal = iSlot0.xyz;
 
-	gl_Position = in_matrix_PVM * P;
-	v_position = (in_matrix_VM * P).xyz;
-	v_normal = in_matrix_N * N;
+	gl_Position = iMatrix_PVM * localPosition;
+	viewPosition = (iMatrix_VM * localPosition).xyz;
+	viewNormal = iMatrix_N * localNormal;
 
-	v_texcoord = in_texcoord.xy;
+	texCoords = vec2(iSlot0.w, iSlot1.w);
 }

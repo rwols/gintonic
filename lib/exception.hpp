@@ -9,7 +9,7 @@
 
 #include <stdexcept>
 #include <string>
-#include "config.hpp"
+#include "utilities.hpp"
 
 namespace gintonic {
 
@@ -82,5 +82,9 @@ private:
 };
 
 } // end of namespace gintonic
+
+#ifndef THROW_NOT_IMPLEMENTED_EXCEPTION
+#define THROW_NOT_IMPLEMENTED_EXCEPTION() throw ::gintonic::exception(std::string("Function not yet implemented: ") + GT_FUNCTION_NAME);
+#endif
 
 #endif

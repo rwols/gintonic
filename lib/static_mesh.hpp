@@ -23,7 +23,7 @@ namespace gintonic {
 /**
  * @brief Static mesh component.
  */
-class static_mesh : public mesh
+class static_mesh : public Mesh
 {
 public:
 

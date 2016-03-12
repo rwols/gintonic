@@ -10,6 +10,8 @@
 #include "utilities.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <assimp/vector3.h>
+#include <assimp/matrix4x4.h>
 
 namespace FBX {
 	class FbxAMatrix; // Forward declaration.
@@ -160,6 +162,9 @@ public:
 	/// Look-at constructor.
 	mat4f(const vec3f& eye_location, const vec3f& subject_location, const vec3f& up_direction);
 
+	/// Build a matrix from an assimp matrix.
+	mat4f(const aiMatrix4x4& assimpMatrix);
+
 	/// Set this matrix as an orthographic projection matrix.
 	mat4f& set_orthographic(const float left, const float right, const float bottom, const float top, const float nearplane, const float farplane);
 	
@@ -177,6 +182,12 @@ public:
 	
 	/// Assuming this matrix is a perspective projection, retrieve the parameters.
 	void unproject_perspective(float& fieldofview, float& aspectratio, float& nearplane, float& farplane);
+
+	/// Assuming this matrix is an affine transformation, decompose it into its scale, rotation and translation components.
+	void decompose(vec3f& scale, quatf& rotation, vec3f& translation) const;
+
+	/// Assuming this matrix is an affine transformation, decompose it into its scale, rotation and translation components.
+	void decompose(SQT& sqt) const;
 
 	/// Add-and-assign operator.
 	inline mat4f& operator += (const mat4f& other)
@@ -309,13 +320,7 @@ private:
 #endif
 
 /// Output stream support for four by four matrices.
-inline std::ostream& operator << (std::ostream& os, const mat4f& m)
-{
-	return os << m.m00 << ' ' << m.m10 << ' ' << m.m20 << ' ' << m.m30 << ' '
-		<< m.m01 << ' ' << m.m11 << ' ' << m.m21 << ' ' << m.m31 << ' '
-		<< m.m02 << ' ' << m.m12 << ' ' << m.m22 << ' ' << m.m32 << ' '
-		<< m.m03 << ' ' << m.m13 << ' ' << m.m23 << ' ' << m.m33;
-}
+std::ostream& operator << (std::ostream& os, const mat4f& m);
 
 /// Input stream support for four by four matrices.
 inline std::istream& operator >> (std::istream& is, mat4f& m)

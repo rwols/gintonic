@@ -11,14 +11,14 @@
 #define GBUFFER_NORMAL 3
 #define GBUFFER_COUNT 4
 
-in vec3 v_position; // Incoming VIEW space position
-in vec2 v_texcoord; // Incoming TEXTURE space texcoord
-in mat3 v_matrix_T; // TANGENT->VIEW matrix
+in vec3 viewPosition; // Incoming VIEW space position
+in vec2 texCoords; // Incoming TEXTURE space texcoord
+in mat3 tangentMatrix; // TANGENT->VIEW matrix
 
-layout (location = GBUFFER_POSITION) out vec3 out_position; // VIEW space
-layout (location = GBUFFER_DIFFUSE) out vec4 out_diffuse; // TEXTURE space
-layout (location = GBUFFER_SPECULAR) out vec4 out_specular; // TEXTURE space
-layout (location = GBUFFER_NORMAL) out vec3 out_normal; // VIEW space
+layout (location = GBUFFER_POSITION) out vec3 outPosition; // VIEW space
+layout (location = GBUFFER_DIFFUSE) out vec4 outDiffuse; // TEXTURE space
+layout (location = GBUFFER_SPECULAR) out vec4 outSpecular; // TEXTURE space
+layout (location = GBUFFER_NORMAL) out vec3 outNormal; // VIEW space
 
 uniform struct Material 
 {
@@ -30,13 +30,13 @@ uniform struct Material
 
 void main()
 {
-	out_position = v_position;
-	out_diffuse = material.diffuse_color;
-	out_diffuse *= texture(material.diffuse_texture, v_texcoord);
-	out_specular = material.specular_color;
+	outPosition = viewPosition;
+	outDiffuse = material.diffuse_color;
+	outDiffuse *= texture(material.diffuse_texture, texCoords);
+	outSpecular = material.specular_color;
 
 	// Sample the normal vector from the materials' "normal texture".
-	vec3 normal = texture(material.normal_texture, v_texcoord).rgb;
+	vec3 normal = texture(material.normal_texture, texCoords).rgb;
 
 	// The normal vector is encoded in RGB colors, so we need
 	// to decode that.
@@ -46,5 +46,5 @@ void main()
 	// an unperturbed normal has coordinates (0,1,0).
 	// The geometry buffer expects normals to be in VIEW space.
 	// So we need to transform from TANGENT space to VIEW space.
-	out_normal = normalize(v_matrix_T * normal);
+	outNormal = normalize(tangentMatrix * normal);
 }

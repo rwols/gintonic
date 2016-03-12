@@ -13,19 +13,21 @@
 #define GINTONIC_VERTEX_LAYOUT_BITANGENT 4
 #define GINTONIC_VERTEX_LAYOUT_COLOR 5
 
-layout(location = GINTONIC_VERTEX_LAYOUT_POSITION) in vec3 in_position;
-layout(location = GINTONIC_VERTEX_LAYOUT_NORMAL) in vec3 in_normal;
+layout(location = GINTONIC_VERTEX_LAYOUT_POSITION) in vec3 iSlot0;
+layout(location = GINTONIC_VERTEX_LAYOUT_NORMAL) in vec3 iSlot1;
 
 uniform mat4 matrix_PVM;
 uniform mat4 matrix_VM;
 uniform mat3 matrix_N;
 
-out vec3 v_position; // the view-space position vector
-out vec3 v_normal; // the view-space normal vector
+out vec3 viewPosition; // the view-space position vector
+out vec3 viewNormal; // the view-space normal vector
 
 void main()
 {
-	gl_Position = matrix_PVM * vec4(in_position, 1.0f);
-	v_position  = (matrix_VM * vec4(in_position, 1.0f)).xyz;
-	v_normal    = matrix_N * in_normal;
+	vec4 localPosition = vec4(iSlot0.xyz, 1.0f);
+
+	gl_Position  = matrix_PVM * localPosition;
+	viewPosition = (matrix_VM * localPosition).xyz;
+	viewNormal   = matrix_N * iSlot1.xyz;
 }

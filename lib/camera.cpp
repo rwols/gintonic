@@ -7,37 +7,68 @@ namespace gintonic {
 #define M_PIf2 static_cast<float>(M_PI) * 0.5f
 #define M_2PIf static_cast<float>(M_PI) * 2.0f
 
-void camera::setWidth(const float width)
+Camera::Camera(const FbxCamera* pFbxCamera)
+: Object<Camera>(pFbxCamera)
+{
+	// auto lGlobalName = boost::filesystem::path(pFbxCamera->GetScene()->GetSceneInfo()->Url.Get().Buffer()).stem().string();
+	// if (std::strcmp(pFbxCamera->GetName(), "") == 0)
+	// {
+	// 	setName(std::move(lGlobalName), pFbxCamera->GetName());
+	// }
+	// else
+	// {
+	// 	setName(std::move(lGlobalName), pFbxCamera->GetNode()->GetName());
+	// }
+	
+	mNearPlane = static_cast<float>(pFbxCamera->GetNearPlane());
+	mFarPlane = static_cast<float>(pFbxCamera->GetFarPlane());
+	if (pFbxCamera->ProjectionType.Get() == FbxCamera::ePerspective) mProjection = kPerspectiveProjection;
+	switch (pFbxCamera->ProjectionType.Get())
+	{
+		case FbxCamera::ePerspective:
+			mProjection = kPerspectiveProjection;
+			break;
+		case FbxCamera::eOrthogonal:
+			mProjection = kOrthographicProjection;
+			break;
+		default:
+			mProjection = kPerspectiveProjection;
+	}
+	mFieldOfView = deg2rad(static_cast<float>(pFbxCamera->FieldOfView.Get()));
+	mProjectionMatrixIsDirty = true;
+}
+
+void Camera::setWidth(const float width)
 {
 	mWidth = width;
 	mProjectionMatrixIsDirty = true;
 }
 
-void camera::setHeight(const float height)
+void Camera::setHeight(const float height)
 {
 	mHeight = height;
 	mProjectionMatrixIsDirty = true;
 }
 
-void camera::setNearplane(const float nearplane)
+void Camera::setNearPlane(const float nearPlane)
 {
-	mNearPlane = nearplane;
+	mNearPlane = nearPlane;
 	mProjectionMatrixIsDirty = true;
 }
 
-void camera::setFarplane(const float farplane)
+void Camera::setFarPlane(const float farPlane)
 {
-	mFarPlane = farplane;
+	mFarPlane = farPlane;
 	mProjectionMatrixIsDirty = true;
 }
 
-void camera::setFieldOfView(const float fieldOfView)
+void Camera::setFieldOfView(const float fieldOfView)
 {
 	mFieldOfView = fieldOfView;
 	mProjectionMatrixIsDirty = true;
 }
 
-void camera::addMouse(const vec2f& mouseAngles) noexcept
+void Camera::addMouse(const vec2f& mouseAngles) noexcept
 {
 	mAngles += mouseAngles;
 
@@ -49,7 +80,7 @@ void camera::addMouse(const vec2f& mouseAngles) noexcept
 	// for (auto e = begin(); e != end(); ++e) (*e)->set_rotation(quatf::mouse(mAngles));
 }
 
-const mat4f& camera::projectionMatrix() const noexcept
+const mat4f& Camera::projectionMatrix() const noexcept
 {
 	if (mProjectionMatrixIsDirty)
 	{
