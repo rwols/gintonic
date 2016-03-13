@@ -1,11 +1,11 @@
 #include "entity.hpp"
-#include "SQTstack.hpp"
-#include "mat4fstack.hpp"
-#include "mesh.hpp"
-#include "lights.hpp"
-#include "materials.hpp"
-#include "octree.hpp"
-#include "renderer.hpp"
+#include "Foundation/octree.hpp"
+#include "Math/SQTstack.hpp"
+#include "Math/mat4fstack.hpp"
+#include "Graphics/mesh.hpp"
+#include "Graphics/lights.hpp"
+#include "Graphics/materials.hpp"
+#include "Graphics/renderer.hpp"
 #include "component.hpp"
 
 namespace gintonic {

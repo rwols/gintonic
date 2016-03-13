@@ -2,8 +2,8 @@
 #include "lua-5.3.1/src/lua.hpp"
 #include <iostream>
 #include <cassert>
-#include "filesystem.hpp"
-#include "vec2f.hpp"
+#include "Foundation/filesystem.hpp"
+#include "Math/vec2f.hpp"
 
 namespace {
 

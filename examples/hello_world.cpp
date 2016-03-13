@@ -24,7 +24,6 @@ struct GameState
 		mCameras.clear();
 		mRootEntity = nullptr;
 	}
-
 };
 
 GameState gState;

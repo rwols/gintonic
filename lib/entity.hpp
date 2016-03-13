@@ -7,12 +7,12 @@
 #ifndef gintonic_entity_hpp
 #define gintonic_entity_hpp
 
-#include "SQT.hpp"
-#include "box3f.hpp"
-#include "mat4f.hpp"
-#include "allocator.hpp"
-#include "ShadowBuffer.hpp"
-#include "Object.hpp"
+#include "Foundation/allocator.hpp"
+#include "Foundation/Object.hpp"
+#include "Math/SQT.hpp"
+#include "Math/box3f.hpp"
+#include "Math/mat4f.hpp"
+#include "Graphics/ShadowBuffer.hpp"
 #include <list>
 #include <boost/signals2.hpp>
 #include <fbxsdk.h>

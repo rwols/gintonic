@@ -8,21 +8,23 @@
 #ifndef gintonic_hpp
 #define gintonic_hpp
 
-#include "renderer.hpp"
+#include "Foundation/scancodes.hpp"
+#include "Foundation/exception.hpp"
+#include "Foundation/octree.hpp"
+
+#include "Graphics/renderer.hpp"
+#include "Graphics/materials.hpp"
+#include "Graphics/static_mesh.hpp"
+#include "Graphics/shaders.hpp"
+#include "Graphics/fonts.hpp"
+#include "Graphics/basic_shapes.hpp"
+#include "Graphics/vertices.hpp"
+#include "Graphics/lights.hpp"
+#include "Graphics/skybox.hpp"
+ 
 #include "entity.hpp"
-#include "octree.hpp"
-#include "materials.hpp"
-#include "static_mesh.hpp"
-#include "shaders.hpp"
-#include "fonts.hpp"
-#include "basic_shapes.hpp"
-#include "vertices.hpp"
-#include "lights.hpp"
-#include "skybox.hpp"
-#include "scancodes.hpp"
 #include "camera.hpp"
-#include "proj_info.hpp"
-#include "exception.hpp"
+#include "Graphics/proj_info.hpp"
 #include "luabindings.hpp"
 
 namespace gintonic {

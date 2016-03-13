@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "Object.hpp"
-#include "vec2f.hpp"
-#include "mat4f.hpp"
+#include "Foundation/Object.hpp"
+#include "Math/vec2f.hpp"
+#include "Math/mat4f.hpp"
 
 #include <fbxsdk.h>
 

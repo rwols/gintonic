@@ -1,5 +1,5 @@
 #include "camera.hpp"
-#include "mat4f.hpp"
+#include "Math/mat4f.hpp"
 #include "entity.hpp"
 
 namespace gintonic {

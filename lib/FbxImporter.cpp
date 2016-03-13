@@ -1,10 +1,10 @@
 #include "FbxImporter.hpp"
 #include "entity.hpp"
-#include "materials.hpp"
 #include "camera.hpp"
-#include "lights.hpp"
-#include "mesh.hpp"
-#include "exception.hpp"
+#include "Foundation/exception.hpp"
+#include "Graphics/materials.hpp"
+#include "Graphics/lights.hpp"
+#include "Graphics/mesh.hpp"
 
 /* anonymous */ namespace {
 
