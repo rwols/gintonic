@@ -7,7 +7,7 @@ namespace gintonic {
  ****************************************************************************/
 
 matrix_PVM_shader::matrix_PVM_shader()
-: OpenGL::ShaderProgram("../s/lp_pvm.vs", "../s/null.fs")
+: OpenGL::ShaderProgram("../Shaders/lp_pvm.vs", "../Shaders/null.fs")
 {
 	loc_matrix_PVM = getUniformLocation("matrix_PVM");
 }
@@ -106,7 +106,7 @@ void matrix_PVM_VM_N_shader::set_matrix_N(const mat3f& m) const noexcept
  ****************************************************************************/
 
 gp_shader::gp_shader()
-: matrix_PVM_VM_N_shader("../s/gp.vs", "../s/gp.fs")
+: matrix_PVM_VM_N_shader("../Shaders/gp.vs", "../Shaders/gp.fs")
 {
 	loc_diffuse_color = getUniformLocation("material.diffuse_color");
 	loc_specular_color = getUniformLocation("material.specular_color");
@@ -150,7 +150,7 @@ gp_shader::gp_shader(
  ****************************************************************************/
 
 gp_d_shader::gp_d_shader()
-: gp_shader("../s/gp.vs", "../s/gp_d.fs")
+: gp_shader("../Shaders/gp.vs", "../Shaders/gp_d.fs")
 {
 	loc_diffuse_texture = getUniformLocation("material.diffuse_texture");
 }
@@ -186,7 +186,7 @@ gp_d_shader::gp_d_shader(
  ****************************************************************************/
 
 gp_s_shader::gp_s_shader()
-: gp_shader("../s/gp.vs", "../s/gp_s.fs")
+: gp_shader("../Shaders/gp.vs", "../Shaders/gp_s.fs")
 {
 	loc_specular_texture = getUniformLocation("material.specular_texture");
 }
@@ -223,7 +223,7 @@ gp_s_shader::gp_s_shader(
  ****************************************************************************/
 
 gp_n_shader::gp_n_shader()
-: gp_shader("../s/gp_n.vs", "../s/gp_n.fs")
+: gp_shader("../Shaders/gp_n.vs", "../Shaders/gp_n.fs")
 {
 	loc_normal_texture = getUniformLocation("material.normal_texture");
 }
@@ -260,7 +260,7 @@ gp_n_shader::gp_n_shader(
  ****************************************************************************/
 
 gp_ds_shader::gp_ds_shader()
-: gp_d_shader("../s/gp.vs", "../s/gp_ds.fs")
+: gp_d_shader("../Shaders/gp.vs", "../Shaders/gp_ds.fs")
 {
 	loc_specular_texture = getUniformLocation("material.specular_texture");
 }
@@ -297,7 +297,7 @@ gp_ds_shader::gp_ds_shader(
  ****************************************************************************/
 
 gp_dn_shader::gp_dn_shader()
-: gp_d_shader("../s/gp_n.vs", "../s/gp_dn.fs")
+: gp_d_shader("../Shaders/gp_n.vs", "../Shaders/gp_dn.fs")
 {
 	loc_normal_texture = getUniformLocation("material.normal_texture");
 }
@@ -334,7 +334,7 @@ gp_dn_shader::gp_dn_shader(
  ****************************************************************************/
 
 gp_sn_shader::gp_sn_shader()
-: gp_s_shader("../s/gp_n.vs", "../s/gp_sn.fs")
+: gp_s_shader("../Shaders/gp_n.vs", "../Shaders/gp_sn.fs")
 {
 	loc_normal_texture = getUniformLocation("material.normal_texture");
 }
@@ -371,7 +371,7 @@ gp_sn_shader::gp_sn_shader(
  ****************************************************************************/
 
 gp_dsn_shader::gp_dsn_shader()
-: gp_ds_shader("../s/gp_n.vs", "../s/gp_dsn.fs")
+: gp_ds_shader("../Shaders/gp_n.vs", "../Shaders/gp_dsn.fs")
 {
 	loc_normal_texture = getUniformLocation("material.normal_texture");
 }
@@ -407,7 +407,7 @@ gp_dsn_shader::gp_dsn_shader(
  ****************************************************************************/
 
 gpi_shader::gpi_shader()
-: OpenGL::ShaderProgram("../s/gpi.vs", "../s/gp.fs")
+: OpenGL::ShaderProgram("../Shaders/gpi.vs", "../Shaders/gp.fs")
 {
 	loc_diffuse_color = getUniformLocation("material.diffuse_color");
 	loc_specular_color = getUniformLocation("material.specular_color");
@@ -451,7 +451,7 @@ gpi_shader::gpi_shader(
  ****************************************************************************/
 
 gpi_d_shader::gpi_d_shader()
-: gpi_shader("../s/gpi.vs", "../s/gp_d.fs")
+: gpi_shader("../Shaders/gpi.vs", "../Shaders/gp_d.fs")
 {
 	loc_diffuse_texture = getUniformLocation("material.diffuse_texture");
 }
@@ -487,7 +487,7 @@ gpi_d_shader::gpi_d_shader(
  ****************************************************************************/
 
 gpi_s_shader::gpi_s_shader()
-: gpi_shader("../s/gpi.vs", "../s/gp_s.fs")
+: gpi_shader("../Shaders/gpi.vs", "../Shaders/gp_s.fs")
 {
 	loc_specular_texture = getUniformLocation("material.specular_texture");
 }
@@ -524,7 +524,7 @@ gpi_s_shader::gpi_s_shader(
  ****************************************************************************/
 
 gpi_n_shader::gpi_n_shader()
-: gpi_shader("../s/gpi_n.vs", "../s/gp_n.fs")
+: gpi_shader("../Shaders/gpi_n.vs", "../Shaders/gp_n.fs")
 {
 	loc_normal_texture = getUniformLocation("material.normal_texture");
 }
@@ -561,7 +561,7 @@ gpi_n_shader::gpi_n_shader(
  ****************************************************************************/
 
 gpi_ds_shader::gpi_ds_shader()
-: gpi_d_shader("../s/gpi.vs", "../s/gp_ds.fs")
+: gpi_d_shader("../Shaders/gpi.vs", "../Shaders/gp_ds.fs")
 {
 	loc_specular_texture = getUniformLocation("material.specular_texture");
 }
@@ -598,7 +598,7 @@ gpi_ds_shader::gpi_ds_shader(
  ****************************************************************************/
 
 gpi_dn_shader::gpi_dn_shader()
-: gpi_d_shader("../s/gpi_n.vs", "../s/gp_dn.fs")
+: gpi_d_shader("../Shaders/gpi_n.vs", "../Shaders/gp_dn.fs")
 {
 	loc_normal_texture = getUniformLocation("material.normal_texture");
 }
@@ -635,7 +635,7 @@ gpi_dn_shader::gpi_dn_shader(
  ****************************************************************************/
 
 gpi_sn_shader::gpi_sn_shader()
-: gpi_s_shader("../s/gpi_n.vs", "../s/gp_sn.fs")
+: gpi_s_shader("../Shaders/gpi_n.vs", "../Shaders/gp_sn.fs")
 {
 	loc_normal_texture = getUniformLocation("material.normal_texture");
 }
@@ -672,7 +672,7 @@ gpi_sn_shader::gpi_sn_shader(
  ****************************************************************************/
 
 gpi_dsn_shader::gpi_dsn_shader()
-: gpi_ds_shader("../s/gpi_n.vs", "../s/gp_dsn.fs")
+: gpi_ds_shader("../Shaders/gpi_n.vs", "../Shaders/gp_dsn.fs")
 {
 	loc_normal_texture = getUniformLocation("material.normal_texture");
 }
@@ -708,7 +708,7 @@ gpi_dsn_shader::gpi_dsn_shader(
  ****************************************************************************/
 
 lp_null_shader::lp_null_shader()
-: OpenGL::ShaderProgram("../s/lp_null.vs", "../s/lp_null.fs")
+: OpenGL::ShaderProgram("../Shaders/lp_null.vs", "../Shaders/lp_null.fs")
 {
 	loc_viewport_size = getUniformLocation("viewport_size");
 	loc_gbuffer_diffuse = getUniformLocation("gbuffer.diffuse");
@@ -753,7 +753,7 @@ lp_null_shader::lp_null_shader(
  ****************************************************************************/
 
 lp_ambient_shader::lp_ambient_shader()
-: lp_null_shader("../s/lp.vs", "../s/lp_ambient.fs")
+: lp_null_shader("../Shaders/lp.vs", "../Shaders/lp_ambient.fs")
 {
 	loc_light_intensity = getUniformLocation("light.intensity");
 }
@@ -790,7 +790,7 @@ lp_ambient_shader::lp_ambient_shader(
  ****************************************************************************/
 
 lp_directional_shader::lp_directional_shader()
-: lp_null_shader("../s/lp.vs", "../s/lp_directional.fs")
+: lp_null_shader("../Shaders/lp.vs", "../Shaders/lp_directional.fs")
 {
 	loc_gbuffer_position = getUniformLocation("gbuffer.position");
 	loc_gbuffer_specular = getUniformLocation("gbuffer.specular");
@@ -859,7 +859,7 @@ lp_directional_shader::lp_directional_shader(
  ****************************************************************************/
 
 lp_point_shader::lp_point_shader()
-: matrix_PVM_shader("../s/lp_pvm.vs", "../s/lp_point.fs")
+: matrix_PVM_shader("../Shaders/lp_pvm.vs", "../Shaders/lp_point.fs")
 {
 	loc_viewport_size = getUniformLocation("viewport_size");
 	loc_gbuffer_position = getUniformLocation("gbuffer.position");
@@ -952,7 +952,7 @@ lp_point_shader::lp_point_shader(
  ****************************************************************************/
 
 lp_spot_shader::lp_spot_shader()
-: matrix_PVM_shader("../s/lp_pvm.vs", "../s/lp_spot.fs")
+: matrix_PVM_shader("../Shaders/lp_pvm.vs", "../Shaders/lp_spot.fs")
 {
 	loc_viewport_size = getUniformLocation("viewport_size");
 	loc_gbuffer_position = getUniformLocation("gbuffer.position");
@@ -1053,7 +1053,7 @@ lp_spot_shader::lp_spot_shader(
  ****************************************************************************/
 
 sp_directional_shader::sp_directional_shader()
-: matrix_PVM_shader("../s/lp_pvm.vs", "../s/null.fs")
+: matrix_PVM_shader("../Shaders/lp_pvm.vs", "../Shaders/null.fs")
 {
 	/* Empty on purpose. */
 }
@@ -1067,7 +1067,7 @@ sp_directional_shader::~sp_directional_shader() noexcept
  ****************************************************************************/
 
 skybox_shader::skybox_shader()
-: OpenGL::ShaderProgram("../s/skybox.vs", "../s/skybox.fs")
+: OpenGL::ShaderProgram("../Shaders/skybox.vs", "../Shaders/skybox.fs")
 {
 	loc_matrix_PV = getUniformLocation("matrix_PV");
 	loc_skybox_diffuse = getUniformLocation("skybox.diffuse_texture");
@@ -1112,7 +1112,7 @@ skybox_shader::skybox_shader(
  ****************************************************************************/
 
 text_shader::text_shader()
-: OpenGL::ShaderProgram("../s/flat_text_uniform_color.vs", "../s/flat_text_uniform_color.fs")
+: OpenGL::ShaderProgram("../Shaders/flat_text_uniform_color.vs", "../Shaders/flat_text_uniform_color.fs")
 {
 	loc_color = getUniformLocation("color");
 	loc_texture = getUniformLocation("tex");
