@@ -1,5 +1,4 @@
 #include "gintonic.hpp"
-#include "camera.hpp"
 
 namespace gintonic {
 
@@ -8,8 +7,9 @@ void release()
 	// nothing atm
 }
 
-void initializeEverything(const char* window_title, std::shared_ptr<entity> camera)
+void initializeEverything(const char* window_title, std::shared_ptr<Entity> camera)
 {
+	const auto lOldPath = boost::filesystem::current_path();
 	#ifdef BOOST_MSVC
 		boost::filesystem::current_path(get_executable_path());
 	#else
@@ -17,9 +17,9 @@ void initializeEverything(const char* window_title, std::shared_ptr<entity> came
 	#endif
 
 	renderer::init(window_title, std::move(camera), true, 800, 640);
-	// opengl::texture2d::init();
-	// font::init();
 	std::atexit(release);
+
+	boost::filesystem::current_path(lOldPath);
 }
 
 } // namespace gintonic

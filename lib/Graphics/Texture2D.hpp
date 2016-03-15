@@ -5,7 +5,7 @@
 #include "../Foundation/filesystem.hpp"
 #include "../Foundation/Object.hpp"
 
-#include "OpenGL/texture_object.hpp"
+#include "OpenGL/TextureObject.hpp"
 
 namespace FBX
 {
@@ -33,7 +33,7 @@ public:
 
 private:
 
-	opengl::texture_object mTextureObject;
+	OpenGL::TextureObject mTextureObject;
 
 	void loadFromFile(boost::filesystem::path);
 

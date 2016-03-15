@@ -14,7 +14,7 @@
 #include "stb_image.h"
 
 namespace gintonic {
-namespace opengl {
+namespace OpenGL {
 
 namespace
 {
@@ -876,5 +876,5 @@ void texture::init_generic_image(const boost::filesystem::path& filename, GLsize
 	#endif
 }
 
-} // end of namespace opengl
+} // end of namespace OpenGL
 } // end of namespace gintonic

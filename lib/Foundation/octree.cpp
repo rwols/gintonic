@@ -133,7 +133,7 @@ std::size_t octree::count() const
 	return result;
 }
 
-void octree::insert(entity* object)
+void octree::insert(Entity* object)
 {
 	#ifndef NDEBUG
 	// If the item is not contained in this quad,
@@ -167,11 +167,11 @@ void octree::insert(entity* object)
 	// can contain the object. So we add it to this node.
 	m_entities.push_back(object);
 
-	// Give the entity a reference to this node.
+	// Give the Entity a reference to this node.
 	object->m_octree = this;
 }
 
-int octree::erase(entity* object)
+int octree::erase(Entity* object)
 {
 	if (object->m_octree != this) return 0;
 	for (auto iter = m_entities.begin(); iter != m_entities.end(); ++iter)
@@ -205,7 +205,7 @@ int octree::erase(entity* object)
 	return 1;
 }
 
-void octree::notify(entity* object)
+void octree::notify(Entity* object)
 {
 	if (this != object->m_octree)
 	{
@@ -221,7 +221,7 @@ void octree::notify(entity* object)
 	}
 	// At this point, the object has moved and does not
 	// fit anymore in the current quad's bounds. So we erase
-	// this object from the current quad's entity list.
+	// this object from the current quad's Entity list.
 
 	#ifndef NDEBUG
 	bool object_has_been_removed = false;
@@ -262,7 +262,7 @@ void octree::notify(entity* object)
 	}
 }
 
-void octree::notify_helper(entity* object)
+void octree::notify_helper(Entity* object)
 {
 	if (m_bounds.contains(object->global_bounding_box()))
 	{

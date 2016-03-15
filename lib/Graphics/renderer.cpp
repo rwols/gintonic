@@ -6,15 +6,11 @@
 #include "Mesh.hpp"
 #include "basic_shapes.hpp"
 #include "shaders.hpp"
-#include "fonts.hpp"
+#include "Material.hpp"
+#include "Light.hpp"
 
-#include "proj_info.hpp"
-#include "materials.hpp"
-#include "mesh.hpp"
-#include "lights.hpp"
-
-#include "../camera.hpp"
-#include "../entity.hpp"
+#include "../Camera.hpp"
+#include "../Entity.hpp"
 
 #include <iostream>
 #include <SDL.h>
@@ -71,11 +67,11 @@ namespace gintonic {
 	GLuint renderer::s_depth_texture;
 	GLuint renderer::s_shadow_texture;
 
-	std::shared_ptr<entity> renderer::sCameraEntity = std::shared_ptr<entity>(nullptr);
+	std::shared_ptr<Entity> renderer::sCameraEntity = std::shared_ptr<Entity>(nullptr);
 
 	write_lock renderer::sEntityQueueLock;
-	std::vector<std::shared_ptr<entity>> renderer::sFutureQueue;
-	std::vector<std::shared_ptr<entity>> renderer::sCurrentQueue;
+	std::vector<std::shared_ptr<Entity>> renderer::sFutureQueue;
+	std::vector<std::shared_ptr<Entity>> renderer::sCurrentQueue;
 
 	matrix_PVM_shader* renderer::s_matrix_PVM_shader = nullptr;
 
@@ -116,6 +112,8 @@ namespace gintonic {
 
 	std::shared_ptr<Mesh> renderer::sUnitQuadPUN = nullptr;
 	std::shared_ptr<Mesh> renderer::sUnitCubePUN = nullptr;
+	std::shared_ptr<Mesh> renderer::sUnitSpherePUN = nullptr;
+	std::shared_ptr<Mesh> renderer::sUnitConePUN = nullptr;
 
 	boost::signals2::signal<void(wchar_t)> renderer::char_typed;
 	boost::signals2::signal<void(double, double)> renderer::mouse_scrolled;
@@ -156,7 +154,7 @@ namespace gintonic {
 		deltaTime = static_cast<double>(duration_cast<nanoseconds>(delta_time()).count()) / double(1e9);
 	}
 
-	void renderer::init(const char* title, std::shared_ptr<entity> cameraEntity, const bool fullscreen, const int width, const int height)
+	void renderer::init(const char* title, std::shared_ptr<Entity> cameraEntity, const bool fullscreen, const int width, const int height)
 	{
 		bool was_already_initialized;
 		if (is_initialized())
@@ -190,7 +188,7 @@ namespace gintonic {
 		}
 		else
 		{
-			throw std::runtime_error("Expected a valid entity with a camera component.");
+			throw std::runtime_error("Expected a valid Entity with a camera component.");
 		}
 
 		Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
@@ -375,7 +373,7 @@ namespace gintonic {
 		return sWindow != nullptr;
 	}
 
-	void renderer::setCameraEntity(std::shared_ptr<entity> cameraEntity)
+	void renderer::setCameraEntity(std::shared_ptr<Entity> cameraEntity)
 	{
 		sCameraEntity = std::move(cameraEntity);
 		if (sCameraEntity->camera)
@@ -385,7 +383,7 @@ namespace gintonic {
 		}
 		else
 		{
-			throw std::runtime_error("entity is missing a camera component.");
+			throw std::runtime_error("Entity is missing a camera component.");
 		}
 	}
 
@@ -502,10 +500,10 @@ namespace gintonic {
 		sFutureQueue.clear();
 		sEntityQueueLock.release();
 
-		std::vector<entity*> lShadowCastingGeometryEntities;
-		std::vector<entity*> lNonShadowCastingGeometryEntities;
-		std::vector<entity*> lShadowCastingLightEntities;
-		std::vector<entity*> lNonShadowCastingLightEntities;
+		std::vector<Entity*> lShadowCastingGeometryEntities;
+		std::vector<Entity*> lNonShadowCastingGeometryEntities;
+		std::vector<Entity*> lShadowCastingLightEntities;
+		std::vector<Entity*> lNonShadowCastingLightEntities;
 
 		for (auto lEntity : sCurrentQueue)
 		{
@@ -1129,8 +1127,129 @@ void renderer::init_shaders()
 	}
 }
 
+
+struct SphereFace
+{
+	virtual ~SphereFace() = default;
+	virtual void get(
+		const float s, 
+		const float t, 
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const noexcept = 0;
+};
+
+struct SphereFrontFace : public SphereFace
+{
+	virtual ~SphereFrontFace() = default;
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const noexcept final
+	{
+		pos.x = 2.0f * s - 1.0f;
+		pos.y = 2.0f * t - 1.0f;
+		pos.z = 1.0f;
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
+	}
+};
+
+struct SphereBackFace : public SphereFace
+{
+	virtual ~SphereBackFace() = default;
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const noexcept final
+	{
+		pos.x = 2.0f * s - 1.0f;
+		pos.y = -(2.0f * t - 1.0f);
+		pos.z = -1.0f;
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
+	}
+};
+
+struct SphereTopFace : public SphereFace
+{
+	virtual ~SphereTopFace() = default;
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const noexcept final
+	{
+		pos.x = 2.0f * s - 1.0f;
+		pos.y = 1.0f;
+		pos.z = -(2.0f * t - 1.0f);
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
+	}
+};
+
+struct SphereBottomFace : public SphereFace
+{
+	virtual ~SphereBottomFace() = default;
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const noexcept final
+	{
+		pos.x = 2.0f * s - 1.0f;
+		pos.y = -1.0f;
+		pos.z = 2.0f * t - 1.0f;
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
+	}
+};
+
+struct SphereLeftFace : public SphereFace
+{
+	virtual ~SphereLeftFace() = default;
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const noexcept final
+	{
+		pos.x = -1.0f;
+		pos.y = 2.0f * s - 1.0f;
+		pos.z = -(2.0f * t - 1.0f);
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
+	}
+};
+
+struct SphereRightFace : public SphereFace
+{
+	virtual ~SphereRightFace() = default;
+	inline virtual void get(
+		const float s, 
+		const float t, 
+		gintonic::vec3f& pos, 
+		gintonic::vec2f& uv) const noexcept final
+	{
+		pos.x = 1.0f;
+		pos.y = 2.0f * s - 1.0f;
+		pos.z = 2.0f * t - 1.0f;
+		uv.x = s;
+		uv.y = t;
+		pos.normalize();
+	}
+};
+
 void renderer::initializeBasicShapes()
 {
+	/* Set up the unit quad */
+
 	sUnitQuadPUN.reset(new Mesh());
 	sUnitQuadPUN->setName("UnitQuad");
 	sUnitQuadPUN->set(
@@ -1150,6 +1269,8 @@ void renderer::initializeBasicShapes()
 			{ 0.0f,  0.0f, 1.0f,  1.0f}
 		}
 	);
+
+	/* Set up the unit cube */
 
 	sUnitCubePUN.reset(new Mesh());
 	sUnitCubePUN->setName("UnitCube");
@@ -1177,68 +1298,182 @@ void renderer::initializeBasicShapes()
 		{
 			// front
 			{-1.0f, -1.0f,  1.0f,  0.0f}, // position_XYZ_texcoords_X
-			{ 1.0f, -1.0f,  1.0f,  0.0f},
-			{ 1.0f,  1.0f,  1.0f,  0.0f},
+			{ 1.0f, -1.0f,  1.0f,  1.0f},
+			{ 1.0f,  1.0f,  1.0f,  1.0f},
 			{-1.0f,  1.0f,  1.0f,  0.0f},
 			// top
-			{-1.0f,  1.0f,  1.0f,  1.0f},
+			{-1.0f,  1.0f,  1.0f,  0.0f},
 			{ 1.0f,  1.0f,  1.0f,  1.0f},
 			{ 1.0f,  1.0f, -1.0f,  1.0f},
-			{-1.0f,  1.0f, -1.0f,  1.0f},
+			{-1.0f,  1.0f, -1.0f,  0.0f},
 			// back
 			{ 1.0f, -1.0f, -1.0f,  0.0f},
-			{-1.0f, -1.0f, -1.0f,  0.0f},
-			{-1.0f,  1.0f, -1.0f,  0.0f},
+			{-1.0f, -1.0f, -1.0f,  1.0f},
+			{-1.0f,  1.0f, -1.0f,  1.0f},
 			{ 1.0f,  1.0f, -1.0f,  0.0f},
 			// bottom
-			{-1.0f, -1.0f, -1.0f, -1.0f},
-			{ 1.0f, -1.0f, -1.0f, -1.0f},
-			{ 1.0f, -1.0f,  1.0f, -1.0f},
-			{-1.0f, -1.0f,  1.0f, -1.0f},
+			{-1.0f, -1.0f, -1.0f,  0.0f},
+			{ 1.0f, -1.0f, -1.0f,  1.0f},
+			{ 1.0f, -1.0f,  1.0f,  1.0f},
+			{-1.0f, -1.0f,  1.0f,  0.0f},
 			// left
 			{-1.0f, -1.0f, -1.0f,  0.0f},
-			{-1.0f, -1.0f,  1.0f,  0.0f},
-			{-1.0f,  1.0f,  1.0f,  0.0f},
+			{-1.0f, -1.0f,  1.0f,  1.0f},
+			{-1.0f,  1.0f,  1.0f,  1.0f},
 			{-1.0f,  1.0f, -1.0f,  0.0f},
 			// right
 			{ 1.0f, -1.0f,  1.0f,  0.0f},
-			{ 1.0f, -1.0f, -1.0f,  0.0f},
-			{ 1.0f,  1.0f, -1.0f,  0.0f},
+			{ 1.0f, -1.0f, -1.0f,  1.0f},
+			{ 1.0f,  1.0f, -1.0f,  1.0f},
 			{ 1.0f,  1.0f,  1.0f,  0.0f}
 		},
 		{
 			// front
-			{ 0.0f, 0.0f, 0.0f,  1.0f}, // normal_XYZ_texcoords_Y
-			{ 0.0f, 1.0f, 0.0f,  1.0f},
-			{ 0.0f, 1.0f, 1.0f,  1.0f},
-			{ 0.0f, 0.0f, 1.0f,  1.0f},
+			{ 0.0f,  0.0f,  0.0f,  0.0f}, // normal_XYZ_texcoords_Y
+			{ 0.0f,  0.0f,  0.0f,  0.0f},
+			{ 0.0f,  0.0f,  0.0f,  1.0f},
+			{ 0.0f,  0.0f,  0.0f,  1.0f},
 			// top
-			{ 0.0f, 0.0f, 0.0f,  0.0f},
-			{ 0.0f, 1.0f, 0.0f,  0.0f},
-			{ 0.0f, 1.0f, 1.0f,  0.0f},
-			{ 0.0f, 0.0f, 1.0f,  0.0f},
+			{ 0.0f,  1.0f,  1.0f,  0.0f},
+			{ 0.0f,  1.0f,  1.0f,  0.0f},
+			{ 0.0f,  1.0f,  1.0f,  1.0f},
+			{ 0.0f,  1.0f,  1.0f,  1.0f},
 			// back
-			{ 0.0f, 0.0f, 0.0f, -1.0f},
-			{ 0.0f, 1.0f, 0.0f, -1.0f},
-			{ 0.0f, 1.0f, 1.0f, -1.0f},
-			{ 0.0f, 0.0f, 1.0f, -1.0f},
+			{ 0.0f,  0.0f,  0.0f,  0.0f},
+			{ 0.0f,  0.0f,  0.0f,  0.0f},
+			{ 0.0f,  0.0f,  0.0f,  1.0f},
+			{ 0.0f,  0.0f,  0.0f,  1.0f},
 			// bottom
-			{ 0.0f, 0.0f, 0.0f,  0.0f},
-			{ 0.0f, 1.0f, 0.0f,  0.0f},
-			{ 0.0f, 1.0f, 1.0f,  0.0f},
-			{ 0.0f, 0.0f, 1.0f,  0.0f},
+			{ 0.0f, -1.0f, -1.0f,  0.0f},
+			{ 0.0f, -1.0f, -1.0f,  0.0f},
+			{ 0.0f, -1.0f, -1.0f,  1.0f},
+			{ 0.0f, -1.0f, -1.0f,  1.0f},
 			// left
-			{-1.0f, 0.0f, 0.0f,  0.0f},
-			{-1.0f, 1.0f, 0.0f,  0.0f},
-			{-1.0f, 1.0f, 1.0f,  0.0f},
-			{-1.0f, 0.0f, 1.0f,  0.0f},
+			{-1.0f,  0.0f,  0.0f,  0.0f},
+			{-1.0f,  0.0f,  0.0f,  0.0f},
+			{-1.0f,  0.0f,  0.0f,  1.0f},
+			{-1.0f,  0.0f,  0.0f,  1.0f},
 			// right
-			{ 1.0f, 0.0f, 0.0f,  0.0f},
-			{ 1.0f, 1.0f, 0.0f,  0.0f},
-			{ 1.0f, 1.0f, 1.0f,  0.0f},
-			{ 1.0f, 0.0f, 1.0f,  0.0f}
+			{ 1.0f,  0.0f,  0.0f,  0.0f},
+			{ 1.0f,  0.0f,  0.0f,  0.0f},
+			{ 1.0f,  0.0f,  0.0f,  1.0f},
+			{ 1.0f,  0.0f,  0.0f,  1.0f}
 		}
 	);
+
+	/* Set up the unit sphere */
+
+	SphereFace* lSphereFace[6] =
+	{
+		new SphereFrontFace(),
+		new SphereBackFace(),
+		new SphereTopFace(),
+		new SphereBottomFace(),
+		new SphereLeftFace(),
+		new SphereRightFace()
+	};
+
+	GLuint lCounter(0);
+	GLfloat s, t;
+	unsigned int lSubdivisions = 64;
+	GLfloat lSubdivs = static_cast<GLfloat>(lSubdivisions);
+	gintonic::vec3f lPosition;
+	gintonic::vec2f lTexCoord;
+	std::vector<Mesh::vec4f> lPosition_XYZ_TexCoord_X;
+	std::vector<Mesh::vec4f> lNormal_XYZ_TexCoord_Y;
+	std::vector<GLuint> lIndices;
+
+	for (std::size_t f = 0; f < 6; ++f)
+	{
+		for (unsigned i = 0; i < lSubdivisions; ++i)
+		{
+			for (unsigned j = 0; j < lSubdivisions; ++j)
+			{
+				s = static_cast<GLfloat>(i) / lSubdivs;
+				t = static_cast<GLfloat>(j) / lSubdivs;
+				lSphereFace[f]->get(s, t, lPosition, lTexCoord);
+				lPosition_XYZ_TexCoord_X.emplace_back(lPosition.x, lPosition.y, lPosition.z, lTexCoord.x);
+				lNormal_XYZ_TexCoord_Y.emplace_back(lPosition.x, lPosition.y, lPosition.z, lTexCoord.y);
+
+				s = static_cast<GLfloat>(i+1) / lSubdivs;
+				lSphereFace[f]->get(s, t, lPosition, lTexCoord);
+				lPosition_XYZ_TexCoord_X.emplace_back(lPosition.x, lPosition.y, lPosition.z, lTexCoord.x);
+				lNormal_XYZ_TexCoord_Y.emplace_back(lPosition.x, lPosition.y, lPosition.z, lTexCoord.y);
+
+				t = static_cast<GLfloat>(j+1) / lSubdivs;
+				lSphereFace[f]->get(s, t, lPosition, lTexCoord);
+				lPosition_XYZ_TexCoord_X.emplace_back(lPosition.x, lPosition.y, lPosition.z, lTexCoord.x);
+				lNormal_XYZ_TexCoord_Y.emplace_back(lPosition.x, lPosition.y, lPosition.z, lTexCoord.y);
+
+				s = static_cast<GLfloat>(i) / lSubdivs;
+				lSphereFace[f]->get(s, t, lPosition, lTexCoord);
+				lPosition_XYZ_TexCoord_X.emplace_back(lPosition.x, lPosition.y, lPosition.z, lTexCoord.x);
+				lNormal_XYZ_TexCoord_Y.emplace_back(lPosition.x, lPosition.y, lPosition.z, lTexCoord.y);
+
+				lIndices.push_back(lCounter + 0);
+				lIndices.push_back(lCounter + 1);
+				lIndices.push_back(lCounter + 2);
+				lIndices.push_back(lCounter + 2);
+				lIndices.push_back(lCounter + 3);
+				lIndices.push_back(lCounter + 0);
+
+				lCounter += 4;
+			}
+		}
+		delete lSphereFace[f];
+	}
+
+	sUnitSpherePUN.reset(new Mesh());
+	sUnitSpherePUN->setName("UnitSphere");
+	sUnitSpherePUN->set(lIndices, lPosition_XYZ_TexCoord_X, lNormal_XYZ_TexCoord_Y);
+
+	/* Set up the unit cone */
+
+	const GLfloat lAngle = 2.0f * static_cast<float>(M_PI) / static_cast<float>(lSubdivisions);
+	GLfloat lSin, lCos, lNextSin, lNextCos;
+	lSubdivisions += 2;
+	lPosition_XYZ_TexCoord_X.resize(2 * lSubdivisions);
+	lNormal_XYZ_TexCoord_Y.resize(2 * lSubdivisions);
+	lIndices.clear();
+
+	lPosition_XYZ_TexCoord_X[0]             = {0.0f, -1.0f, 0.0f, 0.0f};
+	lPosition_XYZ_TexCoord_X[lSubdivisions] = {0.0f,  1.0f, 0.0f, 0.0f};
+	lNormal_XYZ_TexCoord_Y[0]               = {0.0f, -1.0f, 0.0f, 0.0f};
+	lNormal_XYZ_TexCoord_Y[lSubdivisions]   = {0.0f,  1.0f, 0.0f, 0.0f};
+
+	for (GLsizei lDiv = 1; lDiv < lSubdivisions; ++lDiv)
+	{
+		lCos = std::cos(static_cast<float>(lDiv - 1) * lAngle);
+		lSin = std::sin(static_cast<float>(lDiv - 1) * lAngle);
+		lNextCos = std::cos(static_cast<float>(lDiv) * lAngle);
+		lNextSin = std::sin(static_cast<float>(lDiv) * lAngle);
+
+		const gintonic::vec3f P0(    0.0f,  1.0f,     0.0f);
+		const gintonic::vec3f P1(    lCos, -1.0f,     lSin);
+		const gintonic::vec3f P2(lNextCos, -1.0f, lNextSin);
+		const auto N = cross(P2 - P0, P1 - P0).normalize();
+
+		lPosition_XYZ_TexCoord_X[lDiv]                 = {lCos, -1.0f, lSin, 0.0f};
+		lPosition_XYZ_TexCoord_X[lSubdivisions + lDiv] = {lCos, -1.0f, lSin, 0.0f};
+		lNormal_XYZ_TexCoord_Y[lDiv]                   = {0.0f, -1.0f, 0.0f, 0.0f};
+		lNormal_XYZ_TexCoord_Y[lSubdivisions + lDiv]   = { N.x,   N.y,  N.z, 0.0f};
+	}
+
+	lCounter = 0;
+	while (lCounter < lPosition_XYZ_TexCoord_X.size())
+	{
+		lIndices.push_back(lCounter + 0);
+		lIndices.push_back(lCounter + 1);
+		lIndices.push_back(lCounter + 2);
+		lIndices.push_back(lCounter + 2);
+		lIndices.push_back(lCounter + 3);
+		lIndices.push_back(lCounter + 0);
+		lCounter += 4;
+	}
+
+	sUnitConePUN.reset(new Mesh());
+	sUnitConePUN->setName("UnitCone");
+	sUnitConePUN->set(lIndices, lPosition_XYZ_TexCoord_X, lNormal_XYZ_TexCoord_Y);
 }
 
 } // namespace gintonic

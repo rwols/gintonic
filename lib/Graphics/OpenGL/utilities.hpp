@@ -131,7 +131,7 @@ union mat2f; // Forward declaration.
 union mat3f; // Forward declaration.
 union mat4f; // Forward declaration.
 
-namespace opengl {
+namespace OpenGL {
 
 /**
  * @brief Set a uniform with the given location to the given value.
@@ -140,7 +140,7 @@ namespace opengl {
  * @param location The location of the uniform.
  * @param value The value for the uniform.
  */
-void set_uniform(const GLint location, const GLint value) noexcept;
+void setUniform(const GLint location, const GLint value) noexcept;
 
 /**
  * @brief Set a uniform with the given location to the given value.
@@ -149,7 +149,7 @@ void set_uniform(const GLint location, const GLint value) noexcept;
  * @param location The location of the uniform.
  * @param value The value for the uniform.
  */
-void set_uniform(const GLint location, const GLfloat value) noexcept;
+void setUniform(const GLint location, const GLfloat value) noexcept;
 
 /**
  * @brief Set a uniform with the given location to the given value.
@@ -158,7 +158,7 @@ void set_uniform(const GLint location, const GLfloat value) noexcept;
  * @param location The location of the uniform.
  * @param value The value for the uniform.
  */
-void set_uniform(const GLint location, const vec2f& value) noexcept;
+void setUniform(const GLint location, const vec2f& value) noexcept;
 
 /**
  * @brief Set a uniform with the given location to the given value.
@@ -167,7 +167,7 @@ void set_uniform(const GLint location, const vec2f& value) noexcept;
  * @param location The location of the uniform.
  * @param value The value for the uniform.
  */
-void set_uniform(const GLint location, const vec3f& value) noexcept;
+void setUniform(const GLint location, const vec3f& value) noexcept;
 
 /**
  * @brief Set a uniform with the given location to the given value.
@@ -176,7 +176,7 @@ void set_uniform(const GLint location, const vec3f& value) noexcept;
  * @param location The location of the uniform.
  * @param value The value for the uniform.
  */
-void set_uniform(const GLint location, const vec4f& value) noexcept;
+void setUniform(const GLint location, const vec4f& value) noexcept;
 
 /**
  * @brief Set a uniform with the given location to the given value.
@@ -185,7 +185,7 @@ void set_uniform(const GLint location, const vec4f& value) noexcept;
  * @param location The location of the uniform.
  * @param value The value for the uniform.
  */
-void set_uniform(const GLint location, const mat2f& value) noexcept;
+void setUniform(const GLint location, const mat2f& value) noexcept;
 
 /**
  * @brief Set a uniform with the given location to the given value.
@@ -194,7 +194,7 @@ void set_uniform(const GLint location, const mat2f& value) noexcept;
  * @param location The location of the uniform.
  * @param value The value for the uniform.
  */
-void set_uniform(const GLint location, const mat3f& value) noexcept;
+void setUniform(const GLint location, const mat3f& value) noexcept;
 
 /**
  * @brief Set a uniform with the given location to the given value.
@@ -203,7 +203,7 @@ void set_uniform(const GLint location, const mat3f& value) noexcept;
  * @param location The location of the uniform.
  * @param value The value for the uniform.
  */
-void set_uniform(const GLint location, const mat4f& value) noexcept;
+void setUniform(const GLint location, const mat4f& value) noexcept;
 
 /**
  * @brief Set a uniform array with the given location to the given values.
@@ -212,7 +212,7 @@ void set_uniform(const GLint location, const mat4f& value) noexcept;
  * @param location The location of the uniform.
  * @param values The values for the uniform.
  */
-void set_uniform(const GLint location, 
+void setUniform(const GLint location, 
 	const std::vector<GLfloat>& values) noexcept;
 
 /**
@@ -222,7 +222,7 @@ void set_uniform(const GLint location,
  * @param location The location of the uniform.
  * @param values The values for the uniform.
  */
-void set_uniform(const GLint location, 
+void setUniform(const GLint location, 
 	const std::vector<GLint>& values) noexcept;
 
 /**
@@ -234,7 +234,7 @@ void set_uniform(const GLint location,
  * @param values The values for the uniform.
  */
 template <std::size_t Size> 
-void set_uniform(const GLint location, 
+void setUniform(const GLint location, 
 	const std::array<GLfloat, Size>& values) noexcept
 {
 	glUniform1fv(location, Size, values.data());
@@ -249,11 +249,11 @@ void set_uniform(const GLint location,
  * @param values The values for the uniform.
  */
 template <std::size_t Size>
-void set_uniform(const GLint location, 
+void setUniform(const GLint location, 
 	const std::array<GLint, Size>& values) noexcept
 {
 	glUniform1iv(location, Size, values.data());
 }
 
-} // namespace opengl
+} // namespace OpenGL
 } // namespace gintonic

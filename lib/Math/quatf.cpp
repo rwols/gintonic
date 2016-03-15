@@ -31,17 +31,6 @@ quatf& quatf::operator = (const FBX::FbxVector4& v)
 	return *this;
 }
 
-quatf::quatf(const aiQuaternion& q)
-{
-	data = _mm_set_ps(q.w, q.z, q.y, q.x);
-}
-
-quatf& quatf::operator = (const aiQuaternion& q)
-{
-	data = _mm_set_ps(q.w, q.z, q.y, q.x);
-	return *this;
-}
-
 vec3f quatf::apply_to(const vec3f& v) const noexcept
 {
 	return (*this) * quatf(0.0f, v) * conjugate();

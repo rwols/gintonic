@@ -4,10 +4,9 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_shaders_hpp
-#define gintonic_shaders_hpp
+#pragma once
 
-#include "OpenGL/shader_program.hpp"
+#include "OpenGL/ShaderProgram.hpp"
 
 namespace gintonic {
 
@@ -16,7 +15,7 @@ namespace gintonic {
  * @details This shader should not be used directly but is really only here
  * to serve as a base class for inheritance.
  */
-class matrix_PVM_shader : public opengl::shader_program
+class matrix_PVM_shader : public OpenGL::ShaderProgram
 {
 public:
 
@@ -476,7 +475,7 @@ private:
  * @brief Geometry pass shader with only a base diffuse color and base
  * specular color, instanced version.
  */
-class gpi_shader : public opengl::shader_program
+class gpi_shader : public OpenGL::ShaderProgram
 {
 public:
 
@@ -836,7 +835,7 @@ public:
 /**
  * @brief Base class for light pass shaders.
  */
-class lp_null_shader : public opengl::shader_program
+class lp_null_shader : public OpenGL::ShaderProgram
 {
 public:
 
@@ -1297,7 +1296,7 @@ public:
 /**
  * @brief Shader for a skybox.
  */
-class skybox_shader : public opengl::shader_program
+class skybox_shader : public OpenGL::ShaderProgram
 {
 public:
 
@@ -1344,7 +1343,7 @@ private:
 /**
  * @brief Simple shader for two-dimensional text.
  */
-class text_shader : public opengl::shader_program
+class text_shader : public OpenGL::ShaderProgram
 {
 public:
 
@@ -1380,5 +1379,3 @@ private:
 };
 
 } // namespace gintonic
-
-#endif

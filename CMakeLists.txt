@@ -1,8 +1,17 @@
 cmake_minimum_required (VERSION 2.8)
 
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-  message(FATAL_ERROR "Prevented in-source build. Please create a build directory outside of the Gintonic source code and call CMake from there.")
+  message(FATAL_ERROR "Prevented in-source build. \
+  	Please create a build directory outside of the \
+  	Gintonic source code and call CMake from there.")
 endif()
+
+set(SSE_VERSION 30)
+
+set(lua_src_dir "lua-5.3.1/src")
+file(GLOB_RECURSE gintonic_source_files "${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp")
+file(GLOB lua_source_files "${CMAKE_CURRENT_SOURCE_DIR}/lib/${lua_src_dir}/*.c")
+set(src_files ${gintonic_source_files} ${lua_source_files})
 
 if (WIN32)
 	# This flattens all directory structures in the build directory.
@@ -80,16 +89,46 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 find_package(Freetype REQUIRED)
 find_package(FBX REQUIRED)
 find_package(SDL2 REQUIRED)
-find_package(assimp REQUIRED)
 
-# message(FATAL_ERROR assimp_INCLUDE_DIRS: ${assimp_INCLUDE_DIRS})
-# message(FATAL_ERROR assimp_LIBRARIES: ${assimp_LIBRARIES})
+find_package(Doxygen)
+
+option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+option(WITH_PROFILING "Profile various math functions. Does nothing at the moment." OFF)
+option(WITH_PROFILING "Profile various math functions." OFF)
+option(WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
+option(ENABLE_DEBUG_TRACE "Enable debug tracing via the renderer." ON)
+option(HIDE_CONSOLE "Hide the console on Windows." OFF)
+option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output streams to files." OFF)
+
+if (BUILD_DOCUMENTATION)
+	configure_file(lib/Doxyfile.cmake ${CMAKE_BINARY_DIR}/Doxyfile)
+	add_custom_command(TARGET gintonic
+		PRE_BUILD
+		COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		COMMENT "Generating documentation."
+		VERBATIM)
+	# add_custom_target(doc ALL
+	# 	COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
+	# 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	# 	COMMENT "Generating documentation."
+	# 	VERBATIM)
+endif()
+
+if (HIDE_CONSOLE)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+endif ()
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(ENABLE_DEBUG_TRACE ON CACHE BOOL "Enable debug tracing via the renderer.")	
+endif ()
+
+configure_file(lib/config.cmake ${CMAKE_BINARY_DIR}/config.hpp)
+add_library(gintonic ${src_files})
 
 include_directories(
 	${SDL2_INCLUDE_DIR}
 	${Boost_INCLUDE_DIR}
 	${FREETYPE_INCLUDE_DIRS}
-	${assimp_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIRS}
 	${FBX_INCLUDE_DIR}
 	${CMAKE_BINARY_DIR} # For the config file
@@ -150,6 +189,40 @@ else ()
 	endif ()
 endif ()
 
+if (WIN32)
+	target_link_libraries(
+		gintonic 
+		${Boost_LIBRARIES} 
+		${OPENGL_LIBRARIES} 
+		${SDL2_LIBRARY} 
+		${FREETYPE_LIBRARIES}
+		${FBX_LIBRARY} 
+		${CMAKE_THREAD_LIBS_INIT})
+elseif (APPLE)
+	target_link_libraries(
+		gintonic 
+		${Boost_LIBRARIES} 
+		${OPENGL_LIBRARIES} 
+		${SDL2_LIBRARY} 
+		${JPEG_LIBRARIES} 
+		${PNG_LIBRARIES} 
+		${FREETYPE_LIBRARIES}
+		${FBX_LIBRARY_DEBUG} 
+		${CMAKE_THREAD_LIBS_INIT})
+else ()
+	target_link_libraries(
+		gintonic 
+		${Boost_LIBRARIES} 
+		${OPENGL_LIBRARIES} 
+		${SDL2_LIBRARY} 
+		${JPEG_LIBRARIES} 
+		${PNG_LIBRARIES} 
+		${FREETYPE_LIBRARIES}
+		${FBX_LIBRARY_DEBUG} 
+		${CMAKE_THREAD_LIBS_INIT}
+		-ldl)
+endif ()
+
 mark_as_advanced(FBX_INCLUDE_DIR)
 mark_as_advanced(FBX_LIBRARY)
 mark_as_advanced(FBX_LIBRARY_DEBUG)
@@ -159,7 +232,7 @@ mark_as_advanced(SDL2_LIBRARY)
 mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 mark_as_advanced(CMAKE_INSTALL_PREFIX)
 
-add_subdirectory (lib)
+# add_subdirectory (lib)
 add_subdirectory (tools)
 add_subdirectory (examples)
 add_subdirectory (test)

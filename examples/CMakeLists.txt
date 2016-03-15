@@ -3,13 +3,13 @@ cmake_minimum_required(VERSION 2.8)
 set(executables basic_shapes
 	directional_light
 	fbx_viewer
-	hello_world
+	FbxViewer
 	point_lights
 	rotating_square
 	skybox
 	spot_lights
 	text
-	textured_cube_with_mod_color)
+	TexturedCube)
 
 include_directories(${CMAKE_SOURCE_DIR}/lib)
 

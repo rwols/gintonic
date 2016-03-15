@@ -1,7 +1,7 @@
 #pragma once
 #include "ShadowBuffer.hpp"
-#include "OpenGL/framebuffer.hpp"
-#include "OpenGL/texture_object.hpp"
+#include "OpenGL/Framebuffer.hpp"
+#include "OpenGL/TextureObject.hpp"
 
 namespace gintonic {
 
@@ -13,8 +13,8 @@ public:
 	virtual void bindForWriting() const noexcept;
 	virtual void bindForReading() const noexcept;
 private:
-	opengl::framebuffer mFramebuffer;
-	opengl::texture_object mTexture;
+	OpenGL::Framebuffer mFramebuffer;
+	OpenGL::TextureObject mTexture;
 };
 
 } // namespace gintonic

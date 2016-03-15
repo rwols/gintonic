@@ -2,11 +2,10 @@
 #include "renderer.hpp"
 #include "shaders.hpp"
 #include "basic_shapes.hpp"
-#include "../entity.hpp"
 
 namespace gintonic {
 
-skybox::skybox(opengl::cube_texture diffuse_texture)
+skybox::skybox(OpenGL::cube_texture diffuse_texture)
 : diffuse_texture(std::move(diffuse_texture))
 {
 	/* Empty on purpose. */

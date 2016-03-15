@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "../ForwardDeclarations.hpp"
+
 #include "../Foundation/locks.hpp"
 
 #include "../Math/mat3f.hpp"
@@ -13,54 +15,13 @@
 
 #include "OpenGL/khrplatform.hpp"
 
-#include "fonts.hpp"
+#include "Font.hpp"
 
 #include <chrono>
 #include <boost/circular_buffer.hpp>
 #include <boost/signals2.hpp>
 
 namespace gintonic  {
-
-class unit_quad_P; // Forward declaration.
-class unit_cube_P; // Forward declaration.
-class unit_cube_P_flipped; // Forward declaration.
-class unit_sphere_P; // Forward declaration.
-class unit_cone_P; // Forward declaration.
-
-class Mesh; // Forward declaration.
-
-class entity; // Forward declaration.
-
-class matrix_PVM_shader; // Forward declaration.
-
-class gp_shader; // Forward declaration.
-class gp_d_shader; // Forward declaration.
-class gp_s_shader; // Forward declaration.
-class gp_n_shader; // Forward declaration.
-class gp_ds_shader; // Forward declaration.
-class gp_dn_shader; // Forward declaration.
-class gp_sn_shader; // Forward declaration.
-class gp_dsn_shader; // Forward declaration.
-
-class gpi_shader; // Forward declaration.
-class gpi_d_shader; // Forward declaration.
-class gpi_s_shader; // Forward declaration.
-class gpi_n_shader; // Forward declaration.
-class gpi_ds_shader; // Forward declaration.
-class gpi_dn_shader; // Forward declaration.
-class gpi_sn_shader; // Forward declaration.
-class gpi_dsn_shader; // Forward declaration.
-
-class lp_ambient_shader; // Forward declaration.
-class lp_directional_shader; // Forward declaration.
-class lp_point_shader; // Forward declaration.
-class lp_spot_shader; // Forward declaration.
-
-class sp_directional_shader; // Forward declaration.
-
-class skybox_shader; // Forward declaration.
-
-class text_shader; // Forward declaration.
 
 /**
  * @brief The renderer class. This is a singleton class.
@@ -73,7 +34,7 @@ class text_shader; // Forward declaration.
  * * Manages the `MODEL->WORLD`, the `WORLD-VIEW`, the `VIEW->CLIP`, the
  *   `MODEL->VIEW` and `MODEL->CLIP` matrices.
  * * Records the delta time between frames.
- * * Manages the entity that acts as the camera.
+ * * Manages the Entity that acts as the camera.
  * * Manages all shader classes. Essentially just instantiates one instance
  *   of every shader class. You can obtain a reference to any shader class
  *   via the renderer singleton class.
@@ -114,7 +75,7 @@ public:
 	/**
 	 * @brief Initialize the renderer.
 	 * @param title The window title.
-	 * @param camera The camera entity to start out with. It is perfectly
+	 * @param camera The camera Entity to start out with. It is perfectly
 	 * possible to never change this.
 	 * @param fullscreen Wether we should open a fullscreen window or not.
 	 * @param width The preferred width of the window. Note that if the 
@@ -126,7 +87,7 @@ public:
 	 */
 	static void init(
 		const char* title, 
-		std::shared_ptr<entity> cameraEntity, 
+		std::shared_ptr<Entity> cameraEntity, 
 		const bool fullscreen, 
 		const int width, 
 		const int height);
@@ -227,7 +188,7 @@ public:
 	/**
 	 * @name Camera, Matrices and Viewport Management
 	 * 
-	 * Functionality relating to the camera entity, the global matrices
+	 * Functionality relating to the camera Entity, the global matrices
 	 * and the viewport.
 	 */
 	
@@ -236,10 +197,10 @@ public:
 	/**
 	 * @brief Set the camera.
 	 * @details The renderer will update the `WORLD->VIEW` matrix using the
-	 * global transformation matrix of the given entity.
-	 * @param e The entity that will act as a camera.
+	 * global transformation matrix of the given Entity.
+	 * @param e The Entity that will act as a camera.
 	 */
-	static void setCameraEntity(std::shared_ptr<entity> cameraEntity);
+	static void setCameraEntity(std::shared_ptr<Entity> cameraEntity);
 
 	template <class ForwardIter>
 	static void submitEntities(ForwardIter first, ForwardIter last)
@@ -250,10 +211,10 @@ public:
 	}
 	
 	/**
-	 * @brief Get the current camera entity.
-	 * @return A reference to the current camera entity.
+	 * @brief Get the current camera Entity.
+	 * @return A reference to the current camera Entity.
 	 */
-	inline static std::shared_ptr<entity> getCameraEntity() noexcept 
+	inline static std::shared_ptr<Entity> getCameraEntity() noexcept 
 	{ 
 		return sCameraEntity; 
 	}
@@ -949,6 +910,11 @@ public:
 		return sUnitSpherePUN;
 	}
 
+	inline static std::shared_ptr<Mesh> getUnitCone() noexcept
+	{
+		return sUnitConePUN;
+	}
+
 	///@}
 
 private:
@@ -994,11 +960,11 @@ private:
 	static GLuint s_depth_texture;
 	static GLuint s_shadow_texture;
 
-	static std::shared_ptr<entity> sCameraEntity;
+	static std::shared_ptr<Entity> sCameraEntity;
 
 	static write_lock sEntityQueueLock;
-	static std::vector<std::shared_ptr<entity>> sFutureQueue;
-	static std::vector<std::shared_ptr<entity>> sCurrentQueue;
+	static std::vector<std::shared_ptr<Entity>> sFutureQueue;
+	static std::vector<std::shared_ptr<Entity>> sCurrentQueue;
 
 	static matrix_PVM_shader* s_matrix_PVM_shader;
 
@@ -1040,6 +1006,7 @@ private:
 	static std::shared_ptr<Mesh> sUnitQuadPUN;
 	static std::shared_ptr<Mesh> sUnitCubePUN;
 	static std::shared_ptr<Mesh> sUnitSpherePUN;
+	static std::shared_ptr<Mesh> sUnitConePUN;
 };
 
 } // namespace gintonic

@@ -8,7 +8,7 @@
 #define gintonic_octree_hpp
 
 #include "../Math/box3f.hpp"
-#include "../entity.hpp"
+#include "../Entity.hpp"
 #include <list>
 
 namespace gintonic {
@@ -20,11 +20,11 @@ class octree
 {
 private:
 
-	friend class entity;
+	friend class Entity;
 
 	octree* m_parent = nullptr;
 	box3f m_bounds;
-	std::list<entity*> m_entities;
+	std::list<Entity*> m_entities;
 	octree* m_child[8];
 
 public:
@@ -217,7 +217,7 @@ public:
 	void query(const box3f& area, OutputIter iter) const;
 
 	/**
-	 * @brief Apply a function to every entity.
+	 * @brief Apply a function to every Entity.
 	 * @tparam Func Type of a function pointer, lambda, functor, etc.
 	 * @param f A function pointer, lambda, functor, etc.
 	 */
@@ -225,7 +225,7 @@ public:
 	void foreach(Func f);
 
 	/**
-	 * @brief Apply a function to every entity, const version.
+	 * @brief Apply a function to every Entity, const version.
 	 * @tparam Func Type of a function pointer, lambda, functor, etc.
 	 * @param f A function pointer, lambda, functor, etc.
 	 */
@@ -233,41 +233,41 @@ public:
 	void foreach(Func f) const;
 
 	/**
-	 * @brief Insert an entity into the tree.
-	 * @details This method recurses down into the tree if the entity can
+	 * @brief Insert an Entity into the tree.
+	 * @details This method recurses down into the tree if the Entity can
 	 * fit into a smaller box. It will also recursively create new nodes if
 	 * needed.
-	 * @param e The entity to insert.
+	 * @param e The Entity to insert.
 	 */
-	void insert(entity* e);
+	void insert(Entity* e);
 
 	/**
-	 * @brief Erase an entity from the tree.
+	 * @brief Erase an Entity from the tree.
 	 * @details This method does not recurse down into the tree. It will only
-	 * attempt to erase the entity in this node's entity list. If no entities
+	 * attempt to erase the Entity in this node's Entity list. If no entities
 	 * remain in the node's list and if this is a leaf node, then the node
 	 * will delete itself.
-	 * @param e The entity to erase.
+	 * @param e The Entity to erase.
 	 * @return
-	 * * 0 if the entity was not present.
+	 * * 0 if the Entity was not present.
 	 * * 1 if succesfully removed, but the node was not removed.
 	 * * 2 if succesfully removed, and the node was also removed.
 	 */
-	int erase(entity* e);
+	int erase(Entity* e);
 
-	// Notify the octree that an entity's global bounding box
+	// Notify the octree that an Entity's global bounding box
 	// has changed. This can result in possibly mutating the tree,
 	// even changing the parent.
 	
 	/**
-	 * @brief Notify this octree node that the entity has moved.
+	 * @brief Notify this octree node that the Entity has moved.
 	 * @deprecated We probably want to use an event system for this. An
-	 * entity right now has an event that fires when its global transform has
+	 * Entity right now has an event that fires when its global transform has
 	 * changed so the octree should probably just subscribe to that event and
 	 * do its thing via this route.
-	 * @param e The entity whose global transform has changed.
+	 * @param e The Entity whose global transform has changed.
 	 */
-	void notify(entity* e);
+	void notify(Entity* e);
 
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
@@ -279,7 +279,7 @@ private:
 
 	octree(octree* parent, const vec3f& min, const vec3f& max);
 
-	void notify_helper(entity*);
+	void notify_helper(Entity*);
 
 	void subdivide();
 };

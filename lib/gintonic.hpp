@@ -5,26 +5,28 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_hpp
-#define gintonic_hpp
+#pragma once
 
 #include "Foundation/scancodes.hpp"
 #include "Foundation/exception.hpp"
 #include "Foundation/octree.hpp"
 
 #include "Graphics/renderer.hpp"
-#include "Graphics/materials.hpp"
+#include "Graphics/Material.hpp"
 #include "Graphics/static_mesh.hpp"
 #include "Graphics/shaders.hpp"
-#include "Graphics/fonts.hpp"
+#include "Graphics/Font.hpp"
 #include "Graphics/basic_shapes.hpp"
 #include "Graphics/vertices.hpp"
-#include "Graphics/lights.hpp"
+#include "Graphics/AmbientLight.hpp"
+#include "Graphics/DirectionalLight.hpp"
+#include "Graphics/PointLight.hpp"
+#include "Graphics/SpotLight.hpp"
 #include "Graphics/skybox.hpp"
  
-#include "entity.hpp"
-#include "camera.hpp"
-#include "Graphics/proj_info.hpp"
+#include "Entity.hpp"
+#include "Camera.hpp"
+#include "FbxImporter.hpp"
 #include "luabindings.hpp"
 
 namespace gintonic {
@@ -35,8 +37,6 @@ namespace gintonic {
  * @param windowTitle The title of the window.
  * @param entityWithCamera The entity to view the world through.
  */
-void initializeEverything(const char* windowTitle, std::shared_ptr<entity> entityWithCamera);
+void initializeEverything(const char* windowTitle, std::shared_ptr<Entity> entityWithCamera);
 
 } // namespace gintonic
-
-#endif

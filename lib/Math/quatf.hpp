@@ -10,7 +10,6 @@
 #include "../Foundation/utilities.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
-#include <assimp/quaternion.h>
 
 namespace FBX
 {
@@ -83,12 +82,6 @@ public:
 
 	/// Assignment operator.
 	quatf& operator = (const FBX::FbxVector4&);
-
-	/// Constructor that takes an assimp quaternion.
-	quatf(const aiQuaternion&);
-
-	/// Assignment operator that takes an assimp quaternion.
-	quatf& operator = (const aiQuaternion&);
 
 	/// Multiplication operator.
 	quatf operator * (const quatf& other) const noexcept;

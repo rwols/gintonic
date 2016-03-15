@@ -1,10 +1,10 @@
 #define BOOST_TEST_MODULE materials test
 #include <boost/test/unit_test.hpp>
 
-#include "gintonic.hpp"
+#include "../lib/gintonic.hpp"
 
-#include "portable_iarchive.hpp"
-#include "portable_oarchive.hpp"
+#include "../lib/Foundation/portable_iarchive.hpp"
+#include "../lib/Foundation/portable_oarchive.hpp"
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <fstream>
@@ -17,19 +17,19 @@ BOOST_AUTO_TEST_CASE( serialization_of_materials )
 	boost::filesystem::current_path(get_executable_path());
 	const boost::filesystem::path filename = "delete_me";
 	{
-		material mat(
+		auto mat = std::make_shared<Material>(
 			vec4f(1.0f, 0.2f, 0.3f, 0.45f),
 			vec4f(0.2f, 0.2f, 0.2f, 20.0f)
 		);
 		{
 			std::ofstream output(filename.c_str(), std::ios::binary);
 			eos::portable_oarchive oa(output);
-			oa << mat;
+			oa << *mat;
 		}
 		{
 			std::ifstream input(filename.c_str(), std::ios::binary);
 			eos::portable_iarchive ia(input);
-			ia >> mat;
+			ia >> *mat;
 		}
 	}
 
@@ -47,8 +47,8 @@ void add_a_material(OutputIter material_iter)
 {
 	vec4f diffcolor(randfloat(), randfloat(), randfloat(), 1.0f);
 	vec4f speccolor(randfloat(), randfloat(), randfloat(), 20.0f);
-	material mat(diffcolor, speccolor);
-	*material_iter = mat;
+	auto lMaterial = std::make_shared<Material>(diffcolor, speccolor);
+	*material_iter = lMaterial;
 	++material_iter;
 }
 
@@ -58,20 +58,20 @@ BOOST_AUTO_TEST_CASE( reference_counting_of_textures )
 	vec4f speccolor(1.0f, 1.0f, 1.0f, 1.0f);
 	renderer::init_dummy(false);
 	boost::filesystem::current_path(get_executable_path());
-	std::vector<material, allocator<material>> materials;
+	std::vector<std::shared_ptr<Material>> materials;
 	{
-		material mat1(diffcolor, speccolor, 
+		auto mat1 = std::make_shared<Material>(diffcolor, speccolor, 
 			"../../examples/bricks.jpg", 
 			"../../examples/bricks_SPEC.png", 
 			"../../examples/bricks_NRM.png");
 
 		materials.push_back(mat1);
 		{
-			material mat2 = mat1;
-			mat2.diffuse_color.x = 0.0f;
+			auto mat2 = mat1;
+			mat2->diffuseColor.x = 0.0f;
 			materials.push_back(mat2);
 			{
-				material mat3(diffcolor, speccolor);
+				auto mat3 = std::make_shared<Material>(diffcolor, speccolor);
 				materials.push_back(mat3);
 			}
 		}

@@ -1,13 +1,18 @@
 #pragma once
 
+#include "filesystem.hpp"
+#include "locks.hpp"
+
 #include <string>
 #include <memory>
 #include <iostream>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>
-#include <fbxsdk.h>
-#include "filesystem.hpp"
-#include "locks.hpp"
+
+#include <fbxsdk/core/fbxobject.h>
+#include <fbxsdk/scene/shading/fbxsurfacematerial.h>
+#include <fbxsdk/scene/geometry/fbxnode.h>
+#include <fbxsdk/scene/geometry/fbxnodeattribute.h>
 
 namespace gintonic {
 
@@ -129,13 +134,13 @@ protected:
 
 	virtual ~Object() noexcept = default;
 
-	Object(const FbxNode* pFbxNode)
+	Object(const FBXSDK_NAMESPACE::FbxNode* pFbxNode)
 	: mName(pFbxNode->GetName())
 	{
 		/* Empty on purpose. */
 	}
 
-	Object(const FbxNodeAttribute* pFbxAttribute)
+	Object(const FBXSDK_NAMESPACE::FbxNodeAttribute* pFbxAttribute)
 	{
 		if (std::strcmp(pFbxAttribute->GetName(), "") == 0)
 		{
@@ -147,18 +152,18 @@ protected:
 		}
 	}
 
-	Object(const FbxSurfaceMaterial* pFbxMaterial)
+	Object(const FBXSDK_NAMESPACE::FbxSurfaceMaterial* pFbxMaterial)
 	: mName(pFbxMaterial->GetName())
 	{
 		/* Empty on purpose. */
 	}
 
-	void setNameWithFbx(const FbxNode* pFbxNode)
+	void setNameWithFbx(const FBXSDK_NAMESPACE::FbxNode* pFbxNode)
 	{
 		mName = pFbxNode->GetName();
 	}
 
-	void setNameWithFbx(const FbxNodeAttribute* pFbxAttribute)
+	void setNameWithFbx(const FBXSDK_NAMESPACE::FbxNodeAttribute* pFbxAttribute)
 	{
 		if (std::strcmp(pFbxAttribute->GetName(), "") == 0)
 		{
@@ -170,7 +175,7 @@ protected:
 		}
 	}
 
-	void setNameWithFbx(const FbxSurfaceMaterial* pFbxMaterial)
+	void setNameWithFbx(const FBXSDK_NAMESPACE::FbxSurfaceMaterial* pFbxMaterial)
 	{
 		mName = pFbxMaterial->GetName();
 	}

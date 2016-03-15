@@ -7,10 +7,10 @@
 #ifndef gintonic_basic_shapes_hpp
 #define gintonic_basic_shapes_hpp
 
-#include "mesh.hpp"
-#include "opengl/buffer_object.hpp"
-#include "opengl/buffer_object_array.hpp"
-#include "opengl/vertex_array_object.hpp"
+#include "Mesh.hpp"
+#include "OpenGL/BufferObject.hpp"
+#include "OpenGL/BufferObjectArray.hpp"
+#include "OpenGL/VertexArrayObject.hpp"
 
 namespace gintonic {
 
@@ -34,8 +34,8 @@ public:
 	virtual void draw() const noexcept final;
 	
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vbo;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vbo;
 };
 
 /**
@@ -56,8 +56,8 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vbo;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vbo;
 };
 
 /**
@@ -87,8 +87,8 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vbo;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vbo;
 };
 
 /**
@@ -109,8 +109,8 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vbo;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vbo;
 };
 
 /**
@@ -131,8 +131,8 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vbo, m_ibo;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vbo, m_ibo;
 };
 
 /**
@@ -155,8 +155,8 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vbo, m_ibo;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vbo, m_ibo;
 };
 
 /**
@@ -177,8 +177,8 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vbo, m_ibo;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vbo, m_ibo;
 };
 
 /**
@@ -199,8 +199,8 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object_array<3> m_buffer; // indices, positions, texcoords
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObjectArray<3> m_buffer; // indices, positions, texcoords
 };
 
 /**
@@ -224,8 +224,8 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object_array<3> m_buffer; // indices, positions, texcoords
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObjectArray<3> m_buffer; // indices, positions, texcoords
 };
 
 /**
@@ -249,9 +249,9 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
+	OpenGL::VertexArrayObject m_vao;
 	// indices, positions, texcoords, normals
-	opengl::buffer_object_array<4> m_buffer;
+	OpenGL::BufferObjectArray<4> m_buffer;
 };
 
 /**
@@ -276,9 +276,9 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
+	OpenGL::VertexArrayObject m_vao;
 	// indices, positions, texcoords, normals
-	opengl::buffer_object_array<4> m_buffer;
+	OpenGL::BufferObjectArray<4> m_buffer;
 };
 
 /**
@@ -306,9 +306,9 @@ public:
 	virtual ~unit_sphere_P();
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vbo;
-	opengl::buffer_object m_ibo;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vbo;
+	OpenGL::BufferObject m_ibo;
 	unsigned short num_indices;
 };
 
@@ -337,9 +337,9 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vbo;
-	opengl::buffer_object m_ibo;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vbo;
+	OpenGL::BufferObject m_ibo;
 	unsigned short num_indices;
 };
 
@@ -373,8 +373,8 @@ public:
 	virtual void draw() const noexcept final;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object_array<3> m_buffer; // indices, positions, texcoords
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObjectArray<3> m_buffer; // indices, positions, texcoords
 	GLsizei m_count;
 };
 
@@ -409,8 +409,8 @@ public:
 	const GLsizei divisions;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vertices;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vertices;
 };
 
 /**
@@ -444,8 +444,8 @@ public:
 	const GLsizei divisions;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vbo;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vbo;
 };
 
 
@@ -476,8 +476,8 @@ public:
 	const GLsizei divisions;
 
 private:
-	opengl::vertex_array_object m_vao;
-	opengl::buffer_object m_vertices;
+	OpenGL::VertexArrayObject m_vao;
+	OpenGL::BufferObject m_vertices;
 };
 
 } // end of namespace gintonic

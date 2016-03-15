@@ -10,7 +10,6 @@
 #include "../Foundation/utilities.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
-#include <assimp/vector3.h>
 
 namespace FBX
 {
@@ -148,12 +147,6 @@ public:
 
 	/// Assignment operator that takes an FbxVector4.
 	vec3f& operator=(const FBX::FbxVector4& v) noexcept;
-
-	/// Constructor that converts an assimp vector.
-	vec3f(const aiVector3D& assimpVector) noexcept;
-
-	/// Assignment operator that converts an assimp vector.
-	vec3f& operator=(const aiVector3D& assimpVector) noexcept;
 
 	/// Add-and-assign operator.
 	inline vec3f& operator += (const vec3f& v) noexcept

@@ -1,10 +1,15 @@
 #include "FbxImporter.hpp"
-#include "entity.hpp"
-#include "camera.hpp"
+
 #include "Foundation/exception.hpp"
-#include "Graphics/materials.hpp"
-#include "Graphics/lights.hpp"
-#include "Graphics/mesh.hpp"
+
+#include "Graphics/Material.hpp"
+#include "Graphics/Light.hpp"
+#include "Graphics/Mesh.hpp"
+
+#include "Entity.hpp"
+#include "Camera.hpp"
+
+#include <fbxsdk.h>
 
 /* anonymous */ namespace {
 
@@ -53,7 +58,7 @@ FbxImporter::FbxImporter()
 
 }
 
-FbxImporter::~FbxImporter()
+FbxImporter::~FbxImporter() noexcept
 {
 	mManager->Destroy();
 }
@@ -82,10 +87,10 @@ FbxImporter::ResultStructure FbxImporter::loadFromFile(const char* filename)
 	return lResult;
 }
 
-void FbxImporter::traverse(FbxNode* pNode, std::shared_ptr<entity> parent, ResultStructure& result)
+void FbxImporter::traverse(FbxNode* pNode, std::shared_ptr<Entity> parent, ResultStructure& result)
 {
-	auto lNewEntity = std::make_shared<entity>(pNode);
-	// auto lNewEntity = Object<entity, std::string>::create(pNode);
+	auto lNewEntity = std::make_shared<Entity>(pNode);
+	// auto lNewEntity = Object<Entity, std::string>::create(pNode);
 	result.entities.push_back(lNewEntity);
 
 	std::cerr << "\nFound FBX Node: " << lNewEntity->getName() << "\n\n";
@@ -98,7 +103,7 @@ void FbxImporter::traverse(FbxNode* pNode, std::shared_ptr<entity> parent, Resul
 			std::cerr << "WARNING: Scene contains multiple root entities.\n";
 		}
 
-		// This is the root entity of the scene.
+		// This is the root Entity of the scene.
 		result.rootEntity = lNewEntity;
 	}
 	else

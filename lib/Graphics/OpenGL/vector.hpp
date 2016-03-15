@@ -8,11 +8,11 @@
 #ifndef gintonic_opengl_vector_hpp
 #define gintonic_opengl_vector_hpp
 
-#include "buffer_object.hpp"
-#include "buffer_object_array.hpp"
+#include "BufferObject.hpp"
+#include "BufferObjectArray.hpp"
 
 namespace gintonic {
-namespace opengl {
+namespace OpenGL {
 
 /**
  * @brief A vector class for buffering data to GPU memory.
@@ -33,7 +33,7 @@ public:
 	vector(const GLenum usagehint)
 	{
 		bind();
-		glBufferData(Target, sizeof(T) * m_reserved, nullptr, usagehint);
+		glBufferData(Target, sizeof(T) * mReserved, nullptr, usagehint);
 	}
 
 	/**
@@ -43,10 +43,10 @@ public:
 	 * @param usagehint Specifies the usage hint.
 	 */
 	vector(const GLsizei reserve, const GLenum usagehint)
-	: m_reserved(reserve)
+	: mReserved(reserve)
 	{
 		bind();
-		glBufferData(Target, sizeof(T) * m_reserved, nullptr, usagehint);
+		glBufferData(Target, sizeof(T) * mReserved, nullptr, usagehint);
 	}
 
 	/**
@@ -58,10 +58,10 @@ public:
 	 */
 	template <class Alloc>
 	vector(const std::vector<T,Alloc>& v, const GLenum usagehint)
-	: m_count(static_cast<GLsizei>(v.size()))
-	, m_reserved(static_cast<GLsizei>(v.size()))
+	: mCount(static_cast<GLsizei>(v.size()))
+	, mReserved(static_cast<GLsizei>(v.size()))
 	{
-		gtBufferData(Target, m_vbo, v, usagehint);
+		gtBufferData(Target, mBuffer, v, usagehint);
 	}
 
 	/**
@@ -70,7 +70,7 @@ public:
 	 */
 	inline GLsizei size() const noexcept
 	{
-		return m_count;
+		return mCount;
 	}
 
 	/**
@@ -79,7 +79,7 @@ public:
 	 */
 	inline GLsizei reserved() const noexcept
 	{
-		return m_reserved;
+		return mReserved;
 	}
 
 	/**
@@ -88,7 +88,7 @@ public:
 	 */
 	inline void bind() const noexcept
 	{
-		glBindBuffer(Target, m_vbo);
+		glBindBuffer(Target, mBuffer);
 	}
 
 	/**
@@ -105,13 +105,13 @@ public:
 	template <class Alloc>
 	void set(const std::vector<T,Alloc>& v, const GLenum usagehint)
 	{
-		m_count = static_cast<GLsizei>(v.size());
-		if (m_count < m_reserved) gtBufferSubData(Target, 0, m_count, v);
+		mCount = static_cast<GLsizei>(v.size());
+		if (mCount < mReserved) gtBufferSubData(Target, 0, mCount, v);
 		else
 		{
-			while (m_count >= m_reserved) m_reserved *= 2;
-			glBufferData(Target, sizeof(T) * m_reserved, nullptr, usagehint);
-			gtBufferSubData(Target, 0, m_count, v);
+			while (mCount >= mReserved) mReserved *= 2;
+			glBufferData(Target, sizeof(T) * mReserved, nullptr, usagehint);
+			gtBufferSubData(Target, 0, mCount, v);
 		}
 	}
 
@@ -120,13 +120,13 @@ public:
 	 */
 	inline void clear() noexcept
 	{
-		m_count = 0;
+		mCount = 0;
 	}
 
 private:
-	buffer_object m_vbo;
-	GLsizei m_count = 0;
-	GLsizei m_reserved = 1;
+	BufferObject mBuffer;
+	GLsizei mCount = 0;
+	GLsizei mReserved = 1;
 };
 
 /**
@@ -151,9 +151,9 @@ public:
 		for (GLuint i = 0; i < Size; ++i)
 		{
 			bind(i);
-			m_count[i] = 0;
-			m_reserved[i] = 1;
-			glBufferData(Target, sizeof(T) * m_reserved[i], nullptr, 
+			mCount[i] = 0;
+			mReserved[i] = 1;
+			glBufferData(Target, sizeof(T) * mReserved[i], nullptr, 
 				usagehint);	
 		}
 	}
@@ -169,9 +169,9 @@ public:
 		for (GLuint i = 0; i < Size; ++i)
 		{
 			bind(i);
-			m_count[i] = 0;
-			m_reserved[i] = reserve;
-			glBufferData(Target, sizeof(T) * m_reserved[i], nullptr, 
+			mCount[i] = 0;
+			mReserved[i] = reserve;
+			glBufferData(Target, sizeof(T) * mReserved[i], nullptr, 
 				usagehint);
 		}
 	}
@@ -184,7 +184,7 @@ public:
 	 */
 	inline GLsizei size(const GLuint index) const noexcept
 	{
-		return m_count[index];
+		return mCount[index];
 	}
 
 	/**
@@ -196,7 +196,7 @@ public:
 	inline GLsizei reserved(const GLuint index) const 
 		noexcept
 	{
-		return m_reserved[index];
+		return mReserved[index];
 	}
 
 	/**
@@ -206,7 +206,7 @@ public:
 	 */
 	inline void bind(const GLuint index) const noexcept
 	{
-		glBindBuffer(Target, m_vbo[index]);
+		glBindBuffer(Target, mBuffer[index]);
 	}
 
 	/**
@@ -228,20 +228,20 @@ public:
 		const std::vector<T,Alloc>& v,
 		const GLenum usagehint)
 	{
-		m_count[index] = static_cast<GLsizei>(v.size());
-		if (m_count[index] < m_reserved[index])
+		mCount[index] = static_cast<GLsizei>(v.size());
+		if (mCount[index] < mReserved[index])
 		{
-			gtBufferSubData(Target, 0, m_count[index], v);
+			gtBufferSubData(Target, 0, mCount[index], v);
 		}
 		else
 		{
-			while (m_count[index] >= m_reserved[index]) 
-				m_reserved[index] *= 2;
+			while (mCount[index] >= mReserved[index]) 
+				mReserved[index] *= 2;
 			
-			glBufferData(Target, sizeof(T) * m_reserved[index], 
+			glBufferData(Target, sizeof(T) * mReserved[index], 
 				nullptr, usagehint);
 
-			gtBufferSubData(Target, 0, m_count[index], v);
+			gtBufferSubData(Target, 0, mCount[index], v);
 		}
 	}
 
@@ -252,7 +252,7 @@ public:
 	 */
 	inline void clear(const GLuint index) noexcept
 	{
-		m_count[index] = 0;
+		mCount[index] = 0;
 	}
 
 	/**
@@ -260,15 +260,15 @@ public:
 	 */
 	inline void clear_all() noexcept
 	{
-		for (GLuint i = 0; i < Size; ++i) m_count[i] = 0;
+		for (GLuint i = 0; i < Size; ++i) mCount[i] = 0;
 	}
 
 private:
-	buffer_object_array<Size> m_vbo;
-	GLsizei m_count[Size];
-	GLsizei m_reserved[Size];
+	BufferObjectArray<Size> mBuffer;
+	GLsizei mCount[Size];
+	GLsizei mReserved[Size];
 };
 
-}} // namespace gintonic::opengl
+}} // namespace gintonic::OpenGL
 
 #endif

@@ -5,7 +5,7 @@
 #include "mat3f.hpp"
 #include "SQT.hpp"
 
-#include "../entity.hpp"
+#include "../Entity.hpp"
 
 #include <sstream> // for operator <<
 #include <iomanip> // for operator <<
@@ -112,17 +112,9 @@ mat4f::mat4f(const SQT& transform)
 	m33 = 1.0f;
 }
 
-mat4f::mat4f(const entity& e) : mat4f(e.global_transform())
+mat4f::mat4f(const Entity& e) : mat4f(e.global_transform())
 {
 	/* Empty on purpose. */
-}
-
-mat4f::mat4f(const aiMatrix4x4& m)
-{
-	data[0] = _mm_set_ps(m.d1, m.c1, m.b1, m.a1);
-	data[1] = _mm_set_ps(m.d2, m.c2, m.b2, m.a2);
-	data[2] = _mm_set_ps(m.d3, m.c3, m.b3, m.a3);
-	data[3] = _mm_set_ps(m.d4, m.c4, m.b4, m.a4);
 }
 
 mat4f::mat4f(const mat3f& rotation_part)

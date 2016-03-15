@@ -4,15 +4,14 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_textures_hpp
-#define gintonic_textures_hpp
+#pragma once
 
-#include "texture_object.hpp"
+#include "TextureObject.hpp"
 #include "../../Foundation/filesystem.hpp"
 #include <array>
 
 namespace gintonic {
-namespace opengl {
+namespace OpenGL {
 
 /*!
 \brief A structure carrying information about texture parameters.
@@ -525,7 +524,7 @@ public:
 
 private:
 
-	texture_object m_tex;
+	TextureObject m_tex;
 };
 
 /**
@@ -575,10 +574,8 @@ public:
 
 private:
 
-	texture_object m_tex;
+	TextureObject m_tex;
 };
 
-} // end of namespace opengl
+} // end of namespace OpenGL
 } // end of namespace gintonic
-
-#endif

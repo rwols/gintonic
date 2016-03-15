@@ -1,5 +1,4 @@
 #include "gintonic.hpp"
-#include "vec2f.hpp"
 
 namespace gt = gintonic;
 

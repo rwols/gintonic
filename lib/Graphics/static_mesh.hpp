@@ -6,12 +6,12 @@
 
 #pragma once
 
-#include "mesh.hpp"
+#include "Mesh.hpp"
 
 #include "../Math/mat3f.hpp"
 #include "../Math/mat4f.hpp"
 
-#include "OpenGL/vertex_array_object.hpp"
+#include "OpenGL/VertexArrayObject.hpp"
 #include "OpenGL/vector.hpp"
 
 namespace FBX
@@ -63,14 +63,14 @@ public:
 
 private:
 
-	opengl::vertex_array_object m_vao;
+	OpenGL::VertexArrayObject m_vao;
 
 	// indices, positions, uvs, normals
-	opengl::buffer_object_array<4> m_buffer;
+	OpenGL::BufferObjectArray<4> m_buffer;
 	
 	// matrix_PVM, matrix_VM, matrix_N
-	opengl::vector_array<GL_ARRAY_BUFFER, mat4f, 2> m_matrix_buffer;
-	opengl::vector<GL_ARRAY_BUFFER, mat3f> m_matrix_N_buffer;
+	OpenGL::vector_array<GL_ARRAY_BUFFER, mat4f, 2> m_matrix_buffer;
+	OpenGL::vector<GL_ARRAY_BUFFER, mat3f> m_matrix_N_buffer;
 	
 	GLsizei m_count = 0;
 };

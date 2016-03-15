@@ -10,8 +10,6 @@
 #include "../Foundation/utilities.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
-#include <assimp/vector3.h>
-#include <assimp/matrix4x4.h>
 
 namespace FBX {
 	class FbxAMatrix; // Forward declaration.
@@ -25,7 +23,7 @@ union vec4f;  // Forward declaration.
 union quatf;  // Forward declaration.
 union mat3f;  // Forward declaration.
 struct SQT;   // Forward declaration.
-class entity; // Forward declaration.
+class Entity; // Forward declaration.
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -125,8 +123,8 @@ public:
 	/// Build an affine matrix.
 	mat4f(const SQT& transform);
 
-	/// Build an affine matrix using the global transform of the entity.
-	mat4f(const entity&);
+	/// Build an affine matrix using the global transform of the Entity.
+	mat4f(const Entity&);
 
 	/// Build an affine matrix with all entries.
 	mat4f(const float m00, const float m01, const float m02, const float m03,
@@ -161,9 +159,6 @@ public:
 
 	/// Look-at constructor.
 	mat4f(const vec3f& eye_location, const vec3f& subject_location, const vec3f& up_direction);
-
-	/// Build a matrix from an assimp matrix.
-	mat4f(const aiMatrix4x4& assimpMatrix);
 
 	/// Set this matrix as an orthographic projection matrix.
 	mat4f& set_orthographic(const float left, const float right, const float bottom, const float top, const float nearplane, const float farplane);
