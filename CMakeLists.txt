@@ -9,8 +9,8 @@ endif()
 set(SSE_VERSION 30)
 
 set(lua_src_dir "lua-5.3.1/src")
-file(GLOB_RECURSE gintonic_source_files "${CMAKE_CURRENT_SOURCE_DIR}/lib/*.cpp")
-file(GLOB lua_source_files "${CMAKE_CURRENT_SOURCE_DIR}/lib/${lua_src_dir}/*.c")
+file(GLOB_RECURSE gintonic_source_files "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp")
+file(GLOB lua_source_files "${CMAKE_CURRENT_SOURCE_DIR}/Source/${lua_src_dir}/*.c")
 set(src_files ${gintonic_source_files} ${lua_source_files})
 
 if (WIN32)
@@ -122,7 +122,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(ENABLE_DEBUG_TRACE ON CACHE BOOL "Enable debug tracing via the renderer.")	
 endif ()
 
-configure_file(lib/config.cmake ${CMAKE_BINARY_DIR}/config.hpp)
+configure_file(Source/config.cmake ${CMAKE_BINARY_DIR}/config.hpp)
 add_library(gintonic ${src_files})
 
 include_directories(
@@ -132,7 +132,7 @@ include_directories(
 	${OPENGL_INCLUDE_DIRS}
 	${FBX_INCLUDE_DIR}
 	${CMAKE_BINARY_DIR} # For the config file
-	"lib/lua-5.3.1/src" # For Lua
+	"Source/lua-5.3.1/src" # For Lua
 	)
 
 if (WIN32)
@@ -232,10 +232,9 @@ mark_as_advanced(SDL2_LIBRARY)
 mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
 mark_as_advanced(CMAKE_INSTALL_PREFIX)
 
-# add_subdirectory (lib)
-add_subdirectory (tools)
-add_subdirectory (examples)
-add_subdirectory (test)
+add_subdirectory (Tools)
+add_subdirectory (Examples)
+add_subdirectory (UnitTest)
 
 enable_testing()
 

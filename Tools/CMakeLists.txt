@@ -5,7 +5,7 @@ set(executables
 	fbx_converter
 	luatest)
 
-include_directories(${CMAKE_SOURCE_DIR}/lib)
+include_directories(${CMAKE_SOURCE_DIR}/Source)
 
 foreach (exe ${executables})
 	add_executable(${exe} ${exe}.cpp)

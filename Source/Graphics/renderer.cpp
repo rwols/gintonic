@@ -286,7 +286,7 @@ namespace gintonic {
 		// Initialize debug variables
 		//
 		#ifdef ENABLE_DEBUG_TRACE
-		sDebugFont = std::make_shared<Font>("../resources/Inconsolata-Regular.ttf");
+		sDebugFont = std::make_shared<Font>("../Resources/Inconsolata-Regular.ttf");
 		sDebugStream = new FontStream();
 		sDebugStream->open(sDebugFont);
 		#endif
