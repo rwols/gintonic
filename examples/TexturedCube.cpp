@@ -4,12 +4,12 @@
 
 struct GameState
 {
-	std::vector<std::shared_ptr<gintonic::entity>> mEntities;
+	std::vector<std::shared_ptr<gintonic::Entity>> mEntities;
 	std::vector<std::shared_ptr<gintonic::Material>> mMaterials;
 	std::vector<std::shared_ptr<gintonic::Mesh>> mMeshes;
 	std::vector<std::shared_ptr<gintonic::Light>> mLights;
 	std::vector<std::shared_ptr<gintonic::Camera>> mCameras;
-	std::shared_ptr<gintonic::entity> mRootEntity;
+	std::shared_ptr<gintonic::Entity> mRootEntity;
 
 	float mMoveSpeed = 1.0f;
 
@@ -30,13 +30,13 @@ bool initialize(const int argc, char** argv)
 {
 	using namespace gintonic;
 
-	// Create entity and camera.
+	// Create Entity and camera.
 	auto lCamera = std::make_shared<Camera>();
 	lCamera->setName("DefaultCamera");
 	lCamera->setNearPlane(0.01f);
 	lCamera->setFarPlane(100.0f);
 	lCamera->setProjectionType(Camera::kPerspectiveProjection);
-	auto lCameraEntity = std::make_shared<entity>();
+	auto lCameraEntity = std::make_shared<Entity>();
 	lCameraEntity->setName("DefaultCamera");
 	lCameraEntity->set_rotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
 	lCameraEntity->set_scale(vec3f(1.0f, 1.0f, 1.0f));
@@ -56,7 +56,7 @@ bool initialize(const int argc, char** argv)
 		return false;
 	}
 
-	auto lCubeEntity = std::make_shared<entity>();
+	auto lCubeEntity = std::make_shared<Entity>();
 	std::shared_ptr<Texture2D> lDiffuseTexture;
 	try
 	{

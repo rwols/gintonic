@@ -101,7 +101,7 @@ option(HIDE_CONSOLE "Hide the console on Windows." OFF)
 option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output streams to files." OFF)
 
 if (BUILD_DOCUMENTATION)
-	configure_file(lib/Doxyfile.cmake ${CMAKE_BINARY_DIR}/Doxyfile)
+	configure_file(Doxyfile.cmake ${CMAKE_BINARY_DIR}/Doxyfile)
 	add_custom_command(TARGET gintonic
 		PRE_BUILD
 		COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile

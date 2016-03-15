@@ -12,7 +12,7 @@
 #include "../Math/mat4f.hpp"
 
 #include "OpenGL/VertexArrayObject.hpp"
-#include "OpenGL/vector.hpp"
+#include "OpenGL/Vector.hpp"
 
 namespace FBX
 {
@@ -69,8 +69,8 @@ private:
 	OpenGL::BufferObjectArray<4> m_buffer;
 	
 	// matrix_PVM, matrix_VM, matrix_N
-	OpenGL::vector_array<GL_ARRAY_BUFFER, mat4f, 2> m_matrix_buffer;
-	OpenGL::vector<GL_ARRAY_BUFFER, mat3f> m_matrix_N_buffer;
+	OpenGL::VectorArray<GL_ARRAY_BUFFER, mat4f, 2> m_matrix_buffer;
+	OpenGL::Vector<GL_ARRAY_BUFFER, mat3f> m_matrix_N_buffer;
 	
 	GLsizei m_count = 0;
 };

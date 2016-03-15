@@ -17,7 +17,7 @@
 #include "../Math/mat4f.hpp"
 
 #include "OpenGL/VertexArrayObject.hpp"
-#include "OpenGL/vector.hpp"
+#include "OpenGL/Vector.hpp"
 
 #include <vector>
 
@@ -389,8 +389,8 @@ private:
 
 	OpenGL::VertexArrayObject mVertexArrayObject;
 	OpenGL::BufferObjectArray<4> mBuffer;
-	OpenGL::vector_array<GL_ARRAY_BUFFER, mat4f, 2> mMatrixBuffer;
-	OpenGL::vector<GL_ARRAY_BUFFER, mat3f> mNormalMatrixBuffer;
+	OpenGL::VectorArray<GL_ARRAY_BUFFER, mat4f, 2> mMatrixBuffer;
+	OpenGL::Vector<GL_ARRAY_BUFFER, mat3f> mNormalMatrixBuffer;
 	bool mHasTangentsAndBitangents;
 	GLsizei mNumIndices;
 	box3f mLocalBoundingBox;

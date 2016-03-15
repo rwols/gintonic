@@ -1,16 +1,15 @@
 /**
- * @file vertex_array_object_array.hpp
+ * @file VertexArrayObjectArray.hpp
  * @brief Defines an array of OpenGL Vertex Array Objects.
  * @author Raoul Wols
  */
 
-#ifndef gintonic_opengl_vertex_array_object_array_hpp
-#define gintonic_opengl_vertex_array_object_array_hpp
+#pragma once
 
 #include "utilities.hpp"
 
 namespace gintonic {
-namespace opengl {
+namespace OpenGL {
 
 /**
  * @brief Encapsulates a fixed size array of 
@@ -18,34 +17,34 @@ namespace opengl {
  * 
  * @tparam Size The number of vertex object arrays.
  */
-template <GLuint Size> class vertex_array_object_array
+template <GLuint Size> class VertexArrayObjectArray
 {
 public:
 
 	/// Default constructor.
-	inline vertex_array_object_array()
+	inline VertexArrayObjectArray()
 	{
 		glGenVertexArrays(Size, m_handles);
 	}
 
 	/// Destructor.
-	inline ~vertex_array_object_array() noexcept
+	inline ~VertexArrayObjectArray() noexcept
 	{
 		glDeleteVertexArrays(Size, m_handles);
 	}
 
 	/// You cannot copy vertex array object arrays.
-	vertex_array_object_array(const vertex_array_object_array&) = delete;
+	VertexArrayObjectArray(const VertexArrayObjectArray&) = delete;
 
 	/// Move constructor.
-	vertex_array_object_array(vertex_array_object_array&& other);
+	VertexArrayObjectArray(VertexArrayObjectArray&& other);
 
 	/// You cannot copy vertex array object arrays.
-	vertex_array_object_array& operator = (
-		const vertex_array_object_array&) = delete;
+	VertexArrayObjectArray& operator = (
+		const VertexArrayObjectArray&) = delete;
 
 	/// Move assignment operator.
-	vertex_array_object_array& operator = (vertex_array_object_array&& other);
+	VertexArrayObjectArray& operator = (VertexArrayObjectArray&& other);
 
 	/**
 	 * @brief Get the underlying OpenGL handle at the specified index.
@@ -64,16 +63,16 @@ private:
 };
 
 template <class GLuint Size>
-vertex_array_object_array<Size>::vertex_array_object_array(
-	vertex_array_object_array<Size>&& other)
+VertexArrayObjectArray<Size>::VertexArrayObjectArray(
+	VertexArrayObjectArray<Size>&& other)
 {
 	std::memcpy(m_handles, other.m_handles, sizeof(GLuint) * Size);
 	std::memset(other.m_handles, 0, sizeof(GLuint) * Size);
 }
 
 template <class GLuint Size>
-vertex_array_object_array<Size>& vertex_array_object_array<Size>::operator = (
-	vertex_array_object_array<Size>&& other)
+VertexArrayObjectArray<Size>& VertexArrayObjectArray<Size>::operator = (
+	VertexArrayObjectArray<Size>&& other)
 {
 	if (this == &other) return *this;
 	std::memcpy(m_handles, other.m_handles, sizeof(GLuint) * Size);
@@ -81,5 +80,5 @@ vertex_array_object_array<Size>& vertex_array_object_array<Size>::operator = (
 	return *this;
 }
 
-} // namespace opengl
+} // namespace OpenGL
 } // namespace gintonic
