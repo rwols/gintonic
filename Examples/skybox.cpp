@@ -8,7 +8,7 @@ template <class FloatType> FloatType get_elapsed_time()
 	using std::chrono::duration_cast;
 	using std::chrono::nanoseconds;
 	using gintonic::renderer;
-	return static_cast<FloatType>(duration_cast<nanoseconds>(renderer::elapsed_time()).count()) / FloatType(1e9);
+	return static_cast<FloatType>(duration_cast<nanoseconds>(Renderer::elapsed_time()).count()) / FloatType(1e9);
 }
 
 template <class FloatType> FloatType get_dt()
@@ -16,7 +16,7 @@ template <class FloatType> FloatType get_dt()
 	using std::chrono::duration_cast;
 	using std::chrono::nanoseconds;
 	using gintonic::renderer;
-	return static_cast<FloatType>(duration_cast<nanoseconds>(renderer::delta_time()).count()) / FloatType(1e9);
+	return static_cast<FloatType>(duration_cast<nanoseconds>(Renderer::deltaTime()).count()) / FloatType(1e9);
 }
 
 int main(int argc, char* argv[])
@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		gt::init_all("skybox", cam_entity);
-		gt::renderer::set_freeform_cursor(true);
+		gt::Renderer::setFreeformCursor(true);
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
 		gt::fontstream stream;
 		gt::unit_cube_PUN the_shape;
@@ -72,46 +72,46 @@ int main(int argc, char* argv[])
 		the_material.attach(cube_entity);
 		the_shape.attach(cube_entity);
 
-		gt::renderer::show();
+		gt::Renderer::show();
 		float curtime, dt;
 
-		while (!gt::renderer::should_close())
+		while (!gt::Renderer::shouldClose())
 		{
 			curtime = get_elapsed_time<float>();
 			dt = get_dt<float>();
-			if (gt::renderer::key_toggle_press(SDL_SCANCODE_Q))
+			if (gt::Renderer::keyTogglePress(SDL_SCANCODE_Q))
 			{
-				gt::renderer::close();
+				gt::Renderer::close();
 			}
-			if (gt::renderer::key(SDL_SCANCODE_W))
+			if (gt::Renderer::key(SDL_SCANCODE_W))
 			{
 				cam_entity.move_forward(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_A))
+			if (gt::Renderer::key(SDL_SCANCODE_A))
 			{
 				cam_entity.move_left(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_S))
+			if (gt::Renderer::key(SDL_SCANCODE_S))
 			{
 				cam_entity.move_backward(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_D))
+			if (gt::Renderer::key(SDL_SCANCODE_D))
 			{
 				cam_entity.move_right(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_SPACE))
+			if (gt::Renderer::key(SDL_SCANCODE_SPACE))
 			{
 				cam_entity.move_up(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_C))
+			if (gt::Renderer::key(SDL_SCANCODE_C))
 			{
 				cam_entity.move_down(dt);
 			}
 
-			const auto mousedelta = -gt::deg2rad(gt::renderer::mouse_delta()) / 10.0f;
+			const auto mousedelta = -gt::deg2rad(gt::Renderer::mouse_delta()) / 10.0f;
 			cam_component.add_mouse(mousedelta);
 			
-			gt::renderer::begin_geometry_pass();
+			gt::Renderer::begin_geometry_pass();
 
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
@@ -120,18 +120,18 @@ int main(int argc, char* argv[])
 			const auto zaxis = (1.0f + std::sin(curtime)) / 2.0f;
 			const auto rotation_axis = gt::vec3f(0.0f, yaxis, zaxis).normalize();
 			cube_entity.set_rotation(gt::quatf::axis_angle(rotation_axis, -curtime / 4.0f));
-			gt::renderer::set_model_matrix(cube_entity);
+			gt::Renderer::set_model_matrix(cube_entity);
 			cube_entity.material_component()->bind();
 			cube_entity.mesh_component()->draw();
 
-			gt::renderer::begin_light_pass();
-			gt::renderer::ambient_light_pass();
+			gt::Renderer::begin_light_pass();
+			gt::Renderer::ambient_light_pass();
 
 			glCullFace(GL_FRONT);
 			the_skybox.draw();
 
-			gt::renderer::get_text_shader()->activate();
-			gt::renderer::get_text_shader()->set_color(gt::vec3f(0.4f, 0.2f, 0.2f));
+			gt::Renderer::get_text_shader()->activate();
+			gt::Renderer::get_text_shader()->set_color(gt::vec3f(0.4f, 0.2f, 0.2f));
 
 			glDisable(GL_CULL_FACE);			
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -142,12 +142,12 @@ int main(int argc, char* argv[])
 				<< "Press Q to quit.\n"
 				<< "Elapsed time: " << std::fixed << std::setprecision(1) << curtime << " seconds\n"
 				<< "Frames per second: " << std::fixed << std::setprecision(1) << 1.0f / dt << '\n'
-				<< "Camera pos:   " << gt::renderer::camera().local_transform().translation << '\n'
-				<< "Camera up:    " << gt::renderer::camera().local_transform().rotation.up_direction() << '\n'
-				<< "Camera right: " << gt::renderer::camera().local_transform().rotation.right_direction() << '\n';
+				<< "Camera pos:   " << gt::Renderer::camera().local_transform().translation << '\n'
+				<< "Camera up:    " << gt::Renderer::camera().local_transform().rotation.up_direction() << '\n'
+				<< "Camera right: " << gt::Renderer::camera().local_transform().rotation.right_direction() << '\n';
 			stream.close();
 			
-			gt::renderer::update();
+			gt::Renderer::update();
 		}
 	}
 	catch (const std::exception& e)

@@ -77,7 +77,7 @@ bool initialize(const int argc, char** argv)
 	lMaterial->setName("Rural Brick Wall");
 	lCubeEntity->setName("Cube");
 	lCubeEntity->material = lMaterial;
-	lCubeEntity->mesh = renderer::getUnitCube();
+	lCubeEntity->mesh = Renderer::getUnitCube();
 
 	gState.mEntities.push_back(lCubeEntity);
 	gState.mMaterials.push_back(lMaterial);
@@ -95,51 +95,51 @@ int main(int argc, char* argv[])
 
 	using namespace gintonic;
 
-	std::cout << renderer::name() << '\n';
-	std::cout << renderer::version() << '\n';
+	std::cout << Renderer::name() << '\n';
+	std::cout << Renderer::version() << '\n';
 
-	renderer::set_freeform_cursor(true);
-	renderer::show();
+	Renderer::setFreeformCursor(true);
+	Renderer::show();
 
 	double lDeltaTime, lElapsedTime;
 
-	while (renderer::should_close() == false)
+	while (Renderer::shouldClose() == false)
 	{
-		renderer::getElapsedAndDeltaTime(lElapsedTime, lDeltaTime);
-		auto lCameraEntity = renderer::getCameraEntity();
-		if (renderer::key(SDL_SCANCODE_Q))
+		Renderer::getElapsedAndDeltaTime(lElapsedTime, lDeltaTime);
+		auto lCameraEntity = Renderer::getCameraEntity();
+		if (Renderer::key(SDL_SCANCODE_Q))
 		{
-			renderer::close();
+			Renderer::close();
 		}
-		if (renderer::key(SDL_SCANCODE_W))
+		if (Renderer::key(SDL_SCANCODE_W))
 		{
 			lCameraEntity->move_forward(gState.mMoveSpeed * lDeltaTime);
 		}
-		if (renderer::key(SDL_SCANCODE_A))
+		if (Renderer::key(SDL_SCANCODE_A))
 		{
 			lCameraEntity->move_left(gState.mMoveSpeed * lDeltaTime);
 		}
-		if (renderer::key(SDL_SCANCODE_S))
+		if (Renderer::key(SDL_SCANCODE_S))
 		{
 			lCameraEntity->move_backward(gState.mMoveSpeed * lDeltaTime);
 		}
-		if (renderer::key(SDL_SCANCODE_D))
+		if (Renderer::key(SDL_SCANCODE_D))
 		{
 			lCameraEntity->move_right(gState.mMoveSpeed * lDeltaTime);
 		}
-		if (renderer::key(SDL_SCANCODE_SPACE))
+		if (Renderer::key(SDL_SCANCODE_SPACE))
 		{
 			lCameraEntity->move_up(gState.mMoveSpeed * lDeltaTime);
 		}
-		if (renderer::key(SDL_SCANCODE_C))
+		if (Renderer::key(SDL_SCANCODE_C))
 		{
 			lCameraEntity->move_down(gState.mMoveSpeed * lDeltaTime);
 		}
-		if (renderer::key_toggle_press(SDL_SCANCODE_T))
+		if (Renderer::keyTogglePress(SDL_SCANCODE_T))
 		{
-			renderer::setWireframeMode(!renderer::getWireframeMode());
+			Renderer::setWireframeMode(!Renderer::getWireframeMode());
 		}
-		const auto lMouseDelta = -deg2rad(renderer::mouse_delta()) / 10.0f;
+		const auto lMouseDelta = -deg2rad(Renderer::mouse_delta()) / 10.0f;
 		lCameraEntity->camera->addMouse(lMouseDelta);
 		lCameraEntity->set_rotation(quatf::mouse(lCameraEntity->camera->angles()));
 
@@ -161,9 +161,9 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		renderer::submitEntities(gState.mEntities.begin(), gState.mEntities.end());
+		Renderer::submitEntities(gState.mEntities.begin(), gState.mEntities.end());
 
-		renderer::update();
+		Renderer::update();
 	}
 
 	return EXIT_SUCCESS;

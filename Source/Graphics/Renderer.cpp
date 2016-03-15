@@ -1,4 +1,4 @@
-#include "renderer.hpp"
+#include "Renderer.hpp"
 
 #include "../Foundation/exception.hpp"
 #include "../Math/vec4f.hpp"
@@ -32,100 +32,100 @@ namespace gintonic {
 	SDL_GLContext sContext;
 	SDL_Event sEvent = SDL_Event();
 	
-	bool renderer::s_should_close = false;
-	bool renderer::s_fullscreen = false;
-	bool renderer::sRenderInWireframeMode = false;
-	int renderer::s_width = 800;
-	int renderer::s_height = 640;
-	float renderer::s_aspectratio = (float)renderer::s_width / (float)renderer::s_height;
+	bool Renderer::sShouldClose = false;
+	bool Renderer::sFullscreen = false;
+	bool Renderer::sRenderInWireframeMode = false;
+	int Renderer::sWidth = 800;
+	int Renderer::sHeight = 640;
+	float Renderer::sAspectRatio = (float)Renderer::sWidth / (float)Renderer::sHeight;
 
-	renderer::time_point_type renderer::s_start_time;
-	renderer::duration_type renderer::s_delta_time = renderer::duration_type();
-	renderer::duration_type renderer::s_prev_elapsed_time = renderer::duration_type();
-	renderer::duration_type renderer::s_elapsed_time = renderer::duration_type();
-	boost::circular_buffer<renderer::duration_type> renderer::s_circle_buffer = boost::circular_buffer<renderer::duration_type>();
-	vec2f renderer::s_mouse_delta = vec2f(0,0);
+	Renderer::time_point_type Renderer::sStartTime;
+	Renderer::duration_type Renderer::sDeltaTime = Renderer::duration_type();
+	Renderer::duration_type Renderer::sPrevElapsedTime = Renderer::duration_type();
+	Renderer::duration_type Renderer::sElapsedTime = Renderer::duration_type();
+	boost::circular_buffer<Renderer::duration_type> Renderer::s_circle_buffer = boost::circular_buffer<Renderer::duration_type>();
+	vec2f Renderer::sMouseDelta = vec2f(0,0);
 
-	Uint8* s_key_prev_state = nullptr;
-	const Uint8* s_key_state = nullptr;
-	int s_key_state_count;
+	Uint8* sKeyPrevState = nullptr;
+	const Uint8* sKeyState = nullptr;
+	int sKeyStateCount;
 
-	bool renderer::s_matrix_P_dirty = true;
-	bool renderer::s_matrix_VM_dirty = true;
-	bool renderer::s_matrix_PVM_dirty = true;
-	bool renderer::s_matrix_N_dirty = true;
+	bool Renderer::s_matrix_P_dirty = true;
+	bool Renderer::s_matrix_VM_dirty = true;
+	bool Renderer::s_matrix_PVM_dirty = true;
+	bool Renderer::s_matrix_N_dirty = true;
 
-	mat4f renderer::s_matrix_P = mat4f();
-	mat4f renderer::s_matrix_V = mat4f();
-	mat4f renderer::s_matrix_M = mat4f();
-	mat4f renderer::s_matrix_VM = mat4f();
-	mat4f renderer::s_matrix_PVM = mat4f();
-	mat3f renderer::s_matrix_N = mat3f();
+	mat4f Renderer::s_matrix_P = mat4f();
+	mat4f Renderer::s_matrix_V = mat4f();
+	mat4f Renderer::s_matrix_M = mat4f();
+	mat4f Renderer::s_matrix_VM = mat4f();
+	mat4f Renderer::s_matrix_PVM = mat4f();
+	mat3f Renderer::s_matrix_N = mat3f();
 
-	GLuint renderer::s_fbo;
-	GLuint renderer::s_textures[renderer::GBUFFER_COUNT];
-	GLuint renderer::s_depth_texture;
-	GLuint renderer::s_shadow_texture;
+	GLuint Renderer::s_fbo;
+	GLuint Renderer::s_textures[Renderer::GBUFFER_COUNT];
+	GLuint Renderer::s_depth_texture;
+	GLuint Renderer::s_shadow_texture;
 
-	std::shared_ptr<Entity> renderer::sCameraEntity = std::shared_ptr<Entity>(nullptr);
+	std::shared_ptr<Entity> Renderer::sCameraEntity = std::shared_ptr<Entity>(nullptr);
 
-	write_lock renderer::sEntityQueueLock;
-	std::vector<std::shared_ptr<Entity>> renderer::sFutureQueue;
-	std::vector<std::shared_ptr<Entity>> renderer::sCurrentQueue;
+	WriteLock Renderer::sEntityQueueLock;
+	std::vector<std::shared_ptr<Entity>> Renderer::sFutureQueue;
+	std::vector<std::shared_ptr<Entity>> Renderer::sCurrentQueue;
 
-	matrix_PVM_shader* renderer::s_matrix_PVM_shader = nullptr;
+	matrix_PVM_shader* Renderer::s_matrix_PVM_shader = nullptr;
 
-	gp_shader* renderer::s_gp_shader = nullptr;
-	gp_d_shader* renderer::s_gp_d_shader = nullptr;
-	gp_s_shader* renderer::s_gp_s_shader = nullptr;
-	gp_n_shader* renderer::s_gp_n_shader = nullptr;
-	gp_ds_shader* renderer::s_gp_ds_shader = nullptr;
-	gp_dn_shader* renderer::s_gp_dn_shader = nullptr;
-	gp_sn_shader* renderer::s_gp_sn_shader = nullptr;
-	gp_dsn_shader* renderer::s_gp_dsn_shader = nullptr;
+	gp_shader* Renderer::s_gp_shader = nullptr;
+	gp_d_shader* Renderer::s_gp_d_shader = nullptr;
+	gp_s_shader* Renderer::s_gp_s_shader = nullptr;
+	gp_n_shader* Renderer::s_gp_n_shader = nullptr;
+	gp_ds_shader* Renderer::s_gp_ds_shader = nullptr;
+	gp_dn_shader* Renderer::s_gp_dn_shader = nullptr;
+	gp_sn_shader* Renderer::s_gp_sn_shader = nullptr;
+	gp_dsn_shader* Renderer::s_gp_dsn_shader = nullptr;
 	
-	gpi_shader* renderer::s_gpi_shader = nullptr;
-	gpi_d_shader* renderer::s_gpi_d_shader = nullptr;
-	gpi_s_shader* renderer::s_gpi_s_shader = nullptr;
-	gpi_n_shader* renderer::s_gpi_n_shader = nullptr;
-	gpi_ds_shader* renderer::s_gpi_ds_shader = nullptr;
-	gpi_dn_shader* renderer::s_gpi_dn_shader = nullptr;
-	gpi_sn_shader* renderer::s_gpi_sn_shader = nullptr;
-	gpi_dsn_shader* renderer::s_gpi_dsn_shader = nullptr;
+	gpi_shader* Renderer::s_gpi_shader = nullptr;
+	gpi_d_shader* Renderer::s_gpi_d_shader = nullptr;
+	gpi_s_shader* Renderer::s_gpi_s_shader = nullptr;
+	gpi_n_shader* Renderer::s_gpi_n_shader = nullptr;
+	gpi_ds_shader* Renderer::s_gpi_ds_shader = nullptr;
+	gpi_dn_shader* Renderer::s_gpi_dn_shader = nullptr;
+	gpi_sn_shader* Renderer::s_gpi_sn_shader = nullptr;
+	gpi_dsn_shader* Renderer::s_gpi_dsn_shader = nullptr;
 
-	lp_ambient_shader* renderer::s_lp_ambient_shader = nullptr;
-	lp_directional_shader* renderer::s_lp_directional_shader = nullptr;
-	lp_point_shader* renderer::s_lp_point_shader = nullptr;
-	lp_spot_shader* renderer::s_lp_spot_shader = nullptr;
+	lp_ambient_shader* Renderer::s_lp_ambient_shader = nullptr;
+	lp_directional_shader* Renderer::s_lp_directional_shader = nullptr;
+	lp_point_shader* Renderer::s_lp_point_shader = nullptr;
+	lp_spot_shader* Renderer::s_lp_spot_shader = nullptr;
 
-	sp_directional_shader* renderer::s_sp_directional_shader = nullptr;
+	sp_directional_shader* Renderer::s_sp_directional_shader = nullptr;
 
-	skybox_shader* renderer::s_skybox_shader = nullptr;
+	skybox_shader* Renderer::s_skybox_shader = nullptr;
 
-	text_shader* renderer::s_text_shader = nullptr;
+	text_shader* Renderer::s_text_shader = nullptr;
 
-	unit_quad_P* renderer::s_unit_quad_P = nullptr;
-	unit_cube_P* renderer::s_unit_cube_P = nullptr;
-	unit_cube_P_flipped* renderer::s_unit_cube_P_flipped = nullptr;
-	unit_sphere_P* renderer::s_unit_sphere_P = nullptr;
-	unit_cone_P* renderer::s_unit_cone_P = nullptr;
+	unit_quad_P* Renderer::s_unit_quad_P = nullptr;
+	unit_cube_P* Renderer::s_unit_cube_P = nullptr;
+	unit_cube_P_flipped* Renderer::s_unit_cube_P_flipped = nullptr;
+	unit_sphere_P* Renderer::s_unit_sphere_P = nullptr;
+	unit_cone_P* Renderer::s_unit_cone_P = nullptr;
 
-	std::shared_ptr<Mesh> renderer::sUnitQuadPUN = nullptr;
-	std::shared_ptr<Mesh> renderer::sUnitCubePUN = nullptr;
-	std::shared_ptr<Mesh> renderer::sUnitSpherePUN = nullptr;
-	std::shared_ptr<Mesh> renderer::sUnitConePUN = nullptr;
+	std::shared_ptr<Mesh> Renderer::sUnitQuadPUN = nullptr;
+	std::shared_ptr<Mesh> Renderer::sUnitCubePUN = nullptr;
+	std::shared_ptr<Mesh> Renderer::sUnitSpherePUN = nullptr;
+	std::shared_ptr<Mesh> Renderer::sUnitConePUN = nullptr;
 
-	boost::signals2::signal<void(wchar_t)> renderer::char_typed;
-	boost::signals2::signal<void(double, double)> renderer::mouse_scrolled;
-	boost::signals2::signal<void(double, double)> renderer::mouse_moved;
-	boost::signals2::signal<void(int, int, int, int)> renderer::key_pressed;
-	boost::signals2::signal<void(int, int, int)> renderer::mouse_pressed;
-	boost::signals2::signal<void(int, int)> renderer::window_resized;
-	boost::signals2::signal<void(void)> renderer::mouse_entered;
-	boost::signals2::signal<void(void)> renderer::mouse_left;
-	boost::signals2::signal<void(void)> renderer::about_to_close;
+	boost::signals2::signal<void(wchar_t)> Renderer::char_typed;
+	boost::signals2::signal<void(double, double)> Renderer::mouse_scrolled;
+	boost::signals2::signal<void(double, double)> Renderer::mouse_moved;
+	boost::signals2::signal<void(int, int, int, int)> Renderer::key_pressed;
+	boost::signals2::signal<void(int, int, int)> Renderer::mouse_pressed;
+	boost::signals2::signal<void(int, int)> Renderer::window_resized;
+	boost::signals2::signal<void(void)> Renderer::mouse_entered;
+	boost::signals2::signal<void(void)> Renderer::mouse_left;
+	boost::signals2::signal<void(void)> Renderer::about_to_close;
 
-	constexpr GLenum gbuffer_tex_internal[renderer::GBUFFER_COUNT] = 
+	constexpr GLenum gbuffer_tex_internal[Renderer::GBUFFER_COUNT] = 
 	{
 		GL_RGBA32F, // GBUFFER_POSITION
 		GL_RGBA,    // GBUFFER_DIFFUSE
@@ -133,7 +133,7 @@ namespace gintonic {
 		GL_RGBA16F, // GBUFFER_NORMAL
 		GL_RGB      // GBUFFER_FINAL_COLOR
 	};
-	constexpr GLenum gbuffer_tex_format[renderer::GBUFFER_COUNT] = 
+	constexpr GLenum gbuffer_tex_format[Renderer::GBUFFER_COUNT] = 
 	{
 		GL_RGBA, // GBUFFER_POSITION
 		GL_RGBA, // GBUFFER_DIFFUSE
@@ -143,21 +143,21 @@ namespace gintonic {
 	};
 
 	#ifdef ENABLE_DEBUG_TRACE
-	FontStream& renderer::cerr() { return *sDebugStream; }
+	FontStream& Renderer::cerr() { return *sDebugStream; }
 	#endif
 
-	void renderer::getElapsedAndDeltaTime(double& elapsedTime, double& deltaTime)
+	void Renderer::getElapsedAndDeltaTime(double& t, double& dt)
 	{
 		using std::chrono::duration_cast;
 		using std::chrono::nanoseconds;
-		elapsedTime = static_cast<double>(duration_cast<nanoseconds>(elapsed_time()).count()) / double(1e9);
-		deltaTime = static_cast<double>(duration_cast<nanoseconds>(delta_time()).count()) / double(1e9);
+		t = static_cast<double>(duration_cast<nanoseconds>(elapsedTime()).count()) / double(1e9);
+		dt = static_cast<double>(duration_cast<nanoseconds>(deltaTime()).count()) / double(1e9);
 	}
 
-	void renderer::init(const char* title, std::shared_ptr<Entity> cameraEntity, const bool fullscreen, const int width, const int height)
+	void Renderer::init(const char* title, std::shared_ptr<Entity> cameraEntity, const bool fullscreen, const int width, const int height)
 	{
 		bool was_already_initialized;
-		if (is_initialized())
+		if (isInitialized())
 		{
 			was_already_initialized = true;
 			release();
@@ -174,14 +174,14 @@ namespace gintonic {
 		if (was_already_initialized == false) std::atexit(SDL_Quit);
 
 		sCameraEntity = std::move(cameraEntity);
-		s_fullscreen = fullscreen;
-		s_width = width;
-		s_height = height;
-		s_aspectratio = (float) s_width / (float) s_height;
+		sFullscreen = fullscreen;
+		sWidth = width;
+		sHeight = height;
+		sAspectRatio = (float) sWidth / (float) sHeight;
 		if (sCameraEntity->camera)
 		{
-			sCameraEntity->camera->setWidth(static_cast<float>(s_width));
-			sCameraEntity->camera->setHeight(static_cast<float>(s_height));
+			sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
+			sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
 			// sCameraEntity->camera->setNearPlane(0.01f);
 			// sCameraEntity->camera->setFarPlane(100.0f);
 			// sCameraEntity->camera->setProjection(camera::kPerspectiveProjection);
@@ -192,7 +192,7 @@ namespace gintonic {
 		}
 
 		Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
-		if (s_fullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		if (sFullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 		sWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
 
 		// We start by trying to obtain an OpenGL 4.1 context.
@@ -224,17 +224,17 @@ namespace gintonic {
 			return;
 		}
 
-		SDL_GetKeyboardState(&s_key_state_count);
-		s_key_prev_state = new Uint8[s_key_state_count];
-		std::memset(s_key_prev_state, 0, sizeof(Uint8) * s_key_state_count);
-		s_key_state = SDL_GetKeyboardState(nullptr);
+		SDL_GetKeyboardState(&sKeyStateCount);
+		sKeyPrevState = new Uint8[sKeyStateCount];
+		std::memset(sKeyPrevState, 0, sizeof(Uint8) * sKeyStateCount);
+		sKeyState = SDL_GetKeyboardState(nullptr);
 		
-		if (was_already_initialized == false) std::atexit(renderer::release);
+		if (was_already_initialized == false) std::atexit(Renderer::release);
 		
 		vsync(true);
 		glClearColor(0.03, 0.03, 0.03, 0.0);
 		
-		s_start_time = clock_type::now();
+		sStartTime = clock_type::now();
 
 		#ifdef BOOST_MSVC
 		CoInitialize(nullptr); // initialize COM
@@ -253,11 +253,11 @@ namespace gintonic {
 			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexImage2D(GL_TEXTURE_2D, 0, gbuffer_tex_internal[i], s_width, s_height, 0, gbuffer_tex_format[i], GL_FLOAT, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, gbuffer_tex_internal[i], sWidth, sHeight, 0, gbuffer_tex_format[i], GL_FLOAT, nullptr);
 			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, s_textures[i], 0);
 		}
 		glBindTexture(GL_TEXTURE_2D, s_depth_texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, s_width, s_height, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, sWidth, sHeight, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, s_depth_texture, 0);
 		const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
@@ -292,7 +292,7 @@ namespace gintonic {
 		#endif
 	}
 
-	void renderer::init_dummy(const bool construct_shaders)
+	void Renderer::initDummy(const bool construct_shaders)
 	{
 		Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
 		sWindow = SDL_CreateWindow("dummy context", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 20, 20, flags);
@@ -329,16 +329,16 @@ namespace gintonic {
 		if (construct_shaders) init_shaders();
 	}
 
-	void renderer::resize(const int width, const int height)
+	void Renderer::resize(const int width, const int height)
 	{
 		//
 		// resize viewport
 		//
-		s_width = width;
-		s_height = height;
-		s_aspectratio = (float)s_width / (float)s_height;
+		sWidth = width;
+		sHeight = height;
+		sAspectRatio = (float)sWidth / (float)sHeight;
 		s_matrix_P_dirty = true;
-		glViewport(0, 0, s_width, s_height);
+		glViewport(0, 0, sWidth, sHeight);
 
 		//
 		// resize framebuffers
@@ -350,10 +350,10 @@ namespace gintonic {
 			glBindTexture(GL_TEXTURE_2D, s_textures[i]);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexImage2D(GL_TEXTURE_2D, 0, gbuffer_tex_internal[i], s_width, s_height, 0, gbuffer_tex_format[i], GL_FLOAT, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, gbuffer_tex_internal[i], sWidth, sHeight, 0, gbuffer_tex_format[i], GL_FLOAT, nullptr);
 		}
 		glBindTexture(GL_TEXTURE_2D, s_depth_texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, s_width, s_height, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, sWidth, sHeight, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
 		const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -364,22 +364,22 @@ namespace gintonic {
 		//
 		// Update projection matrix
 		//
-		sCameraEntity->camera->setWidth(static_cast<float>(s_width));
-		sCameraEntity->camera->setHeight(static_cast<float>(s_height));
+		sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
+		sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
 	}
 
-	bool renderer::is_initialized() noexcept
+	bool Renderer::isInitialized() noexcept
 	{
 		return sWindow != nullptr;
 	}
 
-	void renderer::setCameraEntity(std::shared_ptr<Entity> cameraEntity)
+	void Renderer::setCameraEntity(std::shared_ptr<Entity> cameraEntity)
 	{
 		sCameraEntity = std::move(cameraEntity);
 		if (sCameraEntity->camera)
 		{
-			sCameraEntity->camera->setWidth(static_cast<float>(s_width));
-			sCameraEntity->camera->setHeight(static_cast<float>(s_height));
+			sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
+			sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
 		}
 		else
 		{
@@ -387,99 +387,99 @@ namespace gintonic {
 		}
 	}
 
-	void renderer::focus_context() noexcept
+	void Renderer::focusContext() noexcept
 	{ 
 		SDL_GL_MakeCurrent(sWindow, sContext); 
 	}
 
-	void renderer::set_cursor_position(const double x, const double y) noexcept
+	void Renderer::setCursorPosition(const double x, const double y) noexcept
 	{
 		SDL_WarpMouseInWindow(sWindow, (int)x, (int)y);
 		SDL_FlushEvent(SDL_MOUSEMOTION);
 	}
 
-	void renderer::set_freeform_cursor(const bool b)
+	void Renderer::setFreeformCursor(const bool b)
 	{
 		SDL_SetRelativeMouseMode(b? SDL_TRUE : SDL_FALSE);
 	}
 
-	void renderer::disable_cursor() noexcept
+	void Renderer::disableCursor() noexcept
 	{ 
 		SDL_ShowCursor(0); 
 	}
 
-	void renderer::enable_cursor() noexcept
+	void Renderer::enableCursor() noexcept
 	{ 
 		SDL_ShowCursor(1); 
 	}
 
-	void renderer::center_cursor() noexcept
+	void Renderer::centerCursor() noexcept
 	{
-		set_cursor_position(s_width / 2, s_height / 2);
+		setCursorPosition(sWidth / 2, sHeight / 2);
 	}
 
-	void renderer::vsync(const bool b) 
+	void Renderer::vsync(const bool b) 
 	{ 
 		SDL_GL_SetSwapInterval(b? 1 : 0);
 	}
 
-	void renderer::setWireframeMode(const bool yesOrNo) noexcept
+	void Renderer::setWireframeMode(const bool yesOrNo) noexcept
 	{
 		sRenderInWireframeMode = yesOrNo;
 	}
 
-	void renderer::show() noexcept 
+	void Renderer::show() noexcept 
 	{ 
 		SDL_ShowWindow(sWindow); 
 	}
 
-	void renderer::hide() noexcept 
+	void Renderer::hide() noexcept 
 	{ 
 		SDL_HideWindow(sWindow); 
 	}
 
-	void renderer::close() noexcept
+	void Renderer::close() noexcept
 	{
-		s_should_close = true;
+		sShouldClose = true;
 		about_to_close();
 	}
 
-	bool renderer::should_close() noexcept
+	bool Renderer::shouldClose() noexcept
 	{ 
-		return s_should_close; 
+		return sShouldClose; 
 	}
 
-	vec2f renderer::viewport_size() noexcept
+	vec2f Renderer::viewportSize() noexcept
 	{
-		return vec2f(static_cast<float>(s_width), static_cast<float>(s_height));
+		return vec2f(static_cast<float>(sWidth), static_cast<float>(sHeight));
 	}
 
-	bool renderer::key(const int keycode) noexcept
+	bool Renderer::key(const int keycode) noexcept
 	{
-		return s_key_state[keycode] != 0;
+		return sKeyState[keycode] != 0;
 	}
 
-	bool renderer::key_prev(const int keycode) noexcept
+	bool Renderer::keyPrev(const int keycode) noexcept
 	{
-		return s_key_prev_state[keycode] != 0;
+		return sKeyPrevState[keycode] != 0;
 	}
 
-	bool renderer::key_toggle_press(const int keycode) noexcept
+	bool Renderer::keyTogglePress(const int keycode) noexcept
 	{
-		return key(keycode) && !key_prev(keycode);
+		return key(keycode) && !keyPrev(keycode);
 	}
 
-	bool renderer::key_toggle_release(const int keycode) noexcept
+	bool Renderer::keyToggleRelease(const int keycode) noexcept
 	{
-		return !key(keycode) && key_prev(keycode);
+		return !key(keycode) && keyPrev(keycode);
 	}
 
-	bool renderer::mousebutton(const int buttoncode) noexcept
+	bool Renderer::mouseButton(const int buttoncode) noexcept
 	{
 		return 0 != (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(buttoncode));
 	}
 
-	void renderer::release()
+	void Renderer::release()
 	{
 		if (sContext) // deletes shaders, textures, framebuffers, etc.
 		{
@@ -493,7 +493,7 @@ namespace gintonic {
 		}
 	}
 
-	void renderer::update() noexcept
+	void Renderer::update() noexcept
 	{
 		sEntityQueueLock.obtain();
 		sCurrentQueue.swap(sFutureQueue);
@@ -562,13 +562,13 @@ namespace gintonic {
 
 		for (auto* lEntity : lShadowCastingGeometryEntities)
 		{
-			set_model_matrix(lEntity->global_transform());
+			setModelMatrix(lEntity->globalTransform());
 			lEntity->material->bind();
 			lEntity->mesh->draw();
 		}
 		for (auto* lEntity : lNonShadowCastingGeometryEntities)
 		{
-			set_model_matrix(lEntity->global_transform());
+			setModelMatrix(lEntity->globalTransform());
 			lEntity->material->bind();
 			lEntity->mesh->draw();
 		}
@@ -589,7 +589,7 @@ namespace gintonic {
 		// 			{
 		// 				if (lGeometryEntity->castsShadow)
 		// 				{
-		// 					set_model_matrix(lEntity.global_transform());
+		// 					setModelMatrix(lEntity.globalTransform());
 		// 					lGeometryEntity->mesh->draw();
 		// 					lEntity->light->renderShadow(lEntity, lGeometryEntity);
 		// 				}
@@ -615,7 +615,7 @@ namespace gintonic {
 		// Ambient lighting
 		s_lp_ambient_shader->activate();
 		s_lp_ambient_shader->set_gbuffer_diffuse(GBUFFER_DIFFUSE);
-		s_lp_ambient_shader->set_viewport_size(viewport_size());
+		s_lp_ambient_shader->set_viewport_size(viewportSize());
 		s_lp_ambient_shader->set_light_intensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 		sUnitQuadPUN->draw();
 		
@@ -640,7 +640,7 @@ namespace gintonic {
 		// glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		// glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
 		// glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
-		// glBlitFramebuffer(0, 0, s_width, s_height, 0, 0, s_width, s_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		// glBlitFramebuffer(0, 0, sWidth, sHeight, 0, 0, sWidth, sHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 		// glClear(GL_COLOR_BUFFER_BIT);
 		
@@ -650,14 +650,14 @@ namespace gintonic {
 		// sDebugStream->open(*sDebugFont);
 		// #endif
 		
-		s_prev_elapsed_time = s_elapsed_time;
-		s_elapsed_time = clock_type::now() - s_start_time;
-		s_delta_time = s_elapsed_time - s_prev_elapsed_time;
+		sPrevElapsedTime = sElapsedTime;
+		sElapsedTime = clock_type::now() - sStartTime;
+		sDeltaTime = sElapsedTime - sPrevElapsedTime;
 
-		std::memcpy(s_key_prev_state, s_key_state, sizeof(Uint8) * s_key_state_count);
-		s_key_state = SDL_GetKeyboardState(nullptr);
+		std::memcpy(sKeyPrevState, sKeyState, sizeof(Uint8) * sKeyStateCount);
+		sKeyState = SDL_GetKeyboardState(nullptr);
 
-		s_mouse_delta = 0.0f;
+		sMouseDelta = 0.0f;
 		while (SDL_PollEvent(&sEvent))
 		{
 			switch (sEvent.type)
@@ -673,7 +673,7 @@ namespace gintonic {
 						break;
 					case SDL_WINDOWEVENT_RESIZED:
 						resize((int)sEvent.window.data1, (int)sEvent.window.data2);
-						window_resized(s_width, s_height);
+						window_resized(sWidth, sHeight);
 						break;
 				}
 				break;
@@ -682,8 +682,8 @@ namespace gintonic {
 			case SDL_KEYUP:
 				break;
 			case SDL_MOUSEMOTION:
-				s_mouse_delta.x += (float)sEvent.motion.xrel;
-				s_mouse_delta.y += (float)sEvent.motion.yrel;
+				sMouseDelta.x += (float)sEvent.motion.xrel;
+				sMouseDelta.y += (float)sEvent.motion.yrel;
 				break;
 			case SDL_QUIT:
 				close();
@@ -692,16 +692,16 @@ namespace gintonic {
 				break;
 			}
 		}
-		if (s_mouse_delta.x != 0.0f || s_mouse_delta.y != 0.0f)
+		if (sMouseDelta.x != 0.0f || sMouseDelta.y != 0.0f)
 		{
-			mouse_moved(s_mouse_delta.x, s_mouse_delta.y);
+			mouse_moved(sMouseDelta.x, sMouseDelta.y);
 		}
 
 		// Update the WORLD->VIEW matrix.
-		sCameraEntity->get_view_matrix(s_matrix_V);
+		sCameraEntity->getViewMatrix(s_matrix_V);
 	}
 
-	void renderer::begin_geometry_pass()
+	void Renderer::begin_geometry_pass()
 	{
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
@@ -722,7 +722,7 @@ namespace gintonic {
 		glCullFace(GL_BACK);
 	}
 
-	void renderer::begin_stencil_pass()
+	void Renderer::begin_stencil_pass()
 	{
 		glDrawBuffer(GL_NONE);
 		glEnable(GL_DEPTH_TEST);
@@ -733,7 +733,7 @@ namespace gintonic {
 		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 	}
 
-	void renderer::begin_light_pass()
+	void Renderer::begin_light_pass()
 	{
 		glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
 		for (unsigned int i = 0; i < GBUFFER_FINAL_COLOR; ++i) 
@@ -748,12 +748,12 @@ namespace gintonic {
 		// glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	void renderer::set_read_buffer(const enum GBUFFER type)
+	void Renderer::set_read_buffer(const enum GBUFFER type)
 	{
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + type);
 	}
 
-	void renderer::blit_drawbuffers_to_screen()
+	void Renderer::blit_drawbuffers_to_screen()
 	{
 		// Take s_fbo as the active framebuffer.
 		// We blit the geometry stuff into yet another color attachment.
@@ -776,7 +776,7 @@ namespace gintonic {
 		glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 	}
 
-	void renderer::blit_drawbuffers_to_screen(FontStream& stream)
+	void Renderer::blit_drawbuffers_to_screen(FontStream& stream)
 	{
 		// Take s_fbo as the active framebuffer.
 		// We blit the geometry stuff into yet another color attachment.
@@ -820,17 +820,17 @@ namespace gintonic {
 		glEnable(GL_CULL_FACE);
 	}
 
-	void renderer::ambient_light_pass() noexcept
+	void Renderer::ambient_light_pass() noexcept
 	{
 		const auto& s = get_lp_ambient_shader();
 		s.activate();
 		s.set_gbuffer_diffuse(GBUFFER_DIFFUSE);
-		s.set_viewport_size(viewport_size());
+		s.set_viewport_size(viewportSize());
 		s.set_light_intensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 		get_unit_quad_P().draw();
 	}
 
-	void renderer::update_matrix_P()
+	void Renderer::update_matrix_P()
 	{
 		if (s_matrix_P_dirty)
 		{
@@ -839,7 +839,7 @@ namespace gintonic {
 		}
 	}
 
-	void renderer::update_matrix_VM()
+	void Renderer::update_matrix_VM()
 	{
 		if (s_matrix_VM_dirty)
 		{
@@ -848,7 +848,7 @@ namespace gintonic {
 		}
 	}
 
-	void renderer::update_matrix_PVM()
+	void Renderer::update_matrix_PVM()
 	{
 		update_matrix_P();
 		update_matrix_VM();
@@ -859,7 +859,7 @@ namespace gintonic {
 		}
 	}
 
-	void renderer::update_matrix_N()
+	void Renderer::update_matrix_N()
 	{
 		update_matrix_VM();
 		if (s_matrix_N_dirty)
@@ -871,19 +871,19 @@ namespace gintonic {
 
 	#define RENDERER_NOT_INITIALIZED "Renderer is not initialized."
 
-	const char* renderer::name()
+	const char* Renderer::name()
 	{
-		if (!is_initialized()) throw std::logic_error(RENDERER_NOT_INITIALIZED);
+		if (!isInitialized()) throw std::logic_error(RENDERER_NOT_INITIALIZED);
 		else return reinterpret_cast<const char*>(glGetString(GL_RENDERER));
 	}
 
-	const char* renderer::version()
+	const char* Renderer::version()
 	{
-		if (!is_initialized()) throw std::logic_error(RENDERER_NOT_INITIALIZED);
+		if (!isInitialized()) throw std::logic_error(RENDERER_NOT_INITIALIZED);
 		else return reinterpret_cast<const char*>(glGetString(GL_VERSION));
 	}
 
-void renderer::init_shaders()
+void Renderer::init_shaders()
 {
 	try
 	{
@@ -1246,12 +1246,12 @@ struct SphereRightFace : public SphereFace
 	}
 };
 
-void renderer::initializeBasicShapes()
+void Renderer::initializeBasicShapes()
 {
 	/* Set up the unit quad */
 
 	sUnitQuadPUN.reset(new Mesh());
-	sUnitQuadPUN->setName("UnitQuad");
+	sUnitQuadPUN->name = "UnitQuad";
 	sUnitQuadPUN->set(
 		{
 			0,1,2,2,1,3 // indices
@@ -1273,7 +1273,7 @@ void renderer::initializeBasicShapes()
 	/* Set up the unit cube */
 
 	sUnitCubePUN.reset(new Mesh());
-	sUnitCubePUN->setName("UnitCube");
+	sUnitCubePUN->name = "UnitCube";
 	sUnitCubePUN->set(
 		{
 			// front
@@ -1424,7 +1424,7 @@ void renderer::initializeBasicShapes()
 	}
 
 	sUnitSpherePUN.reset(new Mesh());
-	sUnitSpherePUN->setName("UnitSphere");
+	sUnitSpherePUN->name = "UnitSphere";
 	sUnitSpherePUN->set(lIndices, lPosition_XYZ_TexCoord_X, lNormal_XYZ_TexCoord_Y);
 
 	/* Set up the unit cone */
@@ -1472,7 +1472,7 @@ void renderer::initializeBasicShapes()
 	}
 
 	sUnitConePUN.reset(new Mesh());
-	sUnitConePUN->setName("UnitCone");
+	sUnitConePUN->name = "UnitCone";
 	sUnitConePUN->set(lIndices, lPosition_XYZ_TexCoord_X, lNormal_XYZ_TexCoord_Y);
 }
 

@@ -849,10 +849,10 @@ public:
 	 * @brief Set the geometry buffer diffuse sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_DIFFUSE.
+	 * Renderer::GBUFFER_DIFFUSE.
 	 * 
 	 * @param texture_unit The value for the geometry buffer diffuse sampler.
-	 * Must always be equal to renderer::GBUFFER_DIFFUSE.
+	 * Must always be equal to Renderer::GBUFFER_DIFFUSE.
 	 */
 	void set_gbuffer_diffuse(const GLint texture_unit) const 
 		noexcept;
@@ -860,10 +860,10 @@ public:
 	/**
 	 * @brief Set the viewport size uniform variable.
 	 * @details You can query the viewport size with the static function
-	 * renderer::viewport_size.
+	 * Renderer::viewport_size.
 	 * 
 	 * @param size The size of the viewport. Should always use
-	 * renderer::viewport_size unless you have a specific reason not to.
+	 * Renderer::viewport_size unless you have a specific reason not to.
 	 */
 	void set_viewport_size(const vec2f& size) const noexcept;
 
@@ -944,10 +944,10 @@ public:
 	 * @brief Set the geometry buffer position sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_POSITION.
+	 * Renderer::GBUFFER_POSITION.
 	 * 
 	 * @param texture_unit The value for the geometry buffer position sampler.
-	 * Must always be equal to renderer::GBUFFER_POSITION.
+	 * Must always be equal to Renderer::GBUFFER_POSITION.
 	 */
 	void set_gbuffer_position(const GLint texture_unit) const 
 		noexcept;
@@ -956,10 +956,10 @@ public:
 	 * @brief Set the geometry buffer specular sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_SPECULAR.
+	 * Renderer::GBUFFER_SPECULAR.
 	 * 
 	 * @param texture_unit The value for the geometry buffer specular sampler.
-	 * Must always be equal to renderer::GBUFFER_SPECULAR.
+	 * Must always be equal to Renderer::GBUFFER_SPECULAR.
 	 */
 	void set_gbuffer_specular(const GLint texture_unit) const 
 		noexcept;
@@ -968,10 +968,10 @@ public:
 	 * @brief Set the geometry buffer normal sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_NORMAL.
+	 * Renderer::GBUFFER_NORMAL.
 	 * 
 	 * @param texture_unit The value for the geometry buffer normal sampler.
-	 * Must always be equal to renderer::GBUFFER_NORMAL.
+	 * Must always be equal to Renderer::GBUFFER_NORMAL.
 	 */
 	void set_gbuffer_normal(const GLint texture_unit) const 
 		noexcept;
@@ -1034,10 +1034,10 @@ public:
 	/**
 	 * @brief Set the viewport size uniform variable.
 	 * @details You can query the viewport size with the static function
-	 * renderer::viewport_size.
+	 * Renderer::viewport_size.
 	 * 
 	 * @param size The size of the viewport. Should always use
-	 * renderer::viewport_size unless you have a specific reason not to.
+	 * Renderer::viewport_size unless you have a specific reason not to.
 	 */
 	void set_viewport_size(const vec2f& size) const noexcept;
 
@@ -1045,10 +1045,10 @@ public:
 	 * @brief Set the geometry buffer position sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_POSITION.
+	 * Renderer::GBUFFER_POSITION.
 	 * 
 	 * @param texture_unit The value for the geometry buffer position sampler.
-	 * Must always be equal to renderer::GBUFFER_POSITION.
+	 * Must always be equal to Renderer::GBUFFER_POSITION.
 	 */
 	void set_gbuffer_position(const GLint texture_unit) const 
 		noexcept;
@@ -1057,10 +1057,10 @@ public:
 	 * @brief Set the geometry buffer diffuse sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_DIFFUSE.
+	 * Renderer::GBUFFER_DIFFUSE.
 	 * 
 	 * @param texture_unit The value for the geometry buffer diffuse sampler.
-	 * Must always be equal to renderer::GBUFFER_DIFFUSE.
+	 * Must always be equal to Renderer::GBUFFER_DIFFUSE.
 	 */
 	void set_gbuffer_diffuse(const GLint texture_unit) const 
 		noexcept;
@@ -1069,10 +1069,10 @@ public:
 	 * @brief Set the geometry buffer specular sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_SPECULAR.
+	 * Renderer::GBUFFER_SPECULAR.
 	 * 
 	 * @param texture_unit The value for the geometry buffer specular sampler.
-	 * Must always be equal to renderer::GBUFFER_SPECULAR.
+	 * Must always be equal to Renderer::GBUFFER_SPECULAR.
 	 */
 	void set_gbuffer_specular(const GLint texture_unit) const 
 		noexcept;
@@ -1081,10 +1081,10 @@ public:
 	 * @brief Set the geometry buffer normal sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_NORMAL.
+	 * Renderer::GBUFFER_NORMAL.
 	 * 
 	 * @param texture_unit The value for the geometry buffer normal sampler.
-	 * Must always be equal to renderer::GBUFFER_NORMAL.
+	 * Must always be equal to Renderer::GBUFFER_NORMAL.
 	 */
 	void set_gbuffer_normal(const GLint texture_unit) const 
 		noexcept;
@@ -1159,10 +1159,10 @@ public:
 	/**
 	 * @brief Set the viewport size uniform variable.
 	 * @details You can query the viewport size with the static function
-	 * renderer::viewport_size.
+	 * Renderer::viewport_size.
 	 * 
 	 * @param size The size of the viewport. Should always use
-	 * renderer::viewport_size unless you have a specific reason not to.
+	 * Renderer::viewport_size unless you have a specific reason not to.
 	 */
 	void set_viewport_size(const vec2f& size) const noexcept;
 
@@ -1170,10 +1170,10 @@ public:
 	 * @brief Set the geometry buffer position sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_POSITION.
+	 * Renderer::GBUFFER_POSITION.
 	 * 
 	 * @param texture_unit The value for the geometry buffer position sampler.
-	 * Must always be equal to renderer::GBUFFER_POSITION.
+	 * Must always be equal to Renderer::GBUFFER_POSITION.
 	 */
 	void set_gbuffer_position(const GLint texture_unit) const 
 		noexcept;
@@ -1182,10 +1182,10 @@ public:
 	 * @brief Set the geometry buffer diffuse sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_DIFFUSE.
+	 * Renderer::GBUFFER_DIFFUSE.
 	 * 
 	 * @param texture_unit The value for the geometry buffer diffuse sampler.
-	 * Must always be equal to renderer::GBUFFER_DIFFUSE.
+	 * Must always be equal to Renderer::GBUFFER_DIFFUSE.
 	 */
 	void set_gbuffer_diffuse(const GLint texture_unit) const 
 		noexcept;
@@ -1194,10 +1194,10 @@ public:
 	 * @brief Set the geometry buffer specular sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_SPECULAR.
+	 * Renderer::GBUFFER_SPECULAR.
 	 * 
 	 * @param texture_unit The value for the geometry buffer specular sampler.
-	 * Must always be equal to renderer::GBUFFER_SPECULAR.
+	 * Must always be equal to Renderer::GBUFFER_SPECULAR.
 	 */
 	void set_gbuffer_specular(const GLint texture_unit) const 
 		noexcept;
@@ -1206,10 +1206,10 @@ public:
 	 * @brief Set the geometry buffer normal sampler.
 	 * 
 	 * @details This value must always be equal to 
-	 * renderer::GBUFFER_NORMAL.
+	 * Renderer::GBUFFER_NORMAL.
 	 * 
 	 * @param texture_unit The value for the geometry buffer normal sampler.
-	 * Must always be equal to renderer::GBUFFER_NORMAL.
+	 * Must always be equal to Renderer::GBUFFER_NORMAL.
 	 */
 	void set_gbuffer_normal(const GLint texture_unit) const 
 		noexcept;

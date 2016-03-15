@@ -3,7 +3,7 @@
 #include "../Foundation/exception.hpp"
 
 #include "DirectionalShadowBuffer.hpp"
-#include "renderer.hpp"
+#include "Renderer.hpp"
 #include "shaders.hpp"
 #include "Mesh.hpp"
 
@@ -69,25 +69,25 @@ DirectionalLight::DirectionalLight(const vec4f& intensity)
 
 void DirectionalLight::shine(const Entity& e) const noexcept
 {
-	const auto& s = renderer::get_lp_directional_shader();
+	const auto& s = Renderer::get_lp_directional_shader();
 	s.activate();
 
 	// These uniforms are always the same for every light shader.
 	// Consider using uniform buffers ...
-	s.set_viewport_size(renderer::viewport_size());
-	s.set_gbuffer_position(renderer::GBUFFER_POSITION);
-	s.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
-	s.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
-	s.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
+	s.set_viewport_size(Renderer::viewportSize());
+	s.set_gbuffer_position(Renderer::GBUFFER_POSITION);
+	s.set_gbuffer_diffuse(Renderer::GBUFFER_DIFFUSE);
+	s.set_gbuffer_specular(Renderer::GBUFFER_SPECULAR);
+	s.set_gbuffer_normal(Renderer::GBUFFER_NORMAL);
 
 	// These uniforms are different for each DirectionalLight.
 	s.set_light_intensity(intensity);
 
-	const auto lLightDirection = renderer::matrix_V() * (e.global_transform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f));
+	const auto lLightDirection = Renderer::matrix_V() * (e.globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f));
 	
 	s.set_light_direction(vec3f(lLightDirection.data));
 
-	renderer::getUnitQuad()->draw();
+	Renderer::getUnitQuad()->draw();
 }
 
 void DirectionalLight::initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const
@@ -111,7 +111,7 @@ void DirectionalLight::beginShadowPass(const Entity& EntityWithLight)
 	// glBindFramebuffer(GL_FRAMEBUFFER, *framebuf);
 	// // glActiveTexture(GL_TEXTURE_2D, GL_TEXTURE0);
 	// // glBindTexture(GL_TEXTURE_2D, *texture);
-	// renderer::get_sp_directional_shader().activate();
+	// Renderer::get_sp_directional_shader().activate();
 	// mat4f world_to_light_space;
 	// EntityWithLight.get_view_matrix(world_to_light_space);
 	// m_current_matrix_PV = EntityWithLight.camera->projectionMatrix() * world_to_light_space;
@@ -120,8 +120,8 @@ void DirectionalLight::beginShadowPass(const Entity& EntityWithLight)
 void DirectionalLight::renderShadow(const Entity& geometry) const noexcept
 {
 	THROW_NOT_IMPLEMENTED_EXCEPTION();
-	// const auto matrix_PVM = m_current_matrix_PV * geometry.global_transform();
-	// renderer::get_sp_directional_shader().set_matrix_PVM(matrix_PVM);
+	// const auto matrix_PVM = m_current_matrix_PV * geometry.globalTransform();
+	// Renderer::get_sp_directional_shader().set_matrix_PVM(matrix_PVM);
 	// geometry.mesh->draw();
 }
 

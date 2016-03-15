@@ -1,7 +1,7 @@
 #include "Font.hpp"
 #include "../Foundation/exception.hpp"
 #include "vertices.hpp"
-#include "renderer.hpp"
+#include "Renderer.hpp"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -83,10 +83,10 @@ Font::Font(boost::filesystem::path filename)
 	mAtlasWidth = 0;
 	mAtlasHeight = 0;
 	#ifdef BOOST_MSVC
-	const auto lFilenameAsString = getName().string();
+	const auto lFilenameAsString = this->name.string();
 	const auto* lFilename = lFilenameAsString.c_str();
 	#else
-	const auto* lFilename = getName().c_str();
+	const auto* lFilename = this->name.c_str();
 	#endif
 	if (FT_New_Face(lFreetypeLib, lFilename, 0, &lFace))
 	{
@@ -255,7 +255,7 @@ void Font::draw(const std::string& text, const vec2f& position, const vec2f& sca
 
 void Font::draw(const char* text, const std::size_t length, const vec2f& position) const noexcept
 {
-	const vec2f scale(2.0f / (GLfloat)renderer::width(), 2.0f / (GLfloat)renderer::height());
+	const vec2f scale(2.0f / (GLfloat)Renderer::width(), 2.0f / (GLfloat)Renderer::height());
 	draw(text, length, position, scale);
 }
 
@@ -268,8 +268,8 @@ void Font::draw(const std::string& text, const vec2f& position) const noexcept
 	{
 		FontStream::FontStream(std::shared_ptr<Font> f) : underlyingFont(f)
 		{
-			scale.x = 2.0f / static_cast<GLfloat>(renderer::width());
-			scale.y = 2.0f / static_cast<GLfloat>(renderer::height());
+			scale.x = 2.0f / static_cast<GLfloat>(Renderer::width());
+			scale.y = 2.0f / static_cast<GLfloat>(Renderer::height());
 			position.x = -1.0f;
 			position.y = 1.0f - scale.y * static_cast<GLfloat>(POINTSIZE);
 		}

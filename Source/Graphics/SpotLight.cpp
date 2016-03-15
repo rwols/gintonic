@@ -3,7 +3,7 @@
 #include "../Math/SQT.hpp"
 
 #include "SpotShadowBuffer.hpp"
-#include "renderer.hpp"
+#include "Renderer.hpp"
 #include "shaders.hpp"
 #include "Mesh.hpp"
 
@@ -32,22 +32,22 @@ void SpotLight::shine(const Entity& e) const noexcept
 
 	SQT sphere_transform;
 	sphere_transform.scale = cutoffPoint();
-	sphere_transform.translation = (e.global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
+	sphere_transform.translation = (e.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
 
-	renderer::set_model_matrix(sphere_transform);
+	Renderer::setModelMatrix(sphere_transform);
 
-	const auto& nullshader = renderer::get_null_shader();
-	const auto& spotshader = renderer::get_lp_spot_shader();
-	const auto sphere = renderer::getUnitSphere();
+	const auto& nullshader = Renderer::get_null_shader();
+	const auto& spotshader = Renderer::get_lp_spot_shader();
+	const auto sphere = Renderer::getUnitSphere();
 
 	// We first do a null-pass that only fills the renderer's stencil buffer.
 	// The stencil value is increased when a front-facing triangle is seen,
 	// and is decreased when a back-facing triangle is seen. This way, the
 	// values that are non-zero should be shaded.
 
-	renderer::begin_stencil_pass();
+	Renderer::begin_stencil_pass();
 	nullshader.activate();
-	nullshader.set_matrix_PVM(renderer::matrix_PVM());
+	nullshader.set_matrix_PVM(Renderer::matrix_PVM());
 	sphere->draw();
 
 	// Here we use the information collected in the stencil buffer to only
@@ -57,22 +57,22 @@ void SpotLight::shine(const Entity& e) const noexcept
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	const auto light_pos = renderer::matrix_V() * (e.global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f));
-	const auto light_dir = renderer::matrix_V() * (e.global_transform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f));
+	const auto light_pos = Renderer::matrix_V() * (e.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f));
+	const auto light_dir = Renderer::matrix_V() * (e.globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f));
 
-	renderer::begin_light_pass();
+	Renderer::begin_light_pass();
 
 	spotshader.activate();
-	spotshader.set_viewport_size(renderer::viewport_size());
-	spotshader.set_gbuffer_position(renderer::GBUFFER_POSITION);
-	spotshader.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
-	spotshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
-	spotshader.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
+	spotshader.set_viewport_size(Renderer::viewportSize());
+	spotshader.set_gbuffer_position(Renderer::GBUFFER_POSITION);
+	spotshader.set_gbuffer_diffuse(Renderer::GBUFFER_DIFFUSE);
+	spotshader.set_gbuffer_specular(Renderer::GBUFFER_SPECULAR);
+	spotshader.set_gbuffer_normal(Renderer::GBUFFER_NORMAL);
 	spotshader.set_light_intensity(intensity);
 	spotshader.set_light_position(vec3f(light_pos.data));
 	spotshader.set_light_direction(vec3f(light_dir.data));
 	spotshader.set_light_attenuation(attenuation());
-	spotshader.set_matrix_PVM(renderer::matrix_PVM());
+	spotshader.set_matrix_PVM(Renderer::matrix_PVM());
 	sphere->draw();
 
 	glDisable(GL_CULL_FACE);

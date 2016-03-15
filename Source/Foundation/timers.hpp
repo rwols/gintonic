@@ -7,7 +7,7 @@
 #ifndef gintonic_timers_hpp
 #define gintonic_timers_hpp
 
-#include "../Graphics/renderer.hpp"
+#include "../Graphics/Renderer.hpp"
 
 namespace gintonic {
 
@@ -23,7 +23,7 @@ class timer
 public:
 
 	/// We inherit the duration type of the renderer's duration type.
-	typedef renderer::duration_type duration_type;
+	typedef Renderer::duration_type duration_type;
 	
 	/**
 	 * @brief Constructor.
@@ -39,7 +39,7 @@ public:
 	 * @brief Update the timer with the given delta time from the renderer.
 	 * 
 	 * @param delta_time The delta time. You probably want this to always be
-	 * renderer::delta_time() unless you have a specific reason not to.
+	 * Renderer::deltaTime() unless you have a specific reason not to.
 	 */
 	virtual void update(const duration_type& delta_time) 
 		noexcept = 0;
@@ -84,7 +84,7 @@ public:
 	 * @brief Update all alive timers.
 	 * 
 	 * @param delta_time The delta time. You probably want this to always be
-	 * renderer::delta_time() unless you have a specific reason not to.
+	 * Renderer::deltaTime() unless you have a specific reason not to.
 	 */
 	static void update_all(const duration_type& delta_time) 
 		noexcept;

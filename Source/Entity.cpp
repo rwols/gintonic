@@ -1,6 +1,6 @@
 #include "Entity.hpp"
 
-#include "Foundation/octree.hpp"
+#include "Foundation/Octree.hpp"
 
 #include "Math/vec4f.hpp"
 #include "Math/SQTstack.hpp"
@@ -35,43 +35,14 @@ Entity::Entity(const FbxNode* pFbxNode)
 	mGlobalTransform = mLocalTransform;
 }
 
-// Entity::Entity(
-// 	const SQT& local_transform,
-// 	const box3f& local_bounding_box,
-// 	octree* octree_root,
-// 	std::shared_ptr<Entity> parent)
-// : mLocalTransform(local_transform)
-// , m_local_bounding_box(local_bounding_box)
-// , m_parent(parent)
-// {
-// 	update_global_info_start();
-// 	if (auto ptr = m_parent.lock())
-// 	{
-// 		ptr->m_children.push_front(shared_from_this());
-// 	}
-// 	if (octree_root) octree_root->insert(this);
-// }
 
 Entity::Entity(Entity&& other) noexcept
 : mLocalTransform(std::move(other.mLocalTransform))
 , mGlobalTransform(std::move(other.mGlobalTransform))
-// , m_local_bounding_box(std::move(other.m_local_bounding_box))
-// , m_global_bounding_box(std::move(other.m_global_bounding_box))
-// , m_children(std::move(other.m_children))
-// , m_parent(std::move(other.m_parent))
-// , m_octree(std::move(other.m_octree))
-// , m_mesh_component(std::move(other.m_mesh_component))
-// , m_material_component(std::move(other.m_material_component))
-// , m_light_component(std::move(other.m_light_component))
-// , m_rigid_body_component(std::move(other.m_rigid_body_component))
-// , m_logic_component(std::move(other.m_logic_component))
-// , m_AI_component(std::move(other.m_AI_component))
-// , m_camera_component(std::move(other.m_camera_component))
-// , m_proj_info_component(std::move(other.m_proj_info_component))
 {
-	if (auto ptr = m_parent.lock())
+	if (auto ptr = mParent.lock())
 	{
-		ptr->m_children.push_front(shared_from_this());
+		ptr->mChildren.push_front(shared_from_this());
 	}
 }
 
@@ -79,228 +50,206 @@ Entity& Entity::operator = (Entity&& other) noexcept
 {
 	mLocalTransform = std::move(other.mLocalTransform);
 	mGlobalTransform = std::move(other.mGlobalTransform);
-	// m_local_bounding_box = std::move(other.m_local_bounding_box);
-	// m_global_bounding_box = std::move(other.m_global_bounding_box);
-	// m_children = std::move(other.m_children);
-	// m_parent = std::move(other.m_parent);
-	// m_octree = std::move(other.m_octree);
-	// m_mesh_component = std::move(other.m_mesh_component);
-	// m_material_component = std::move(other.m_material_component);
-	// m_light_component = std::move(other.m_light_component);
-	// m_rigid_body_component = std::move(other.m_rigid_body_component);
-	// m_logic_component = std::move(other.m_logic_component);
-	// m_AI_component = std::move(other.m_AI_component);
-	// m_camera_component = std::move(other.m_camera_component);
-	// m_proj_info_component = std::move(other.m_proj_info_component);
 
 	return *this;
 }
 
-void Entity::update_global_info(mat4fstack& matrix_stack) noexcept
+void Entity::updateGlobalInfo(mat4fstack& matrixStack) noexcept
 {
-	matrix_stack.push(mLocalTransform);
-	update_global_datamembers(matrix_stack);
-	for (auto child : m_children)
+	matrixStack.push(mLocalTransform);
+	updateGlobalDatamembers(matrixStack);
+	for (auto child : mChildren)
 	{
-		if (child) child->update_global_info(matrix_stack);
+		if (child) child->updateGlobalInfo(matrixStack);
 	}
-	matrix_stack.pop();
+	matrixStack.pop();
 }
 
-void Entity::update_global_info_start() noexcept
+void Entity::updateGlobalInfoStart() noexcept
 {
-	mat4fstack matrix_stack(compute_global_transform());
-	update_global_datamembers(matrix_stack);
-	for (auto child : m_children)
+	mat4fstack lMatrixStack(computeGlobalTransform());
+	updateGlobalDatamembers(lMatrixStack);
+	for (auto lChild : mChildren)
 	{
-		if (child) child->update_global_info(matrix_stack);
+		if (lChild) lChild->updateGlobalInfo(lMatrixStack);
 	}
 }
 
-void Entity::update_global_datamembers(const mat4fstack& matrix_stack) noexcept
+void Entity::updateGlobalDatamembers(const mat4fstack& matrixStack) noexcept
 {
-	mGlobalTransform = matrix_stack.top();
+	mGlobalTransform = matrixStack.top();
 	const vec3f t(mGlobalTransform.data[3]);
-	m_global_bounding_box.min_corner = t + m_local_bounding_box.min_corner;
-	m_global_bounding_box.max_corner = t + m_local_bounding_box.max_corner;
-	if (m_octree) m_octree->notify(this);
+	mGlobalBoundingBox.min_corner = t + mLocalBoundingBox.min_corner;
+	mGlobalBoundingBox.max_corner = t + mLocalBoundingBox.max_corner;
+	if (mOctree) mOctree->notify(this);
 }
 
-void Entity::set_scale(const vec3f& scale) noexcept
+void Entity::setScale(const vec3f& scale) noexcept
 {
 	mLocalTransform.scale = scale;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::multiply_scale(const vec3f& scale) noexcept
+void Entity::multiplyScale(const vec3f& scale) noexcept
 {
 	mLocalTransform.scale *= scale;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::set_translation(const vec3f& translation) noexcept
+void Entity::setTranslation(const vec3f& translation) noexcept
 {
 	mLocalTransform.translation = translation;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::set_translation_x(const float x) noexcept
+void Entity::setTranslationX(const float x) noexcept
 {
 	mLocalTransform.translation.x = x;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
-void Entity::set_translation_y(const float y) noexcept
+void Entity::setTranslationY(const float y) noexcept
 {
 	mLocalTransform.translation.y = y;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::set_translation_z(const float z) noexcept
+void Entity::setTranslationZ(const float z) noexcept
 {
 	mLocalTransform.translation.z = z;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::add_translation(const vec3f& translation) noexcept
+void Entity::addTranslation(const vec3f& translation) noexcept
 {
 	mLocalTransform.translation += translation;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::set_rotation(const quatf& rotation) noexcept
+void Entity::setRotation(const quatf& rotation) noexcept
 {
 	mLocalTransform.rotation = rotation;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::post_multiply_rotation(const quatf& rotation) noexcept
+void Entity::postMultiplyRotation(const quatf& rotation) noexcept
 {
 	mLocalTransform.rotation *= rotation;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::pre_multiply_rotation(const quatf& rotation) noexcept
+void Entity::preMultiplyRotation(const quatf& rotation) noexcept
 {
 	mLocalTransform.rotation = rotation * mLocalTransform.rotation;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::set_local_transform(const SQT& sqt) noexcept
+void Entity::setLocalTransform(const SQT& sqt) noexcept
 {
 	mLocalTransform = sqt;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::post_add_local_transform(const SQT& sqt) noexcept
+void Entity::postAddLocalTransform(const SQT& sqt) noexcept
 {
 	mLocalTransform %= sqt;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::pre_add_local_transform(const SQT& sqt) noexcept
+void Entity::preAddLocalTransform(const SQT& sqt) noexcept
 {
 	mLocalTransform = sqt % mLocalTransform;
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::move_forward(const float amount) noexcept
+void Entity::moveForward(const float amount) noexcept
 {
 	mLocalTransform.translation += amount * mLocalTransform.rotation.forward_direction();
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::move_backward(const float amount) noexcept
+void Entity::moveBackward(const float amount) noexcept
 {
 	mLocalTransform.translation -= amount * mLocalTransform.rotation.forward_direction();
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::move_right(const float amount) noexcept
+void Entity::moveRight(const float amount) noexcept
 {
 	mLocalTransform.translation += amount * mLocalTransform.rotation.right_direction();
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::move_left(const float amount) noexcept
+void Entity::moveLeft(const float amount) noexcept
 {
 	mLocalTransform.translation -= amount * mLocalTransform.rotation.right_direction();
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::move_up(const float amount) noexcept
+void Entity::moveUp(const float amount) noexcept
 {
 	mLocalTransform.translation += amount * mLocalTransform.rotation.up_direction();
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-void Entity::move_down(const float amount) noexcept
+void Entity::moveDown(const float amount) noexcept
 {
 	mLocalTransform.translation -= amount * mLocalTransform.rotation.up_direction();
-	update_global_info_start();
-	transform_changed(shared_from_this());
+	updateGlobalInfoStart();
+	onTransformChange(shared_from_this());
 }
 
-mat4f Entity::compute_global_transform() noexcept
+mat4f Entity::computeGlobalTransform() noexcept
 {
-	if (auto ptr = m_parent.lock())
+	if (auto lParent = mParent.lock())
 	{
-		return ptr->global_transform() * mat4f(mLocalTransform);
+		return lParent->globalTransform() * mat4f(mLocalTransform);
 	}
 	else
 	{
 		return mat4f(mLocalTransform);
 	}
-	// mat4f global_matrix(mLocalTransform);
-	// const auto* current_Entity = m_parent;
-	// while (current_Entity)
-	// {
-	// 	if (current_Entity == this) break; // Cycle in the Entity graph.
-	// 	global_matrix = mat4f(current_Entity->mLocalTransform) * global_matrix;
-	// 	current_Entity = current_Entity->m_parent;
-	// }
-	// return global_matrix;
 }
 
-void Entity::add_child(std::shared_ptr<Entity> child)
+void Entity::addChild(std::shared_ptr<Entity> child)
 {
-	child->m_parent = shared_from_this();
-	m_children.push_front(child);
-	child->update_global_info_start();
-	child->transform_changed(child);
+	child->mParent = shared_from_this();
+	mChildren.push_front(child);
+	child->updateGlobalInfoStart();
+	child->onTransformChange(child);
 }
 
-void Entity::remove_child(std::shared_ptr<Entity> child)
+void Entity::removeChild(std::shared_ptr<Entity> child)
 {
 	#ifndef NDEBUG
-	bool child_was_removed = false;
+	bool lChildWasRemoved = false;
 	#endif
 
 	for (auto i = begin(); i != end(); ++i)
 	{
 		if (i->get() == child.get())
 		{
-			m_children.erase(i);
+			mChildren.erase(i);
 
 			#ifndef NDEBUG
-			child_was_removed = true;
+			lChildWasRemoved = true;
 			#endif
 
 			break;
@@ -308,34 +257,34 @@ void Entity::remove_child(std::shared_ptr<Entity> child)
 	}
 
 	#ifndef NDEBUG
-	if (child_was_removed) child->m_parent = std::shared_ptr<Entity>(nullptr);
+	if (lChildWasRemoved) child->mParent = std::shared_ptr<Entity>(nullptr);
 	else throw std::logic_error("Entity was not a child.");
 	#else
-	c.m_parent = std::shared_ptr<Entity>(nullptr);
+	child->mParent = std::shared_ptr<Entity>(nullptr);
 	#endif
 }
 
-void Entity::set_parent(std::shared_ptr<Entity> parent)
+void Entity::setParent(std::shared_ptr<Entity> parent)
 {
-	if (auto ptr = m_parent.lock())
+	if (auto lParent = mParent.lock())
 	{
-		ptr->remove_child(shared_from_this());
+		lParent->removeChild(shared_from_this());
 	}
-	parent->add_child(shared_from_this()); // also sets m_parent
+	parent->addChild(shared_from_this()); // also sets mParent
 }
 
-void Entity::unset_parent()
+void Entity::unsetParent()
 {
-	// Also sets m_parent to nullptr
-	if (auto ptr = m_parent.lock()) ptr->remove_child(shared_from_this());
+	// Also sets mParent to nullptr
+	if (auto lParent = mParent.lock()) lParent->removeChild(shared_from_this());
 }
 
-void Entity::get_view_matrix(mat4f& m) const noexcept
+void Entity::getViewMatrix(mat4f& m) const noexcept
 {
-	const auto f = global_transform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f);
-	const auto u = global_transform() * vec4f(0.0f, 1.0f, 0.0f, 0.0f);
-	const auto r = global_transform() * vec4f(1.0f, 0.0f, 0.0f, 0.0f);
-	const auto eye = global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+	const auto f = globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f);
+	const auto u = globalTransform() * vec4f(0.0f, 1.0f, 0.0f, 0.0f);
+	const auto r = globalTransform() * vec4f(1.0f, 0.0f, 0.0f, 0.0f);
+	const auto eye = globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f);
 
 	m.m00 = r.x;
 	m.m10 = u.x;
@@ -360,9 +309,9 @@ void Entity::get_view_matrix(mat4f& m) const noexcept
 
 Entity::~Entity()
 {
-	about_to_die(*this);
-	if (m_octree) m_octree->erase(this);
-	unset_parent();
+	onDie(*this);
+	if (mOctree) mOctree->erase(this);
+	unsetParent();
 }
 
 } // namespace gintonic

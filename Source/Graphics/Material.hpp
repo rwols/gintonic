@@ -9,7 +9,6 @@
 #include "../ForwardDeclarations.hpp"
 
 #include "../Foundation/Object.hpp"
-#include "../Foundation/locks.hpp"
 
 #include "../Math/vec4f.hpp"
 
@@ -502,17 +501,17 @@ private:
 		if (lHasDiffuse)
 		{
 			// We carry a diffuse texture, serialize its filename.
-			ar & boost::serialization::make_nvp("diffuseTexture", diffuseTexture->getName());
+			ar & boost::serialization::make_nvp("diffuseTexture", diffuseTexture->name);
 		}
 		if (lHasSpecular)
 		{
 			// We carry a specular texture, serialize its filename.
-			ar & boost::serialization::make_nvp("specularTexture", specularTexture->getName());
+			ar & boost::serialization::make_nvp("specularTexture", specularTexture->name);
 		}
 		if (lHasNormal)
 		{
 			// We carry a normal texture, serialize its filename.
-			ar & boost::serialization::make_nvp("normalTexture", normalTexture->getName());
+			ar & boost::serialization::make_nvp("normalTexture", normalTexture->name);
 		}
 	}
 

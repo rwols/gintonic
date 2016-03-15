@@ -21,21 +21,7 @@
 
 namespace gintonic {
 
-class octree;
-
-// class octree;     // Forward declaration.
-// class Mesh;       // Forward declaration.
-// class Material;   // Forward declaration.
-// class Light;      // Forward declaration.
-// class rigid_body; // Forward declaration.
-// class logic;      // Forward declaration.
-// class AI;         // Forward declaration.
-// class proj_info;  // Forward declaration.
-// class Camera;     // Forward declaration.
-// class SQTstack;   // Forward declaration.
-// class mat4fstack; // Forward declaration.
-// class controller; // Forward declaration.
-// class ShadowBuffer; // Forward declaration.
+class Octree;
 
 /**
  * @brief Represents an entity in the world.
@@ -65,39 +51,21 @@ private:
 	SQT mLocalTransform;
 	mat4f mGlobalTransform;
 
-	box3f m_local_bounding_box;
-	box3f m_global_bounding_box;
+	box3f mLocalBoundingBox;
+	box3f mGlobalBoundingBox;
 
-	children_datastructure_type m_children;
+	children_datastructure_type mChildren;
 
-	std::weak_ptr<Entity> m_parent = std::shared_ptr<Entity>(nullptr);
+	std::weak_ptr<Entity> mParent = std::shared_ptr<Entity>(nullptr);
 
-	octree*     m_octree               = nullptr;
-	// controller* m_controller_component = nullptr;
-	// Mesh*       m_mesh_component       = nullptr;
-	// Material*   m_material_component   = nullptr;
-	// Light*      m_light_component      = nullptr;
-	// rigid_body* m_rigid_body_component = nullptr;
-	// logic*      m_logic_component      = nullptr;
-	// AI*         m_AI_component         = nullptr;
-	// Camera*     m_camera_component     = nullptr;
-	// proj_info*  m_proj_info_component  = nullptr;
+	friend class Octree;
 
-	friend class octree;
-	// friend class controller;
-	// friend class Mesh;
-	// friend class Material;
-	// friend class Light;
-	// friend class rigid_body;
-	// friend class logic;
-	// friend class AI;
-	// friend class Camera;
-	// friend class proj_info;
+	Octree* mOctree = nullptr;
 
-	void update_global_info(mat4fstack&) noexcept;
-	void update_global_info_start() noexcept;
-	mat4f compute_global_transform() noexcept;
-	void update_global_datamembers(const mat4fstack&) noexcept;
+	void updateGlobalInfo(mat4fstack&) noexcept;
+	void updateGlobalInfoStart() noexcept;
+	void updateGlobalDatamembers(const mat4fstack&) noexcept;
+	mat4f computeGlobalTransform() noexcept;
 
 public:
 
@@ -164,14 +132,14 @@ public:
 	 *
 	 * @param e A reference to the Entity that is about to die.
 	 */
-	boost::signals2::signal<void(Entity&)> about_to_die;
+	boost::signals2::signal<void(Entity&)> onDie;
 
 	/**
 	 * @brief Event that fires when the global transform has changed.
 	 *
 	 * @param e A reference to the Entity whose global transform has changed.
 	 */
-	boost::signals2::signal<void(std::shared_ptr<Entity>)> transform_changed;
+	boost::signals2::signal<void(std::shared_ptr<Entity>)> onTransformChange;
 
 	//@}
 
@@ -239,7 +207,7 @@ public:
 	 * transform of all of its children.
 	 * @param s The new scale.
 	 */
-	void set_scale(const vec3f& s) noexcept;
+	void setScale(const vec3f& s) noexcept;
 
 	/**
 	 * @brief Multiply the current scale of the local SQT transform.
@@ -249,7 +217,7 @@ public:
 	 *
 	 * @param s The scale to multiply the current local scale with.
 	 */
-	void multiply_scale(const vec3f& s) noexcept;
+	void multiplyScale(const vec3f& s) noexcept;
 
 	/**
 	 * @brief Set the translation of the local SQT transform.
@@ -259,7 +227,7 @@ public:
 	 *
 	 * @param t The new translation.
 	 */
-	void set_translation(const vec3f& t) noexcept;
+	void setTranslation(const vec3f& t) noexcept;
 
 	/**
 	 * @brief Set the translation's X-coordinate of the local SQT transform.
@@ -269,7 +237,7 @@ public:
 	 *
 	 * @param x The new X-coordinate.
 	 */
-	void set_translation_x(const float x) noexcept;
+	void setTranslationX(const float x) noexcept;
 
 	/**
 	 * @brief Set the translation's Y-coordinate of the local SQT transform.
@@ -279,7 +247,7 @@ public:
 	 *
 	 * @param y The new Y-coordinate.
 	 */
-	void set_translation_y(const float y) noexcept;
+	void setTranslationY(const float y) noexcept;
 
 	/**
 	 * @brief Set the translation's Z-coordinate of the local SQT transform.
@@ -289,7 +257,7 @@ public:
 	 *
 	 * @param z The new Z-coordinate.
 	 */
-	void set_translation_z(const float z) noexcept;
+	void setTranslationZ(const float z) noexcept;
 
 	/**
 	 * @brief Add a translation to the current SQT transform's translation.
@@ -299,7 +267,7 @@ public:
 	 *
 	 * @param t The translation to add.
 	 */
-	void add_translation(const vec3f& t) noexcept;
+	void addTranslation(const vec3f& t) noexcept;
 
 	/**
 	 * @brief Set the rotation quaternion of the local SQT transform.
@@ -309,7 +277,7 @@ public:
 	 *
 	 * @param q The new rotation quaternion.
 	 */
-	void set_rotation(const quatf& q) noexcept;
+	void setRotation(const quatf& q) noexcept;
 
 	/**
 	 * @brief Post-multiply the current rotation of the local SQT transform.
@@ -319,7 +287,7 @@ public:
 	 *
 	 * @param q The rotation quaternion to post-multiply with.
 	 */
-	void post_multiply_rotation(const quatf& q) noexcept;
+	void postMultiplyRotation(const quatf& q) noexcept;
 
 	/**
 	 * @brief Pre-multiply the current rotation of the local SQT transform.
@@ -329,7 +297,7 @@ public:
 	 *
 	 * @param q The rotation quaternion to pre-multiply with.
 	 */
-	void pre_multiply_rotation(const quatf& q) noexcept;
+	void preMultiplyRotation(const quatf& q) noexcept;
 
 	/**
 	 * @brief Set the local SQT transform of this Entity.
@@ -339,7 +307,7 @@ public:
 	 *
 	 * @param sqt The new SQT transform.
 	 */
-	void set_local_transform(const SQT& sqt) noexcept;
+	void setLocalTransform(const SQT& sqt) noexcept;
 
 	/**
 	 * @brief Post-add an SQT to the current local SQT transform.
@@ -349,7 +317,7 @@ public:
 	 *
 	 * @param sqt The SQT transform to post-add.
 	 */
-	void post_add_local_transform(const SQT& sqt) noexcept;
+	void postAddLocalTransform(const SQT& sqt) noexcept;
 
 	/**
 	 * @brief Pre-add an SQT to the current local SQT transform.
@@ -359,7 +327,7 @@ public:
 	 *
 	 * @param sqt The SQT transform to pre-add.
 	 */
-	void pre_add_local_transform(const SQT& sqt) noexcept;
+	void preAddLocalTransform(const SQT& sqt) noexcept;
 
 	/**
 	 * @brief Move the Entity in the direction of the local forward direction.
@@ -369,7 +337,7 @@ public:
 	 *
 	 * @param amount The amount of translation.
 	 */
-	void move_forward(const float amount) noexcept;
+	void moveForward(const float amount) noexcept;
 
 	/**
 	 * @brief Move the Entity in the direction of the local backward
@@ -380,7 +348,7 @@ public:
 	 *
 	 * @param amount The amount of translation.
 	 */
-	void move_backward(const float amount) noexcept;
+	void moveBackward(const float amount) noexcept;
 
 	/**
 	 * @brief Move the Entity in the direction of the local right direction.
@@ -390,7 +358,7 @@ public:
 	 *
 	 * @param amount The amount of translation.
 	 */
-	void move_right(const float amount) noexcept;
+	void moveRight(const float amount) noexcept;
 
 	/**
 	 * @brief Move the Entity in the direction of the local left direction.
@@ -400,7 +368,7 @@ public:
 	 *
 	 * @param amount The amount of translation.
 	 */
-	void move_left(const float amount) noexcept;
+	void moveLeft(const float amount) noexcept;
 
 	/**
 	 * @brief Move the Entity in the direction of the local up direction.
@@ -410,7 +378,7 @@ public:
 	 *
 	 * @param amount The amount of translation.
 	 */
-	void move_up(const float amount) noexcept;
+	void moveUp(const float amount) noexcept;
 
 	/**
 	 * @brief Move the Entity in the direction of the local down direction.
@@ -420,16 +388,16 @@ public:
 	 *
 	 * @param amount The amount of translation.
 	 */
-	void move_down(const float amount) noexcept;
+	void moveDown(const float amount) noexcept;
 
 	/**
 	 * @brief Get the local bounding box.
 	 *
 	 * @return A constant reference to the local bounding box.
 	 */
-	inline const box3f& local_bounding_box() const noexcept
+	inline const box3f& localBoundingBox() const noexcept
 	{
-		return m_local_bounding_box;
+		return mLocalBoundingBox;
 	}
 
 	/**
@@ -442,7 +410,7 @@ public:
 	 *
 	 * @param b The new local bounding box.
 	 */
-	void set_local_bounding_box(const box3f& b);
+	void setLocalBoundingBox(const box3f& b);
 
 	/**
 	 * @brief Set the local bounding box of this Entity.
@@ -455,7 +423,7 @@ public:
 	 * @param min_corner The new minimum corner of the local bounding box.
 	 * @param max_corner The new maximum corner of the local bounding box.
 	 */
-	void set_local_bounding_box(
+	void setLocalBoundingBox(
 		const vec2f& min_corner,
 		const vec2f& max_corner);
 
@@ -464,7 +432,7 @@ public:
 	 *
 	 * @return A constant reference to the local SQT transform.
 	 */
-	inline const SQT& local_transform() const noexcept
+	inline const SQT& localTransform() const noexcept
 	{
 		return mLocalTransform;
 	}
@@ -486,7 +454,7 @@ public:
 	 *
 	 * @param child The child Entity.
 	 */
-	void add_child(std::shared_ptr<Entity> child);
+	void addChild(std::shared_ptr<Entity> child);
 
 	/**
 	 * @brief Remove a child Entity of this Entity.
@@ -496,14 +464,14 @@ public:
 	 *
 	 * @param child The child Entity to remove.
 	 */
-	void remove_child(std::shared_ptr<Entity> child);
+	void removeChild(std::shared_ptr<Entity> child);
 
 	/**
 	 * @brief Remove a child Entity of this Entity.
 	 *
 	 * @param iter An iterator pointing to a child.
 	 */
-	void remove_child(iterator child);
+	void removeChild(iterator child);
 
 	/**
 	 * @brief Set the parent of this Entity.
@@ -514,7 +482,7 @@ public:
 	 *
 	 * @param parent The parent Entity.
 	 */
-	void set_parent(std::shared_ptr<Entity> parent);
+	void setParent(std::shared_ptr<Entity> parent);
 
 	/**
 	 * @brief Set this Entity to have no parent.
@@ -523,7 +491,7 @@ public:
 	 * parent, then this Entity is serached for in the children's list of the
 	 * parent Entity and removed.
 	 */
-	void unset_parent();
+	void unsetParent();
 
 
 	/**
@@ -540,7 +508,7 @@ public:
 	 */
 	inline std::weak_ptr<Entity> parent() noexcept
 	{
-		return m_parent;
+		return mParent;
 	}
 
 	/**
@@ -552,7 +520,7 @@ public:
 	 */
 	inline const std::weak_ptr<const Entity> parent() const noexcept
 	{
-		return m_parent;
+		return mParent;
 	}
 
 	/**
@@ -562,7 +530,7 @@ public:
 	 */
 	inline iterator begin() noexcept
 	{
-		return m_children.begin();
+		return mChildren.begin();
 	}
 
 	/**
@@ -572,7 +540,7 @@ public:
 	 */
 	inline iterator end() noexcept
 	{
-		return m_children.end();
+		return mChildren.end();
 	}
 
 	/**
@@ -582,7 +550,7 @@ public:
 	 */
 	inline const_iterator begin() const noexcept
 	{
-		return m_children.begin();
+		return mChildren.begin();
 	}
 
 	/**
@@ -592,7 +560,7 @@ public:
 	 */
 	inline const_iterator end() const noexcept
 	{
-		return m_children.end();
+		return mChildren.end();
 	}
 
 	/**
@@ -602,7 +570,7 @@ public:
 	 */
 	inline const_iterator cbegin() const noexcept
 	{
-		return m_children.cbegin();
+		return mChildren.cbegin();
 	}
 
 	/**
@@ -612,7 +580,7 @@ public:
 	 */
 	inline const_iterator cend() const noexcept
 	{
-		return m_children.cend();
+		return mChildren.cend();
 	}
 
 	//@}
@@ -628,7 +596,7 @@ public:
 	 *
 	 * @param m The matrix to set.
 	 */
-	void get_view_matrix(mat4f& m) const noexcept;
+	void getViewMatrix(mat4f& m) const noexcept;
 
 	/**
 	 * @brief Get the global transformation matrix, i.e. from `MODEL` space
@@ -636,7 +604,7 @@ public:
 	 *
 	 * @return A constant reference to the global transformation matrix.
 	 */
-	inline const mat4f& global_transform() const noexcept
+	inline const mat4f& globalTransform() const noexcept
 	{
 		return mGlobalTransform;
 	}
@@ -646,250 +614,10 @@ public:
 	 *
 	 * @return A constant reference to the global bounding box.
 	 */
-	inline const box3f& global_bounding_box() const noexcept
+	inline const box3f& globalBoundingBox() const noexcept
 	{
-		return m_global_bounding_box;
+		return mGlobalBoundingBox;
 	}
-
-	//@}
-
-	// /**
-	//  * @name Components
-	//  */
-
-	// //@{
-
-	// /**
-	//  * @brief Get a pointer to the controller component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A pointer to the controller component of this Entity.
-	//  */
-	// inline controller* controller_component() noexcept
-	// {
-	// 	return m_controller_component;
-	// }
-
-	// /**
-	//  * @brief Get a constant pointer to the controller component of this
-	//  * Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A constant pointer to the controller component of this Entity.
-	//  */
-	// inline const controller* controller_component() const
-	// 	noexcept
-	// {
-	// 	return m_controller_component;
-	// }
-
-	// /**
-	//  * @brief Get a pointer to the mesh component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A pointer to the mesh component of this Entity.
-	//  */
-	// inline mesh* mesh_component() noexcept
-	// {
-	// 	return m_mesh_component;
-	// }
-
-	// /**
-	//  * @brief Get a constant pointer to the mesh component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A constant pointer to the mesh component of this Entity.
-	//  */
-	// inline const mesh* mesh_component() const noexcept
-	// {
-	// 	return m_mesh_component;
-	// }
-
-	// /**
-	//  * @brief Get a pointer to the material component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A pointer to the material component of this Entity.
-	//  */
-	// inline material* material_component() noexcept
-	// {
-	// 	return m_material_component;
-	// }
-
-	// /**
-	//  * @brief Get a constant pointer to the material component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A constant pointer to the material component of this Entity.
-	//  */
-	// inline const material* material_component() const
-	// 	noexcept
-	// {
-	// 	return m_material_component;
-	// }
-
-	// /**
-	//  * @brief Get a pointer to the light component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A pointer to the light component of this Entity.
-	//  */
-	// inline light* light_component() noexcept
-	// {
-	// 	return m_light_component;
-	// }
-
-	// /**
-	//  * @brief Get a constant pointer to the light component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A constant pointer to the light component of this Entity.
-	//  */
-	// inline const light* light_component() const noexcept
-	// {
-	// 	return m_light_component;
-	// }
-
-	// /**
-	//  * @brief Get a pointer to the rigid_body component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A pointer to the rigid_body component of this Entity.
-	//  */
-	// inline rigid_body* rigid_body_component() noexcept
-	// {
-	// 	return m_rigid_body_component;
-	// }
-
-	// /**
-	//  * @brief Get a constant pointer to the rigid_body component of this
-	//  * Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A constant pointer to the rigid_body component of this Entity.
-	//  */
-	// inline const rigid_body* rigid_body_component() const
-	// 	noexcept
-	// {
-	// 	return m_rigid_body_component;
-	// }
-
-	// /**
-	//  * @brief Get a pointer to the AI component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A pointer to the AI component of this Entity.
-	//  */
-	// inline AI* AI_component() noexcept
-	// {
-	// 	return m_AI_component;
-	// }
-
-	// /**
-	//  * @brief Get a constant pointer to the AI component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A constant pointer to the AI component of this Entity.
-	//  */
-	// inline const AI* AI_component() const noexcept
-	// {
-	// 	return m_AI_component;
-	// }
-
-	// /**
-	//  * @brief Get a pointer to the camera component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A pointer to the camera component of this Entity.
-	//  */
-	// inline camera* camera_component() noexcept
-	// {
-	// 	return m_camera_component;
-	// }
-
-	// /**
-	//  * @brief Get a constant pointer to the camera component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A constant pointer to the camera component of this Entity.
-	//  */
-	// inline const camera* camera_component() const noexcept
-	// {
-	// 	return m_camera_component;
-	// }
-
-	// /**
-	//  * @brief Get a pointer to the proj_info component of this Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A pointer to the proj_info component of this Entity.
-	//  */
-	// inline proj_info*  proj_info_component() noexcept
-	// {
-	// 	return m_proj_info_component;
-	// }
-
-	// /**
-	//  * @brief Get a constant pointer to the proj_info component of this
-	//  * Entity.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A constant pointer to the proj_info component of this Entity.
-	//  */
-	// inline const proj_info*  proj_info_component() const
-	// 	noexcept
-	// {
-	// 	return m_proj_info_component;
-	// }
-
-	//@}
-
-	/**
-	 * @name Octree management
-	 */
-
-	//@{
-
-	// /**
-	//  * @brief Get a pointer to the octree node that this Entity belongs to.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A pointer to the octree node that this Entity belongs to.
-	//  */
-	// inline octree* octree_node() noexcept
-	// {
-	// 	return m_octree;
-	// }
-
-	// *
-	//  * @brief Get a const pointer to the octree node that this Entity belongs
-	//  * to.
-	//  *
-	//  * @details The pointer can be null, so be sure to check for that.
-	//  *
-	//  * @return A const pointer to the octree node that this Entity belongs to.
-	 
-	// inline const octree* octree_node() const noexcept
-	// {
-	// 	return m_octree;
-	// }
 
 	//@}
 

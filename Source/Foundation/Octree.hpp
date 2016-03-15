@@ -1,11 +1,11 @@
 /**
- * @file octree.hpp
- * @brief Defines an octree datastructure.
+ * @file Octree.hpp
+ * @brief Defines an Octree datastructure.
  * @author Raoul Wols
  */
 
-#ifndef gintonic_octree_hpp
-#define gintonic_octree_hpp
+#ifndef gintonic_Octree_hpp
+#define gintonic_Octree_hpp
 
 #include "../Math/box3f.hpp"
 #include "../Entity.hpp"
@@ -14,18 +14,18 @@
 namespace gintonic {
 
 /**
- * @brief An octree datastructure.
+ * @brief An Octree datastructure.
  */
-class octree
+class Octree
 {
 private:
 
 	friend class Entity;
 
-	octree* m_parent = nullptr;
-	box3f m_bounds;
-	std::list<Entity*> m_entities;
-	octree* m_child[8];
+	Octree* mParent = nullptr;
+	box3f mBounds;
+	std::list<Entity*> mEntities;
+	Octree* mChild[8];
 
 public:
 
@@ -34,34 +34,34 @@ public:
 	 *
 	 * @details The subdivision threshold is the minimum of the width and
 	 * height of a bounding box such that no more subdivision takes place.
-	 * After the octree has reached this point, all objects will just be
-	 * placed in this octree.
+	 * After the Octree has reached this point, all objects will just be
+	 * placed in this Octree.
 	 */
-	float subdivision_threshold = 5.0f;
+	float subdivisionThreshold = 5.0f;
 
 	/**
 	 * @brief Constructor that takes a bounding box.
 	 *
-	 * @param b The bounding box of the octree.
+	 * @param b The bounding box of the Octree.
 	 */
-	octree(const box3f& b);
+	Octree(const box3f& b);
 
 	/**
 	 * @brief Constructor that takes a bounding box.
-	 * @param min_corner The minimum corner of the bounding box.
-	 * @param max_corner The maximum corner of the bounding box.
+	 * @param minCorner The minimum corner of the bounding box.
+	 * @param maxCorner The maximum corner of the bounding box.
 	 */
-	octree(const vec3f& min_corner, const vec3f& max_corner);
+	Octree(const vec3f& minCorner, const vec3f& maxCorner);
 	
 	/**
 	 * @brief Constructor that inserts elements from a container.
 	 * @tparam ForwardIter The forward iterator type.
-	 * @param b The bounding box of the octree.
+	 * @param b The bounding box of the Octree.
 	 * @param first Iterator pointing to the first element.
 	 * @param last Iterator pointing to one-past-the-end element.
 	 */
 	template <class ForwardIter> 
-	octree(
+	Octree(
 		const box3f& b, 
 		ForwardIter first, 
 		ForwardIter last);
@@ -71,15 +71,15 @@ public:
 	/**
 	 * @brief Constructor that inserts elements from a container.
 	 * @tparam ForwardIter The forward iterator type.
-	 * @param min_corner The minimum corner of the bounding box.
-	 * @param max_corner the maximum corner of the bounding box.
+	 * @param minCorner The minimum corner of the bounding box.
+	 * @param maxCorner the maximum corner of the bounding box.
 	 * @param first Iterator pointing to the first element.
 	 * @param last Iterator pointing to one-past-the-end element.
 	 */
 	template <class ForwardIter> 
-	octree(
-		const vec3f& min_corner, 
-		const vec3f& max_corner, 
+	Octree(
+		const vec3f& minCorner, 
+		const vec3f& maxCorner, 
 		ForwardIter first, 
 		ForwardIter last);
 
@@ -88,11 +88,11 @@ public:
 	 *
 	 * @details This copies all of the children too. However, it does not
 	 * copy the parent. The parent of the new copy will be a null pointer.
-	 * Essentially, it will create a new octree with the copy as a new root.
+	 * Essentially, it will create a new Octree with the copy as a new root.
 	 *
-	 * @param other Another octree.
+	 * @param other Another Octree.
 	 */
-	octree(const octree& other);
+	Octree(const Octree& other);
 
 	/**
 	 * @brief Move constructor.
@@ -100,22 +100,22 @@ public:
 	 * @details This will also move the parent. Note that this is a big
 	 * contrast with the copy constructor.
 	 *
-	 * @param other Another octree.
+	 * @param other Another Octree.
 	 */
-	octree(octree&& other);
+	Octree(Octree&& other);
 
 	/**
 	 * @brief Copy assignment operator.
 	 *
 	 * @details This copies all of the children too. However, it does not
 	 * copy the parent. The parent of the new copy will be a null pointer.
-	 * Essentially, it will create a new octree with the copy as a new root.
+	 * Essentially, it will create a new Octree with the copy as a new root.
 	 *
-	 * @param other Another octree.
+	 * @param other Another Octree.
 	 *
 	 * @return *this.
 	 */
-	octree& operator = (const octree& other);
+	Octree& operator = (const Octree& other);
 
 	/**
 	 * @brief Move assignment operator.
@@ -123,11 +123,11 @@ public:
 	 * @details This will also move the parent. Note that this is a big
 	 * contrast with the copy constructor.
 	 *
-	 * @param other Another octree.
+	 * @param other Another Octree.
 	 *
 	 * @return *this.
 	 */
-	octree& operator = (octree&& other);
+	Octree& operator = (Octree&& other);
 
 	/**
 	 * @brief Destructor.
@@ -135,70 +135,70 @@ public:
 	 * @details The destructor calls delete on all of
 	 * the children entities.
 	 */
-	~octree();
+	~Octree();
 
 	/**
-	 * @brief Get the axis-aligned bounding box of this octree.
+	 * @brief Get the axis-aligned bounding box of this Octree.
 	 * @return A const reference to the axis-aligned bounding box.
 	 */
 	inline const box3f& bounds() const noexcept
 	{
-		return m_bounds;
+		return mBounds;
 	}
 
 	/**
-	 * @brief Check wether this octree is a root.
-	 * @details An octree is a root if it has no parent.
-	 * @return True if this octree is a root, false otherwise.
+	 * @brief Check wether this Octree is a root.
+	 * @details An Octree is a root if it has no parent.
+	 * @return True if this Octree is a root, false otherwise.
 	 */
-	inline bool is_root() const noexcept
+	inline bool isRoot() const noexcept
 	{
-		return !m_parent;
+		return !mParent;
 	}
 
 	/**
-	 * @brief Check wether this octree is a leaf.
-	 * @details An octree is a leaf if it has no children.
-	 * @return True if this octree is a leaf, false otherwise.
+	 * @brief Check wether this Octree is a leaf.
+	 * @details An Octree is a leaf if it has no children.
+	 * @return True if this Octree is a leaf, false otherwise.
 	 */
-	bool is_leaf() const noexcept;
+	bool isLeaf() const noexcept;
 
 	/**
-	 * @brief Check wether this octree has no entities it refers to.
+	 * @brief Check wether this Octree has no entities it refers to.
 	 * @return True if it houses no entities, false otherwise.
 	 */
-	inline bool has_no_entities() const noexcept
+	inline bool hasNoEntities() const noexcept
 	{
-		return m_entities.empty();
+		return mEntities.empty();
 	}
 
 	/**
-	 * @brief Get the cumulative sum of this octree and all of its children.
+	 * @brief Get the cumulative sum of this Octree and all of its children.
 	 * @details This method recurses into the tree, so cache the result if
 	 * you need it multiple times.
-	 * @return The cumulative sum of this octree and all of its children.
+	 * @return The cumulative sum of this Octree and all of its children.
 	 */
 	std::size_t count() const;
 
 	/**
-	 * @brief Get the entities of this octree and of its children too.
+	 * @brief Get the entities of this Octree and of its children too.
 	 * @tparam OutputIter The output iterator type.
 	 * @param iter An output iterator.
 	 */
 	template <class OutputIter> 
-	void get_entities(OutputIter iter);
+	void getEntities(OutputIter iter);
 
 	/**
-	 * @brief Get the entities of this octree and of its children too.
+	 * @brief Get the entities of this Octree and of its children too.
 	 * @tparam OutputIter The output iterator type.
 	 * @param iter An output iterator.
 	 */
 	template <class OutputIter> 
-	void get_entities(OutputIter iter) const;
+	void getEntities(OutputIter iter) const;
 
 	/**
 	 * @brief Query an area to obtain all the entities in that area.
-	 * @details This method is the raison d'etre for using an octree. The
+	 * @details This method is the raison d'etre for using an Octree. The
 	 * runtime complexity is \f$O(\log N)\f$, where \f$N\f$ is the total
 	 * number of entities in the tree. This is the non-const version, so
 	 * you'll get a container of mutable entities.
@@ -208,7 +208,7 @@ public:
 
 	/**
 	 * @brief Query an area to obtain all the entities in that area.
-	 * @details This method is the raison d'etre for using an octree. The
+	 * @details This method is the raison d'etre for using an Octree. The
 	 * runtime complexity is \f$O(\log N)\f$, where \f$N\f$ is the total
 	 * number of entities in the tree. This is the const version, so you'll 
 	 * get a container of immutable entities.
@@ -255,15 +255,15 @@ public:
 	 */
 	int erase(Entity* e);
 
-	// Notify the octree that an Entity's global bounding box
+	// Notify the Octree that an Entity's global bounding box
 	// has changed. This can result in possibly mutating the tree,
 	// even changing the parent.
 	
 	/**
-	 * @brief Notify this octree node that the Entity has moved.
+	 * @brief Notify this Octree node that the Entity has moved.
 	 * @deprecated We probably want to use an event system for this. An
 	 * Entity right now has an event that fires when its global transform has
-	 * changed so the octree should probably just subscribe to that event and
+	 * changed so the Octree should probably just subscribe to that event and
 	 * do its thing via this route.
 	 * @param e The Entity whose global transform has changed.
 	 */
@@ -275,24 +275,24 @@ public:
 
 private:
 
-	octree(octree*, const box3f&);
+	Octree(Octree*, const box3f&);
 
-	octree(octree* parent, const vec3f& min, const vec3f& max);
+	Octree(Octree* parent, const vec3f& min, const vec3f& max);
 
-	void notify_helper(Entity*);
+	void notifyHelper(Entity*);
 
 	void subdivide();
 };
 
 template <class ForwardIter>
-octree::octree(
+Octree::Octree(
 	const box3f& bounds,
 	ForwardIter first, ForwardIter last)
-: m_bounds(bounds)
+: mBounds(bounds)
 {
-	m_child[0] = m_child[1] = m_child[2] 
-		= m_child[3] = m_child[4] = m_child[5] 
-		= m_child[6] = m_child[7] = nullptr;
+	mChild[0] = mChild[1] = mChild[2] 
+		= mChild[3] = mChild[4] = mChild[5] 
+		= mChild[6] = mChild[7] = nullptr;
 	while (first != last)
 	{
 		this->insert(&(*first));
@@ -301,16 +301,16 @@ octree::octree(
 }
 
 template <class ForwardIter>
-octree::octree(
-	const vec3f& min_corner, 
-	const vec3f& max_corner, 
+Octree::Octree(
+	const vec3f& minCorner, 
+	const vec3f& maxCorner, 
 	ForwardIter first, 
 	ForwardIter last)
-: m_bounds(min_corner, max_corner)
+: mBounds(minCorner, maxCorner)
 {
-	m_child[0] = m_child[1] = m_child[2] 
-		= m_child[3] = m_child[4] = m_child[5] 
-		= m_child[6] = m_child[7] = nullptr;
+	mChild[0] = mChild[1] = mChild[2] 
+		= mChild[3] = mChild[4] = mChild[5] 
+		= mChild[6] = mChild[7] = nullptr;
 	while (first != last)
 	{
 		this->insert(&(*first));
@@ -318,50 +318,50 @@ octree::octree(
 	}
 }
 
-// Get the entities of this octree and of its children too.
+// Get the entities of this Octree and of its children too.
 // This method is recursive.
 template <class OutputIter> 
-void octree::get_entities(OutputIter iter)
+void Octree::getEntities(OutputIter iter)
 {
-	std::copy(m_entities.begin(), m_entities.end(), iter);
-	for (auto* c : m_child) if (c) c->get_entities(iter);
+	std::copy(mEntities.begin(), mEntities.end(), iter);
+	for (auto* c : mChild) if (c) c->getEntities(iter);
 }
 
-// Get the entities of this octree and of its children too.
+// Get the entities of this Octree and of its children too.
 // This method is recursive. This is the const version.
 template <class OutputIter> 
-void octree::get_entities(OutputIter iter) const
+void Octree::getEntities(OutputIter iter) const
 {
-	std::copy(m_entities.begin(), m_entities.end(), iter);
-	for (const auto* c : m_child) if (c) c->get_entities(iter);
+	std::copy(mEntities.begin(), mEntities.end(), iter);
+	for (const auto* c : mChild) if (c) c->getEntities(iter);
 }
 
 // Query an area defined by a box3f to obtain all the entities
 // in this area. This method is the raison d'etre for using
-// a octree.
+// a Octree.
 // The runtime complexity is O(log N), where N is the total
 // number of entities.
 // This is the non-const version. You'll get a container
 // of mutable entities.
 template <class OutputIter>
-void octree::query(const box3f& area, OutputIter iter)
+void Octree::query(const box3f& area, OutputIter iter)
 {
-	for (auto* object : m_entities)
+	for (auto* object : mEntities)
 	{
-		if (intersects(area, object->global_bounding_box()))
+		if (intersects(area, object->globalBoundingBox()))
 		{
 			++iter;
 			*iter = object;
 		}
 	}
-	for (auto* c : m_child)
+	for (auto* c : mChild)
 	{
 		// Case 0: If there is no child node, continue
 		if (c == nullptr) continue;
 		// Case 1: search area completely contained by sub-quad
 		// if a node completely contains the query area, go down that
 		// branch and skip the remaining nodes (break this loop)
-		if (c->m_bounds.contains(area))
+		if (c->mBounds.contains(area))
 		{
 			c->query(area, iter);
 			break;
@@ -371,15 +371,15 @@ void octree::query(const box3f& area, OutputIter iter)
 		// just add all the contents of that quad and it's children 
 		// to the result set. You need to continue the loop to test 
 		// the other quads
-		else if (area.contains(c->m_bounds))
+		else if (area.contains(c->mBounds))
 		{
-			c->get_entities(iter);
+			c->getEntities(iter);
 			continue;
 		}
 		// Case 3: search area intersects with sub-quad
 		// traverse into this quad, continue the loop to search other
 		// quads
-		else if (intersects(area, c->m_bounds))
+		else if (intersects(area, c->mBounds))
 		{
 			c->query(area, iter);
 			continue;
@@ -389,29 +389,29 @@ void octree::query(const box3f& area, OutputIter iter)
 
 // Query an area defined by a box3f to obtain all the entities
 // in this area. This method is the raison d'etre for using
-// a octree.
+// a Octree.
 // The runtime complexity is O(log N), where N is the total
 // number of entities.
 // This is the const version.
 template <class OutputIter>
-void octree::query(const box3f& area, OutputIter iter) const
+void Octree::query(const box3f& area, OutputIter iter) const
 {
-	for (const auto* object : m_entities)
+	for (const auto* object : mEntities)
 	{
-		if (intersects(area, object->global_bounding_box()))
+		if (intersects(area, object->globalBoundingBox()))
 		{
 			++iter;
 			*iter = object;
 		}
 	}
-	for (const auto* c : m_child)
+	for (const auto* c : mChild)
 	{
 		// Case 0: If there is no child node, continue.
 		if (c == nullptr) continue;
 		// Case 1: search area completely contained by sub-quad.
 		// If a node completely contains the query area, go down that
 		// branch and skip the remaining nodes (break this loop)
-		if (c->m_bounds.contains(area))
+		if (c->mBounds.contains(area))
 		{
 			c->query(area, iter);
 			break;
@@ -421,15 +421,15 @@ void octree::query(const box3f& area, OutputIter iter) const
 		// just add all the contents of that quad and its children 
 		// to the result set. We need to continue the loop to test 
 		// the other quads.
-		else if (area.contains(c->m_bounds))
+		else if (area.contains(c->mBounds))
 		{
-			c->get_entities(iter);
+			c->getEntities(iter);
 			continue;
 		}
 		// Case 3: search area intersects with sub-quad.
 		// Traverse into this quad, continue the loop to search other
 		// quads.
-		else if (intersects(area, c->m_bounds))
+		else if (intersects(area, c->mBounds))
 		{
 			c->query(area, iter);
 			continue;
@@ -438,17 +438,17 @@ void octree::query(const box3f& area, OutputIter iter) const
 }
 
 template <class Func> 
-void octree::foreach(Func f)
+void Octree::foreach(Func f)
 {
-	for (auto* o : m_entities) f(o);
-	for (auto* c : m_child) if (c) c->foreach(f);
+	for (auto* o : mEntities) f(o);
+	for (auto* c : mChild) if (c) c->foreach(f);
 }
 
 template <class Func>
-void octree::foreach(Func f) const
+void Octree::foreach(Func f) const
 {
-	for (const auto* o : m_entities) f(o);
-	for (const auto* c : m_child) if (c) c->foreach(f);
+	for (const auto* o : mEntities) f(o);
+	for (const auto* c : mChild) if (c) c->foreach(f);
 }
 
 } // namespace gintonic

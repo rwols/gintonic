@@ -9,9 +9,9 @@
 
 #include "Foundation/scancodes.hpp"
 #include "Foundation/exception.hpp"
-#include "Foundation/octree.hpp"
+#include "Foundation/Octree.hpp"
 
-#include "Graphics/renderer.hpp"
+#include "Graphics/Renderer.hpp"
 #include "Graphics/Material.hpp"
 #include "Graphics/static_mesh.hpp"
 #include "Graphics/shaders.hpp"

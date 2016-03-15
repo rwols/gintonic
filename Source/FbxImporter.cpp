@@ -25,7 +25,7 @@ checkForDuplicate(
 	{
 		while (first != last)
 		{
-			if ((*first)->getName() == currentNode->GetName())
+			if ((*first)->name == currentNode->GetName())
 			{
 				return *first;
 			}
@@ -36,7 +36,7 @@ checkForDuplicate(
 	{
 		while (first != last)
 		{
-			if ((*first)->getName() == nodeAttribute->GetName())
+			if ((*first)->name == nodeAttribute->GetName())
 			{
 				return *first;
 			}
@@ -93,8 +93,8 @@ void FbxImporter::traverse(FbxNode* pNode, std::shared_ptr<Entity> parent, Resul
 	// auto lNewEntity = Object<Entity, std::string>::create(pNode);
 	result.entities.push_back(lNewEntity);
 
-	std::cerr << "\nFound FBX Node: " << lNewEntity->getName() << "\n\n";
-	std::cerr << "\tLocal Transform: " << lNewEntity->local_transform() << '\n';
+	std::cerr << "\nFound FBX Node: " << lNewEntity->name << "\n\n";
+	std::cerr << "\tLocal Transform: " << lNewEntity->localTransform() << '\n';
 
 	if (!parent)
 	{
@@ -108,8 +108,8 @@ void FbxImporter::traverse(FbxNode* pNode, std::shared_ptr<Entity> parent, Resul
 	}
 	else
 	{
-		lNewEntity->set_parent(parent);
-		std::cerr << "\tParent node: " << parent->getName() << '\n';
+		lNewEntity->setParent(parent);
+		std::cerr << "\tParent node: " << parent->name << '\n';
 	}
 
 	lNewEntity->mesh     = processMesh(pNode, result);

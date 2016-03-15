@@ -8,7 +8,7 @@ template <class FloatType> FloatType get_elapsed_time()
 	using std::chrono::duration_cast;
 	using std::chrono::nanoseconds;
 	using gintonic::renderer;
-	return static_cast<FloatType>(duration_cast<nanoseconds>(renderer::elapsed_time()).count()) / FloatType(1e9);
+	return static_cast<FloatType>(duration_cast<nanoseconds>(Renderer::elapsed_time()).count()) / FloatType(1e9);
 }
 
 template <class FloatType> FloatType get_dt()
@@ -16,7 +16,7 @@ template <class FloatType> FloatType get_dt()
 	using std::chrono::duration_cast;
 	using std::chrono::nanoseconds;
 	using gintonic::renderer;
-	return static_cast<FloatType>(duration_cast<nanoseconds>(renderer::delta_time()).count()) / FloatType(1e9);
+	return static_cast<FloatType>(duration_cast<nanoseconds>(Renderer::deltaTime()).count()) / FloatType(1e9);
 }
 
 int main(int argc, char* argv[])
@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	try
 	{
 		gt::init_all("directional_light", cam_entity);
-		gt::renderer::set_freeform_cursor(true);
+		gt::Renderer::setFreeformCursor(true);
 
 		gt::font::flyweight font_inconsolata("../examples/Inconsolata-Regular.ttf", 20);
 		gt::fontstream stream;
@@ -71,61 +71,61 @@ int main(int argc, char* argv[])
 		the_shape.attach(cube_entity);
 		the_light.attach(light_entity);
 
-		gt::renderer::show();
+		gt::Renderer::show();
 		float curtime, dt;
 		gt::vec2f mousedelta;
 
-		while (!gt::renderer::should_close())
+		while (!gt::Renderer::shouldClose())
 		{
 			curtime = get_elapsed_time<float>();
 			dt = get_dt<float>();
-			if (gt::renderer::key_toggle_press(SDL_SCANCODE_Q))
+			if (gt::Renderer::keyTogglePress(SDL_SCANCODE_Q))
 			{
-				gt::renderer::close();
+				gt::Renderer::close();
 			}
-			if (gt::renderer::key(SDL_SCANCODE_W))
+			if (gt::Renderer::key(SDL_SCANCODE_W))
 			{
 				cam_entity.move_forward(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_A))
+			if (gt::Renderer::key(SDL_SCANCODE_A))
 			{
 				cam_entity.move_left(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_S))
+			if (gt::Renderer::key(SDL_SCANCODE_S))
 			{
 				cam_entity.move_backward(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_D))
+			if (gt::Renderer::key(SDL_SCANCODE_D))
 			{
 				cam_entity.move_right(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_SPACE))
+			if (gt::Renderer::key(SDL_SCANCODE_SPACE))
 			{
 				cam_entity.move_up(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_C))
+			if (gt::Renderer::key(SDL_SCANCODE_C))
 			{
 				cam_entity.move_down(dt);
 			}
 
-			mousedelta = -gt::deg2rad(gt::renderer::mouse_delta()) / 10.0f;
+			mousedelta = -gt::deg2rad(gt::Renderer::mouse_delta()) / 10.0f;
 			cam_component.add_mouse(mousedelta);
 
-			gt::renderer::begin_geometry_pass();
+			gt::Renderer::begin_geometry_pass();
 
 			const auto rotation_axis = gt::vec3f(0.0f, 0.0f, 1.0f);
 
 			cube_entity.set_rotation(gt::quatf::axis_angle(rotation_axis, -curtime / 4.0f));
-			gt::renderer::set_model_matrix(cube_entity);
+			gt::Renderer::set_model_matrix(cube_entity);
 			cube_entity.material_component()->bind();
 			cube_entity.mesh_component()->draw();
 
-			gt::renderer::begin_light_pass();
+			gt::Renderer::begin_light_pass();
 
 			light_entity.light_component()->shine(light_entity);
 
-			gt::renderer::get_text_shader()->activate();
-			gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
+			gt::Renderer::get_text_shader()->activate();
+			gt::Renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
 
 			glDisable(GL_CULL_FACE);
 			glEnable(GL_BLEND);
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
 
 			glEnable(GL_CULL_FACE);
 
-			gt::renderer::update();
+			gt::Renderer::update();
 		}
 	}
 	catch (const std::exception& e)

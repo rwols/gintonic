@@ -1,6 +1,6 @@
 -- Test script ...
--- See the file lib/luabindings.hpp
--- and the file lib/luabindings.cpp
+-- See the file Source/luabindings.hpp
+-- and the file Source/luabindings.cpp
 
 foo = 4
 bar = {}

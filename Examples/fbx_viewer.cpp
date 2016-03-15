@@ -11,7 +11,7 @@ template <class FloatType> FloatType get_elapsed_time()
 	using std::chrono::duration_cast;
 	using std::chrono::nanoseconds;
 	using gintonic::renderer;
-	return static_cast<FloatType>(duration_cast<nanoseconds>(renderer::elapsed_time()).count()) / FloatType(1e9);
+	return static_cast<FloatType>(duration_cast<nanoseconds>(Renderer::elapsed_time()).count()) / FloatType(1e9);
 }
 
 template <class FloatType> FloatType get_dt()
@@ -19,7 +19,7 @@ template <class FloatType> FloatType get_dt()
 	using std::chrono::duration_cast;
 	using std::chrono::nanoseconds;
 	using gintonic::renderer;
-	return static_cast<FloatType>(duration_cast<nanoseconds>(renderer::delta_time()).count()) / FloatType(1e9);
+	return static_cast<FloatType>(duration_cast<nanoseconds>(Renderer::deltaTime()).count()) / FloatType(1e9);
 }
 
 template <class MeshOutputIter>
@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
 	{
 		gt::init_all("fbx_viewer", cam_entity);
 
-		gt::renderer::set_freeform_cursor(true);
+		gt::Renderer::setFreeformCursor(true);
 
 		gt::font::flyweight font_inconsolata(
 			"../examples/Inconsolata-Regular.ttf", 
@@ -312,53 +312,53 @@ int main(int argc, char* argv[])
 		std::cout << "\tMaterials: " << scene_materials.size() << '\n';
 		std::cout << "\tLights:    " << scene_lights.size() << '\n';
 
-		gt::renderer::show();
+		gt::Renderer::show();
 
 		float curtime, dt;
 		gt::vec2f mousedelta;
 		bool view_gbuffers = false;
 		
-		while (!gt::renderer::should_close())
+		while (!gt::Renderer::shouldClose())
 		{
 			curtime = get_elapsed_time<float>();
 			dt = get_dt<float>();
-			if (gt::renderer::key_toggle_press(SDL_SCANCODE_Q))
+			if (gt::Renderer::keyTogglePress(SDL_SCANCODE_Q))
 			{
-				gt::renderer::close();
+				gt::Renderer::close();
 			}
-			if (gt::renderer::key(SDL_SCANCODE_W))
+			if (gt::Renderer::key(SDL_SCANCODE_W))
 			{
 				cam_entity.move_forward(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_A))
+			if (gt::Renderer::key(SDL_SCANCODE_A))
 			{
 				cam_entity.move_left(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_S))
+			if (gt::Renderer::key(SDL_SCANCODE_S))
 			{
 				cam_entity.move_backward(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_D))
+			if (gt::Renderer::key(SDL_SCANCODE_D))
 			{
 				cam_entity.move_right(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_SPACE))
+			if (gt::Renderer::key(SDL_SCANCODE_SPACE))
 			{
 				cam_entity.move_up(dt);
 			}
-			if (gt::renderer::key(SDL_SCANCODE_C))
+			if (gt::Renderer::key(SDL_SCANCODE_C))
 			{
 				cam_entity.move_down(dt);
 			}
-			if (gt::renderer::key_toggle_press(SDL_SCANCODE_G))
+			if (gt::Renderer::keyTogglePress(SDL_SCANCODE_G))
 			{
 				view_gbuffers = !view_gbuffers;
 			}
 
-			mousedelta = -gt::deg2rad(gt::renderer::mouse_delta()) / 10.0f;
+			mousedelta = -gt::deg2rad(gt::Renderer::mouse_delta()) / 10.0f;
 			cam_component.add_mouse(mousedelta);
 
-			gt::renderer::begin_geometry_pass();
+			gt::Renderer::begin_geometry_pass();
 			glEnable(GL_CULL_FACE);
 
 			// The first entity added should always be the root node of the
@@ -372,7 +372,7 @@ int main(int argc, char* argv[])
 			{
 				for (const auto* e : *m)
 				{
-					gt::renderer::set_model_matrix(*e);
+					gt::Renderer::set_model_matrix(*e);
 					e->material_component()->bind();
 					e->mesh_component()->draw();
 				}
@@ -381,13 +381,13 @@ int main(int argc, char* argv[])
 			if (view_gbuffers)
 			{
 				stream.open(font_inconsolata);
-				gt::renderer::blit_drawbuffers_to_screen(stream);
+				gt::Renderer::blit_drawbuffers_to_screen(stream);
 				stream.close();
 			}
 			else
 			{
-				gt::renderer::begin_light_pass();
-				gt::renderer::ambient_light_pass();
+				gt::Renderer::begin_light_pass();
+				gt::Renderer::ambient_light_pass();
 
 				for (const auto* l : scene_lights)
 				{
@@ -398,8 +398,8 @@ int main(int argc, char* argv[])
 				}
 
 				glDisable(GL_CULL_FACE);
-				gt::renderer::get_text_shader()->activate();
-				gt::renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
+				gt::Renderer::get_text_shader()->activate();
+				gt::Renderer::get_text_shader()->set_color(gt::vec3f(1.0f, 1.0f, 1.0f));
 				stream.open(font_inconsolata);
 				stream << "Move around with WASD.\n"
 					<< "Look around with the mouse.\n"
@@ -408,7 +408,7 @@ int main(int argc, char* argv[])
 					<< "Press G to view the G-buffer contents.\n";
 				stream.close();
 			}
-			gt::renderer::update();
+			gt::Renderer::update();
 		}
 	}
 	catch (const std::exception& e)

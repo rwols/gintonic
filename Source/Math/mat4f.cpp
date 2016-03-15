@@ -112,7 +112,7 @@ mat4f::mat4f(const SQT& transform)
 	m33 = 1.0f;
 }
 
-mat4f::mat4f(const Entity& e) : mat4f(e.global_transform())
+mat4f::mat4f(const Entity& e) : mat4f(e.globalTransform())
 {
 	/* Empty on purpose. */
 }

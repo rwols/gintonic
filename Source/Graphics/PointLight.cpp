@@ -3,7 +3,7 @@
 #include "../Math/SQT.hpp"
 
 #include "PointShadowBuffer.hpp"
-#include "renderer.hpp"
+#include "Renderer.hpp"
 #include "shaders.hpp"
 #include "Mesh.hpp"
 
@@ -49,22 +49,22 @@ void PointLight::shine(const Entity& e) const noexcept
 
 	SQT sphere_transform;
 	sphere_transform.scale = mCutoffPoint;
-	sphere_transform.translation = (e.global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
+	sphere_transform.translation = (e.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
 
-	renderer::set_model_matrix(sphere_transform);
+	Renderer::setModelMatrix(sphere_transform);
 
-	const auto& nullshader = renderer::get_null_shader();
-	const auto& pointshader = renderer::get_lp_point_shader();
-	const auto sphere = renderer::getUnitSphere();
+	const auto& nullshader = Renderer::get_null_shader();
+	const auto& pointshader = Renderer::get_lp_point_shader();
+	const auto sphere = Renderer::getUnitSphere();
 
 	// We first do a null-pass that only fills the renderer's stencil buffer.
 	// The stencil value is increased when a front-facing triangle is seen,
 	// and is decreased when a back-facing triangle is seen. This way, the
 	// values that are non-zero should be shaded.
 
-	renderer::begin_stencil_pass();
+	Renderer::begin_stencil_pass();
 	nullshader.activate();
-	nullshader.set_matrix_PVM(renderer::matrix_PVM());
+	nullshader.set_matrix_PVM(Renderer::matrix_PVM());
 	sphere->draw();
 
 	// Here we use the information collected in the stencil buffer to only
@@ -74,20 +74,20 @@ void PointLight::shine(const Entity& e) const noexcept
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	const auto light_pos = renderer::matrix_V() * (e.global_transform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f));
+	const auto light_pos = Renderer::matrix_V() * (e.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f));
 
-	renderer::begin_light_pass();
+	Renderer::begin_light_pass();
 
 	pointshader.activate();
-	pointshader.set_viewport_size(renderer::viewport_size());
-	pointshader.set_gbuffer_position(renderer::GBUFFER_POSITION);
-	pointshader.set_gbuffer_diffuse(renderer::GBUFFER_DIFFUSE);
-	pointshader.set_gbuffer_specular(renderer::GBUFFER_SPECULAR);
-	pointshader.set_gbuffer_normal(renderer::GBUFFER_NORMAL);
+	pointshader.set_viewport_size(Renderer::viewportSize());
+	pointshader.set_gbuffer_position(Renderer::GBUFFER_POSITION);
+	pointshader.set_gbuffer_diffuse(Renderer::GBUFFER_DIFFUSE);
+	pointshader.set_gbuffer_specular(Renderer::GBUFFER_SPECULAR);
+	pointshader.set_gbuffer_normal(Renderer::GBUFFER_NORMAL);
 	pointshader.set_light_intensity(intensity);
 	pointshader.set_light_position(vec3f(light_pos.data));
 	pointshader.set_light_attenuation(mAttenuation);
-	pointshader.set_matrix_PVM(renderer::matrix_PVM());
+	pointshader.set_matrix_PVM(Renderer::matrix_PVM());
 	sphere->draw();
 
 	glDisable(GL_CULL_FACE);
@@ -132,7 +132,7 @@ void PointLight::calculateCutoffRadius() noexcept
 	#undef att
 
 	// #ifdef ENABLE_DEBUG_TRACE
-	// renderer::cerr() << "Cutoff point was set to " << mCutoffPoint << '\n';
+	// Renderer::cerr() << "Cutoff point was set to " << mCutoffPoint << '\n';
 	// #endif
 }
 

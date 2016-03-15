@@ -1,7 +1,7 @@
 #pragma once
 
 #include "filesystem.hpp"
-#include "locks.hpp"
+#include "ReadWriteLock.hpp"
 
 #include <string>
 #include <memory>
@@ -25,43 +25,47 @@ class Object : public std::enable_shared_from_this<Derived>
 {
 public:
 
+	NameType name;
+
+	ReadWriteLock readWriteLock;
+
 	Object() = default;
 
 	Object(const NameType& name)
-	: mName(name)
+	: name(name)
 	{
 		/* Empty on purpose. */
 	}
 
 	Object(NameType&& name)
-	: mName(std::move(name))
+	: name(std::move(name))
 	{
 		/* Empty on purpose. */
 	}
 
 	Object(const Object& other)
-	: mName(other.mName)
+	: name(other.name)
 	{
-		/* Don't copy the read_write_lock */
+		/* Don't copy the ReadWriteLock */
 	}
 
 	Object(Object&& other)
-	: mName(std::move(other.mName))
+	: name(std::move(other.name))
 	{
-		/* Don't move the read_write_lock */
+		/* Don't move the ReadWriteLock */
 	}
 	
 	Object& operator = (const Object& other)
 	{
-		mName = other.mName;
-		/* Don't copy the read_write_lock */
+		name = other.name;
+		/* Don't copy the ReadWriteLock */
 		return *this;
 	}
 	
 	Object& operator = (Object&& other)
 	{
-		mName = std::move(other.mName);
-		/* Don't move the read_write_lock */
+		name = std::move(other.name);
+		/* Don't move the ReadWriteLock */
 		return *this;
 	}
 
@@ -76,37 +80,6 @@ public:
 		return std::shared_ptr<Derived>(
 			new Derived(std::forward<ConstructorArguments>(args)...),
 			Object::deleter);
-	}
-
-	inline void obtainReadLock() const
-	{
-		mReadWriteLock.obtain_read();
-	}
-
-	inline void releaseReadLock() const
-	{
-		mReadWriteLock.release_read();
-	}
-
-	inline void obtainWriteLock()
-	{
-		mReadWriteLock.obtain_write();
-	}
-	
-	inline void releaseWriteLock()
-	{
-		mReadWriteLock.release_write();
-	}
-
-	template <class ArgType>
-	void setName(ArgType&& name)
-	{
-		mName = std::forward<ArgType>(name);
-	}
-	
-	inline const NameType& getName() const noexcept
-	{
-		return mName;
 	}
 
 	struct NameComparer
@@ -127,7 +100,7 @@ public:
 
 	inline friend std::ostream& operator << (std::ostream& os, const Object& object)
 	{
-		return os << object.mFullName;
+		return os << object.name;
 	}
 
 protected:
@@ -135,7 +108,7 @@ protected:
 	virtual ~Object() noexcept = default;
 
 	Object(const FBXSDK_NAMESPACE::FbxNode* pFbxNode)
-	: mName(pFbxNode->GetName())
+	: name(pFbxNode->GetName())
 	{
 		/* Empty on purpose. */
 	}
@@ -144,52 +117,50 @@ protected:
 	{
 		if (std::strcmp(pFbxAttribute->GetName(), "") == 0)
 		{
-			mName = pFbxAttribute->GetNode()->GetName();
+			name = pFbxAttribute->GetNode()->GetName();
 		}
 		else
 		{
-			mName = pFbxAttribute->GetName();
+			name = pFbxAttribute->GetName();
 		}
 	}
 
 	Object(const FBXSDK_NAMESPACE::FbxSurfaceMaterial* pFbxMaterial)
-	: mName(pFbxMaterial->GetName())
+	: name(pFbxMaterial->GetName())
 	{
 		/* Empty on purpose. */
 	}
 
 	void setNameWithFbx(const FBXSDK_NAMESPACE::FbxNode* pFbxNode)
 	{
-		mName = pFbxNode->GetName();
+		name = pFbxNode->GetName();
 	}
 
 	void setNameWithFbx(const FBXSDK_NAMESPACE::FbxNodeAttribute* pFbxAttribute)
 	{
 		if (std::strcmp(pFbxAttribute->GetName(), "") == 0)
 		{
-			mName = pFbxAttribute->GetNode()->GetName();
+			name = pFbxAttribute->GetNode()->GetName();
 		}
 		else
 		{
-			mName = pFbxAttribute->GetName();
+			name = pFbxAttribute->GetName();
 		}
 	}
 
 	void setNameWithFbx(const FBXSDK_NAMESPACE::FbxSurfaceMaterial* pFbxMaterial)
 	{
-		mName = pFbxMaterial->GetName();
+		name = pFbxMaterial->GetName();
 	}
 
 private:
-	NameType mName;
-	read_write_lock mReadWriteLock;
 
 	friend class boost::serialization::access;
 
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
-		ar & mName;
+		ar & name;
 	}
 };
 

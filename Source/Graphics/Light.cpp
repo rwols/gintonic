@@ -89,11 +89,11 @@ std::shared_ptr<Light> Light::create(const FbxLight* pFbxLight)
 	}
 	if (std::strcmp(pFbxLight->GetName(), "") == 0)
 	{
-		lLight->setName(pFbxLight->GetName());
+		lLight->name = pFbxLight->GetName();
 	}
 	else
 	{
-		lLight->setName(pFbxLight->GetNode()->GetName());
+		lLight->name = pFbxLight->GetNode()->GetName();
 	}
 	return lLight;
 }

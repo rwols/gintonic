@@ -1,5 +1,5 @@
 #include "skybox.hpp"
-#include "renderer.hpp"
+#include "Renderer.hpp"
 #include "shaders.hpp"
 #include "basic_shapes.hpp"
 
@@ -25,9 +25,9 @@ skybox& skybox::operator = (skybox&& other)
 
 void skybox::draw() const noexcept
 {
-	const auto& s = renderer::get_skybox_shader();
+	const auto& s = Renderer::get_skybox_shader();
 	s.activate();
-	s.set_matrix_PV(renderer::matrix_P() * renderer::matrix_V());
+	s.set_matrix_PV(Renderer::matrix_P() * Renderer::matrix_V());
 	s.set_skybox_diffuse(0);
 	diffuse_texture.bind(0);
 
@@ -42,7 +42,7 @@ void skybox::draw() const noexcept
 	// are equal to depth buffer's content
 	glDepthFunc(GL_LEQUAL);
 	
-	renderer::get_unit_cube_P_flipped().draw();
+	Renderer::get_unit_cube_P_flipped().draw();
 
 	// Restore default values.
 	glDepthFunc(GL_LESS);

@@ -9,7 +9,7 @@ template <class FloatType> FloatType get_elapsed_time()
 	using std::chrono::duration_cast;
 	using std::chrono::nanoseconds;
 	using gintonic::renderer;
-	return static_cast<FloatType>(duration_cast<nanoseconds>(renderer::elapsed_time()).count()) / FloatType(1e9);
+	return static_cast<FloatType>(duration_cast<nanoseconds>(Renderer::elapsed_time()).count()) / FloatType(1e9);
 }
 
 int main(int argc, char* argv[])
@@ -31,24 +31,24 @@ int main(int argc, char* argv[])
 		gt::fontstream stream;
 		gt::unit_quad_P the_shape;
 		gt::material the_material;
-		gt::renderer::show();
+		gt::Renderer::show();
 		float curtime;
-		while (!gt::renderer::should_close())
+		while (!gt::Renderer::shouldClose())
 		{
 			curtime = get_elapsed_time<float>();
-			if (gt::renderer::key(SDL_SCANCODE_Q) || gt::renderer::key(SDL_SCANCODE_ESCAPE))
+			if (gt::Renderer::key(SDL_SCANCODE_Q) || gt::Renderer::key(SDL_SCANCODE_ESCAPE))
 			{
-				gt::renderer::close();
+				gt::Renderer::close();
 			}
-			gt::renderer::begin_geometry_pass();
-			gt::renderer::set_model_matrix(gt::vec3f(0.0f, 0.0f, 1.0f), -curtime);
+			gt::Renderer::begin_geometry_pass();
+			gt::Renderer::set_model_matrix(gt::vec3f(0.0f, 0.0f, 1.0f), -curtime);
 			the_material.bind();
 			the_shape.draw();
-			gt::renderer::begin_light_pass();
-			gt::renderer::ambient_light_pass();
-			gt::renderer::get_text_shader()->activate();
+			gt::Renderer::begin_light_pass();
+			gt::Renderer::ambient_light_pass();
+			gt::Renderer::get_text_shader()->activate();
 			const gt::vec3f text_color((1.0f + std::sin(curtime)) / 2.0f, 1.0f, 1.0f);
-			gt::renderer::get_text_shader()->set_color(text_color);
+			gt::Renderer::get_text_shader()->set_color(text_color);
 			glDisable(GL_CULL_FACE);
 			glDisable(GL_DEPTH_TEST);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 				<< curtime << " seconds" << std::endl;
 			stream.close();
 			glEnable(GL_CULL_FACE);
-			gt::renderer::update();
+			gt::Renderer::update();
 		}
 	}
 	catch (const std::exception& e)

@@ -1,6 +1,6 @@
 /**
- * @file renderer.hpp
- * @brief Defines the renderer singleton class.
+ * @file Renderer.hpp
+ * @brief Defines the Renderer singleton class.
  * @author Raoul Wols
  */
 
@@ -8,7 +8,7 @@
 
 #include "../ForwardDeclarations.hpp"
 
-#include "../Foundation/locks.hpp"
+#include "../Foundation/WriteLock.hpp"
 
 #include "../Math/mat3f.hpp"
 #include "../Math/mat4f.hpp"
@@ -24,8 +24,8 @@
 namespace gintonic  {
 
 /**
- * @brief The renderer class. This is a singleton class.
- * @details The renderer has the following duties:
+ * @brief The Renderer class. This is a singleton class.
+ * @details The Renderer has the following duties:
  * * Manages the OpenGL context.
  * * Manages the window.
  * * Manages the width and height of the window.
@@ -37,20 +37,20 @@ namespace gintonic  {
  * * Manages the Entity that acts as the camera.
  * * Manages all shader classes. Essentially just instantiates one instance
  *   of every shader class. You can obtain a reference to any shader class
- *   via the renderer singleton class.
+ *   via the Renderer singleton class.
  * * Manages a few basic shapes like a cube, a sphere and so on.
  *
  * This is quite a large list of duties so I am inclined to split up this
  * singleton class. However it works fine at the moment, and some might say
  * "keep it simple, stupid", abbreviated KISS.
  *
- * Note that *all* methods are static methods. To initialize the renderer,
- * you call the renderer::init function. You do not have to call any sort of
+ * Note that *all* methods are static methods. To initialize the Renderer,
+ * you call the Renderer::init function. You do not have to call any sort of
  * clean-up function. If you just need an OpenGL context and not all of the
- * fancy stuff that the renderer also initializes, you can use the function
- * renderer::init_dummy.
+ * fancy stuff that the Renderer also initializes, you can use the function
+ * Renderer::init_dummy.
  */
-class renderer
+class Renderer
 {
 public:
 
@@ -66,14 +66,14 @@ public:
 	/**
 	 * @name Initialization and Shutdown Procedures
 	 * 
-	 * Functionality relating to initialization of the renderer and shutdown
-	 * mechanisms of the renderer. Context focusing is also present here.
+	 * Functionality relating to initialization of the Renderer and shutdown
+	 * mechanisms of the Renderer. Context focusing is also present here.
 	 */
 	
 	///@{
 
 	/**
-	 * @brief Initialize the renderer.
+	 * @brief Initialize the Renderer.
 	 * @param title The window title.
 	 * @param camera The camera Entity to start out with. It is perfectly
 	 * possible to never change this.
@@ -99,44 +99,44 @@ public:
 	 * too. If set to false, the shaders are not initialized. The default
 	 * is false.
 	 */
-	static void init_dummy(const bool construct_shaders = false);
+	static void initDummy(const bool construct_shaders = false);
 
 	/**
-	 * @brief Check wether the renderer is initialized.
-	 * @return True if the renderer is initialized, false if not.
+	 * @brief Check wether the Renderer is initialized.
+	 * @return True if the Renderer is initialized, false if not.
 	 */
-	static bool is_initialized() noexcept;
+	static bool isInitialized() noexcept;
 
 	/**
 	 * @brief Focus the OpenGL context on the current thread.
 	 */
-	static void focus_context() noexcept;
+	static void focusContext() noexcept;
 
 	/**
-	 * @brief Show the window of the renderer.
-	 * @details When you initialize the renderer with renderer::initialize,
-	 * the renderer does not show its window after the initialization. You
-	 * have to explicitly call the renderer::show function to show the
-	 * window. This is because some after the renderer has initialized, it can
+	 * @brief Show the window of the Renderer.
+	 * @details When you initialize the Renderer with Renderer::initialize,
+	 * the Renderer does not show its window after the initialization. You
+	 * have to explicitly call the Renderer::show function to show the
+	 * window. This is because some after the Renderer has initialized, it can
 	 * be beneficial to do some more OpenGL initialization work that is not
-	 * part of the initialization stage of the renderer. However, you cannot
-	 * operate on OpenGL objects without an OpenGL context, and the renderer
+	 * part of the initialization stage of the Renderer. However, you cannot
+	 * operate on OpenGL objects without an OpenGL context, and the Renderer
 	 * provides such an OpenGL context.
 	 */
 	static void show() noexcept;
 
 	/**
-	 * @brief Hide the window of the renderer.
+	 * @brief Hide the window of the Renderer.
 	 */
 	static void hide() noexcept;
 
 	/**
-	 * @brief Request to close the renderer.
-	 * @details When this function is called, the renderer is not actually
-	 * yet terminated. The renderer does some internal cleanup and then sets
-	 * a boolean variable that indicates wether the renderer should close.
-	 * You can check wether to stop the renderer with renderer::should_close.
-	 * When renderer::should_close returns false, you can stop the render
+	 * @brief Request to close the Renderer.
+	 * @details When this function is called, the Renderer is not actually
+	 * yet terminated. The Renderer does some internal cleanup and then sets
+	 * a boolean variable that indicates wether the Renderer should close.
+	 * You can check wether to stop the Renderer with Renderer::shouldClose.
+	 * When Renderer::shouldClose returns false, you can stop the render
 	 * loop.
 	 */
 	static void close() noexcept;
@@ -145,7 +145,7 @@ public:
 	 * @brief Check wether you should stop the render loop.
 	 * @return True if you should stop the render loop, false if not.
 	 */
-	static bool should_close() noexcept;
+	static bool shouldClose() noexcept;
 
 	///@}
 	
@@ -161,18 +161,18 @@ public:
 	 * @brief Get the delta time between two frames.
 	 * @return The delta time between two frames.
 	 */
-	inline static duration_type delta_time() noexcept 
+	inline static duration_type deltaTime() noexcept 
 	{
-		return s_delta_time;
+		return sDeltaTime;
 	}
 
 	/**
-	 * @brief Get the elapsed time since the renderer initialized.
-	 * @return The elapsed time since the renderer initialized.
+	 * @brief Get the elapsed time since the Renderer initialized.
+	 * @return The elapsed time since the Renderer initialized.
 	 */
-	inline static duration_type elapsed_time() noexcept
+	inline static duration_type elapsedTime() noexcept
 	{
-		return s_elapsed_time;
+		return sElapsedTime;
 	}
 
 	/**
@@ -196,7 +196,7 @@ public:
 
 	/**
 	 * @brief Set the camera.
-	 * @details The renderer will update the `WORLD->VIEW` matrix using the
+	 * @details The Renderer will update the `WORLD->VIEW` matrix using the
 	 * global transformation matrix of the given Entity.
 	 * @param e The Entity that will act as a camera.
 	 */
@@ -225,7 +225,7 @@ public:
 	 */
 	inline static int width() noexcept 
 	{ 
-		return s_width; 
+		return sWidth; 
 	}
 
 	/**
@@ -234,7 +234,7 @@ public:
 	 */
 	inline static int height() noexcept 
 	{ 
-		return s_height; 
+		return sHeight; 
 	}
 
 	/**
@@ -242,16 +242,16 @@ public:
 	 * @details The aspect ratio is the width divided by the height.
 	 * @return The aspect ratio.
 	 */
-	inline static float aspectratio() noexcept 
+	inline static float aspectRatio() noexcept 
 	{ 
-		return s_aspectratio; 
+		return sAspectRatio; 
 	}
 
 	/**
 	 * Get the viewport width and height as a vec2f.
 	 * @return The viewport width and height as a vec2f.
 	 */
-	static vec2f viewport_size() noexcept;
+	static vec2f viewportSize() noexcept;
 
 	/**
 	 * @brief Resize the viewport.
@@ -328,7 +328,7 @@ public:
 	 * @tparam Args Template parameter pack.
 	 * @param args Constructor arguments for a mat4f.
 	 */
-	template <class ...Args> static void set_model_matrix(Args&&... args)
+	template <class ...Args> static void setModelMatrix(Args&&... args)
 	{
 		s_matrix_VM_dirty = true;
 		s_matrix_PVM_dirty = true;
@@ -354,12 +354,12 @@ public:
 	 * @param x The X-coordinate.
 	 * @param y The Y-coordinate.
 	 */
-	static void set_cursor_position(
+	static void setCursorPosition(
 		const double x, 
 		const double y) noexcept;
 
 	/**
-	 * @brief Set wether the renderer should let the cursor act in a freeform
+	 * @brief Set wether the Renderer should let the cursor act in a freeform
 	 * way.
 	 * @details Normally, the cursor can get stuck at the edges of the
 	 * viewport. When we are in this situation, no more mouse delta is
@@ -370,22 +370,22 @@ public:
 	 * correctly recorded each frame in a mouse delta.
 	 * @param b Set wether to enable the freeform cursor mode.
 	 */
-	static void set_freeform_cursor(const bool b);
+	static void setFreeformCursor(const bool b);
 
 	/**
 	 * @brief Disable the cursor.
 	 */
-	static void disable_cursor() noexcept;
+	static void disableCursor() noexcept;
 
 	/**
 	 * @brief Enable the cursor.
 	 */
-	static void enable_cursor() noexcept;
+	static void enableCursor() noexcept;
 
 	/**
 	 * @brief Center the cursor to the center of the viewport.
 	 */
-	static void center_cursor() noexcept;
+	static void centerCursor() noexcept;
 
 	/**
 	 * @brief Check if a given key is pressed down.
@@ -400,21 +400,21 @@ public:
 	 * @return True if the key was pressed down in the previous frame, false
 	 * if not.
 	 */
-	static bool key_prev(const int keycode) noexcept;
+	static bool keyPrev(const int keycode) noexcept;
 
 	/**
 	 * @brief Check if a given toggle key is pressed down.
 	 * @param keycode The SDL scancode. See scancodes.hpp.
 	 * @return True if the toggle key was pressed down. False if not.
 	 */
-	static bool key_toggle_press(const int keycode) noexcept;
+	static bool keyTogglePress(const int keycode) noexcept;
 
 	/**
 	 * @brief Check if a given toggle key is released.
 	 * @param keycode The SDL scancode. See scancodes.hpp.
 	 * @return True if the toggle key was released. False if not.
 	 */
-	static bool key_toggle_release(const int keycode) 
+	static bool keyToggleRelease(const int keycode) 
 		noexcept;
 
 	/**
@@ -422,15 +422,15 @@ public:
 	 * @param buttoncode The SDL scancode. See scancodes.hpp.
 	 * @return True if the mouse button is pressed. False if not.
 	 */
-	static bool mousebutton(const int buttoncode) noexcept;
+	static bool mouseButton(const int buttoncode) noexcept;
 	
 	/**
 	 * @brief Get the previous frame's mouse delta.
 	 * @return The previous frame's mouse delta.
 	 */
-	inline static const vec2f& mouse_delta() noexcept
+	inline static const vec2f& mouseDelta() noexcept
 	{
-		return s_mouse_delta;
+		return sMouseDelta;
 	}
 
 	///@}
@@ -438,7 +438,7 @@ public:
 	/**
 	 * @name Render state
 	 * 
-	 * Functions to change the state of the renderer. You will probably work
+	 * Functions to change the state of the Renderer. You will probably work
 	 * with these functions most of the time.
 	 */
 
@@ -453,9 +453,9 @@ public:
 	static void setWireframeMode(const bool yesOrNo) noexcept;
 
 	/**
-	 * @brief Query if the renderer is rendering in wireframe mode.
-	 * @return True if the renderer is rendering in wireframe mode,
-	 * false if the renderer is rendering normally.
+	 * @brief Query if the Renderer is rendering in wireframe mode.
+	 * @return True if the Renderer is rendering in wireframe mode,
+	 * false if the Renderer is rendering normally.
 	 */
 	static bool getWireframeMode() noexcept
 	{
@@ -470,14 +470,14 @@ public:
 
 	#ifdef ENABLE_DEBUG_TRACE
 	/**
-	 * @brief Output to a debug stream on the renderer's viewport.
+	 * @brief Output to a debug stream on the Renderer's viewport.
 	 * @return A reference to a FontStream.
 	 */
 	static FontStream& cerr();
 	#endif
 
 	/**
-	 * @brief Update the renderer.
+	 * @brief Update the Renderer.
 	 * @details You need to call this method at the end of your render loop.
 	 */
 	static void update() noexcept;
@@ -504,14 +504,14 @@ public:
 
 
 	/**
-	 * @brief Get the name of the hardware (or software) renderer.
-	 * @return The name of the hardware (or software) renderer.
+	 * @brief Get the name of the hardware (or software) Renderer.
+	 * @return The name of the hardware (or software) Renderer.
 	 */
 	static const char* name();
 
 	/**
-	 * @brief Get the version of the renderer.
-	 * @return The version of the renderer.
+	 * @brief Get the version of the Renderer.
+	 * @return The version of the Renderer.
 	 */
 	static const char* version();
 
@@ -575,7 +575,7 @@ public:
 
 	/**
 	 * @brief Do an ambient light pass. This should be called after the call
-	 * to renderer::begin_light_pass.
+	 * to Renderer::begin_light_pass.
 	 */
 	static void ambient_light_pass() noexcept;
 
@@ -584,7 +584,7 @@ public:
 	/**
 	 * @name Events
 	 * 
-	 * The events that the renderer may fire.
+	 * The events that the Renderer may fire.
 	 */
 
 	///@{
@@ -613,7 +613,7 @@ public:
 	/// Event that fires when the mouse has left the window.
 	static boost::signals2::signal<void(void)> mouse_left;
 
-	/// Event that fires when the renderer is about to close.
+	/// Event that fires when the Renderer is about to close.
 	static boost::signals2::signal<void(void)> about_to_close;
 
 	///@}
@@ -621,7 +621,7 @@ public:
 	/**
 	 * @name Shader Access
 	 * 
-	 * The renderer houses all of the shaders.
+	 * The Renderer houses all of the shaders.
 	 */
 	
 	///@{
@@ -844,7 +844,7 @@ public:
 	/**
 	 * @name Basic Mesh Shape Access
 	 * 
-	 * The renderer houses some basic shapes. You can access them with these
+	 * The Renderer houses some basic shapes. You can access them with these
 	 * functions.
 	 */
 	
@@ -929,19 +929,19 @@ private:
 
 	static void release();
 	
-	static bool s_should_close;
-	static bool s_fullscreen;
+	static bool sShouldClose;
+	static bool sFullscreen;
 	static bool sRenderInWireframeMode;
-	static int s_width;
-	static int s_height;
-	static float s_aspectratio;
+	static int sWidth;
+	static int sHeight;
+	static float sAspectRatio;
 
-	static time_point_type s_start_time;
-	static duration_type s_delta_time;
-	static duration_type s_prev_elapsed_time;
-	static duration_type s_elapsed_time;
+	static time_point_type sStartTime;
+	static duration_type sDeltaTime;
+	static duration_type sPrevElapsedTime;
+	static duration_type sElapsedTime;
 	static boost::circular_buffer<duration_type> s_circle_buffer;
-	static vec2f s_mouse_delta;
+	static vec2f sMouseDelta;
 
 	static bool s_matrix_P_dirty;
 	static bool s_matrix_VM_dirty;
@@ -962,7 +962,7 @@ private:
 
 	static std::shared_ptr<Entity> sCameraEntity;
 
-	static write_lock sEntityQueueLock;
+	static WriteLock sEntityQueueLock;
 	static std::vector<std::shared_ptr<Entity>> sFutureQueue;
 	static std::vector<std::shared_ptr<Entity>> sCurrentQueue;
 
