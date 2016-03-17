@@ -10,6 +10,6 @@ int main(int argc, char* argv[])
 		std::cerr << "Usage: " << argv[0] << " <fbx-file> <output-directory>\n";
 		return EXIT_FAILURE;
 	}
-	gt::renderer::init_dummy(argv[0]);
+	gt::Renderer::initDummy(argv[0]);
 	return EXIT_SUCCESS;
 }

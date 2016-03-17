@@ -22,4 +22,10 @@ void initializeEverything(const char* window_title, std::shared_ptr<Entity> came
 	boost::filesystem::current_path(lOldPath);
 }
 
+void initializeEverything(const char* windowTitle)
+{
+	auto lCameraEntity = std::make_shared<Entity>("DefaultCamera");
+	initializeEverything(windowTitle, std::move(lCameraEntity));
+}
+
 } // namespace gintonic

@@ -1,198 +1,115 @@
-#include "gintonic.hpp"
+#include "Application.hpp"
 
 #define APPNAME "BasicShapes"
 
-struct GameState
+class BasicShapesApplication : public Application
 {
-	std::vector<std::shared_ptr<gintonic::Entity>> mEntities;
-	std::vector<std::shared_ptr<gintonic::Material>> mMaterials;
-	std::vector<std::shared_ptr<gintonic::Mesh>> mMeshes;
-	std::vector<std::shared_ptr<gintonic::Light>> mLights;
-	std::vector<std::shared_ptr<gintonic::Camera>> mCameras;
-	std::shared_ptr<gintonic::Entity> mRootEntity;
+public:
 
-	float mMoveSpeed = 1.0f;
+	std::shared_ptr<gintonic::Entity> mRootOfSolidShapes;
 
-	void clear() noexcept
+	BasicShapesApplication(int argc, char** argv)
+	: Application(APPNAME, argc, argv)
 	{
-		mEntities.clear();
-		mMaterials.clear();
-		mMeshes.clear();
-		mLights.clear();
-		mCameras.clear();
-		mRootEntity = nullptr;
+		using namespace gintonic;
+
+		// Put a directional light in the scene
+		// so that we see something interesting.
+		// The directional light shines downwards.
+		auto lLight = std::shared_ptr<Light>(new DirectionalLight());
+		lLight->intensity = 1.0f;
+		lLight->name = "DefaultDirectionalLight";
+		auto lLightEntity = std::make_shared<gintonic::Entity>
+		(
+			"DefaultDirectionalLight",
+			SQT
+			(
+				vec3f(1.0f, 1.0f, 1.0f), 
+				quatf::axis_angle
+				(
+					vec3f(1.0f, 0.0f, 0.0f), 
+					-M_PI / 2.0f + 1.0f
+				), 
+				vec3f(0.0f, 0.0f, 0.0f)
+			)
+		);
+		lLightEntity->light = lLight;
+
+		auto lMaterial = std::make_shared<Material>();
+		lMaterial->diffuseColor   = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
+		lMaterial->specularColor  = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
+		lMaterial->diffuseTexture = std::make_shared<Texture2D>("../../Examples/DaVinci.jpg");
+
+		auto lGizmo = Renderer::createGizmo();
+
+		auto lInsideOutCubeEntity = std::make_shared<Entity>("InsideOutCube");
+		lInsideOutCubeEntity->mesh = Renderer::getInsideOutUnitCube();
+		lInsideOutCubeEntity->material = lMaterial;
+		lInsideOutCubeEntity->setScale(vec3f(20.0f, 20.0f, 20.0f));
+		lInsideOutCubeEntity->setRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
+		lInsideOutCubeEntity->setTranslation(vec3f(0.0f, 0.0f, 0.0f));
+
+		auto lCubeEntity = std::make_shared<Entity>("Cube");
+		lCubeEntity->mesh = Renderer::getUnitCube();
+		lCubeEntity->material = lMaterial;
+		lCubeEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
+		lCubeEntity->setRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
+		lCubeEntity->setTranslation(vec3f(-3.0f, 0.0f, 0.0f));
+		lCubeEntity->addChild(lGizmo);
+
+		auto lSphereEntity = std::make_shared<Entity>("Sphere");
+		lSphereEntity->mesh = Renderer::getUnitSphere();
+		lSphereEntity->material = lMaterial;
+		lSphereEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
+		lSphereEntity->setRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
+		lSphereEntity->setTranslation(vec3f(3.0f, 0.0f, 0.0f));
+		lSphereEntity->addChild(lGizmo);
+
+		auto lConeEntity = std::make_shared<Entity>("Cone");
+		lConeEntity->mesh = Renderer::getUnitCone();
+		lConeEntity->material = lMaterial;
+		lConeEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
+		lConeEntity->setRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
+		lConeEntity->setTranslation(vec3f(0.0f, 0.0f, -3.0f));
+		lConeEntity->addChild(lGizmo);
+
+		auto lCylinderEntity = std::make_shared<Entity>("Cylinder");
+		lCylinderEntity->mesh = Renderer::getUnitCylinder();
+		lCylinderEntity->material = lMaterial;
+		lCylinderEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
+		lCylinderEntity->setRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
+		lCylinderEntity->setTranslation(vec3f(0.0f, 0.0f, 3.0f));
+		lCylinderEntity->addChild(lGizmo);
+
+		mRootOfSolidShapes = std::make_shared<Entity>("RootOfSolidShapes");
+		mRootOfSolidShapes->addChild(lCubeEntity);
+		mRootOfSolidShapes->addChild(lSphereEntity);
+		mRootOfSolidShapes->addChild(lConeEntity);
+		mRootOfSolidShapes->addChild(lCylinderEntity);
+
+		mRootEntity->addChild(mRootOfSolidShapes);
+		mRootEntity->addChild(lLightEntity);
+		mRootEntity->addChild(lInsideOutCubeEntity);
+
+		Renderer::setFreeformCursor(true);
+		Renderer::show();
+	}
+
+private:
+
+	virtual void onRenderUpdate() final
+	{
+		using namespace gintonic;
+
+		for (auto lShape : *mRootOfSolidShapes)
+		{
+			lShape->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mElapsedTime));
+		}
+
+		// All the simple solids are a child of the "invisible" root entity, centered
+		// at the origin. So we apply a rotation to that too, in order to make the solids "spin around".
+		mRootOfSolidShapes->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), -mElapsedTime / 4.0f));
 	}
 };
 
-GameState gState;
-
-
-bool initialize(const int argc, char** argv)
-{
-	using namespace gintonic;
-
-	// Create Entity and camera.
-	auto lCamera = std::make_shared<Camera>();
-	lCamera->name = "DefaultCamera";
-	lCamera->setNearPlane(0.01f);
-	lCamera->setFarPlane(100.0f);
-	lCamera->setProjectionType(Camera::kPerspectiveProjection);
-	auto lCameraEntity = std::make_shared<Entity>();
-	lCameraEntity->name = "DefaultCamera";
-	lCameraEntity->setRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
-	lCameraEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
-	lCameraEntity->setTranslation(vec3f(0.0f, 0.0f, 4.0f));
-	lCameraEntity->camera = lCamera;
-
-	gState.mEntities.push_back(lCameraEntity);
-	gState.mCameras.push_back(lCamera);
-
-	try
-	{
-		initializeEverything(APPNAME, lCameraEntity);
-	}
-	catch (const exception& e)
-	{
-		std::cerr << e.what() << '\n';
-		return false;
-	}
-
-	// Put a directional light in the scene
-	// so that we see something interesting.
-	// The directional light shines downwards.
-	auto lLightEntity = std::make_shared<gintonic::Entity>();
-	auto lLight = std::shared_ptr<Light>(new DirectionalLight());
-	lLight->intensity = 1.0f;
-	lLightEntity->name = "DefaultDirectionalLight";
-	lLightEntity->setLocalTransform
-	(
-		SQT
-		(
-			vec3f(1.0f, 1.0f, 1.0f), 
-			quatf::axis_angle
-			(
-				vec3f(1.0f, 0.0f, 0.0f), 
-				-M_PI / 2.0f + 1.0f
-			), 
-			vec3f(0.0f, 0.0f, 0.0f)
-		)
-	);
-	lLight->name = "DefaultDirectionalLight";
-	lLightEntity->light = lLight;
-	
-	gState.mEntities.push_back(lLightEntity);
-	gState.mLights.push_back(lLight);
-
-	// Initialize the basic shapes (from the renderer).
-
-	auto lMaterial = std::make_shared<Material>();
-	lMaterial->diffuseColor = vec4f(0.8f, 0.8f, 0.8f, 0.5f);
-	lMaterial->specularColor = vec4f(0.2f, 0.2f, 0.2f, 1.0f);
-	lMaterial->diffuseTexture = std::make_shared<Texture2D>("../../Examples/RuralBrickWall.jpg");
-
-	auto lCubeEntity = std::make_shared<Entity>();
-	lCubeEntity->mesh = Renderer::getUnitCube();
-	lCubeEntity->material = lMaterial;
-
-	auto lSphereEntity = std::make_shared<Entity>();
-	lSphereEntity->mesh = Renderer::getUnitSphere();
-	lSphereEntity->material = lMaterial;
-
-	gState.mMaterials.push_back(lMaterial);
-	gState.mMeshes.push_back(Renderer::getUnitCube());
-	gState.mMeshes.push_back(Renderer::getUnitSphere());
-
-	gState.mEntities.push_back(lCubeEntity);
-	gState.mEntities.push_back(lSphereEntity);
-
-	lCubeEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
-	lCubeEntity->setRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
-	lCubeEntity->setTranslation(vec3f(-3.0f, 0.0f, 0.0f));
-
-	lSphereEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
-	lSphereEntity->setRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
-	lSphereEntity->setTranslation(vec3f(3.0f, 0.0f, 0.0f));
-
-	auto lRootEntity = std::make_shared<Entity>();
-	lRootEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
-	lRootEntity->setRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
-	lRootEntity->setTranslation(vec3f(0.0f, 0.0f, 0.0f));
-
-	lRootEntity->addChild(lCubeEntity);
-	lRootEntity->addChild(lSphereEntity);
-
-	gState.mRootEntity = lRootEntity;
-	gState.mEntities.push_back(lRootEntity);
-
-	return true;
-}
-
-
-int main(int argc, char* argv[])
-{
-	using namespace gintonic;
-
-	if (!initialize(argc, argv))
-	{
-		return EXIT_FAILURE;
-	}
-
-	std::cout << Renderer::name() << '\n';
-	std::cout << Renderer::version() << '\n';
-
-	Renderer::setFreeformCursor(true);
-	Renderer::show();
-
-	double lDeltaTime, lElapsedTime;
-
-	while (Renderer::shouldClose() == false)
-	{
-
-		Renderer::getElapsedAndDeltaTime(lElapsedTime, lDeltaTime);
-		auto lCameraEntity = Renderer::getCameraEntity();
-
-		if (Renderer::key(SDL_SCANCODE_Q))
-		{
-			Renderer::close();
-		}
-		if (Renderer::key(SDL_SCANCODE_W))
-		{
-			lCameraEntity->moveForward(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::key(SDL_SCANCODE_A))
-		{
-			lCameraEntity->moveLeft(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::key(SDL_SCANCODE_S))
-		{
-			lCameraEntity->moveBackward(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::key(SDL_SCANCODE_D))
-		{
-			lCameraEntity->moveRight(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::key(SDL_SCANCODE_SPACE))
-		{
-			lCameraEntity->moveUp(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::key(SDL_SCANCODE_C))
-		{
-			lCameraEntity->moveDown(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::keyTogglePress(SDL_SCANCODE_T))
-		{
-			Renderer::setWireframeMode(!Renderer::getWireframeMode());
-		}
-
-		const auto lMouseDelta = -deg2rad(Renderer::mouseDelta()) / 10.0f;
-		lCameraEntity->camera->addMouse(lMouseDelta);
-		lCameraEntity->setRotation(quatf::mouse(lCameraEntity->camera->angles()));
-
-		gState.mRootEntity->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), lElapsedTime / 10.0f));
-
-		Renderer::submitEntities(gState.mEntities.begin(), gState.mEntities.end());
-
-		Renderer::update();
-	}
-	return EXIT_SUCCESS;
-}
+DEFINE_MAIN(BasicShapesApplication)

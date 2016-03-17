@@ -10,6 +10,40 @@
 
 namespace gintonic {
 
+Entity::Entity()
+: Entity(
+	"UntitledEntity", 
+	SQT(
+		vec3f(1.0f, 1.0f, 1.0f), 
+		quatf(1.0f, 0.0f, 0.0f, 0.0f), 
+		vec3f(0.0f, 0.0f, 0.0f)
+	)
+)
+{
+	/* Empty on purpose. */
+}
+
+Entity::Entity(std::string name)
+: Entity(
+	std::move(name),
+	SQT(
+		vec3f(1.0f, 1.0f, 1.0f), 
+		quatf(1.0f, 0.0f, 0.0f, 0.0f), 
+		vec3f(0.0f, 0.0f, 0.0f)
+	)
+)
+{
+	/* Empty on purpose. */
+}
+
+Entity::Entity(std::string name, SQT localTransform)
+: Object<Entity, std::string>(std::move(name))
+, mLocalTransform(localTransform)
+, mGlobalTransform(mLocalTransform)
+{
+	/* Empty on purpose. */
+}
+
 Entity::Entity(const FbxNode* pFbxNode)
 : Object<Entity, std::string>(pFbxNode)
 {
@@ -36,20 +70,82 @@ Entity::Entity(const FbxNode* pFbxNode)
 }
 
 
+Entity::Entity(const Entity& other)
+: mLocalTransform(other.mLocalTransform)
+, mGlobalTransform(other.mGlobalTransform)
+, mLocalBoundingBox(other.mLocalBoundingBox)
+, mGlobalBoundingBox(other.mGlobalBoundingBox)
+, mOctree(other.mOctree)
+, castShadow(other.castShadow)
+, material(other.material)
+, mesh(other.mesh)
+, light(other.light)
+, camera(other.camera)
+{
+	/* Do NOT copy mChildren */
+	/* Do NOT copy mParent */
+	/* Do NOT copy shadowBuffer */
+}
+
 Entity::Entity(Entity&& other) noexcept
 : mLocalTransform(std::move(other.mLocalTransform))
 , mGlobalTransform(std::move(other.mGlobalTransform))
+, mLocalBoundingBox(std::move(other.mLocalBoundingBox))
+, mGlobalBoundingBox(std::move(other.mGlobalBoundingBox))
+, mChildren(std::move(other.mChildren))
+, mParent(std::move(other.mParent))
+, mOctree(std::move(other.mOctree))
+, castShadow(std::move(other.castShadow))
+, material(std::move(other.material))
+, mesh(std::move(other.mesh))
+, light(std::move(other.light))
+, camera(std::move(other.camera))
+, shadowBuffer(std::move(other.shadowBuffer))
 {
-	if (auto ptr = mParent.lock())
-	{
-		ptr->mChildren.push_front(shared_from_this());
-	}
+	/* DO move mChildren */
+	/* DO move mParent */
+	/* DO move shadowBuffer */
+}
+
+Entity& Entity::operator = (const Entity& other)
+{
+	mLocalTransform = other.mLocalTransform;
+	mGlobalTransform = other.mGlobalTransform;
+	mLocalBoundingBox = other.mLocalBoundingBox;
+	mGlobalBoundingBox = other.mGlobalBoundingBox;
+	mOctree = other.mOctree;
+	castShadow = other.castShadow;
+	material = other.material;
+	mesh = other.mesh;
+	light = other.light;
+	camera = other.camera;
+
+	/* Do NOT copy mChildren */
+	/* Do NOT copy mParent */
+	/* Do NOT copy shadowBuffer */
+
+	return *this;
 }
 
 Entity& Entity::operator = (Entity&& other) noexcept
 {
 	mLocalTransform = std::move(other.mLocalTransform);
 	mGlobalTransform = std::move(other.mGlobalTransform);
+	mLocalBoundingBox = std::move(other.mLocalBoundingBox);
+	mGlobalBoundingBox = std::move(other.mGlobalBoundingBox);
+	mChildren = std::move(other.mChildren);
+	mParent = std::move(other.mParent);
+	mOctree = std::move(other.mOctree);
+	castShadow = std::move(other.castShadow);
+	material = std::move(other.material);
+	mesh = std::move(other.mesh);
+	light = std::move(other.light);
+	camera = std::move(other.camera);
+	shadowBuffer = std::move(other.shadowBuffer);
+
+	/* DO move mChildren */
+	/* DO move mParent */
+	/* DO move shadowBuffer */
 
 	return *this;
 }
@@ -230,10 +326,34 @@ mat4f Entity::computeGlobalTransform() noexcept
 
 void Entity::addChild(std::shared_ptr<Entity> child)
 {
-	child->mParent = shared_from_this();
-	mChildren.push_front(child);
-	child->updateGlobalInfoStart();
-	child->onTransformChange(child);
+	if (child->mParent.lock())
+	{
+		// child has a parent. Do we have to move or clone it?
+		if (child.use_count() == 1)
+		{
+			// We can move it!
+			child->mParent = shared_from_this();
+			mChildren.push_front(child);
+			child->updateGlobalInfoStart();
+			child->onTransformChange(child);
+		}
+		else
+		{
+			// We must make a recursive copy.
+			auto lCopy = child->cloneRecursive();
+			lCopy->mParent = shared_from_this();
+			mChildren.push_front(lCopy);
+			lCopy->updateGlobalInfoStart();
+			lCopy->onTransformChange(lCopy);			
+		}
+	}
+	else
+	{
+		child->mParent = shared_from_this();
+		mChildren.push_front(child);
+		child->updateGlobalInfoStart();
+		child->onTransformChange(child);
+	}
 }
 
 void Entity::removeChild(std::shared_ptr<Entity> child)
@@ -312,6 +432,17 @@ Entity::~Entity()
 	onDie(*this);
 	if (mOctree) mOctree->erase(this);
 	unsetParent();
+}
+
+std::shared_ptr<Entity> Entity::cloneRecursive() const
+{
+	// Invoke the copy constructor.
+	auto lClone = std::make_shared<Entity>(*this);
+	for (auto lChild : mChildren)
+	{
+		lClone->addChild(lChild->cloneRecursive());
+	}
+	return lClone;
 }
 
 } // namespace gintonic

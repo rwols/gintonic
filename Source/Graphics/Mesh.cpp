@@ -245,6 +245,8 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 {
 	setNameWithFbx(pFbxMesh);
 
+	std::cerr << "\tFound mesh: " << this->name << '\n';
+
 	int i, j, polyvertex, polygonsize, polygoncount, vertexid = 0;
 
 	if (pFbxMesh->IsTriangleMesh() == false)
@@ -397,8 +399,8 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 		}
 	}
 
-	std::cerr << "\t\tNumber of vertices: " << lSlot0Array.size() << '\n';
-	std::cerr << "\t\tNumber of indices: " << lIndexArray.size()
+	std::cerr << "\tNumber of vertices: " << lSlot0Array.size() << '\n';
+	std::cerr << "\tNumber of indices: " << lIndexArray.size()
 		<< " (saved " << static_cast<float>(lSlot0Array.size()) 
 		/ static_cast<float>(lIndexArray.size()) << ")\n";
 

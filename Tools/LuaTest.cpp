@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 
-#include "../lib/lua-5.3.1/src/lua.hpp"
+#include "../Source/lua-5.3.1/src/lua.hpp"
 
 int main(int argc, char** argv) 
 {

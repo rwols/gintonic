@@ -25,11 +25,19 @@
 #include "Graphics/skybox.hpp"
  
 #include "Entity.hpp"
+#include "EntityVisitor.hpp"
 #include "Camera.hpp"
 #include "FbxImporter.hpp"
 #include "luabindings.hpp"
 
 namespace gintonic {
+
+/**
+ * @brief Initialize all systems of the engine with a default camera.
+ * 
+ * @param windowTitle The title of the window.
+ */
+void initializeEverything(const char* windowTitle);
 
 /**
  * @brief Initialize all systems of the engine.

@@ -861,6 +861,7 @@ lp_directional_shader::lp_directional_shader(
 lp_point_shader::lp_point_shader()
 : matrix_PVM_shader("../Shaders/lp_pvm.vs", "../Shaders/lp_point.fs")
 {
+	loc_debugflag = getUniformLocation("debugflag");
 	loc_viewport_size = getUniformLocation("viewport_size");
 	loc_gbuffer_position = getUniformLocation("gbuffer.position");
 	loc_gbuffer_diffuse = getUniformLocation("gbuffer.diffuse");
@@ -874,6 +875,11 @@ lp_point_shader::lp_point_shader()
 lp_point_shader::~lp_point_shader() noexcept
 {
 	/* Empty on purpose. */
+}
+
+void lp_point_shader::set_debugflag(const GLint value) const noexcept
+{
+	setUniform(loc_debugflag, value);
 }
 
 void lp_point_shader::set_viewport_size(const vec2f& size) const noexcept
@@ -921,6 +927,7 @@ lp_point_shader::lp_point_shader(
 	boost::filesystem::path fragment_shader)
 : matrix_PVM_shader(std::move(vertex_shader), std::move(fragment_shader))
 {
+	loc_debugflag = getUniformLocation("debugflag");
 	loc_viewport_size = getUniformLocation("viewport_size");
 	loc_gbuffer_position = getUniformLocation("gbuffer.position");
 	loc_gbuffer_diffuse = getUniformLocation("gbuffer.diffuse");
@@ -937,6 +944,7 @@ lp_point_shader::lp_point_shader(
 	boost::filesystem::path fragment_shader)
 : matrix_PVM_shader(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
+	loc_debugflag = getUniformLocation("debugflag");
 	loc_viewport_size = getUniformLocation("viewport_size");
 	loc_gbuffer_position = getUniformLocation("gbuffer.position");
 	loc_gbuffer_diffuse = getUniformLocation("gbuffer.diffuse");

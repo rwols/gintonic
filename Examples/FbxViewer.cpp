@@ -1,213 +1,170 @@
-#include "gintonic.hpp"
+#include "Application.hpp"
+#include <iomanip>
 
 #define APPNAME "FbxViewer"
 
-struct GameState
+class EntityProcessor : public gintonic::EntityVisitor
 {
-	std::vector<std::shared_ptr<gintonic::Entity>> mEntities;
-	std::vector<std::shared_ptr<gintonic::Material>> mMaterials;
-	std::vector<std::shared_ptr<gintonic::Mesh>> mMeshes;
-	std::vector<std::shared_ptr<gintonic::Light>> mLights;
-	std::vector<std::shared_ptr<gintonic::Camera>> mCameras;
-	std::shared_ptr<gintonic::Entity> mRootEntity;
+public:
 
-	float mMoveSpeed = 1.0f;
-
-	void clear() noexcept
+	EntityProcessor(
+		std::shared_ptr<gintonic::Entity> root, 
+		std::ostream& stream, 
+		const std::size_t tabwidth) 
+	: EntityVisitor(root)
+	, mStream(stream)
+	, mTabWidth(tabwidth)
 	{
-		mEntities.clear();
-		mMaterials.clear();
-		mMeshes.clear();
-		mLights.clear();
-		mCameras.clear();
-		mRootEntity = nullptr;
+
 	}
+
+	virtual ~EntityProcessor() = default;
+
+	bool containsLight;
+	std::size_t numMeshes;
+	float niceMoveSpeed;
+	float cameraOffsetZ;
+
+private:
+
+	virtual bool onStart()
+	{
+		containsLight = false;
+		numMeshes = 0;
+		niceMoveSpeed = 0.0f;
+		cameraOffsetZ = 0.0f;
+		return true;
+	}
+
+	virtual bool onVisit(std::shared_ptr<gintonic::Entity> entity)
+	{
+		mStream << std::setw(mTabWidth * this->currentDepth()) << std::setfill(' ') << "";
+		mStream << entity->name << " [ ";
+		if (entity->light)
+		{
+			containsLight = true;
+			mStream << "light ";
+		}
+		if (entity->mesh)
+		{
+			mStream << "mesh ";
+			++numMeshes;
+			const auto lBBox = entity->mesh->getLocalBoundingBox();
+			auto lBBoxArea = 
+				(lBBox.max_corner.x - lBBox.min_corner.x) * 
+				(lBBox.max_corner.y - lBBox.min_corner.y) * 
+				(lBBox.max_corner.z - lBBox.min_corner.z);
+
+			// Take the cube root. Crude approximation of a single side length.
+			lBBoxArea = std::pow(lBBoxArea, 1.0f / 3.0f);
+
+			niceMoveSpeed += lBBoxArea;
+
+			if (lBBox.max_corner.z > cameraOffsetZ)
+			{
+				cameraOffsetZ = lBBox.max_corner.z;
+			}
+		}
+		if (entity->material)
+		{
+			mStream << "material ";
+		}
+		if (entity->camera)
+		{
+			mStream << "camera ";
+		}
+		mStream << "]\n";
+		return true;
+	}
+
+	virtual void onFinish()
+	{
+		niceMoveSpeed /= static_cast<float>(numMeshes);
+	}
+
+private:
+	std::ostream& mStream;
+	const std::size_t mTabWidth;
+
 };
 
-GameState gState;
+std::shared_ptr<gintonic::Entity> gRootEntity;
+std::shared_ptr<gintonic::Entity> gModel;
+float gMoveSpeed = 1.0f;
 
-bool initialize(const int argc, char** argv)
+class FbxViewerApplication : public Application
 {
-	using namespace gintonic;
+public:
 
-	if (argc <= 1)
+	std::shared_ptr<gintonic::Entity> mModel;
+
+	FbxViewerApplication(int argc, char** argv)
+	: Application(APPNAME, argc, argv)
 	{
-		std::cerr << "Supply a filename...\n";
-		return false;
-	}
-
-	// Create Entity and camera.
-	auto lCamera = std::make_shared<Camera>();
-	lCamera->name = "DefaultCamera";
-	lCamera->setNearPlane(0.01f);
-	lCamera->setFarPlane(100.0f);
-	lCamera->setProjectionType(Camera::kPerspectiveProjection);
-	auto lCameraEntity = std::make_shared<Entity>();
-	lCameraEntity->name = "DefaultCamera";
-	lCameraEntity->setRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
-	lCameraEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
-	lCameraEntity->camera = lCamera;
-
-	try
-	{
-		initializeEverything(APPNAME, lCameraEntity);
-
+		using namespace gintonic;
+		if (argc <= 1)
+		{
+			throw exception("Supply an FBX filename!");
+		}
 		const boost::filesystem::path lFilename(argv[1]);
 		if (!boost::filesystem::is_regular_file(lFilename))
 		{
-			std::cerr << lFilename << " is not a regular file!\n";
-			return false;
+			exception lException(lFilename.string());
+			lException.append(" is not a regular file!");
+			throw lException;
 		}
 		const auto lFilenameAsString = lFilename.string();
 
 		gintonic::FbxImporter lImporter;
-		auto lResult = lImporter.loadFromFile(lFilenameAsString.c_str());
-		gState.mEntities = std::move(lResult.entities);
-		gState.mMaterials = std::move(lResult.materials);
-		gState.mMeshes = std::move(lResult.meshes);
-		gState.mLights = std::move(lResult.lights);
-		gState.mCameras = std::move(lResult.cameras);
-		gState.mRootEntity = std::move(lResult.rootEntity);
+		mModel = lImporter.loadFromFile(lFilenameAsString.c_str());
+		mModel->name = lFilename.stem().string();
+		mModel->addChild(Renderer::createGizmo());
+		mRootEntity->addChild(mModel);
+		EntityProcessor lEntityProcessor(mRootEntity, std::cout, 4);
+		lEntityProcessor.execute();
+		if (lEntityProcessor.containsLight == false)
+		{
+			std::cout << "Scene contains no lights! Adding a directional light...\n";
+			// Put a directional light in the scene
+			// so that we see something interesting.
+			// The directional light shines downwards.
+			
+			auto lLight = std::shared_ptr<Light>(new DirectionalLight());
+			lLight->intensity = 1.0f;
+			lLight->name = "DefaultDirectionalLight";
 
-		std::cout << "\nNumber of entities: " << gState.mEntities.size() << '\n';
-		std::cout << "Root Entity: " << gState.mRootEntity->name << '\n';
-		std::cout << "Number of materials: " << gState.mMaterials.size() << '\n';
-		std::cout << "Number of meshes: " << gState.mMeshes.size() << '\n';
-		std::cout << "Number of lights: " << gState.mLights.size() << '\n';
-		std::cout << "Number of cameras: " << gState.mCameras.size() << "\n\n";
-
-		gState.mEntities.push_back(lCameraEntity);
-		gState.mCameras.push_back(lCamera);
-	}
-	catch (const exception& e)
-	{
-		std::cerr << e.what() << '\n';
-		return false;
-	}
-
-	if (gState.mLights.empty())
-	{
-		// Put a directional light in the scene
-		// so that we see something interesting.
-		// The directional light shines downwards.
-		auto lLightEntity = std::make_shared<gintonic::Entity>();
-		auto lLight = std::shared_ptr<Light>(new DirectionalLight());
-		lLight->intensity = 1.0f;
-		lLightEntity->name = "DefaultDirectionalLight";
-		lLightEntity->setLocalTransform
-		(
-			SQT
+			auto lLightEntity = std::make_shared<gintonic::Entity>
 			(
-				vec3f(1.0f, 1.0f, 1.0f), 
-				quatf::axis_angle
+				"DefaultDirectionalLight", 
+				SQT
 				(
-					vec3f(1.0f, 0.0f, 0.0f), 
-					-M_PI / 2.0f + 1.0f
-				), 
-				vec3f(0.0f, 0.0f, 0.0f)
-			)
-		);
-		lLight->name = "DefaultDirectionalLight";
-		lLightEntity->light = lLight;
-		gState.mEntities.push_back(lLightEntity);
-		gState.mLights.push_back(lLight);
+					vec3f(1.0f, 1.0f, 1.0f), 
+					quatf::axis_angle
+					(
+						vec3f(1.0f, 0.0f, 0.0f), 
+						-M_PI / 2.0f + 1.0f
+					), 
+					vec3f(0.0f, 0.0f, 0.0f)
+				)
+			);
+			lLightEntity->light = lLight;
+			mRootEntity->addChild(lLightEntity);
+		}
+		mMoveSpeed = lEntityProcessor.niceMoveSpeed;
+		Renderer::getCameraEntity()->setTranslationZ(lEntityProcessor.cameraOffsetZ + 4.0f);
+		mRootEntity->addChild(Renderer::createGizmo());
+
+		Renderer::setFreeformCursor(true);
+		Renderer::show();
 	}
 
-	// Determine a "nice" camera offset so that we are not "inside" geometry,
-	// and at the same time determine a "nice" movement speed so that we don't
-	// feel like snails or airplanes.
-	float lCameraOffsetZDistance(0.0f);
+private:
 
-	for (auto lMesh : gState.mMeshes)
+	virtual void onRenderUpdate() final
 	{
-		const auto lBBox = lMesh->getLocalBoundingBox();
-		auto lBBoxArea = 
-			(lBBox.max_corner.x - lBBox.min_corner.x) * 
-			(lBBox.max_corner.y - lBBox.min_corner.y) * 
-			(lBBox.max_corner.z - lBBox.min_corner.z);
-
-		// Take the cube root. Crude approximation of a single side length.
-		lBBoxArea = std::pow(lBBoxArea, 1.0f / 3.0f);
-
-		gState.mMoveSpeed += lBBoxArea / static_cast<float>(gState.mMeshes.size());
-
-		if (lBBox.max_corner.z > lCameraOffsetZDistance)
-		{
-			lCameraOffsetZDistance = lBBox.max_corner.z;
-		}
-
+		using namespace gintonic;
+		mModel->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mElapsedTime / 10.0f));
 	}
+};
 
-	lCameraEntity->setTranslationZ(lCameraOffsetZDistance + 4.0f);
-
-	return true;
-}
-
-int main(int argc, char** argv)
-{
-	using namespace gintonic;
-
-	if (!initialize(argc, argv))
-	{
-		return EXIT_FAILURE;
-	}
-
-	std::cout << Renderer::name() << '\n';
-	std::cout << Renderer::version() << '\n';
-
-	Renderer::setFreeformCursor(true);
-	Renderer::show();
-
-	double lDeltaTime, lElapsedTime;
-
-	while (Renderer::shouldClose() == false)
-	{
-		Renderer::getElapsedAndDeltaTime(lElapsedTime, lDeltaTime);
-		auto lCameraEntity = Renderer::getCameraEntity();
-
-		if (Renderer::key(SDL_SCANCODE_Q))
-		{
-			Renderer::close();
-		}
-		if (Renderer::key(SDL_SCANCODE_W))
-		{
-			lCameraEntity->moveForward(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::key(SDL_SCANCODE_A))
-		{
-			lCameraEntity->moveLeft(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::key(SDL_SCANCODE_S))
-		{
-			lCameraEntity->moveBackward(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::key(SDL_SCANCODE_D))
-		{
-			lCameraEntity->moveRight(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::key(SDL_SCANCODE_SPACE))
-		{
-			lCameraEntity->moveUp(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::key(SDL_SCANCODE_C))
-		{
-			lCameraEntity->moveDown(gState.mMoveSpeed * lDeltaTime);
-		}
-		if (Renderer::keyTogglePress(SDL_SCANCODE_T))
-		{
-			Renderer::setWireframeMode(!Renderer::getWireframeMode());
-		}
-
-		const auto lMouseDelta = -deg2rad(Renderer::mouseDelta()) / 10.0f;
-		lCameraEntity->camera->addMouse(lMouseDelta);
-		lCameraEntity->setRotation(quatf::mouse(lCameraEntity->camera->angles()));
-
-		gState.mRootEntity->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), lElapsedTime / 10.0f));
-
-		Renderer::submitEntities(gState.mEntities.begin(), gState.mEntities.end());
-
-		Renderer::update();
-	}
-
-	return EXIT_SUCCESS;
-}
+DEFINE_MAIN(FbxViewerApplication)

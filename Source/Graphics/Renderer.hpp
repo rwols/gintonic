@@ -209,6 +209,8 @@ public:
 		std::copy(first, last, std::back_inserter(sFutureQueue));
 		sEntityQueueLock.release();
 	}
+
+	static void submitEntityRecursive(std::shared_ptr<Entity> toSubmit);
 	
 	/**
 	 * @brief Get the current camera Entity.
@@ -905,6 +907,16 @@ public:
 		return sUnitCubePUN;
 	}
 
+	inline static std::shared_ptr<Mesh> getInsideOutUnitCube() noexcept
+	{
+		return sFlippedUnitCubePUN;
+	}
+
+	inline static std::shared_ptr<Mesh> getUnitCubeWithTangents() noexcept
+	{
+		return sUnitCubePUNTB;
+	}
+
 	inline static std::shared_ptr<Mesh> getUnitSphere() noexcept
 	{
 		return sUnitSpherePUN;
@@ -914,6 +926,13 @@ public:
 	{
 		return sUnitConePUN;
 	}
+
+	inline static std::shared_ptr<Mesh> getUnitCylinder() noexcept
+	{
+		return sUnitCylinderPUN;
+	}
+
+	static std::shared_ptr<Entity> createGizmo();
 
 	///@}
 
@@ -1005,8 +1024,14 @@ private:
 
 	static std::shared_ptr<Mesh> sUnitQuadPUN;
 	static std::shared_ptr<Mesh> sUnitCubePUN;
+	static std::shared_ptr<Mesh> sUnitCubePUNTB;
+	static std::shared_ptr<Mesh> sFlippedUnitCubePUN;
 	static std::shared_ptr<Mesh> sUnitSpherePUN;
 	static std::shared_ptr<Mesh> sUnitConePUN;
+	static std::shared_ptr<Mesh> sUnitCylinderPUN;
+
+	static void submitEntityRecursiveHelper(std::shared_ptr<Entity>);
+
 };
 
 } // namespace gintonic

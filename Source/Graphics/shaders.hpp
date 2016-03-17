@@ -1031,6 +1031,8 @@ public:
 	/// Destructor.
 	virtual ~lp_point_shader() noexcept;
 
+	void set_debugflag(const GLint value) const noexcept;
+
 	/**
 	 * @brief Set the viewport size uniform variable.
 	 * @details You can query the viewport size with the static function
@@ -1133,6 +1135,7 @@ protected:
 
 private:
 
+	GLuint loc_debugflag;
 	GLuint loc_viewport_size;
 	GLuint loc_gbuffer_position;
 	GLuint loc_gbuffer_diffuse;

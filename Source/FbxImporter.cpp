@@ -63,7 +63,7 @@ FbxImporter::~FbxImporter() noexcept
 	mManager->Destroy();
 }
 
-FbxImporter::ResultStructure FbxImporter::loadFromFile(const char* filename)
+std::shared_ptr<Entity> FbxImporter::loadFromFile(const char* filename)
 {
 	// Import the scene.
 	const auto lStatus = mImporter->Initialize(filename, -1, mManager->GetIOSettings());
@@ -83,34 +83,16 @@ FbxImporter::ResultStructure FbxImporter::loadFromFile(const char* filename)
 	lConverter.Triangulate(mScene, true);
 
 	ResultStructure lResult;
-	traverse(mScene->GetRootNode(), nullptr, lResult);
-	return lResult;
+	return traverse(mScene->GetRootNode(), lResult);
 }
 
-void FbxImporter::traverse(FbxNode* pNode, std::shared_ptr<Entity> parent, ResultStructure& result)
+std::shared_ptr<Entity> FbxImporter::traverse(FbxNode* pNode, ResultStructure& result)
 {
 	auto lNewEntity = std::make_shared<Entity>(pNode);
-	// auto lNewEntity = Object<Entity, std::string>::create(pNode);
-	result.entities.push_back(lNewEntity);
+	// result.entities.push_back(lNewEntity);
 
 	std::cerr << "\nFound FBX Node: " << lNewEntity->name << "\n\n";
 	std::cerr << "\tLocal Transform: " << lNewEntity->localTransform() << '\n';
-
-	if (!parent)
-	{
-		if (result.rootEntity)
-		{
-			std::cerr << "WARNING: Scene contains multiple root entities.\n";
-		}
-
-		// This is the root Entity of the scene.
-		result.rootEntity = lNewEntity;
-	}
-	else
-	{
-		lNewEntity->setParent(parent);
-		std::cerr << "\tParent node: " << parent->name << '\n';
-	}
 
 	lNewEntity->mesh     = processMesh(pNode, result);
 	lNewEntity->material = processMaterial(pNode, result);
@@ -119,8 +101,11 @@ void FbxImporter::traverse(FbxNode* pNode, std::shared_ptr<Entity> parent, Resul
 
 	for (int i = 0; i < pNode->GetChildCount(); ++i)
 	{
-		traverse(pNode->GetChild(i), lNewEntity, result);
+		auto lChildEntity = traverse(pNode->GetChild(i), result);
+		std::cerr << "\tAdding child " << lChildEntity->name << " to parent " << lNewEntity->name << '\n';
+		lNewEntity->addChild(std::move(lChildEntity));
 	}
+	return lNewEntity;
 }
 
 std::shared_ptr<Material> FbxImporter::processMaterial(FbxNode* pNode, ResultStructure& result)

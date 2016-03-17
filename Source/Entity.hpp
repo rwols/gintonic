@@ -67,9 +67,15 @@ private:
 	void updateGlobalDatamembers(const mat4fstack&) noexcept;
 	mat4f computeGlobalTransform() noexcept;
 
+
+
 public:
 
 	Entity(const FBXSDK_NAMESPACE::FbxNode* pFbxNode);
+	Entity(const Entity&);
+	Entity(Entity&&) noexcept;
+	Entity& operator = (const Entity&);
+	Entity& operator = (Entity&&) noexcept;
 
 	/**
 	 * @brief Constructor.
@@ -99,27 +105,19 @@ public:
 	 * three-dimensional space. It has a trivial local bounding box, so a
 	 * point. It has no parent and is not part of an octree.
 	 */
-	Entity() = default;
+	Entity();
 
-	bool castsShadow = false;
+	Entity(std::string name);
+
+	Entity(std::string name, SQT localTransform);
+
+	bool castShadow = false;
 
 	std::shared_ptr<Material> material;
 	std::shared_ptr<Mesh> mesh;
 	std::shared_ptr<Light> light;
 	std::shared_ptr<Camera> camera;
 	std::unique_ptr<ShadowBuffer> shadowBuffer;
-
-	// template <class ComponentType>
-	// ComponentType* get() noexcept
-	// {
-	// 	return reinterpret_cast<ComponentType*>(m_components[ComponentType::this_type].get());
-	// };
-
-	// template <class ComponentType>
-	// const ComponentType* get() const noexcept
-	// {
-	// 	return reinterpret_cast<ComponentType*>(m_components[ComponentType::this_type].get());
-	// }
 
 	/**
 	 * @name Events
@@ -149,48 +147,14 @@ public:
 
 	//@{
 
-	/**
-	 * @brief Returns a shared pointer to a new Entity.
-	 * @return A shared pointer to a new Entity.
-	 */
-	// static std::shared_ptr<Entity> create();
-
-	/**
-	 * @brief Returns a shared pointer to a new Entity.
-	 * 
-	 * @param local_transform The local transform that the Entity starts out
-	 * with.
-	 *
-	 * @param local_bounding_box The local bounding box that the Entity starts
-	 * out with.
-	 *
-	 * @param octree_root If the Entity should be part of an octree, you can
-	 * pass the root of the octree here.
-	 * 
-	 * @param parent Wether the Entity should have a parent Entity.
-	 * 
-	 * @return A shared pointer a new Entity.
-	 */
-	// static std::shared_ptr<Entity> create(
-	// 	const SQT& local_transform, 
-	// 	const box3f& local_bounding_box,
-	// 	octree* octree_node = nullptr,
-	// 	std::shared_ptr<Entity> parent = std::shared_ptr<Entity>(nullptr));
-
-	/// You cannot copy entities. This could create cycles in the Entity tree.
-	Entity(const Entity&) = delete;
-
-	/// You can move entities.
-	Entity(Entity&&) noexcept;
-
-	/// You cannot copy entities. This could create cycles in the Entity tree.
-	Entity& operator = (const Entity&) = delete;
-
-	/// You can move entities.
-	Entity& operator = (Entity&&) noexcept;
-
 	/// Destructor.
 	virtual ~Entity();
+
+	/**
+	 * @brief Clone this entity; clone all its children too.
+	 * @return The cloned entity.
+	 */
+	std::shared_ptr<Entity> cloneRecursive() const;
 
 	//@}
 

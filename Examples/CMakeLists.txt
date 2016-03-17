@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 
 set(executables BasicShapes
-	directional_light
-	fbx_viewer
+	DirectionalLight
 	FbxViewer
 	StreamBuffers
-	point_lights
+	PointLights
 	rotating_square
 	skybox
 	spot_lights
@@ -15,6 +14,6 @@ set(executables BasicShapes
 include_directories(${CMAKE_SOURCE_DIR}/Source)
 
 foreach (exe ${executables})
-	add_executable(${exe} ${exe}.cpp)
+	add_executable(${exe} ${exe}.cpp Application.cpp)
 	target_link_libraries(${exe} gintonic)
 endforeach ()
