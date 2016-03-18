@@ -42,6 +42,11 @@ public:
 	 */
 	virtual void shine(const Entity& e) const noexcept;
 
+	inline virtual vec4f getAttenuation() const noexcept { return vec4f(0.0f, 0.0f, 0.0f, 0.0f); }
+	inline virtual void setAttenuation(const vec4f&) { /* do nothing */ }
+	inline virtual float getAngle() const noexcept { return 0.0f; }
+	inline virtual void setAngle(const float angle) { /* do nothing */ }
+
 	virtual void initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const
 	{
 		/* Empty on purpose. */

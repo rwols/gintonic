@@ -10,6 +10,7 @@
 
 #include "../Foundation/WriteLock.hpp"
 
+#include "../Math/vec3f.hpp"
 #include "../Math/mat3f.hpp"
 #include "../Math/mat4f.hpp"
 
@@ -219,6 +220,15 @@ public:
 	inline static std::shared_ptr<Entity> getCameraEntity() noexcept 
 	{ 
 		return sCameraEntity; 
+	}
+
+	/**
+	 * @brief Get the current camera position in world coordinates.
+	 * @return The camera position in world coordinates.
+	 */
+	inline static vec3f getCameraPosition() noexcept
+	{
+		return sCameraPosition;
 	}
 
 	/**
@@ -980,6 +990,7 @@ private:
 	static GLuint s_shadow_texture;
 
 	static std::shared_ptr<Entity> sCameraEntity;
+	static vec3f sCameraPosition;
 
 	static WriteLock sEntityQueueLock;
 	static std::vector<std::shared_ptr<Entity>> sFutureQueue;

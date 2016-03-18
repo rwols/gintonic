@@ -23,24 +23,33 @@ public:
 	/**
 	 * @brief Constructor.
 	 *
-	 * @param intensity The intensity value.
+	 * @param intensity The intensity of the spot light.
 	 */
 	SpotLight(const vec4f& intensity);
 	
 	/**
 	 * @brief Constructor.
 	 *
-	 * @param intensity The intensity value.
-	 * @param attenuation The attenuation value.
+	 * @param intensity The intensity of the spot light.
+	 * @param attenuation The attenuation of the spot light, just as for a point light.
 	 */
 	SpotLight(const vec4f& intensity, const vec4f& attenuation);
 
+	/**
+	 * @brief Constructor.
+	 * 
+	 * @param intensity The intensity of the spot light.
+	 * @param attenuation The attenuation of the spot light, just as for a point light.
+	 * @param angle The angle of the spot light.
+	 */
+	SpotLight(const vec4f& intensity, const vec4f& attenuation, const float angle);
+
 	/// Destructor.
 	virtual ~SpotLight() noexcept = default;
-	
-	// Shine the spot light given the SQT transform. The spot light
-	// uses both the rotation part as well as the translation (position)
-	// part of the SQT transform. It does nothing with the scale part.
+
+	virtual void setAngle(const float angle);
+
+	virtual float getAngle() const noexcept;
 	
 	/**
 	 * @brief Shine the spot light given the global transformation of the
@@ -64,6 +73,8 @@ public:
 	//!@endcond
 
 private:
+
+	float mAngle;
 
 	// Reimplement this method to support output streams.
 	virtual std::ostream& prettyPrint(std::ostream&) const noexcept;

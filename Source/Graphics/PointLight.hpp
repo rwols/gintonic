@@ -48,7 +48,7 @@ public:
 	 * @brief Get the attenuation.
 	 * @return The attenuation value.
 	 */
-	vec4f attenuation() const noexcept;
+	virtual vec4f getAttenuation() const noexcept;
 
 	// Set the attenuation value. Setting a new attenuation value
 	// also recalculates the cutoff radius (see below).
@@ -61,7 +61,7 @@ public:
 	 * 
 	 * @param a The attenuation value.
 	 */
-	void setAttenuation(const vec4f& a) noexcept;
+	virtual void setAttenuation(const vec4f& a);
 	
 	/**
 	 * @brief Get the cutoff radius.
@@ -72,6 +72,9 @@ public:
 	 * @return The cutoff radius.
 	 */
 	float cutoffPoint() const noexcept;
+
+	inline virtual float getAngle() const noexcept { return 0.0f; }
+	inline virtual void setAngle(const float angle) { /* do nothing */ }
 
 	/**
 	 * @brief Shine the point light given the Entity's global transform.

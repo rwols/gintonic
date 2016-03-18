@@ -1,14 +1,17 @@
 #include "Application.hpp"
 
-#define APPNAME "PointLights"
+#define APPNAME "Spot Lights"
+
+#define ANGLE_CHANGE_SPEED 0.1f
+#define EXPONENT_CHANGE_SPEED 0.5f
 
 // #define ALSO_ADD_DIRECTIONAL_LIGHT
 
-class PointLightsApplication : public Application
+class SpotLightsApplication : public Application
 {
 public:
 
-	PointLightsApplication(int argc, char** argv)
+	SpotLightsApplication(int argc, char** argv)
 	: Application(APPNAME, argc, argv)
 	{
 		using namespace gintonic;
@@ -55,7 +58,13 @@ public:
 		Renderer::show();
 	}
 
+	virtual ~SpotLightsApplication() noexcept = default;
+
 private:
+
+	float mSpotlightExponent = 1.0f;
+
+	float mSpotlightAngle = static_cast<float>(M_PI) * 0.5f;
 
 	std::shared_ptr<gintonic::Entity> mRootOfLights;
 
@@ -86,6 +95,7 @@ private:
 				lAttenuation.x = 0.0f;
 				lAttenuation.normalize();
 			}
+			lAttenuation.w = mSpotlightExponent;
 			const vec4f lSpecularity(0.2f, 0.2f, 0.2f, 4.0f);
 			vec4f lIntensity;
 			vec3f lColor;
@@ -99,7 +109,7 @@ private:
 			lColor.x += lCeiling;
 			lColor.y += lCeiling;
 			lColor.z += lCeiling;
-			lIntensity = {lColor.x, lColor.y, lColor.z, 4.0f};
+			lIntensity = {lColor.x, lColor.y, lColor.z, 100.0f};
 
 			const auto lUp = vec3f(0.0f, 1.0f, 0.0f);
 			const auto lAngle = 2.0f * static_cast<float>(i) * lPi / lNumLights;
@@ -108,8 +118,9 @@ private:
 			lTransform.translation.z = lNumLights * std::sin(lAngle);
 
 			lTransform.rotation = quatf::axis_angle(lUp, -lAngle);
+			lTransform.rotation *= quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), -static_cast<float>(M_PI) / 2.0f);
 
-			auto lLight = std::shared_ptr<Light>(new PointLight(lIntensity, lAttenuation));
+			auto lLight = std::shared_ptr<Light>(new SpotLight(lIntensity, lAttenuation, mSpotlightAngle));
 
 			lIntensity.w = 0.0f;
 
@@ -126,6 +137,8 @@ private:
 			lLightEntity->mesh = Renderer::getUnitSphere();
 
 			lLightEntity->castShadow = false;
+
+			lLightEntity->addChild(Renderer::createGizmo());
 
 			mRootOfLights->addChild(lLightEntity);
 		}
@@ -158,30 +171,13 @@ private:
 	{
 		using namespace gintonic;
 
-		std::vector<std::vector<bool>> lBoolMatrix; // Generate a random boolean matrix
-		for (int i = -mNumObjects; i <= mNumObjects; ++i)
-		{
-			lBoolMatrix.push_back(std::vector<bool>(2 * mNumObjects + 1));
-			for (int j  = -mNumObjects; j <= mNumObjects; ++j)
-			{
-				lBoolMatrix[i + mNumObjects][j + mNumObjects] = static_cast<bool>(std::rand() % 2);
-			}
-		}
-
 		SQT lTransform;
 		lTransform.scale = 1.0f;
 		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 
-		auto lDaVinciTexture = std::make_shared<Texture2D>("../../Examples/DaVinci.jpg");
 		auto lBrickDiffuseTexture = std::make_shared<Texture2D>("../../Examples/bricks.jpg");
 		auto lBrickSpecularTexture = std::make_shared<Texture2D>("../../Examples/bricks_SPEC.png");
 		auto lBrickNormalTexture = std::make_shared<Texture2D>("../../Examples/bricks_NRM.png");
-
-		auto lDaVinciMaterial = std::make_shared<Material>();
-		lDaVinciMaterial->name = "DaVinci";
-		lDaVinciMaterial->diffuseColor = vec4f(0.7f, 0.7f, 0.7f, 1.0f);
-		lDaVinciMaterial->specularColor = vec4f(0.3f, 0.3f, 0.3f, 80.0f);
-		lDaVinciMaterial->diffuseTexture = lDaVinciTexture;
 
 		auto lBrickMaterialWithNormalMap = std::make_shared<Material>();
 		lBrickMaterialWithNormalMap->name = "BricksWithNormalMap";
@@ -195,23 +191,15 @@ private:
 		{
 			for (int j = -mNumObjects; j <= mNumObjects; ++j)
 			{
-				lTransform.translation.x = 3.0f * static_cast<float>(i);
+				lTransform.translation.x = 2.0f * static_cast<float>(i);
 				lTransform.translation.y = 0.0f;
-				lTransform.translation.z = 3.0f * static_cast<float>(j);
+				lTransform.translation.z = 2.0f * static_cast<float>(j);
 
 				auto lEntity = std::make_shared<Entity>();
 				lEntity->name = "Geometry(" + std::to_string(i) + "," + std::to_string(j) + ")";
 				lEntity->setLocalTransform(lTransform);
-				if (lBoolMatrix[i + mNumObjects][j + mNumObjects])
-				{
-					lEntity->material = lBrickMaterialWithNormalMap;
-					lEntity->mesh = Renderer::getUnitCubeWithTangents();
-				}
-				else
-				{
-					lEntity->material = lDaVinciMaterial;
-					lEntity->mesh = Renderer::getUnitSphere();
-				}
+				lEntity->material = lBrickMaterialWithNormalMap;
+				lEntity->mesh = Renderer::getUnitCubeWithTangents();
 
 				mRootEntity->addChild(lEntity);
 			}
@@ -221,9 +209,67 @@ private:
 	virtual void onRenderUpdate() final
 	{
 		using namespace gintonic;
-		mRootOfLights->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mDeltaTime));
-	}
 
+		vec3f lAxis;
+		float lAngle;
+		quatf lQuaternion;
+		
+		if (Renderer::key(SDL_SCANCODE_UP))
+		{
+			mSpotlightExponent += mDeltaTime * EXPONENT_CHANGE_SPEED;
+
+			for (auto lChild : *mRootOfLights)
+			{
+				auto lAtt = lChild->light->getAttenuation();
+				lAtt.w = mSpotlightExponent;
+				lChild->light->setAttenuation(lAtt);
+			}
+		}
+		if (Renderer::key(SDL_SCANCODE_DOWN))
+		{
+			mSpotlightExponent -= mDeltaTime * EXPONENT_CHANGE_SPEED;
+
+			for (auto lChild : *mRootOfLights)
+			{
+				auto lAtt = lChild->light->getAttenuation();
+				lAtt.w = mSpotlightExponent;
+				lChild->light->setAttenuation(lAtt);
+			}
+		}
+		if (Renderer::key(SDL_SCANCODE_LEFT))
+		{
+			mSpotlightAngle -= mDeltaTime * ANGLE_CHANGE_SPEED;
+
+			if (mSpotlightAngle < 0.0f)
+			{
+				mSpotlightAngle = 0.0f;
+			}
+
+			for (auto lChild : *mRootOfLights)
+			{
+				lChild->light->setAngle(mSpotlightAngle);
+			}
+		}
+		if (Renderer::key(SDL_SCANCODE_RIGHT))
+		{
+			mSpotlightAngle += mDeltaTime * ANGLE_CHANGE_SPEED;
+
+			if (mSpotlightAngle > static_cast<float>(M_PI) * 0.5f)
+			{
+				mSpotlightAngle = static_cast<float>(M_PI) * 0.5f;
+			}
+
+			for (auto lChild : *mRootOfLights)
+			{
+				lChild->light->setAngle(mSpotlightAngle);
+			}
+		}
+
+		lAxis = vec3f(0.0f, 1.0f, 0.0f);
+		lAngle = mDeltaTime;
+		lQuaternion = quatf::axis_angle(lAxis, lAngle);
+		mRootOfLights->postMultiplyRotation(lQuaternion);
+	}
 };
 
-DEFINE_MAIN(PointLightsApplication)
+DEFINE_MAIN(SpotLightsApplication)

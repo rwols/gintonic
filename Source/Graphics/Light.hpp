@@ -77,6 +77,11 @@ public:
 	 */
 	float brightness() const noexcept;
 
+	virtual vec4f getAttenuation() const noexcept = 0;
+	virtual void setAttenuation(const vec4f& attenuation) = 0;
+	virtual float getAngle() const noexcept = 0;
+	virtual void setAngle(const float angle) = 0;
+
 	virtual void initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const = 0;
 
 	/**

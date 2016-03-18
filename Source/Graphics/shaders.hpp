@@ -1244,8 +1244,7 @@ public:
 	 * 
 	 * @param direction The direction value.
 	 */
-	void set_light_direction(const vec3f& direction) const 
-		noexcept;
+	void set_light_direction(const vec3f& direction) const noexcept;
 
 	/**
 	 * @brief Set the light attenuation uniform variable.
@@ -1254,8 +1253,16 @@ public:
 	 * 
 	 * @param attenuation The attenuation value.
 	 */
-	void set_light_attenuation(const vec4f& attenuation) const 
-		noexcept;
+	void set_light_attenuation(const vec4f& attenuation) const noexcept;
+
+	/**
+	 * @brief Set the spot light's angle in radians.
+	 * @details The name of the uniform in the shader is assumed to be equal
+	 * to "light.angle".
+	 * 
+	 * @param angle The spot light's angle.
+	 */
+	void set_light_angle(const GLfloat angle) const noexcept;
 
 protected:
 
@@ -1281,6 +1288,7 @@ private:
 	GLuint loc_light_position;
 	GLuint loc_light_direction;
 	GLuint loc_light_attenuation;
+	GLuint loc_light_angle;
 };
 
 /**

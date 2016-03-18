@@ -971,6 +971,7 @@ lp_spot_shader::lp_spot_shader()
 	loc_light_position = getUniformLocation("light.position");
 	loc_light_direction = getUniformLocation("light.direction");
 	loc_light_attenuation = getUniformLocation("light.attenuation");
+	loc_light_angle = getUniformLocation("light.angle");
 }
 
 lp_spot_shader::~lp_spot_shader() noexcept
@@ -1023,6 +1024,11 @@ void lp_spot_shader::set_light_attenuation(const vec4f& attenuation) const noexc
 	setUniform(loc_light_attenuation, attenuation);
 }
 
+void lp_spot_shader::set_light_angle(const GLfloat angle) const noexcept
+{
+	setUniform(loc_light_angle, angle);
+}
+
 lp_spot_shader::lp_spot_shader(
 	boost::filesystem::path vertex_shader, 
 	boost::filesystem::path fragment_shader)
@@ -1037,6 +1043,7 @@ lp_spot_shader::lp_spot_shader(
 	loc_light_position = getUniformLocation("light.position");
 	loc_light_direction = getUniformLocation("light.direction");
 	loc_light_attenuation = getUniformLocation("light.attenuation");
+	loc_light_angle = getUniformLocation("light.angle");
 }
 
 lp_spot_shader::lp_spot_shader( 
@@ -1054,6 +1061,7 @@ lp_spot_shader::lp_spot_shader(
 	loc_light_position = getUniformLocation("light.position");
 	loc_light_direction = getUniformLocation("light.direction");
 	loc_light_attenuation = getUniformLocation("light.attenuation");
+	loc_light_angle = getUniformLocation("light.angle");
 }
 
 /*****************************************************************************

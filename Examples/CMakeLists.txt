@@ -7,7 +7,7 @@ set(executables BasicShapes
 	PointLights
 	rotating_square
 	skybox
-	spot_lights
+	SpotLights
 	text
 	TexturedCube)
 

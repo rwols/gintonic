@@ -124,6 +124,7 @@ GLuint Renderer::s_depth_texture;
 GLuint Renderer::s_shadow_texture;
 
 std::shared_ptr<Entity> Renderer::sCameraEntity = std::shared_ptr<Entity>(nullptr);
+vec3f Renderer::sCameraPosition = vec3f(0.0f, 0.0f, 0.0f);
 
 WriteLock Renderer::sEntityQueueLock;
 std::vector<std::shared_ptr<Entity>> Renderer::sFutureQueue;
@@ -233,8 +234,8 @@ void Renderer::init(const char* title, std::shared_ptr<Entity> cameraEntity, con
 	if (was_already_initialized == false) std::atexit(SDL_Quit);
 
 	sDefaultCamera->name = "DefaultCamera";
-	sDefaultCamera->setNearPlane(0.1f);
-	sDefaultCamera->setFarPlane(100.0f);
+	sDefaultCamera->setNearPlane(1.0f);
+	sDefaultCamera->setFarPlane(1000.0f);
 	sDefaultCamera->setProjectionType(Camera::kPerspectiveProjection);
 
 	setCameraEntity(std::move(cameraEntity));
@@ -243,18 +244,6 @@ void Renderer::init(const char* title, std::shared_ptr<Entity> cameraEntity, con
 	sWidth = width;
 	sHeight = height;
 	sAspectRatio = (float) sWidth / (float) sHeight;
-	if (sCameraEntity->camera)
-	{
-		sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
-		sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
-		// sCameraEntity->camera->setNearPlane(0.01f);
-		// sCameraEntity->camera->setFarPlane(100.0f);
-		// sCameraEntity->camera->setProjection(camera::kPerspectiveProjection);
-	}
-	else
-	{
-		throw std::runtime_error("Expected a valid Entity with a camera component.");
-	}
 
 	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
 	if (sFullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -774,6 +763,7 @@ void Renderer::update() noexcept
 
 	// Update the WORLD->VIEW matrix.
 	sCameraEntity->getViewMatrix(s_matrix_V);
+	sCameraPosition = vec3f((sCameraEntity->globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data);
 }
 
 void Renderer::begin_geometry_pass()

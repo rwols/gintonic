@@ -45,68 +45,60 @@ float clamppowmaxdot(in vec3 A, in vec3 B, in float exponent)
 
 float quadratic_poly(in float a, in float b, in float c, in float x)
 {
-	return a * x * x + b * x + c;
+	return a + b * x + c * x * x;
 }
 
 void main()
 {
+	vec2 screen_uv = calculate_screen_position();
+
+	vec3 P = texture(gbuffer.position, screen_uv).xyz;
+	vec4 diffuse = texture(gbuffer.diffuse, screen_uv);
+	vec4 specular = texture(gbuffer.specular, screen_uv);
+	vec3 N = texture(gbuffer.normal, screen_uv).xyz;
+
+	// L is the direction from the surface position to the light position
+	// P is in VM-coordinates, so light.position must be supplied in
+	// VM-coordinates too.
+	vec3 L = light.position - P;
+
+	// d is the distance from the surface position to the light position
+	float d = length(L);
+
+	float dc = 0.0f;
+	float sc = 0.0f;
+	float att = 0.0f;
+
+	// Don't forget to normalize L.
+	L = normalize(L);
+
+	// The attenuation factor for a point light
+	att = 1.0f / quadratic_poly(light.attenuation.x, light.attenuation.y, light.attenuation.z, d);
+	
+	// dc is the diffuse contribution.
+	dc = maxdot(N,L);
+
+	// Since we are in VIEW coordinates, the eye position is at the origin.
+	// Therefore the unit direction vector from the point on the surface P
+	// to the eye is given by (0 - P) / (||0 - P||) = normalize(-P).
+	vec3 E = normalize(-P);
+
+	// We reflect the E direction vector *around* the surface normal.
+	// The idea is now that if the angle of incidence of the light is equal
+	// to the outgoing angle of incidence to the eye, we experience specularity.
+	vec3 R = reflect(E,N);
+
+	// sc is the specular contribution.
+	sc = dc > 0.0f ? clamppowmaxdot(R,E, specular.a) : 0.0f;
+	
+	final_color = light.intensity.a * att * diffuse.a * light.intensity.rgb * (dc * diffuse.rgb + sc * specular.rgb);
 
 	if (debugflag == 1)
 	{
-		final_color = vec3(1.0f, 0.0f, 0.0f);
+		final_color.r += 0.3f;
 	}
-	else
+	else if (debugflag == 2)
 	{
-		vec2 screen_uv = calculate_screen_position();
-
-		vec3 P = texture(gbuffer.position, screen_uv).xyz;
-		vec4 diffuse = texture(gbuffer.diffuse, screen_uv);
-		vec4 specular = texture(gbuffer.specular, screen_uv);
-		vec3 N = texture(gbuffer.normal, screen_uv).xyz;
-
-		// L is the direction from the surface position to the light position
-		// P is in VM-coordinates, so light.position must be supplied in
-		// VM-coordinates too.
-		vec3 L = light.position - P;
-
-		// d is the distance from the surface position to the light position
-		float d = length(L);
-
-		float dc = 0.0f;
-		float sc = 0.0f;
-		float att = 0.0f;
-
-		if (d > 0.0f)
-		{
-			// Don't forget to normalize L.
-			L = normalize(L);
-
-			// The attenuation factor for a point light
-			att = 1.0f / quadratic_poly(light.attenuation.x, light.attenuation.y, light.attenuation.z, d);
-			
-			// dc is the diffuse contribution.
-			dc = maxdot(N,L);
-
-			// Since we are in VIEW coordinates, the eye position is at the origin.
-			// Therefore the unit direction vector from the point on the surface P
-			// to the eye is given by (0 - P) / (||0 - P||) = normalize(-P).
-			vec3 E = normalize(-P);
-
-			// We reflect the E direction vector *around* the surface normal.
-			// The idea is now that if the angle of incidence of the light is equal
-			// to the outgoing angle of incidence to the eye, we experience specularity.
-			vec3 R = reflect(E,N);
-
-			// sc is the specular contribution.
-			sc = dc > 0.0f ? clamppowmaxdot(R,E, specular.a) : 0.0f;	
-		}
-		
-
-		final_color = light.intensity.a * att * diffuse.a * light.intensity.rgb * (dc * diffuse.rgb + sc * specular.rgb);
-
-		if (debugflag == 2)
-		{
-			final_color.r = 1.0f;
-		}
+		final_color.g += 0.3f;
 	}
 }
