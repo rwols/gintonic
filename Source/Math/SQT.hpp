@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_SQT_hpp
-#define gintonic_SQT_hpp
+#pragma once
 
 #include "vec3f.hpp"
 #include "quatf.hpp"
@@ -305,5 +304,3 @@ std::ostream& operator << (std::ostream&, const SQT&);
 std::istream& operator >> (std::istream&, SQT&);
 
 } // namespace gintonic
-
-#endif

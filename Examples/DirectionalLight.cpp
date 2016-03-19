@@ -30,7 +30,7 @@ public:
 
 		auto lLight = std::shared_ptr<Light>(new DirectionalLight());
 		lLight->name = "DirectionalLight";
-		lLight->intensity = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
+		lLight->setIntensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 		auto lLightEntity = std::make_shared<Entity>
 		(

@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE SQT test
 #include <boost/test/unit_test.hpp>
 
-#include "../lib/Math/SQT.hpp"
-#include "../lib/Math/mat4f.hpp"
+#include "../Source/Math/SQT.hpp"
+#include "../Source/Math/mat4f.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>

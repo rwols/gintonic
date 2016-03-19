@@ -231,25 +231,40 @@ void Renderer::init(const char* title, std::shared_ptr<Entity> cameraEntity, con
 			return;
 		}
 	}
-	if (was_already_initialized == false) std::atexit(SDL_Quit);
-
-	sDefaultCamera->name = "DefaultCamera";
-	sDefaultCamera->setNearPlane(1.0f);
-	sDefaultCamera->setFarPlane(1000.0f);
-	sDefaultCamera->setProjectionType(Camera::kPerspectiveProjection);
-
-	setCameraEntity(std::move(cameraEntity));
 
 	sFullscreen = fullscreen;
-	sWidth = width;
-	sHeight = height;
+
+	if (sFullscreen)
+	{
+		const auto lNumDisplays = SDL_GetNumVideoDisplays();
+		if (lNumDisplays <= 0)
+		{
+			std::clog << "No displays.\n";
+			return;
+		}
+		SDL_Rect lRect;
+		SDL_GetDisplayBounds(0, &lRect);
+		sWidth = lRect.w;
+		sHeight = lRect.h;
+	}
+	else
+	{
+		sWidth = width;
+		sHeight = height;
+	}
+
 	sAspectRatio = (float) sWidth / (float) sHeight;
+
+	if (was_already_initialized == false) std::atexit(SDL_Quit);
 
 	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
 	if (sFullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	sWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
+	sWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, sWidth, sHeight, flags);
+	// SDL_GetWindowSize(sWindow, &sWidth, &sHeight);
 
+	//
 	// We start by trying to obtain an OpenGL 4.1 context.
+	//
 	SDL_GL_ResetAttributes();
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -321,6 +336,15 @@ void Renderer::init(const char* title, std::shared_ptr<Entity> cameraEntity, con
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
 	//
+	// Initialize default camera and camera entity
+	//
+	sDefaultCamera->name = "DefaultCamera";
+	sDefaultCamera->setNearPlane(1.0f);
+	sDefaultCamera->setFarPlane(1000.0f);
+	sDefaultCamera->setProjectionType(Camera::kPerspectiveProjection);
+	setCameraEntity(std::move(cameraEntity));
+
+	//
 	// Initializer shaders
 	//
 	init_shaders();
@@ -340,7 +364,12 @@ void Renderer::init(const char* title, std::shared_ptr<Entity> cameraEntity, con
 	// Initialize debug variables
 	//
 	#ifdef ENABLE_DEBUG_TRACE
-	sDebugFont = std::make_shared<Font>("../Resources/Inconsolata-Regular.ttf");
+	// Determine the point size. We take 1/100 of the width
+	const unsigned int lPointSize = static_cast<unsigned int>((float)sWidth / 80.0f);
+	PRINT_VAR(sWidth);
+	PRINT_VAR(sHeight);
+	PRINT_VAR(lPointSize);
+	sDebugFont = std::make_shared<Font>("../Resources/Inconsolata-Regular.ttf", lPointSize);
 	sDebugStream = new FontStream();
 	sDebugStream->open(sDebugFont);
 	#endif
@@ -690,14 +719,14 @@ void Renderer::update() noexcept
 	sNonShadowCastingGeometryEntities.clear();
 	sEntitiesLock.release();
 
-	// #ifdef ENABLE_DEBUG_TRACE
-	// get_text_shader()->activate();
-	// get_text_shader()->set_color(vec3f(1.0f, 1.0f, 1.0f));
-	// glDisable(GL_CULL_FACE);
-	// glEnable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// sDebugStream->close();
-	// #endif
+	#ifdef ENABLE_DEBUG_TRACE
+	get_text_shader()->activate();
+	get_text_shader()->set_color(vec3f(1.0f, 1.0f, 1.0f));
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	sDebugStream->close();
+	#endif
 
 	// glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	// glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
@@ -710,9 +739,9 @@ void Renderer::update() noexcept
 	
 	SDL_GL_SwapWindow(sWindow);
 
-	// #ifdef ENABLE_DEBUG_TRACE
-	// sDebugStream->open(*sDebugFont);
-	// #endif
+	#ifdef ENABLE_DEBUG_TRACE
+	sDebugStream->open(sDebugFont);
+	#endif
 	
 	sPrevElapsedTime = sElapsedTime;
 	sElapsedTime = clock_type::now() - sStartTime;

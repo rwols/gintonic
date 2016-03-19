@@ -1,9 +1,9 @@
 #define BOOST_TEST_MODULE mat4f test
 #include <boost/test/unit_test.hpp>
 
-#include "../lib/Math/vec4f.hpp"
-#include "../lib/Math/mat4f.hpp"
-#include "../lib/Math/SQT.hpp"
+#include "../Source/Math/vec4f.hpp"
+#include "../Source/Math/mat4f.hpp"
+#include "../Source/Math/SQT.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>

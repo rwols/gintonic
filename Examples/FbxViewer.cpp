@@ -2,6 +2,8 @@
 #include <iomanip>
 
 #define APPNAME "FbxViewer"
+#define LIGHT_INTENSITY_START_VALUE 1.0f
+#define INTENSITY_CHANGE_SPEED 10.0f
 
 class EntityProcessor : public gintonic::EntityVisitor
 {
@@ -10,10 +12,14 @@ public:
 	EntityProcessor(
 		std::shared_ptr<gintonic::Entity> root, 
 		std::ostream& stream, 
-		const std::size_t tabwidth) 
+		const std::size_t tabwidth,
+		// const float lightIntensityStartValue,
+		std::vector<std::shared_ptr<gintonic::Entity>>& lights) 
 	: EntityVisitor(root)
 	, mStream(stream)
 	, mTabWidth(tabwidth)
+	// , mLightIntensityStartValue(lightIntensityStartValue)
+	, mLights(lights)
 	{
 
 	}
@@ -44,6 +50,8 @@ private:
 		{
 			containsLight = true;
 			mStream << "light ";
+			// entity->light->setBrightness(mLightIntensityStartValue);
+			mLights.push_back(entity);
 		}
 		if (entity->mesh)
 		{
@@ -85,6 +93,8 @@ private:
 private:
 	std::ostream& mStream;
 	const std::size_t mTabWidth;
+	// float mLightIntensityStartValue;
+	std::vector<std::shared_ptr<gintonic::Entity>>& mLights;
 
 };
 
@@ -97,6 +107,10 @@ class FbxViewerApplication : public Application
 public:
 
 	std::shared_ptr<gintonic::Entity> mModel;
+
+	float mLightIntensity = LIGHT_INTENSITY_START_VALUE;
+
+	std::vector<std::shared_ptr<gintonic::Entity>> mLights;
 
 	FbxViewerApplication(int argc, char** argv)
 	: Application(APPNAME, argc, argv)
@@ -120,7 +134,14 @@ public:
 		mModel->name = lFilename.stem().string();
 		mModel->addChild(Renderer::createGizmo());
 		mRootEntity->addChild(mModel);
-		EntityProcessor lEntityProcessor(mRootEntity, std::cout, 4);
+		
+		EntityProcessor lEntityProcessor(
+			mRootEntity, 
+			std::cout, 
+			4, 
+			// mLightIntensity, 
+			mLights);
+
 		lEntityProcessor.execute();
 		if (lEntityProcessor.containsLight == false)
 		{
@@ -130,7 +151,7 @@ public:
 			// The directional light shines downwards.
 			
 			auto lLight = std::shared_ptr<Light>(new DirectionalLight());
-			lLight->intensity = 1.0f;
+			lLight->setIntensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 			lLight->name = "DefaultDirectionalLight";
 
 			auto lLightEntity = std::make_shared<gintonic::Entity>
@@ -163,6 +184,28 @@ private:
 	virtual void onRenderUpdate() final
 	{
 		using namespace gintonic;
+		if (Renderer::key(SDL_SCANCODE_EQUALS))
+		{
+			mLightIntensity += mDeltaTime * INTENSITY_CHANGE_SPEED;
+			for (auto lEntity : mLights)
+			{
+				lEntity->light->setBrightness(mLightIntensity);
+			}
+		}
+		if (Renderer::key(SDL_SCANCODE_MINUS))
+		{
+			mLightIntensity -= mDeltaTime * INTENSITY_CHANGE_SPEED;
+
+			if (mLightIntensity < 0.0f)
+			{
+				mLightIntensity = 0.0f;
+			}
+
+			for (auto lEntity : mLights)
+			{
+				lEntity->light->setBrightness(mLightIntensity);
+			}
+		}
 		mModel->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mElapsedTime / 10.0f));
 	}
 };

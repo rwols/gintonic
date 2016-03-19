@@ -76,6 +76,8 @@ public:
 	inline virtual float getAngle() const noexcept { return 0.0f; }
 	inline virtual void setAngle(const float angle) { /* do nothing */ }
 
+	virtual void setIntensity(const vec4f& intensity);
+
 	/**
 	 * @brief Shine the point light given the Entity's global transform.
 	 *

@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE mat3f test
 #include <boost/test/unit_test.hpp>
 
-#include "../lib/Math/vec3f.hpp"
-#include "../lib/Math/mat3f.hpp"
+#include "../Source/Math/vec3f.hpp"
+#include "../Source/Math/mat3f.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>

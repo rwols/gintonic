@@ -21,14 +21,15 @@ std::shared_ptr<Light> Light::create(const FbxLight* pFbxLight)
 		static_cast<float>(lFbxColor[1]), 
 		static_cast<float>(lFbxColor[2]), 
 		lFbxIntensity);
-	vec4f lAttenuation;
+	vec4f lAttenuation(0.0f, 0.0f, 0.0f, 1.0f);
 	std::shared_ptr<Light> lLight;
 	
 	switch (pFbxLight->DecayType.Get())
 	{
 		case FbxLight::eNone:
 		{
-			lAttenuation.x = 1.0f;
+			lAttenuation.x = 0.9f;
+			lAttenuation.z = 0.1f;
 			break;
 		}
 		case FbxLight::eLinear:
@@ -99,19 +100,19 @@ std::shared_ptr<Light> Light::create(const FbxLight* pFbxLight)
 }
 
 Light::Light(const vec4f& intensity)
-: intensity(intensity)
+: mIntensity(intensity)
 {
 	/* Empty on purpose. */
 }
 
 void Light::setBrightness(const float brightness)
 {
-	intensity.w = brightness;
+	mIntensity.w = brightness;
 }
 
-float Light::brightness() const noexcept
+float Light::getBrightness() const noexcept
 {
-	return intensity.w;
+	return mIntensity.w;
 }
 
 std::ostream& operator << (std::ostream& os, const Light* l)
@@ -136,7 +137,7 @@ std::ostream& operator << (std::ostream& os, const Light& l)
 
 std::ostream& Light::prettyPrint(std::ostream& os) const noexcept
 {
-	return os << "{ (Light) intensity: " << intensity << " }";
+	return os << "{ (Light) intensity: " << mIntensity << " }";
 }
 
 } // namespace gintonic

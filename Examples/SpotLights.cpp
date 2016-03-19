@@ -2,8 +2,16 @@
 
 #define APPNAME "Spot Lights"
 
+#define SPOTLIGHT_EXPONENT_START_VALUE 1.0f
+#define SPOTLIGHT_HALF_ANGLE_START_VALUE 1.50744f
+#define SPOTLIGHT_INTENSITY_START_VALUE 1.0f
+
+#define MATERIAL_DIFFUSE_COLOR vec4f(0.8f, 0.8f, 0.8f, 1.0f)
+#define MATERIAL_SPECULAR_COLOR vec4f(0.2f, 0.2f, 0.2f, 20.0f)
+
 #define ANGLE_CHANGE_SPEED 0.1f
-#define EXPONENT_CHANGE_SPEED 0.5f
+#define EXPONENT_CHANGE_SPEED 5.0f
+#define INTENSITY_CHANGE_SPEED 10.0f
 
 // #define ALSO_ADD_DIRECTIONAL_LIGHT
 
@@ -58,13 +66,27 @@ public:
 		Renderer::show();
 	}
 
-	virtual ~SpotLightsApplication() noexcept = default;
+	virtual ~SpotLightsApplication() noexcept
+	{
+		try
+		{
+			std::cout << "Last spot light exponent: " << mSpotlightExponent << '\n';
+			std::cout << "Last spot light angle: " << mSpotlightAngle << '\n';
+			std::cout << "Last intensity.w value: " << mLightIntensity << '\n';
+		}
+		catch (...)
+		{
+			// do nothing
+		}
+	}
 
 private:
 
-	float mSpotlightExponent = 1.0f;
+	float mSpotlightExponent = SPOTLIGHT_EXPONENT_START_VALUE;
 
-	float mSpotlightAngle = static_cast<float>(M_PI) * 0.5f;
+	float mSpotlightAngle = SPOTLIGHT_HALF_ANGLE_START_VALUE;
+
+	float mLightIntensity = SPOTLIGHT_INTENSITY_START_VALUE;
 
 	std::shared_ptr<gintonic::Entity> mRootOfLights;
 
@@ -88,82 +110,60 @@ private:
 
 		for (int i = 0; i < mNumLights; ++i)
 		{
-			vec4f lAttenuation(std::rand() % 1000, std::rand() % 1000, std::rand() % 1000, 0.0f);
-			lAttenuation.normalize();
-			if (lAttenuation.x > 0.9f)
-			{
-				lAttenuation.x = 0.0f;
-				lAttenuation.normalize();
-			}
-			lAttenuation.w = mSpotlightExponent;
-			const vec4f lSpecularity(0.2f, 0.2f, 0.2f, 4.0f);
-			vec4f lIntensity;
-			vec3f lColor;
-			float lCeiling;
-			lColor.x = std::rand() % 1000;
-			lColor.y = std::rand() % 1000;
-			lColor.z = std::rand() % 1000;
-			lColor.normalize();
-			lCeiling = std::max(std::max(lColor.x, lColor.y), lColor.z);
-			lCeiling = 1.0f - lCeiling;
-			lColor.x += lCeiling;
-			lColor.y += lCeiling;
-			lColor.z += lCeiling;
-			lIntensity = {lColor.x, lColor.y, lColor.z, 100.0f};
 
-			const auto lUp = vec3f(0.0f, 1.0f, 0.0f);
-			const auto lAngle = 2.0f * static_cast<float>(i) * lPi / lNumLights;
+			const auto lSpecularity  = MATERIAL_SPECULAR_COLOR;
+			const auto lAttenuation  = this->getRandomLightAttenuation(mSpotlightExponent);
+			      auto lIntensity    = this->getRandomColor(SPOTLIGHT_INTENSITY_START_VALUE);
+			const auto lUp           = vec3f(0.0f, 1.0f, 0.0f);
+			const auto lAngle        = 2.0f * static_cast<float>(i) * lPi / lNumLights;
 
 			lTransform.translation.x = lNumLights * std::cos(lAngle);
 			lTransform.translation.z = lNumLights * std::sin(lAngle);
 
-			lTransform.rotation = quatf::axis_angle(lUp, -lAngle);
-			lTransform.rotation *= quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), -static_cast<float>(M_PI) / 2.0f);
+			lTransform.rotation      = quatf::axis_angle(lUp, -lAngle);
+			lTransform.rotation     *= quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), -static_cast<float>(M_PI) / 2.0f);
 
-			auto lLight = std::shared_ptr<Light>(new SpotLight(lIntensity, lAttenuation, mSpotlightAngle));
+			auto lLight              = std::shared_ptr<Light>(new SpotLight(lIntensity, lAttenuation, mSpotlightAngle));
 
-			lIntensity.w = 0.0f;
+			lIntensity.w             = 0.0f;
 
-			auto lMaterial = std::make_shared<Material>();
-			lMaterial->name = "Light" + std::to_string(i);
-			lMaterial->diffuseColor = lIntensity;
+			auto lMaterial           = std::make_shared<Material>();
+			lMaterial->name          = "Light" + std::to_string(i);
+			lMaterial->diffuseColor  = lIntensity;
 			lMaterial->specularColor = lSpecularity;
 
-			auto lLightEntity = std::make_shared<Entity>();
-			lLightEntity->name = "Light" + std::to_string(i);
-			lLightEntity->setLocalTransform(lTransform);
-			lLightEntity->light = lLight;
-			lLightEntity->material = lMaterial;
-			lLightEntity->mesh = Renderer::getUnitSphere();
-
+			auto lLightEntity        = std::make_shared<Entity>();
+			lLightEntity->name       = "Light" + std::to_string(i);
+			lLightEntity->light      = lLight;
+			lLightEntity->material   = lMaterial;
+			lLightEntity->mesh       = Renderer::getUnitSphere();
 			lLightEntity->castShadow = false;
-
-			lLightEntity->addChild(Renderer::createGizmo());
+			lLightEntity->setLocalTransform(lTransform);
 
 			mRootOfLights->addChild(lLightEntity);
 		}
 
 		#ifdef ALSO_ADD_DIRECTIONAL_LIGHT
-			auto lLight = std::shared_ptr<Light>(new DirectionalLight());
-			lLight->intensity = 0.3f;
-			lLight->name = "DefaultDirectionalLight";
+		auto lLight = std::shared_ptr<Light>(new DirectionalLight());
+		lLight->intensity = 0.3f;
+		lLight->name = "DefaultDirectionalLight";
 
-			auto lLightEntity = std::make_shared<gintonic::Entity>
+		auto lLightEntity = std::make_shared<gintonic::Entity>
+		(
+			"DefaultDirectionalLight", 
+			SQT
 			(
-				"DefaultDirectionalLight", 
-				SQT
+				vec3f(1.0f, 1.0f, 1.0f), 
+				quatf::axis_angle
 				(
-					vec3f(1.0f, 1.0f, 1.0f), 
-					quatf::axis_angle
-					(
-						vec3f(1.0f, 0.0f, 0.0f), 
-						-M_PI / 2.0f + 1.0f
-					), 
-					vec3f(0.0f, 0.0f, 0.0f)
-				)
-			);
-			lLightEntity->light = lLight;
-			mRootEntity->addChild(lLightEntity);
+					vec3f(1.0f, 0.0f, 0.0f), 
+					-M_PI / 2.0f + 1.0f
+				), 
+				vec3f(0.0f, 0.0f, 0.0f)
+			)
+		);
+		lLightEntity->light = lLight;
+		mRootEntity->addChild(lLightEntity);
 		#endif
 	}
 
@@ -181,8 +181,8 @@ private:
 
 		auto lBrickMaterialWithNormalMap = std::make_shared<Material>();
 		lBrickMaterialWithNormalMap->name = "BricksWithNormalMap";
-		lBrickMaterialWithNormalMap->diffuseColor = vec4f(0.8f, 0.8f, 0.8f,  1.0f);
-		lBrickMaterialWithNormalMap->specularColor = vec4f(0.2f, 0.2f, 0.2f, 20.0f);
+		lBrickMaterialWithNormalMap->diffuseColor = MATERIAL_DIFFUSE_COLOR;
+		lBrickMaterialWithNormalMap->specularColor = MATERIAL_SPECULAR_COLOR;
 		lBrickMaterialWithNormalMap->diffuseTexture = lBrickDiffuseTexture;
 		lBrickMaterialWithNormalMap->specularTexture = lBrickSpecularTexture;
 		lBrickMaterialWithNormalMap->normalTexture = lBrickNormalTexture;
@@ -229,6 +229,11 @@ private:
 		{
 			mSpotlightExponent -= mDeltaTime * EXPONENT_CHANGE_SPEED;
 
+			if (mSpotlightExponent < 1.0f)
+			{
+				mSpotlightExponent = 1.0f;
+			}
+
 			for (auto lChild : *mRootOfLights)
 			{
 				auto lAtt = lChild->light->getAttenuation();
@@ -262,6 +267,29 @@ private:
 			for (auto lChild : *mRootOfLights)
 			{
 				lChild->light->setAngle(mSpotlightAngle);
+			}
+		}
+		if (Renderer::key(SDL_SCANCODE_EQUALS))
+		{
+			mLightIntensity += mDeltaTime * INTENSITY_CHANGE_SPEED;
+
+			for (auto lChild : *mRootOfLights)
+			{
+				lChild->light->setBrightness(mLightIntensity);
+			}
+		}
+		if (Renderer::key(SDL_SCANCODE_MINUS))
+		{
+			mLightIntensity -= mDeltaTime * INTENSITY_CHANGE_SPEED;
+
+			if (mLightIntensity < 0.0f)
+			{
+				mLightIntensity = 0.0f;
+			}
+
+			for (auto lChild : *mRootOfLights)
+			{
+				lChild->light->setBrightness(mLightIntensity);
 			}
 		}
 

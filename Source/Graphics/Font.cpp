@@ -5,76 +5,19 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#define POINTSIZE 12
-
-// namespace {
-
-// 	FT_Library s_ft_library;
-// 	bool s_was_already_initialized = false;
-
-// } // namespace
+// #define POINTSIZE 100
 
 namespace gintonic {
 
-	// void font::init()
-	// {
-	// 	if (s_was_already_initialized) return;
-	// 	if (FT_Init_FreeType(&s_ft_library)) 
-	// 	{
-	// 		throw std::runtime_error("Could not initialize font library.");
-	// 	}
-	// 	std::atexit(font::release);
-	// 	s_was_already_initialized = true;
-	// }
+Font::Font(const char* filename, const unsigned int pointsize)
+: Font(boost::filesystem::path(filename), pointsize) {}
 
-	// void font::release()
-	// {
-	// 	FT_Done_FreeType(s_ft_library);
-	// 	s_was_already_initialized = false;
-	// }
+Font::Font(const std::string& filename, const unsigned int pointsize)
+: Font(boost::filesystem::path(filename), pointsize) {}
 
-	// font::font(const key_type& filename_and_size) : object<font, key_type>(filename_and_size)
-	// {
-	// 	construct_from_key();
-	// }
-
-	// font::font(key_type&& filename_and_size) : object<font, key_type>(std::move(filename_and_size))
-	// {
-	// 	construct_from_key();
-	// }
-
-	// font::font(font&& other) 
-	// : object<font, key_type>(std::move(other))
-	// , m_atlas_width(std::move(other.m_atlas_width))
-	// , m_atlas_height(std::move(other.m_atlas_height))
-	// , m_tex(std::move(other.m_tex))
-	// , m_vao(std::move(other.m_vao))
-	// , m_vbo(std::move(other.m_vbo))
-	// {
-	// 	other.m_tex = 0;
-	// 	std::memcpy(m_c, other.m_c, sizeof(character_info));
-	// }
-	
-	// font& font::operator = (font&& other)
-	// {
-	// 	this->~font();
-	// 	object<font, key_type>::operator=(std::move(other));
-	// 	m_atlas_width = std::move(other.m_atlas_width);
-	// 	m_atlas_height = std::move(other.m_atlas_height);
-	// 	m_tex = std::move(other.m_tex);
-	// 	m_vao = std::move(other.m_vao);
-	// 	m_vbo = std::move(other.m_vbo);
-	// 	other.m_tex = 0;
-	// 	std::memcpy(m_c, other.m_c, sizeof(character_info));
-	// 	return *this;
-	// }
-
-Font::Font(const char* filename) : Font(boost::filesystem::path(filename)) {}
-
-Font::Font(const std::string& filename) : Font(boost::filesystem::path(filename)) {}
-
-Font::Font(boost::filesystem::path filename)
+Font::Font(boost::filesystem::path filename, const unsigned int pointsize)
 : Object<Font, boost::filesystem::path>(std::move(filename))
+, mPointSize(pointsize)
 {
 	FT_Library lFreetypeLib;
 	FT_Init_FreeType(&lFreetypeLib);
@@ -96,7 +39,7 @@ Font::Font(boost::filesystem::path filename)
 		throw lException;
 	}
 	const auto lGlyph = lFace->glyph;
-	FT_Set_Pixel_Sizes(lFace, 0, POINTSIZE);
+	FT_Set_Pixel_Sizes(lFace, 0, mPointSize);
 	glBindTexture(GL_TEXTURE_2D, mTextureObject);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -130,73 +73,6 @@ Font::Font(boost::filesystem::path filename)
 	FT_Done_FreeType(lFreetypeLib);	
 }
 
-// void font::construct_from_key()
-// {
-// 	FT_Face face;
-// 	GLint ox = 0;
-// 	m_atlas_width = 0;
-// 	m_atlas_height = 0;
-// 	const auto filename = std::get<0>(key()).string();
-
-// 	if (std::get<1>(key()) <= 0)
-// 	{
-// 		throw std::runtime_error("Cannot have a font size <= 0.");
-// 	}
-// 	if (FT_New_Face(s_ft_library, filename.c_str(), 0, &face))
-// 	{
-// 		throw std::runtime_error("Could not open font.");
-// 	}
-	
-// 	const auto g = face->glyph;
-// 	FT_Set_Pixel_Sizes(face, 0, std::get<1>(key()));
-
-// 	glActiveTexture(GL_TEXTURE0);
-// 	glGenTextures(1, &m_tex);
-// 	glBindTexture(GL_TEXTURE_2D, m_tex);
-// 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-// 	glBindVertexArray(m_vao);
-// 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-// 	opengl::vertex_text2d::enable_attributes();
-
-// 	for (int i = 32; i < 128; ++i)
-// 	{
-// 		if (FT_Load_Char(face, i, FT_LOAD_RENDER)) continue;
-// 		m_atlas_width += g->bitmap.width;
-// 		m_atlas_height = std::max(m_atlas_height, static_cast<GLsizei>(g->bitmap.rows));
-// 	}
-
-// 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, m_atlas_width, m_atlas_height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-
-// 	for (int i = 32; i < 128; ++i)
-// 	{
-// 		if (FT_Load_Char(face, i, FT_LOAD_RENDER)) continue;
-// 		glTexSubImage2D(GL_TEXTURE_2D, 0, ox, 0, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
-// 		m_c[i-32].ax = static_cast<int16_t>(g->advance.x >> 6);
-// 		m_c[i-32].ay = static_cast<int16_t>(g->advance.y >> 6);
-// 		m_c[i-32].bw = static_cast<int16_t>(g->bitmap.width);
-// 		m_c[i-32].bh = static_cast<int16_t>(g->bitmap.rows);
-// 		m_c[i-32].bl = static_cast<int16_t>(g->bitmap_left);
-// 		m_c[i-32].bt = static_cast<int16_t>(g->bitmap_top);
-// 		m_c[i-32].tx = static_cast<GLfloat>(ox) / static_cast<GLfloat>(m_atlas_width);
-// 		ox += g->bitmap.width;
-// 	}
-
-// 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-// 	glBindVertexArray(0);
-// 	glBindTexture(GL_TEXTURE_2D, 0);
-
-// 	FT_Done_Face(face);
-// }
-
-// font::~font()
-// {
-// 	glDeleteTextures(1, &m_tex);
-// }
-
 void Font::draw(const char* text, const std::size_t length, const vec2f& in_position, const vec2f& scale) const noexcept
 {
 	using vert = opengl::vertex_text2d;
@@ -215,7 +91,7 @@ void Font::draw(const char* text, const std::size_t length, const vec2f& in_posi
 		if (text[j] == '\n')
 		{
 			position.x = lOriginalXPosition;
-			position.y -= static_cast<GLfloat>(POINTSIZE * scale.y);
+			position.y -= static_cast<GLfloat>(mPointSize * scale.y);
 			continue;
 		}
 
@@ -266,12 +142,12 @@ void Font::draw(const std::string& text, const vec2f& position) const noexcept
 
 	namespace Detail
 	{
-		FontStream::FontStream(std::shared_ptr<Font> f) : underlyingFont(f)
+		FontStream::FontStream(std::shared_ptr<Font> f) : underlyingFont(std::move(f))
 		{
 			scale.x = 2.0f / static_cast<GLfloat>(Renderer::width());
 			scale.y = 2.0f / static_cast<GLfloat>(Renderer::height());
 			position.x = -1.0f;
-			position.y = 1.0f - scale.y * static_cast<GLfloat>(POINTSIZE);
+			position.y = 1.0f - scale.y * static_cast<GLfloat>(underlyingFont->getPointSize());
 		}
 
 		std::streamsize FontStream::write(const char* text, const std::streamsize length) const noexcept

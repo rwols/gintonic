@@ -58,194 +58,22 @@ gintonic::vec3f getMaterialColor(
 
 namespace gintonic {
 
-/*****************************************************************************
- * gintonic::Material (base class for inheritance)                           *
- ****************************************************************************/
+Material::Material(
+	const vec4f& diffuseColor)
+: diffuseColor(diffuseColor)
+, specularColor(0.0f, 0.0f, 0.0f, 0.0f)
+{
+	/* Empty on purpose. */
+}
 
-// Material::DataStructureType Material::sTextures;
-
-// write_lock Material::sTextureWriteLock;
-
-// void Material::save(std::ostream& output) const
-// {
-// 	eos::portable_oarchive archive(output);
-// 	archive & boost::serialization::make_nvp("Material", *this);
-// }
-
-// void Material::save(const boost::filesystem::path& filename) const
-// {
-// 	#ifdef BOOST_MSVC
-// 		save(filename.string());
-// 	#else
-// 		save(filename.c_str());
-// 	#endif
-// }
-
-// void Material::save(const std::string& filename) const
-// {
-// 	save(filename.c_str());
-// }
-
-// void Material::save(const char* filename) const
-// {
-// 	std::ofstream output(filename, std::ios::binary);
-// 	save(output);
-// }
-
-// Material Material::load(std::istream& input)
-// {
-// 	Material m;
-// 	eos::portable_iarchive archive(input);
-// 	archive & boost::serialization::make_nvp("Material", m);
-// 	return m;
-// }
-
-// Material Material::load(const boost::filesystem::path& filename)
-// {
-// 	#ifdef BOOST_MSVC
-// 		return load(filename.string());
-// 	#else
-// 		return load(filename.c_str());
-// 	#endif
-// }
-
-// Material Material::load(const std::string& filename)
-// {
-// 	return load(filename.c_str());
-// }
-
-// Material Material::load(const char* filename)
-// {
-// 	std::ifstream input(filename, std::ios::binary);
-// 	return load(input);
-// }
-
-// void Material::safeObtainTexture(
-// 	const boost::filesystem::path& filename, 
-// 	IterType& iter)
-// {
-// 	sTextureWriteLock.obtain();
-// 	iter = std::find_if(sTextures.begin(), sTextures.end(), 
-// 		[&filename](const Material::ItemType& tup)
-// 	{
-// 		if (std::get<0>(tup) == filename) return true;
-// 		else return false;
-// 	});
-// 	if (iter == sTextures.end())
-// 	{
-// 		// texture filename is not present in our global container,
-// 		// so we create a new texture2d initialized with a
-// 		// reference count of 1
-// 		try { sTextures.emplace_back(filename, 1, filename); }
-// 		catch (const exception&)
-// 		{
-// 			sTextureWriteLock.release();
-// 			throw;
-// 		}
-// 		iter = std::prev(sTextures.end());
-// 	}
-// 	else
-// 	{
-// 		++(std::get<1>(*iter)); // increase reference count by 1
-// 	}
-// 	sTextureWriteLock.release();
-// }
-
-// void Material::unsafeObtainTexture(
-// 	const boost::filesystem::path& filename,
-// 	IterType& iter)
-// {
-// 	iter = std::find_if(sTextures.begin(), sTextures.end(),
-// 		[&filename](const Material::ItemType& tup)
-// 	{
-// 		if (std::get<0>(tup) == filename) return true;
-// 		else return false;
-// 	});
-// 	if (iter == sTextures.end())
-// 	{
-// 		// texture filename is not present in our global container,
-// 		// so we create a new texture2d initialized with a
-// 		// reference count of 1
-// 		try { sTextures.emplace_back(filename, 1, filename); }
-// 		catch (const exception&)
-// 		{
-// 			sTextureWriteLock.release();
-// 			throw;
-// 		}
-// 		iter = std::prev(sTextures.end());
-// 	}
-// 	else
-// 	{
-// 		++(std::get<1>(*iter)); // increase reference count by 1
-// 	}
-// }
-
-// void Material::safeSetNullTexture(IterType& iter)
-// {
-// 	sTextureWriteLock.obtain();
-// 	iter = sTextures.end();
-// 	sTextureWriteLock.release();
-// }
-
-// void Material::safeReleaseTexture(IterType& iter)
-// {
-// 	sTextureWriteLock.obtain();
-// 	if (iter != sTextures.end())
-// 	{
-// 		if (--(std::get<1>(*iter)) == 0) // decreases reference count
-// 		{
-// 			sTextures.erase(iter); // erases entry from the global container
-// 		}
-// 	}
-// 	sTextureWriteLock.release();
-// }
-
-// void Material::unsafeReleaseTexture(IterType& iter)
-// {
-// 	if (iter != sTextures.end())
-// 	{
-// 		auto& refcount = std::get<1>(*iter);
-// 		--refcount;
-// 		if (refcount == 0)
-// 		{
-// 			sTextures.erase(iter); // erases entry from the global container
-// 			iter = sTextures.end();
-// 		}
-// 	}
-// }
-
-// Material::Material()
-// {
-// 	sTextureWriteLock.obtain();
-// 	mDiffuseTexture = sTextures.end();
-// 	mSpecularTexture = sTextures.end();
-// 	mNormalTexture = sTextures.end();
-// 	sTextureWriteLock.release();
-// }
-
-// Material::Material(
-// 	const vec4f& diffuseColor)
-// : diffuseColor(diffuseColor)
-// {
-// 	sTextureWriteLock.obtain();
-// 	mDiffuseTexture = sTextures.end();
-// 	mSpecularTexture = sTextures.end();
-// 	mNormalTexture = sTextures.end();
-// 	sTextureWriteLock.release();
-// }
-
-// Material::Material(
-// 	const vec4f& diffuseColor, 
-// 	const vec4f& specularColor)
-// : diffuseColor(diffuseColor)
-// , specularColor(specularColor)
-// {
-// 	sTextureWriteLock.obtain();
-// 	mDiffuseTexture = sTextures.end();
-// 	mSpecularTexture = sTextures.end();
-// 	mNormalTexture = sTextures.end();
-// 	sTextureWriteLock.release();
-// }
+Material::Material(
+	const vec4f& diffuseColor, 
+	const vec4f& specularColor)
+: diffuseColor(diffuseColor)
+, specularColor(specularColor)
+{
+	/* Empty on purpose. */
+}
 
 Material::Material(
 	const vec4f& diffuseColor, 

@@ -6,11 +6,13 @@
 
 #version 330 core
 
-#define M_PI 3.1415926535897932384626433832795f
+// #define NDEBUG
 
 uniform vec2 viewport_size;
 
+#ifndef NDEBUG
 uniform int debugflag;
+#endif
 
 uniform struct GeometryBuffer
 {
@@ -32,81 +34,152 @@ out vec3 final_color;
 
 // Returns the current fragment's clip-space coordinates, for
 // fetching it from the g-buffer.
-vec2 calculate_screen_position()
+vec2 calculateScreenPosition()
 {
 	return vec2(gl_FragCoord.x / viewport_size.x, gl_FragCoord.y / viewport_size.y);
 }
 
-float maxdot(in vec3 A, in vec3 B)
+// float maxdot(in vec3 A, in vec3 B)
+// {
+// 	return max(dot(A,B), 0.0f);
+// }
+
+// float clamppowmaxdot(in vec3 A, in vec3 B, in float exponent)
+// {
+// 	// return pow(max(dot(A,B), 0.0f), exponent);
+// 	return clamp(pow(maxdot(A,B), exponent), 0.0f, 1.0f);
+// }
+
+float quadraticPolynomial(in float constantTerm, in float linearTerm, in float quadraticTerm, in float value)
 {
-	return max(dot(A,B), 0.0f);
+	return constantTerm + linearTerm * value + quadraticTerm * value * value;
 }
 
-float clamppowmaxdot(in vec3 A, in vec3 B, in float exponent)
+float quadraticPolynomial(in vec3 coefficients, in float value)
 {
-	// return pow(max(dot(A,B), 0.0f), exponent);
-	return clamp(pow(maxdot(A,B), exponent), 0.0f, 1.0f);
+	return coefficients.x + coefficients.y * value + coefficients.z * value * value;
 }
 
-float spotlightfactor(in vec3 A, in vec3 B, in float exponent)
-{
-	float angle = dot(A, B);
-	return (angle >= light.angle) ? clamppowmaxdot(A, B, exponent) : 0.0f;	
-}
+// float spotlightfactor(in vec3 directionFromLightToVertex)
+// {
+// 	float angle = dot(directionFromLightToVertex, light.direction);
+// 	return (angle >= light.angle) ? pow(maxdot(directionFromLightToVertex, light.direction), light.attenuation.w) : 0.0f;	
+// }
 
-float quadratic_poly(in float a, in float b, in float c, in float x)
-{
-	return a + b * x + c * x * x;
-}
+// float computeAttenuationFactor(in float distanceFromVertexToLight)
+// {
+// 	if (distanceFromVertexToLight > 0.0f)
+// 	{
+// 		1.0f / quadraticPolynomial(light.attenuation.x, light.attenuation.y, light.attenuation.z, distanceFromVertexToLight);
+// 	}
+// 	else
+// 	{
+// 		return 0.0f;
+// 	}
+// }
+
+// float computeSpotlightFactor(in vec3 viewSpaceVertexPosition)
+// {
+// 	vec3 lDirectionFromLightToVertex = normalize(viewSpaceVertexPosition - light.position);
+// 	float angle = dot(lDirectionFromLightToVertex, light.direction);
+// 	return angle >= light.angle ? 1.0f : 0.0f;
+// }
+
+// float computeDiffuseFactor(in vec3 viewSpaceVertexPosition)
+// {
+// 	vec3 lDirectionFromLightToVertex = viewSpaceVertexPosition - light.position;
+// 	float lDistanceFromVertexToLight = length(lDirectionFromLightToVertex);
+
+// 	if (lDistanceFromVertexToLight > 0.0f)
+// 	{
+// 		// Make this direction of unit length
+// 		lDirectionFromLightToVertex /= lDistanceFromVertexToLight;
+
+// 		float angle = dot(lDirectionFromLightToVertex, light.direction);
+// 		if (angle >= light.angle)
+// 		{
+// 			float spotlightEffect = pow(max(angle, 0.0f), light.attenuation.w);
+			
+// 			float attenuationEffect = quadraticPolynomial(
+// 				light.attenuation.x, 
+// 				light.attenuation.y, 
+// 				light.attenuation.z, 
+// 				lDistanceFromVertexToLight);
+
+// 			return spotlightEffect / attenuationEffect;
+// 		}
+// 		else
+// 		{
+// 			return 0.0f;
+// 		}
+// 	}
+// 	else
+// 	{
+// 		return 0.0f;
+// 	}
+// }
+
+// float computeSpecularFactor(
+// 	in vec3 viewSpaceVertexPosition, 
+// 	in vec3 viewSpaceVertexNormal, 
+// 	in float specularExponent)
+// {
+// 	vec3 lDirectionFromVertexToEye = normalize(-viewSpaceVertexPosition);
+// 	vec3 lReflection = reflect(lDirectionFromVertexToEye, viewSpaceVertexNormal);
+// 	float lCosineAngle = dot(lDirectionFromVertexToEye, lReflection);
+// 	return pow(max(lCosineAngle, 0.0f), specularExponent);
+// }
 
 void main()
 {
-	vec2 screen_uv = calculate_screen_position();
+	vec2 lScreenUV = calculateScreenPosition();
 
-	vec3 P = texture(gbuffer.position, screen_uv).xyz;
-	vec4 diffuse = texture(gbuffer.diffuse, screen_uv);
-	vec4 specular = texture(gbuffer.specular, screen_uv);
-	vec3 N = texture(gbuffer.normal, screen_uv).xyz;
+	vec3 lViewSpaceVertexPosition = texture(gbuffer.position, lScreenUV).xyz;
+	vec4 lDiffuseColor            = texture(gbuffer.diffuse, lScreenUV);
+	vec4 lSpecularColor           = texture(gbuffer.specular, lScreenUV);
+	vec3 lViewSpaceVertexNormal   = texture(gbuffer.normal, lScreenUV).xyz;
 
-	// L is the direction from the surface position to the light position
-	// P is in VM-coordinates, so light.position must be supplied in
-	// VM-coordinates too.
-	vec3 L = light.position - P;
+	vec3  lDirectionFromLightToVertex = lViewSpaceVertexPosition - light.position;
+	float lDistanceFromLightToVertex  = length(lDirectionFromLightToVertex);
 
-	// d is the distance from the surface position to the light position
-	float d = length(L);
+	if (lDistanceFromLightToVertex <= 0.0f) discard;
 
-	float dc = 0.0f;
-	float sc = 0.0f;
-	float att = 0.0f;
+	// Normalize this direction.
+	lDirectionFromLightToVertex /= lDistanceFromLightToVertex;
 
-	// Don't forget to normalize L.
-	L = normalize(L);
-
-	// The attenuation factor for a point light
-	att = 1.0f / quadratic_poly(light.attenuation.x, light.attenuation.y, light.attenuation.z, d);
-
-	// This line is the ONLY difference with respect to a point light...
-	// Note also that, if light.attenuation.w == 0.0f, then a spot light
-	// effectively becomes a point light.
-	att *= spotlightfactor(-light.direction, L, light.attenuation.w);
+	// Determine the spot light effect.
+	float lCosineAngle = dot(lDirectionFromLightToVertex, light.direction);
+	if (lCosineAngle < light.angle) discard;
+	float lSpotlightEffect = pow(lCosineAngle, light.attenuation.w);
 	
-	// dc is the diffuse contribution.
-	dc = maxdot(N,L);
+	// Determine the attenuation factor.
+	float lAttenuationFactor = quadraticPolynomial(light.attenuation.xyz, lDistanceFromLightToVertex);
 
-	// Since we are in VIEW coordinates, the eye position is at the origin.
-	// Therefore the unit direction vector from the point on the surface P
-	// to the eye is given by (0 - P) / (||0 - P||) = normalize(-P).
-	vec3 E = normalize(-P);
+	// Determine the specular factor.
+	vec3 lDirectionFromVertexToEye = normalize(-lViewSpaceVertexPosition);
+	vec3 lReflection = reflect(lDirectionFromVertexToEye, lViewSpaceVertexNormal);
+	float lReflectionCosineAngle = dot(lDirectionFromVertexToEye, lReflection);
+	float lSpecularFactor = pow(max(lReflectionCosineAngle, 0.0f), lSpecularColor.a);
 
-	// We reflect the E direction vector *around* the surface normal.
-	// The idea is now that if the angle of incidence of the light is equal
-	// to the outgoing angle of incidence to the eye, we experience specularity.
-	vec3 R = reflect(E,N);
-
-	// sc is the specular contribution.
-	sc = dc > 0.0f ? clamppowmaxdot(R,E, specular.a) : 0.0f;
+	// Compose the final color
+	final_color  = lDiffuseColor.rgb;
+	final_color += lSpecularFactor * lSpecularColor.rgb;
+	final_color *= lDiffuseColor.a;
+	final_color *= lSpotlightEffect;
+	final_color /= lAttenuationFactor;
+	final_color *= light.intensity.rgb;
+	final_color *= light.intensity.a;
+	// final_color *= lDiffuseColor.a;
 	
-	final_color = light.intensity.a * att * diffuse.a * light.intensity.rgb * (dc * diffuse.rgb + sc * specular.rgb);
+	#ifndef NDEBUG
+	if (debugflag == 1)
+	{
+		final_color.r += 0.1f;
+	}
+	else if (debugflag == 2)
+	{
+		final_color.g += 0.1f;
+	}
+	#endif
 
 }

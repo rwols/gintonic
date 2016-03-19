@@ -3,12 +3,10 @@ cmake_minimum_required(VERSION 2.8)
 set(executables BasicShapes
 	DirectionalLight
 	FbxViewer
+	HelloWorldText
 	StreamBuffers
 	PointLights
-	rotating_square
-	skybox
 	SpotLights
-	text
 	TexturedCube)
 
 include_directories(${CMAKE_SOURCE_DIR}/Source)

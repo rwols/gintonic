@@ -17,7 +17,7 @@ public:
 		// so that we see something interesting.
 		// The directional light shines downwards.
 		auto lLight = std::shared_ptr<Light>(new DirectionalLight());
-		lLight->intensity = 1.0f;
+		lLight->setIntensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 		lLight->name = "DefaultDirectionalLight";
 		auto lLightEntity = std::make_shared<gintonic::Entity>
 		(

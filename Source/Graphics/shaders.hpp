@@ -1031,7 +1031,9 @@ public:
 	/// Destructor.
 	virtual ~lp_point_shader() noexcept;
 
+	#ifndef NDEBUG
 	void set_debugflag(const GLint value) const noexcept;
+	#endif
 
 	/**
 	 * @brief Set the viewport size uniform variable.
@@ -1135,7 +1137,10 @@ protected:
 
 private:
 
+	#ifndef NDEBUG
 	GLuint loc_debugflag;
+	#endif
+	
 	GLuint loc_viewport_size;
 	GLuint loc_gbuffer_position;
 	GLuint loc_gbuffer_diffuse;
@@ -1264,6 +1269,20 @@ public:
 	 */
 	void set_light_angle(const GLfloat angle) const noexcept;
 
+	#ifndef NDEBUG
+	/**
+	 * @brief Set the spot light's debug flag.
+	 * @details When set to 1, the shader adds a red hue. When set to 2,
+	 * the shader adds a green hue. When any other value is supplied,
+	 * nothing special is done in the shader. This method is only available
+	 * in a debug build.
+	 * 
+	 * @param value The value for the debug flag. Either 1 or 2. All other
+	 * values do nothing special.
+	 */
+	void set_debugflag(const GLint value) const noexcept;
+	#endif
+
 protected:
 
 	/// Forwarding constructor.
@@ -1289,6 +1308,10 @@ private:
 	GLuint loc_light_direction;
 	GLuint loc_light_attenuation;
 	GLuint loc_light_angle;
+
+	#ifndef NDEBUG
+	GLuint loc_debugflag;
+	#endif
 };
 
 /**

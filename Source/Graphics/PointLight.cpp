@@ -14,7 +14,10 @@
 
 #include <iostream>
 
+#define EPSILON 0.1f // Used in PointLight::shine
+
 // Comment or uncomment this to see the bounding spheres
+// Only works in a debug build
 // #define DEBUG_POINT_LIGHTS
 
 namespace gintonic {
@@ -61,38 +64,7 @@ void PointLight::shine(const Entity& e) const noexcept
 
 	Renderer::setModelMatrix(lSphereTransform);
 
-	// const auto& lNullShader = Renderer::get_null_shader();
 	const auto& lPointShader = Renderer::get_lp_point_shader();
-	const auto lSphereMesh = Renderer::getUnitSphere();
-
-	// We first do a null-pass that only fills the renderer's stencil buffer.
-	// The stencil value is increased when a front-facing triangle is seen,
-	// and is decreased when a back-facing triangle is seen. This way, the
-	// values that are non-zero should be shaded.
-
-	// glDrawBuffer(GL_NONE);
-	// glEnable(GL_DEPTH_TEST);
-	// glDisable(GL_CULL_FACE);
-	// glClear(GL_STENCIL_BUFFER_BIT);
-	// glStencilFunc(GL_ALWAYS, 0, 0);
-	// glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-	// glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-
-	// lNullShader.activate();
-	// lNullShader.set_matrix_PVM(Renderer::matrix_PVM());
-	// lSphereMesh->draw();
-
-	// Here we use the information collected in the stencil buffer to only
-	// shade pixels that really need it.
-	
-	// glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-	// glEnable(GL_CULL_FACE);
-	// glCullFace(GL_FRONT);
-	// glDrawBuffer(GL_BACK);
-	// glDisable(GL_DEPTH_TEST);
-	// glEnable(GL_BLEND);
-	// glBlendEquation(GL_FUNC_ADD);
-	// glBlendFunc(GL_ONE, GL_ONE);
 
 	lPointShader.activate();
 	lPointShader.set_viewport_size(Renderer::viewportSize());
@@ -100,15 +72,15 @@ void PointLight::shine(const Entity& e) const noexcept
 	lPointShader.set_gbuffer_diffuse(Renderer::GBUFFER_DIFFUSE);
 	lPointShader.set_gbuffer_specular(Renderer::GBUFFER_SPECULAR);
 	lPointShader.set_gbuffer_normal(Renderer::GBUFFER_NORMAL);
-	lPointShader.set_light_intensity(intensity);
+	lPointShader.set_light_intensity(this->mIntensity);
 	lPointShader.set_light_position(lLightPos);
 	lPointShader.set_light_attenuation(mAttenuation);
 	lPointShader.set_matrix_PVM(Renderer::matrix_PVM());
 
-	#define EPSILON 1.0f
 	// Is the camera inside or outside the sphere?
 	const auto lDist = gintonic::distance(Renderer::getCameraPosition(), lSphereTransform.translation);
-	if (lDist < mCutoffPoint + EPSILON)
+	const auto lCutoffWithEpsilon = cutoffPoint() + EPSILON * cutoffPoint();
+	if (lDist < lCutoffWithEpsilon)
 	{
 		// Inside
 		#ifdef DEBUG_POINT_LIGHTS
@@ -125,10 +97,8 @@ void PointLight::shine(const Entity& e) const noexcept
 		glCullFace(GL_BACK);
 	}
 	#undef EPSILON
-
-	// glCullFace(GL_FRONT);
 	
-	lSphereMesh->draw();
+	Renderer::getUnitSphere()->draw();
 }
 
 void PointLight::initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const
@@ -136,9 +106,15 @@ void PointLight::initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) con
 	lightEntity->shadowBuffer.reset(new PointShadowBuffer());
 }
 
-void PointLight::setBrightness(const float brightness)
+void PointLight::setBrightness(const float value)
 {
-	intensity.w = brightness;
+	Light::setBrightness(value);
+	calculateCutoffRadius();	
+}
+
+void PointLight::setIntensity(const vec4f& intensity)
+{
+	Light::setIntensity(intensity);
 	calculateCutoffRadius();
 }
 
@@ -154,7 +130,7 @@ void PointLight::calculateCutoffRadius() noexcept
 	// for big spheres.
 
 	#define att mAttenuation
-	#define in intensity
+	#define in mIntensity
 
 	const float c = in.w * std::max(in.x, std::max(in.x, in.y));
 
@@ -198,7 +174,7 @@ std::ostream& operator << (std::ostream& os, const PointLight& l)
 
 std::ostream& PointLight::prettyPrint(std::ostream& os) const noexcept
 {
-	return os << "{ (PointLight) intensity: " << intensity
+	return os << "{ (PointLight) intensity: " << mIntensity
 		<< ", attenuation: " << mAttenuation
 		<< ", cutoffPoint: " << mCutoffPoint << " }";
 }

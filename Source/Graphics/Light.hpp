@@ -27,7 +27,7 @@ public:
 	 * color of the light. The fourth component, the W value, defines the
 	 * intensity of the light.
 	 */
-	vec4f intensity;
+	// vec4f intensity;
 
 	// virtual void attach(Entity&);
 
@@ -75,10 +75,19 @@ public:
 	 * @brief Get the brightness, or intensity of the light.
 	 * @return The current brightness, or intensity.
 	 */
-	float brightness() const noexcept;
+	virtual float getBrightness() const noexcept;
 
 	virtual vec4f getAttenuation() const noexcept = 0;
 	virtual void setAttenuation(const vec4f& attenuation) = 0;
+	inline virtual vec4f getIntensity() const noexcept
+	{
+		return mIntensity;
+	}
+	inline virtual void setIntensity(const vec4f& intensity)
+	{
+		mIntensity = intensity;
+	}
+
 	virtual float getAngle() const noexcept = 0;
 	virtual void setAngle(const float angle) = 0;
 
@@ -114,6 +123,10 @@ public:
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 	//!@endcond
 
+protected:
+
+	vec4f mIntensity;
+
 private:
 
 	/**
@@ -130,7 +143,7 @@ private:
 	template <class Archive> 
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
-		ar & BOOST_SERIALIZATION_NVP(intensity);
+		ar & BOOST_SERIALIZATION_NVP(mIntensity);
 	}
 };
 

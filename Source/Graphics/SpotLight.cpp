@@ -11,6 +11,10 @@
 
 #include <iostream>
 
+#define EPSILON 0.1f // Used in SpotLight::shine
+
+// Comment or uncomment this to see the bounding spheres
+// Only works in a debug build
 // #define DEBUG_SPOT_LIGHTS
 
 namespace gintonic {
@@ -51,38 +55,7 @@ void SpotLight::shine(const Entity& e) const noexcept
 
 	Renderer::setModelMatrix(lSphereTransform);
 
-	// const auto& lNullShader = Renderer::get_null_shader();
 	const auto& lSpotShader = Renderer::get_lp_spot_shader();
-	const auto lSphereMesh = Renderer::getUnitSphere();
-
-	// We first do a null-pass that only fills the renderer's stencil buffer.
-	// The stencil value is increased when a front-facing triangle is seen,
-	// and is decreased when a back-facing triangle is seen. This way, the
-	// values that are non-zero should be shaded.
-
-	// glDrawBuffer(GL_NONE);
-	// glEnable(GL_DEPTH_TEST);
-	// glDisable(GL_CULL_FACE);
-	// glClear(GL_STENCIL_BUFFER_BIT);
-	// glStencilFunc(GL_ALWAYS, 0, 0);
-	// glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-	// glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-
-	// lNullShader.activate();
-	// lNullShader.set_matrix_PVM(Renderer::matrix_PVM());
-	// lSphereMesh->draw();
-
-	// Here we use the information collected in the stencil buffer to only
-	// shade pixels that really need it.
-	
-	// glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-	// glEnable(GL_CULL_FACE);
-	// glCullFace(GL_FRONT);
-	// glDrawBuffer(GL_BACK);
-	// glDisable(GL_DEPTH_TEST);
-	// glEnable(GL_BLEND);
-	// glBlendEquation(GL_FUNC_ADD);
-	// glBlendFunc(GL_ONE, GL_ONE);
 
 	lSpotShader.activate();
 	lSpotShader.set_viewport_size(Renderer::viewportSize());
@@ -90,17 +63,17 @@ void SpotLight::shine(const Entity& e) const noexcept
 	lSpotShader.set_gbuffer_diffuse(Renderer::GBUFFER_DIFFUSE);
 	lSpotShader.set_gbuffer_specular(Renderer::GBUFFER_SPECULAR);
 	lSpotShader.set_gbuffer_normal(Renderer::GBUFFER_NORMAL);
-	lSpotShader.set_light_intensity(intensity);
+	lSpotShader.set_light_intensity(this->mIntensity);
 	lSpotShader.set_light_position(lLightPos);
 	lSpotShader.set_light_direction(lLightDir);
 	lSpotShader.set_light_attenuation(getAttenuation());
 	lSpotShader.set_light_angle(mAngle);
 	lSpotShader.set_matrix_PVM(Renderer::matrix_PVM());
 
-	#define EPSILON 1.0f
 	// Is the camera inside or outside the sphere?
 	const auto lDist = gintonic::distance(Renderer::getCameraPosition(), lSphereTransform.translation);
-	if (lDist < cutoffPoint() + EPSILON)
+	const auto lCutoffWithEpsilon = cutoffPoint() + EPSILON * cutoffPoint();
+	if (lDist < lCutoffWithEpsilon)
 	{
 		// Inside
 		#ifdef DEBUG_SPOT_LIGHTS
@@ -116,11 +89,9 @@ void SpotLight::shine(const Entity& e) const noexcept
 		#endif
 		glCullFace(GL_BACK);
 	}
-	#undef EPSILON
-
-	// glCullFace(GL_FRONT);
 	
-	lSphereMesh->draw();
+	// Draw a sphere to drive the shader.
+	Renderer::getUnitSphere()->draw();
 }
 
 void SpotLight::setAngle(const float angle)
@@ -145,7 +116,7 @@ std::ostream& operator << (std::ostream& os, const SpotLight& l)
 
 std::ostream& SpotLight::prettyPrint(std::ostream& os) const noexcept
 {
-	return os << "{ (SpotLight) intensity: " << intensity
+	return os << "{ (SpotLight) intensity: " << this->mIntensity
 		<< ", attenuation: " << getAttenuation()
 		<< ", cutoffPoint: " << cutoffPoint() << " }";
 }

@@ -40,9 +40,14 @@ namespace gintonic {
 		 */
 		// static void init();
 
-		Font(const char* filename);
-		Font(const std::string& filename);
-		Font(boost::filesystem::path filename);
+		Font(const char* filename, const unsigned int pointsize);
+		Font(const std::string& filename, const unsigned int pointsize);
+		Font(boost::filesystem::path filename, const unsigned int pointsize);
+
+		inline unsigned int getPointSize() const noexcept
+		{
+			return mPointSize;
+		}
 
 		/// Destructor.
 		virtual ~Font() = default;
@@ -141,6 +146,8 @@ namespace gintonic {
 			int16_t bt; // bitmap top
 			GLfloat tx; // x offset of glyph in texture coordinates
 		} mChar[96];
+
+		unsigned int mPointSize;
 
 		GLsizei mAtlasWidth, mAtlasHeight;
 		

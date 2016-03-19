@@ -6,9 +6,13 @@
 
 #version 330 core
 
+// #define NDEBUG
+
 uniform vec2 viewport_size;
 
+#ifndef NDEBUG
 uniform int debugflag;
+#endif
 
 uniform struct GeometryBuffer
 {
@@ -93,12 +97,14 @@ void main()
 	
 	final_color = light.intensity.a * att * diffuse.a * light.intensity.rgb * (dc * diffuse.rgb + sc * specular.rgb);
 
+	#ifndef NDEBUG
 	if (debugflag == 1)
 	{
-		final_color.r += 0.3f;
+		final_color.r += 0.1f;
 	}
 	else if (debugflag == 2)
 	{
-		final_color.g += 0.3f;
+		final_color.g += 0.1f;
 	}
+	#endif
 }

@@ -57,3 +57,50 @@ void Application::processCameraInput()
 	lCameraEntity->camera->addMouse(lMouseDelta);
 	lCameraEntity->setRotation(quatf::mouse(lCameraEntity->camera->angles()));
 }
+
+gintonic::vec3f Application::getRandomNormalizedVector3(const int resolution) const noexcept
+{
+	gintonic::vec3f lResult(
+		std::rand() % resolution,
+		std::rand() % resolution,
+		std::rand() % resolution);
+
+	lResult.normalize();
+
+	return lResult;
+}
+
+gintonic::vec4f Application::getRandomNormalizedVector4(const int resolution) const noexcept
+{
+	gintonic::vec4f lResult(
+		std::rand() % resolution, 
+		std::rand() % resolution, 
+		std::rand() % resolution, 
+		std::rand() % resolution);
+
+	lResult.normalize();
+	return lResult;
+}
+
+gintonic::vec4f Application::getRandomColor(const float wCoordinate, const int resolution) const noexcept
+{
+	auto lRandomVec3 = getRandomNormalizedVector3(resolution);
+	auto lCeiling = std::max(std::max(lRandomVec3.x, lRandomVec3.y), lRandomVec3.z);
+	lCeiling = 1.0f - lCeiling;
+	lRandomVec3.x += lCeiling;
+	lRandomVec3.y += lCeiling;
+	lRandomVec3.z += lCeiling;
+	return {lRandomVec3.x, lRandomVec3.y, lRandomVec3.z, wCoordinate};
+}
+
+gintonic::vec4f Application::getRandomLightAttenuation(const float wCoordinate, const int resolution) const noexcept
+{
+	gintonic::vec4f lAttenuation(getRandomNormalizedVector3(resolution), 0.0f);
+	if (lAttenuation.x > 0.9f)
+	{
+		lAttenuation.x = 0.0f;
+		lAttenuation.normalize();
+	}
+	lAttenuation.w = wCoordinate;
+	return lAttenuation;
+}

@@ -30,6 +30,14 @@ protected:
 
 	double mDeltaTime = 1.0 / 60.0;
 
+	gintonic::vec3f getRandomNormalizedVector3(const int resolution = 1000) const noexcept;
+
+	gintonic::vec4f getRandomNormalizedVector4(const int resolution = 1000) const noexcept;
+
+	gintonic::vec4f getRandomColor(const float wCoordinate, const int resolution = 1000) const noexcept;
+
+	gintonic::vec4f getRandomLightAttenuation(const float wCoordinate, const int resolution = 1000) const noexcept;
+
 private:
 
 	virtual void onRenderUpdate() = 0;

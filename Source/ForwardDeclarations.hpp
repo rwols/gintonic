@@ -41,6 +41,7 @@ struct box2f;
 struct box3f;
 class MatrixPipeline;
 class mat4fstack;
+class SQTstack;
 
 /* Graphics classes */
 class DirectionalShadowBuffer;

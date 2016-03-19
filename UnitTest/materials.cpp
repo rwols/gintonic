@@ -1,10 +1,10 @@
 #define BOOST_TEST_MODULE materials test
 #include <boost/test/unit_test.hpp>
 
-#include "../lib/gintonic.hpp"
+#include "../Source/gintonic.hpp"
 
-#include "../lib/Foundation/portable_iarchive.hpp"
-#include "../lib/Foundation/portable_oarchive.hpp"
+#include "../Source/Foundation/portable_iarchive.hpp"
+#include "../Source/Foundation/portable_oarchive.hpp"
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <fstream>
@@ -13,7 +13,7 @@ using namespace gintonic;
 
 BOOST_AUTO_TEST_CASE( serialization_of_materials )
 {
-	renderer::init_dummy(false);
+	Renderer::initDummy(false);
 	boost::filesystem::current_path(get_executable_path());
 	const boost::filesystem::path filename = "delete_me";
 	{
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( reference_counting_of_textures )
 {
 	vec4f diffcolor(1.0f, 1.0f, 1.0f, 1.0f);
 	vec4f speccolor(1.0f, 1.0f, 1.0f, 1.0f);
-	renderer::init_dummy(false);
+	Renderer::initDummy(false);
 	boost::filesystem::current_path(get_executable_path());
 	std::vector<std::shared_ptr<Material>> materials;
 	{
