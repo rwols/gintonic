@@ -642,213 +642,213 @@ public:
 	 * @brief Get a shader that does nothing.
 	 * @return A shader that does nothing.
 	 */
-	inline static const matrix_PVM_shader& get_null_shader() 
+	inline static const Matrix_PVM_ShaderProgram& getNullShaderProgram() 
 		noexcept
 	{
-		return *s_matrix_PVM_shader;
+		return *sNullShaderProgram;
 	}
 
 	/**
-	 * @brief Get gp_shader.
-	 * @return gp_shader.
+	 * @brief Get GeometryShaderProgram.
+	 * @return GeometryShaderProgram.
 	 */
-	inline static const gp_shader& get_gp_shader() noexcept
+	inline static const GeometryShaderProgram& getGeometryShaderProgram() noexcept
 	{
-		return *s_gp_shader;
+		return *sGeometryShader;
 	}
 
 	/**
-	 * @brief Get gp_d_shader.
-	 * @return gp_d_shader.
+	 * @brief Get Geometry_D_ShaderProgram.
+	 * @return Geometry_D_ShaderProgram.
 	 */
-	inline static const gp_d_shader& get_gp_d_shader() noexcept
+	inline static const Geometry_D_ShaderProgram& getGeometry_D_ShaderProgram() noexcept
 	{
-		return *s_gp_d_shader;
+		return *sGeometry_D_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gp_s_shader.
-	 * @return gp_s_shader.
+	 * @brief Get Geometry_S_ShaderProgram.
+	 * @return Geometry_S_ShaderProgram.
 	 */
-	inline static const gp_s_shader& get_gp_s_shader() noexcept
+	inline static const Geometry_S_ShaderProgram& getGeometry_S_ShaderProgram() noexcept
 	{
-		return *s_gp_s_shader;
+		return *sGeometry_S_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gp_n_shader.
-	 * @return gp_n_shader.
+	 * @brief Get Geometry_N_ShaderProgram.
+	 * @return Geometry_N_ShaderProgram.
 	 */
-	inline static const gp_n_shader& get_gp_n_shader() noexcept
+	inline static const Geometry_N_ShaderProgram& getGeometry_N_ShaderProgram() noexcept
 	{
-		return *s_gp_n_shader;
+		return *sGeometry_N_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gp_ds_shader.
-	 * @return gp_ds_shader.
+	 * @brief Get Geometry_DS_ShaderProgram.
+	 * @return Geometry_DS_ShaderProgram.
 	 */
-	inline static const gp_ds_shader& get_gp_ds_shader() noexcept
+	inline static const Geometry_DS_ShaderProgram& getGeometry_DS_ShaderProgram() noexcept
 	{
-		return *s_gp_ds_shader;
+		return *sGeometry_DS_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gp_dn_shader.
-	 * @return gp_dn_shader.
+	 * @brief Get Geometry_DN_ShaderProgram.
+	 * @return Geometry_DN_ShaderProgram.
 	 */
-	inline static const gp_dn_shader& get_gp_dn_shader() noexcept
+	inline static const Geometry_DN_ShaderProgram& getGeometry_DN_ShaderProgram() noexcept
 	{
-		return *s_gp_dn_shader;
+		return *sGeometry_DN_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gp_sn_shader.
-	 * @return gp_sn_shader.
+	 * @brief Get Geometry_SN_ShaderProgram.
+	 * @return Geometry_SN_ShaderProgram.
 	 */
-	inline static const gp_sn_shader& get_gp_sn_shader() noexcept
+	inline static const Geometry_SN_ShaderProgram& getGeometry_SN_ShaderProgram() noexcept
 	{
-		return *s_gp_sn_shader;
+		return *sGeometry_SN_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gp_dsn_shader.
-	 * @return gp_dsn_shader.
+	 * @brief Get Geometry_DSN_ShaderProgram.
+	 * @return Geometry_DSN_ShaderProgram.
 	 */
-	inline static const gp_dsn_shader& get_gp_dsn_shader() noexcept
+	inline static const Geometry_DSN_ShaderProgram& getGeometry_DSN_ShaderProgram() noexcept
 	{
-		return *s_gp_dsn_shader;
+		return *sGeometry_DSN_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gpi_shader.
-	 * @return gpi_shader.
+	 * @brief Get GeometryInstancedShaderProgram.
+	 * @return GeometryInstancedShaderProgram.
 	 */
-	inline static const gpi_shader& get_gpi_shader() noexcept
+	inline static const GeometryInstancedShaderProgram& getGeometryInstancedShaderProgram() noexcept
 	{
-		return *s_gpi_shader;
+		return *sGeometryInstancedShaderProgram;
 	}
 
 	/**
-	 * @brief Get gpi_d_shader.
-	 * @return gpi_d_shader.
+	 * @brief Get GeometryInstanced_D_ShaderProgram.
+	 * @return GeometryInstanced_D_ShaderProgram.
 	 */
-	inline static const gpi_d_shader& get_gpi_d_shader() noexcept
+	inline static const GeometryInstanced_D_ShaderProgram& getGeometryInstanced_D_ShaderProgram() noexcept
 	{
-		return *s_gpi_d_shader;
+		return *sGeometryInstanced_D_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gpi_s_shader.
-	 * @return gpi_s_shader.
+	 * @brief Get GeometryInstance_DS_ShaderProgram.
+	 * @return GeometryInstance_DS_ShaderProgram.
 	 */
-	inline static const gpi_s_shader& get_gpi_s_shader() noexcept
+	inline static const GeometryInstance_DS_ShaderProgram& getGeometryInstance_DS_ShaderProgram() noexcept
 	{
-		return *s_gpi_s_shader;
+		return *sGeometryInstance_DS_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gpi_n_shader.
-	 * @return gpi_n_shader.
+	 * @brief Get GeometryInstance_DN_ShaderProgram.
+	 * @return GeometryInstance_DN_ShaderProgram.
 	 */
-	inline static const gpi_n_shader& get_gpi_n_shader() noexcept
+	inline static const GeometryInstance_DN_ShaderProgram& getGeometryInstance_DN_ShaderProgram() noexcept
 	{
-		return *s_gpi_n_shader;
+		return *sGeometryInstance_DN_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gpi_ds_shader.
-	 * @return gpi_ds_shader.
+	 * @brief Get GeometryInstanced_DS_ShaderProgram.
+	 * @return GeometryInstanced_DS_ShaderProgram.
 	 */
-	inline static const gpi_ds_shader& get_gpi_ds_shader() noexcept
+	inline static const GeometryInstanced_DS_ShaderProgram& getGeometryInstanced_DS_ShaderProgram() noexcept
 	{
-		return *s_gpi_ds_shader;
+		return *sGeometryInstanced_DS_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gpi_dn_shader.
-	 * @return gpi_dn_shader.
+	 * @brief Get GeometryInstanced_DN_ShaderProgram.
+	 * @return GeometryInstanced_DN_ShaderProgram.
 	 */
-	inline static const gpi_dn_shader& get_gpi_dn_shader() noexcept
+	inline static const GeometryInstanced_DN_ShaderProgram& getGeometryInstanced_DN_ShaderProgram() noexcept
 	{
-		return *s_gpi_dn_shader;
+		return *sGeometryInstanced_DN_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gpi_sn_shader.
-	 * @return gpi_sn_shader.
+	 * @brief Get GeometryInstanced_SN_ShaderProgram.
+	 * @return GeometryInstanced_SN_ShaderProgram.
 	 */
-	inline static const gpi_sn_shader& get_gpi_sn_shader() noexcept
+	inline static const GeometryInstanced_SN_ShaderProgram& getGeometryInstanced_SN_ShaderProgram() noexcept
 	{
-		return *s_gpi_sn_shader;
+		return *sGeometryInstanced_SN_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get gpi_dsn_shader.
-	 * @return gpi_dsn_shader.
+	 * @brief Get GeometryInstanced_DSN_ShaderProgram.
+	 * @return GeometryInstanced_DSN_ShaderProgram.
 	 */
-	inline static const gpi_dsn_shader& get_gpi_dsn_shader() noexcept
+	inline static const GeometryInstanced_DSN_ShaderProgram& getGeometryInstanced_DSN_ShaderProgram() noexcept
 	{
-		return *s_gpi_dsn_shader;
+		return *sGeometryInstanced_DSN_ShaderProgram;
 	}
 
 	/**
-	 * @brief Get lp_ambient_shader.
-	 * @return lp_ambient_shader.
+	 * @brief Get AmbientLightShaderProgram.
+	 * @return AmbientLightShaderProgram.
 	 */
-	inline static const lp_ambient_shader& get_lp_ambient_shader() noexcept
+	inline static const AmbientLightShaderProgram& getAmbientLightShaderProgram() noexcept
 	{
-		return *s_lp_ambient_shader;
+		return *sAmbientLightShaderProgram;
 	}
 
 	/**
-	 * @brief Get lp_directional_shader.
-	 * @return lp_directional_shader.
+	 * @brief Get DirectionalLightShaderProgram.
+	 * @return DirectionalLightShaderProgram.
 	 */
-	inline static const lp_directional_shader& get_lp_directional_shader() noexcept
+	inline static const DirectionalLightShaderProgram& getDirectionalLightShaderProgram() noexcept
 	{
-		return *s_lp_directional_shader;
+		return *sDirectionalLightShaderProgram;
 	}
 
 	/**
-	 * @brief Get lp_point_shader.
-	 * @return lp_point_shader.
+	 * @brief Get PointLightShaderProgram.
+	 * @return PointLightShaderProgram.
 	 */
-	inline static const lp_point_shader& get_lp_point_shader() noexcept
+	inline static const PointLightShaderProgram& getPointLightShaderProgram() noexcept
 	{
-		return *s_lp_point_shader;
+		return *sPointLightShaderProgram;
 	}
 
 	/**
-	 * @brief Get lp_spot_shader.
-	 * @return lp_spot_shader.
+	 * @brief Get SpotLightShaderProgram.
+	 * @return SpotLightShaderProgram.
 	 */
-	inline static const lp_spot_shader& get_lp_spot_shader() noexcept
+	inline static const SpotLightShaderProgram& getSpotLightShaderProgram() noexcept
 	{
-		return *s_lp_spot_shader;
+		return *sSpotLightShaderProgram;
 	}
 
-	inline static const sp_directional_shader& get_sp_directional_shader() noexcept
+	inline static const sp_directional_shader& getsp_directional_shader() noexcept
 	{
 		return *s_sp_directional_shader;
 	}
 
 	/**
-	 * @brief Get lp_skybox_shader.
-	 * @return lp_skybox_shader.
+	 * @brief Get SkyboxShaderProgram.
+	 * @return SkyboxShaderProgram.
 	 */
-	inline static const skybox_shader& get_skybox_shader() noexcept
+	inline static const SkyboxShaderProgram& getSkyboxShaderProgram() noexcept
 	{
-		return *s_skybox_shader;
+		return *sSkyboxShaderProgram;
 	}
 
 	/**
-	 * @brief Get text_shader.
-	 * @return text_shader.
+	 * @brief Get FlatTextShaderProgram.
+	 * @return FlatTextShaderProgram.
 	 */
-	inline static text_shader* get_text_shader() noexcept
+	inline static FlatTextShaderProgram& getFlatTextShaderProgram() noexcept
 	{
-		return s_text_shader;
+		return sFlatTextShaderProgram;
 	}
 
 	///@}
@@ -866,7 +866,7 @@ public:
 	 * Get unit_quad_P.
 	 * @return unit_quad_P
 	 */
-	inline static unit_quad_P& get_unit_quad_P() noexcept
+	inline static unit_quad_P& getunit_quad_P() noexcept
 	{
 		return *s_unit_quad_P;
 	}
@@ -875,7 +875,7 @@ public:
 	 * Get unit_cube_P.
 	 * @return unit_cube_P
 	 */
-	inline static unit_cube_P& get_unit_cube_P() noexcept
+	inline static unit_cube_P& getunit_cube_P() noexcept
 	{
 		return *s_unit_cube_P;
 	}
@@ -884,7 +884,7 @@ public:
 	 * Get unit_cube_P_flipped.
 	 * @return unit_cube_P_flipped
 	 */
-	inline static unit_cube_P_flipped& get_unit_cube_P_flipped() noexcept
+	inline static unit_cube_P_flipped& getunit_cube_P_flipped() noexcept
 	{
 		return *s_unit_cube_P_flipped;
 	}
@@ -893,7 +893,7 @@ public:
 	 * Get unit_sphere_P.
 	 * @return unit_sphere_P
 	 */
-	inline static unit_sphere_P& get_unit_sphere_P() noexcept
+	inline static unit_sphere_P& getunit_sphere_P() noexcept
 	{
 		return *s_unit_sphere_P;
 	}
@@ -902,7 +902,7 @@ public:
 	 * Get unit_cone_P.
 	 * @return unit_cone_P
 	 */
-	inline static unit_cone_P& get_unit_cone_P() noexcept
+	inline static unit_cone_P& getunit_cone_P() noexcept
 	{
 		return *s_unit_cone_P;
 	}
@@ -996,36 +996,36 @@ private:
 	static std::vector<std::shared_ptr<Entity>> sFutureQueue;
 	static std::vector<std::shared_ptr<Entity>> sCurrentQueue;
 
-	static matrix_PVM_shader* s_matrix_PVM_shader;
+	static matrix_PVM_shader* sNullShaderProgram;
 
-	static gp_shader* s_gp_shader;
-	static gp_d_shader* s_gp_d_shader;
-	static gp_s_shader* s_gp_s_shader;
-	static gp_n_shader* s_gp_n_shader;
-	static gp_ds_shader* s_gp_ds_shader;
-	static gp_dn_shader* s_gp_dn_shader;
-	static gp_sn_shader* s_gp_sn_shader;
-	static gp_dsn_shader* s_gp_dsn_shader;
+	static GeometryShaderProgram* sGeometryShader;
+	static Geometry_D_ShaderProgram* sGeometry_D_ShaderProgram;
+	static Geometry_S_ShaderProgram* sGeometry_S_ShaderProgram;
+	static Geometry_N_ShaderProgram* sGeometry_N_ShaderProgram;
+	static Geometry_DS_ShaderProgram* sGeometry_DS_ShaderProgram;
+	static Geometry_DN_ShaderProgram* sGeometry_DN_ShaderProgram;
+	static Geometry_SN_ShaderProgram* sGeometry_SN_ShaderProgram;
+	static Geometry_DSN_ShaderProgram* sGeometry_DSN_ShaderProgram;
 	
-	static gpi_shader* s_gpi_shader;
-	static gpi_d_shader* s_gpi_d_shader;
-	static gpi_s_shader* s_gpi_s_shader;
-	static gpi_n_shader* s_gpi_n_shader;
-	static gpi_ds_shader* s_gpi_ds_shader;
-	static gpi_dn_shader* s_gpi_dn_shader;
-	static gpi_sn_shader* s_gpi_sn_shader;
-	static gpi_dsn_shader* s_gpi_dsn_shader;
+	static GeometryInstancedShaderProgram* sGeometryInstancedShaderProgram;
+	static GeometryInstanced_D_ShaderProgram* sGeometryInstanced_D_ShaderProgram;
+	static GeometryInstance_DS_ShaderProgram* sGeometryInstance_DS_ShaderProgram;
+	static GeometryInstance_DN_ShaderProgram* sGeometryInstance_DN_ShaderProgram;
+	static GeometryInstanced_DS_ShaderProgram* sGeometryInstanced_DS_ShaderProgram;
+	static GeometryInstanced_DN_ShaderProgram* sGeometryInstanced_DN_ShaderProgram;
+	static GeometryInstanced_SN_ShaderProgram* sGeometryInstanced_SN_ShaderProgram;
+	static GeometryInstanced_DSN_ShaderProgram* sGeometryInstanced_DSN_ShaderProgram;
 
-	static lp_ambient_shader* s_lp_ambient_shader;
-	static lp_directional_shader* s_lp_directional_shader;
-	static lp_point_shader* s_lp_point_shader;
-	static lp_spot_shader* s_lp_spot_shader;
+	static AmbientLightShaderProgram* sAmbientLightShaderProgram;
+	static DirectionalLightShaderProgram* sDirectionalLightShaderProgram;
+	static PointLightShaderProgram* sPointLightShaderProgram;
+	static SpotLightShaderProgram* sSpotLightShaderProgram;
 
 	static sp_directional_shader* s_sp_directional_shader;
 
-	static skybox_shader* s_skybox_shader;
+	static SkyboxShaderProgram* sSkyboxShaderProgram;
 
-	static text_shader* s_text_shader;
+	static FlatTextShaderProgram* sFlatTextShaderProgram;
 
 	static unit_quad_P* s_unit_quad_P;
 	static unit_cube_P* s_unit_cube_P;

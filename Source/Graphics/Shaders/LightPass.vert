@@ -1,10 +1,10 @@
 //
-// lp.vs
+// LightPass.vert
 //
 // Used by:
 //
-// * lp_ambient.fs
-// * lp_directional.fs
+// * AmbientLight.frag
+// * DirectionalLight.frag
 //
 
 #version 330 core

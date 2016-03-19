@@ -371,6 +371,10 @@ public:
 		return mNumIndices;
 	}
 
+	//!@cond
+	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+	//!@endcond
+
 protected:
 
 	/// Constructor.

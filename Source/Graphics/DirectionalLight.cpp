@@ -49,17 +49,6 @@ void DirectionalLight::initializeShadowBuffer(std::shared_ptr<Entity> lightEntit
 	lightEntity->shadowBuffer.reset(new DirectionalShadowBuffer());
 }
 
-void DirectionalLight::beginShadowPass(const Entity& EntityWithLight)
-{
-	THROW_NOT_IMPLEMENTED_EXCEPTION();
-}
-
-void DirectionalLight::renderShadow(const Entity& geometry) const noexcept
-{
-	THROW_NOT_IMPLEMENTED_EXCEPTION();
-
-}
-
 std::ostream& operator << (std::ostream& os, const DirectionalLight& l)
 {
 	return l.prettyPrint(os);

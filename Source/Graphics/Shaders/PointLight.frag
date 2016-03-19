@@ -1,7 +1,7 @@
 //
-// lp_point.fs
+// PointLight.frag
 //
-// Uses lp_pvm.vs
+// Uses LightPassPVM.vert
 //
 
 #version 330 core

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 /* FBX SDK classes */
 #include <fbxsdk/fbxsdk_nsbegin.h>
 class FbxVector2;
@@ -64,30 +66,30 @@ class unit_cube_P_flipped;
 class unit_sphere_P;
 class unit_cone_P;
 class Mesh;
-class matrix_PVM_shader;
-class gp_shader;
-class gp_d_shader;
-class gp_s_shader;
-class gp_n_shader;
-class gp_ds_shader;
-class gp_dn_shader;
-class gp_sn_shader;
-class gp_dsn_shader;
-class gpi_shader;
-class gpi_d_shader;
-class gpi_s_shader;
-class gpi_n_shader;
-class gpi_ds_shader;
-class gpi_dn_shader;
-class gpi_sn_shader;
-class gpi_dsn_shader;
-class lp_ambient_shader;
-class lp_directional_shader;
-class lp_point_shader;
-class lp_spot_shader;
+class Matrix_PVM_ShaderProgram;
+class GeometryShaderProgram;
+class Geometry_D_ShaderProgram;
+class Geometry_S_ShaderProgram;
+class Geometry_N_ShaderProgram;
+class Geometry_DS_ShaderProgram;
+class Geometry_DN_ShaderProgram;
+class Geometry_SN_ShaderProgram;
+class Geometry_DSN_ShaderProgram;
+class GeometryInstancedShaderProgram;
+class GeometryInstanced_D_ShaderProgram;
+class GeometryInstanced_S_ShaderProgram;
+class GeometryInstanced_N_ShaderProgram;
+class GeometryInstanced_DS_ShaderProgram;
+class GeometryInstanced_DN_ShaderProgram;
+class GeometryInstanced_SN_ShaderProgram;
+class GeometryInstanced_DSN_ShaderProgram;
+class AmbientLightShaderProgram;
+class DirectionalLightShaderProgram;
+class PointLightShaderProgram;
+class SpotLightShaderProgram;
 class sp_directional_shader;
-class skybox_shader;
-class text_shader;
+class SkyboxShaderProgram;
+class FlatTextShaderProgram;
 
 /* general classes */
 class Entity;

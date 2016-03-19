@@ -1,5 +1,5 @@
 /**
- * @file shaders.hpp
+ * @file ShaderPrograms.hpp
  * @brief Defines all the shader classes.
  * @author Raoul Wols
  */
@@ -15,38 +15,38 @@ namespace gintonic {
  * @details This shader should not be used directly but is really only here
  * to serve as a base class for inheritance.
  */
-class matrix_PVM_shader : public OpenGL::ShaderProgram
+class Matrix_PVM_ShaderProgram : public OpenGL::ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	matrix_PVM_shader();
+	Matrix_PVM_ShaderProgram();
 
 	/// Destructor.
-	virtual ~matrix_PVM_shader() noexcept;
+	virtual ~Matrix_PVM_ShaderProgram() noexcept;
 	
 	/**
 	 * @brief Set the matrix_PVM uniform variable in the shader.
 	 * @param m The matrix to set the matrix_PVM uniform variable to.
 	 */
-	void set_matrix_PVM(const mat4f& m) const noexcept;
+	void setMatrixPVM(const mat4f& m) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	matrix_PVM_shader( 
+	Matrix_PVM_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	matrix_PVM_shader( 
+	Matrix_PVM_ShaderProgram( 
 		boost::filesystem::path vertex_shader,
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_matrix_PVM;
+	GLuint mMatrixPVM;
 };
 
 /**
@@ -54,35 +54,35 @@ private:
  * @details This shader should not be used directly but is really only here
  * to serve as a base class for inheritance.
  */
-class matrix_PVM_VM_shader : public matrix_PVM_shader
+class Matrix_PVM_VM_ShaderProgram : public Matrix_PVM_ShaderProgram
 {
 public:
 
 	/// Destructor.
-	virtual ~matrix_PVM_VM_shader() noexcept;
+	virtual ~Matrix_PVM_VM_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the matrix_VM uniform variable in the shader.
 	 * @param m The matrix to set the matrix_VM uniform variable to.
 	 */
-	void set_matrix_VM(const mat4f& m) const noexcept;
+	void setMatrixVM(const mat4f& m) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	matrix_PVM_VM_shader(
+	Matrix_PVM_VM_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	matrix_PVM_VM_shader( 
+	Matrix_PVM_VM_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_matrix_VM;
+	GLuint mMatrixVM;
 };
 
 /**
@@ -91,50 +91,50 @@ private:
  * @details This shader should not be used directly but is really only here
  * to serve as a base class for inheritance.
  */
-class matrix_PVM_VM_N_shader : public matrix_PVM_VM_shader
+class Matrix_PVM_VM_N_ShaderProgram : public Matrix_PVM_VM_ShaderProgram
 {
 public:
 
 	/// Destructor.
-	virtual ~matrix_PVM_VM_N_shader() noexcept;
+	virtual ~Matrix_PVM_VM_N_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the matrix_N uniform variable in the shader.
 	 * @param m The matrix to set the matrix_N uniform variable to.
 	 */
-	void set_matrix_N(const mat3f& m) const noexcept;
+	void setMatrixN(const mat3f& m) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	matrix_PVM_VM_N_shader(
+	Matrix_PVM_VM_N_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	matrix_PVM_VM_N_shader( 
+	Matrix_PVM_VM_N_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_matrix_N;
+	GLuint mMatrixN;
 };
 
 /**
  * @brief Geometry pass shader with only a base diffuse color and base
  * specular color.
  */
-class gp_shader : public matrix_PVM_VM_N_shader
+class GeometryShaderProgram : public Matrix_PVM_VM_N_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gp_shader();
+	GeometryShaderProgram();
 
 	/// Destructor.
-	virtual ~gp_shader() noexcept;
+	virtual ~GeometryShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the diffuse base color of the material.
@@ -146,7 +146,7 @@ public:
 	 * 
 	 * @param c The color value.
 	 */
-	void set_diffuse_color(const vec4f& c) const noexcept;
+	void setDiffuseColor(const vec4f& c) const noexcept;
 
 	/**
 	 * @brief Set the specular base color of the material.
@@ -158,40 +158,40 @@ public:
 	 * 
 	 * @param c The color value.
 	 */
-	void set_specular_color(const vec4f& c) const noexcept;
+	void setSpecularColor(const vec4f& c) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gp_shader(
+	GeometryShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gp_shader( 
+	GeometryShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_diffuse_color;
-	GLuint loc_specular_color;
+	GLuint mDiffuseColor;
+	GLuint mSpecularColor;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color and
  * a diffuse texture.
  */
-class gp_d_shader : public gp_shader
+class Geometry_D_ShaderProgram : public GeometryShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gp_d_shader();
+	Geometry_D_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gp_d_shader() noexcept;
+	virtual ~Geometry_D_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the diffuse texture sampler.
@@ -201,39 +201,39 @@ public:
 	 * 
 	 * @param i The value for the diffuse texture sampler in the shader.
 	 */
-	void set_diffuse_texture(const GLint i) const noexcept;
+	void setDiffuseTexture(const GLint i) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gp_d_shader(
+	Geometry_D_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gp_d_shader( 
+	Geometry_D_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_diffuse_texture;
+	GLuint mDiffuseTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color and
  * a specular texture.
  */
-class gp_s_shader : public gp_shader
+class Geometry_S_ShaderProgram : public GeometryShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gp_s_shader();
+	Geometry_S_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gp_s_shader() noexcept;
+	virtual ~Geometry_S_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the specular texture sampler.
@@ -243,39 +243,39 @@ public:
 	 * 
 	 * @param i The value for the specular texture sampler in the shader.
 	 */
-	void set_specular_texture(const GLint i) const noexcept;
+	void setSpecularTexture(const GLint i) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gp_s_shader(
+	Geometry_S_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gp_s_shader( 
+	Geometry_S_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_specular_texture;
+	GLuint mSpecularTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color and
  * a normal texture.
  */
-class gp_n_shader : public gp_shader
+class Geometry_N_ShaderProgram : public GeometryShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gp_n_shader();
+	Geometry_N_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gp_n_shader() noexcept;
+	virtual ~Geometry_N_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the normal texture sampler.
@@ -285,39 +285,39 @@ public:
 	 * 
 	 * @param i The value for the normal texture sampler in the shader.
 	 */
-	void set_normal_texture(const GLint i) const noexcept;
+	void setNormalTexture(const GLint i) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gp_n_shader(
+	Geometry_N_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gp_n_shader( 
+	Geometry_N_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_normal_texture;
+	GLuint mNormalTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color, a
  * diffuse texture and a specular texture.
  */
-class gp_ds_shader : public gp_d_shader
+class Geometry_DS_ShaderProgram : public Geometry_D_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gp_ds_shader();
+	Geometry_DS_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gp_ds_shader() noexcept;
+	virtual ~Geometry_DS_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the specular texture sampler.
@@ -327,39 +327,39 @@ public:
 	 * 
 	 * @param i The value for the specular texture sampler in the shader.
 	 */
-	void set_specular_texture(const GLint i) const noexcept;
+	void setSpecularTexture(const GLint i) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gp_ds_shader(
+	Geometry_DS_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gp_ds_shader( 
+	Geometry_DS_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_specular_texture;
+	GLuint mSpecularTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color, a
  * diffuse texture and a normal texture.
  */
-class gp_dn_shader : public gp_d_shader
+class Geometry_DN_ShaderProgram : public Geometry_D_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gp_dn_shader();
+	Geometry_DN_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gp_dn_shader() noexcept;
+	virtual ~Geometry_DN_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the normal texture sampler.
@@ -369,39 +369,39 @@ public:
 	 * 
 	 * @param i The value for the normal texture sampler in the shader.
 	 */
-	void set_normal_texture(const GLint i) const noexcept;
+	void setNormalTexture(const GLint i) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gp_dn_shader(
+	Geometry_DN_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gp_dn_shader( 
+	Geometry_DN_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_normal_texture;
+	GLuint mNormalTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color, a
  * specular texture and a normal texture.
  */
-class gp_sn_shader : public gp_s_shader
+class Geometry_SN_ShaderProgram : public Geometry_S_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gp_sn_shader();
+	Geometry_SN_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gp_sn_shader() noexcept;
+	virtual ~Geometry_SN_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the normal texture sampler.
@@ -411,39 +411,39 @@ public:
 	 * 
 	 * @param i The value for the normal texture sampler in the shader.
 	 */
-	void set_normal_texture(const GLint i) const noexcept;
+	void setNormalTexture(const GLint i) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gp_sn_shader(
+	Geometry_SN_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gp_sn_shader( 
+	Geometry_SN_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_normal_texture;
+	GLuint mNormalTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color, a
  * diffuse texture, specular texture and a normal texture.
  */
-class gp_dsn_shader : public gp_ds_shader
+class Geometry_DSN_ShaderProgram : public Geometry_DS_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gp_dsn_shader();
+	Geometry_DSN_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gp_dsn_shader() noexcept;
+	virtual ~Geometry_DSN_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the normal texture sampler.
@@ -453,37 +453,39 @@ public:
 	 * 
 	 * @param i The value for the normal texture sampler in the shader.
 	 */
-	void set_normal_texture(const GLint i) const noexcept;
+	void setNormalTexture(const GLint i) const noexcept;
+
 protected:
 
 	/// Forwarding constructor.
-	gp_dsn_shader(
+	Geometry_DSN_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gp_dsn_shader( 
+	Geometry_DSN_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
+
 private:
 
-	GLuint loc_normal_texture;
+	GLuint mNormalTexture;
 };
 
 /**
  * @brief Geometry pass shader with only a base diffuse color and base
  * specular color, instanced version.
  */
-class gpi_shader : public OpenGL::ShaderProgram
+class GeometryInstancedShaderProgram : public OpenGL::ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gpi_shader();
+	GeometryInstancedShaderProgram();
 
 	/// Destructor.
-	virtual ~gpi_shader() noexcept;
+	virtual ~GeometryInstancedShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the diffuse base color of the material.
@@ -495,7 +497,7 @@ public:
 	 * 
 	 * @param c The color value.
 	 */
-	void set_diffuse_color(const vec4f& c) const noexcept;
+	void setDiffuseColor(const vec4f& c) const noexcept;
 
 	/**
 	 * @brief Set the specular base color of the material.
@@ -507,40 +509,40 @@ public:
 	 * 
 	 * @param c The color value.
 	 */
-	void set_specular_color(const vec4f& c) const noexcept;
+	void setSpecularColor(const vec4f& c) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gpi_shader(
+	GeometryInstancedShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gpi_shader( 
+	GeometryInstancedShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_diffuse_color;
-	GLuint loc_specular_color;
+	GLuint mDiffuseColor;
+	GLuint mSpecularColor;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color and
  * a diffuse texture, instanced version.
  */
-class gpi_d_shader : public gpi_shader
+class GeometryInstanced_D_ShaderProgram : public GeometryInstancedShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gpi_d_shader();
+	GeometryInstanced_D_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gpi_d_shader() noexcept;
+	virtual ~GeometryInstanced_D_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the diffuse texture sampler.
@@ -550,38 +552,38 @@ public:
 	 * 
 	 * @param i The value for the diffuse texture sampler in the shader.
 	 */
-	void set_diffuse_texture(const GLint i) const noexcept;
+	void setDiffuseTexture(const GLint i) const noexcept;
 protected:
 
 	/// Forwarding constructor.
-	gpi_d_shader(
+	GeometryInstanced_D_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gpi_d_shader( 
+	GeometryInstanced_D_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_diffuse_texture;
+	GLuint mDiffuseTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color and
  * a specular texture, instanced version.
  */
-class gpi_s_shader : public gpi_shader
+class GeometryInstanced_S_ShaderProgram : public GeometryInstancedShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gpi_s_shader();
+	GeometryInstanced_S_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gpi_s_shader() noexcept;
+	virtual ~GeometryInstanced_S_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the specular texture sampler.
@@ -591,38 +593,38 @@ public:
 	 * 
 	 * @param i The value for the specular texture sampler in the shader.
 	 */
-	void set_specular_texture(const GLint i) const noexcept;
+	void setSpecularTexture(const GLint i) const noexcept;
 protected:
 
 	/// Forwarding constructor.
-	gpi_s_shader(
+	GeometryInstanced_S_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gpi_s_shader( 
+	GeometryInstanced_S_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_specular_texture;
+	GLuint mSpecularTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color and
  * a normal texture, instanced version.
  */
-class gpi_n_shader : public gpi_shader
+class GeometryInstanced_N_ShaderProgram : public GeometryInstancedShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gpi_n_shader();
+	GeometryInstanced_N_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gpi_n_shader() noexcept;
+	virtual ~GeometryInstanced_N_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the normal texture sampler.
@@ -632,39 +634,39 @@ public:
 	 * 
 	 * @param i The value for the normal texture sampler in the shader.
 	 */
-	void set_normal_texture(const GLint i) const noexcept;
+	void setNormalTexture(const GLint i) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gpi_n_shader(
+	GeometryInstanced_N_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gpi_n_shader( 
+	GeometryInstanced_N_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_normal_texture;
+	GLuint mNormalTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color, a
  * diffuse texture and a specular texture, instanced version.
  */
-class gpi_ds_shader : public gpi_d_shader
+class GeometryInstanced_DS_ShaderProgram : public GeometryInstanced_D_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gpi_ds_shader();
+	GeometryInstanced_DS_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gpi_ds_shader() noexcept;
+	virtual ~GeometryInstanced_DS_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the specular texture sampler.
@@ -674,39 +676,39 @@ public:
 	 * 
 	 * @param i The value for the specular texture sampler in the shader.
 	 */
-	void set_specular_texture(const GLint i) const noexcept;
+	void setSpecularTexture(const GLint i) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gpi_ds_shader(
+	GeometryInstanced_DS_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gpi_ds_shader( 
+	GeometryInstanced_DS_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_specular_texture;
+	GLuint mSpecularTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color, a
  * diffuse texture and a normal texture, instanced version.
  */
-class gpi_dn_shader : public gpi_d_shader
+class GeometryInstanced_DN_ShaderProgram : public GeometryInstanced_D_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gpi_dn_shader();
+	GeometryInstanced_DN_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gpi_dn_shader() noexcept;
+	virtual ~GeometryInstanced_DN_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the normal texture sampler.
@@ -716,38 +718,38 @@ public:
 	 * 
 	 * @param i The value for the normal texture sampler in the shader.
 	 */
-	void set_normal_texture(const GLint i) const noexcept;
+	void setNormalTexture(const GLint i) const noexcept;
 protected:
 
 	/// Forwarding constructor.
-	gpi_dn_shader(
+	GeometryInstanced_DN_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gpi_dn_shader( 
+	GeometryInstanced_DN_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_normal_texture;
+	GLuint mNormalTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color, a
  * specular texture and a normal texture, instanced version.
  */
-class gpi_sn_shader : public gpi_s_shader
+class GeometryInstanced_SN_ShaderProgram : public GeometryInstanced_S_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gpi_sn_shader();
+	GeometryInstanced_SN_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gpi_sn_shader() noexcept;
+	virtual ~GeometryInstanced_SN_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the normal texture sampler.
@@ -757,39 +759,39 @@ public:
 	 * 
 	 * @param i The value for the normal texture sampler in the shader.
 	 */
-	void set_normal_texture(const GLint i) const noexcept;
+	void setNormalTexture(const GLint i) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gpi_sn_shader(
+	GeometryInstanced_SN_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gpi_sn_shader( 
+	GeometryInstanced_SN_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_normal_texture;
+	GLuint mNormalTexture;
 };
 
 /**
  * @brief Geometry pass shader with a diffuse color, a specular color, a
  * diffuse texture, specular texture and a normal texture, instanced version.
  */
-class gpi_dsn_shader : public gpi_ds_shader
+class GeometryInstanced_DSN_ShaderProgram : public GeometryInstanced_DS_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	gpi_dsn_shader();
+	GeometryInstanced_DSN_ShaderProgram();
 
 	/// Destructor.
-	virtual ~gpi_dsn_shader() noexcept;
+	virtual ~GeometryInstanced_DSN_ShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the normal texture sampler.
@@ -799,51 +801,51 @@ public:
 	 * 
 	 * @param i The value for the normal texture sampler in the shader.
 	 */
-	void set_normal_texture(const GLint i) const noexcept;
+	void setNormalTexture(const GLint i) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	gpi_dsn_shader(
+	GeometryInstanced_DSN_ShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	gpi_dsn_shader( 
+	GeometryInstanced_DSN_ShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
-	GLuint loc_normal_texture;
+	GLuint mNormalTexture;
 };
 
 /**
  * @brief Geometry pass shader that does nothing at all.
  */
-class geometry_null_shader : public matrix_PVM_VM_N_shader
+class GeometryNullShaderProgram : public Matrix_PVM_VM_N_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	geometry_null_shader();
+	GeometryNullShaderProgram();
 
 	/// Destructor.
-	virtual ~geometry_null_shader() noexcept;
+	virtual ~GeometryNullShaderProgram() noexcept;
 };
 
 /**
  * @brief Base class for light pass shaders.
  */
-class lp_null_shader : public OpenGL::ShaderProgram
+class LightShaderProgram : public OpenGL::ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	lp_null_shader();
+	LightShaderProgram();
 
 	/// Destructor.
-	virtual ~lp_null_shader() noexcept;
+	virtual ~LightShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the geometry buffer diffuse sampler.
@@ -854,7 +856,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer diffuse sampler.
 	 * Must always be equal to Renderer::GBUFFER_DIFFUSE.
 	 */
-	void set_gbuffer_diffuse(const GLint texture_unit) const 
+	void setGeometryBufferDiffuseTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -865,39 +867,39 @@ public:
 	 * @param size The size of the viewport. Should always use
 	 * Renderer::viewport_size unless you have a specific reason not to.
 	 */
-	void set_viewport_size(const vec2f& size) const noexcept;
+	void setViewportSize(const vec2f& size) const noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	lp_null_shader(
+	LightShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	lp_null_shader( 
+	LightShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_viewport_size;
-	GLuint loc_gbuffer_diffuse;
+	GLuint mViewportSize;
+	GLuint mGeometryBufferDiffuseTexture;
 };
 
 /**
  * @brief Light pass shader for an ambient light.
  */
-class lp_ambient_shader : public lp_null_shader
+class AmbientLightShaderProgram : public LightShaderProgram
 {
 public:
 
 	/// Default constructor.
-	lp_ambient_shader();
+	AmbientLightShaderProgram();
 
 	/// Destructor.
-	virtual ~lp_ambient_shader() noexcept;
+	virtual ~AmbientLightShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the light intensity uniform variable.
@@ -906,39 +908,39 @@ public:
 	 * 
 	 * @param intensity The intensity value.
 	 */
-	void set_light_intensity(const vec4f& intensity) const 
+	void setLightIntensity(const vec4f& intensity) const 
 		noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	lp_ambient_shader(
+	AmbientLightShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	lp_ambient_shader( 
+	AmbientLightShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_light_intensity;
+	GLuint mLightIntensity;
 };
 
 /**
  * @brief Light pass shader for a directional light.
  */
-class lp_directional_shader : public lp_null_shader
+class DirectionalLightShaderProgram : public LightShaderProgram
 {
 public:
 
 	/// Default constructor.
-	lp_directional_shader();
+	DirectionalLightShaderProgram();
 
 	/// Destructor.
-	virtual ~lp_directional_shader() noexcept;
+	virtual ~DirectionalLightShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the geometry buffer position sampler.
@@ -949,7 +951,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer position sampler.
 	 * Must always be equal to Renderer::GBUFFER_POSITION.
 	 */
-	void set_gbuffer_position(const GLint texture_unit) const 
+	void setGeometryBufferPositionTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -961,7 +963,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer specular sampler.
 	 * Must always be equal to Renderer::GBUFFER_SPECULAR.
 	 */
-	void set_gbuffer_specular(const GLint texture_unit) const 
+	void setGeometryBufferSpecularTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -973,7 +975,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer normal sampler.
 	 * Must always be equal to Renderer::GBUFFER_NORMAL.
 	 */
-	void set_gbuffer_normal(const GLint texture_unit) const 
+	void setGeometryBufferNormalTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -983,7 +985,7 @@ public:
 	 * 
 	 * @param intensity The intensity value.
 	 */
-	void set_light_intensity(const vec4f& intensity) const 
+	void setLightIntensity(const vec4f& intensity) const 
 		noexcept;
 
 	/**
@@ -993,46 +995,46 @@ public:
 	 * 
 	 * @param direction The direction value.
 	 */
-	void set_light_direction(const vec3f& direction) const 
+	void setLightDirection(const vec3f& direction) const 
 		noexcept;
 
 protected:
 
 	/// Forwarding constructor.
-	lp_directional_shader(
+	DirectionalLightShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	lp_directional_shader( 
+	DirectionalLightShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_gbuffer_position;
-	GLuint loc_gbuffer_specular;
-	GLuint loc_gbuffer_normal;
-	GLuint loc_light_intensity;
-	GLuint loc_light_direction;
+	GLuint mGeometryBufferPositionTexture;
+	GLuint mGeometryBufferSpecularTexture;
+	GLuint mGeometryBufferNormalTexture;
+	GLuint mLightIntensity;
+	GLuint mLightDirection;
 };
 
 /**
  * @brief Light pass shader for a point light.
  */
-class lp_point_shader : public matrix_PVM_shader
+class PointLightShaderProgram : public Matrix_PVM_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	lp_point_shader();
+	PointLightShaderProgram();
 
 	/// Destructor.
-	virtual ~lp_point_shader() noexcept;
+	virtual ~PointLightShaderProgram() noexcept;
 
 	#ifndef NDEBUG
-	void set_debugflag(const GLint value) const noexcept;
+	void setDebugFlag(const GLint value) const noexcept;
 	#endif
 
 	/**
@@ -1043,7 +1045,7 @@ public:
 	 * @param size The size of the viewport. Should always use
 	 * Renderer::viewport_size unless you have a specific reason not to.
 	 */
-	void set_viewport_size(const vec2f& size) const noexcept;
+	void setViewportSize(const vec2f& size) const noexcept;
 
 	/**
 	 * @brief Set the geometry buffer position sampler.
@@ -1054,7 +1056,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer position sampler.
 	 * Must always be equal to Renderer::GBUFFER_POSITION.
 	 */
-	void set_gbuffer_position(const GLint texture_unit) const 
+	void setGeometryBufferPositionTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -1066,7 +1068,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer diffuse sampler.
 	 * Must always be equal to Renderer::GBUFFER_DIFFUSE.
 	 */
-	void set_gbuffer_diffuse(const GLint texture_unit) const 
+	void setGeometryBufferDiffuseTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -1078,7 +1080,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer specular sampler.
 	 * Must always be equal to Renderer::GBUFFER_SPECULAR.
 	 */
-	void set_gbuffer_specular(const GLint texture_unit) const 
+	void setGeometryBufferSpecularTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -1090,7 +1092,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer normal sampler.
 	 * Must always be equal to Renderer::GBUFFER_NORMAL.
 	 */
-	void set_gbuffer_normal(const GLint texture_unit) const 
+	void setGeometryBufferNormalTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -1100,7 +1102,7 @@ public:
 	 * 
 	 * @param intensity The intensity value.
 	 */
-	void set_light_intensity(const vec4f& intensity) const 
+	void setLightIntensity(const vec4f& intensity) const 
 		noexcept;
 
 	/**
@@ -1110,7 +1112,7 @@ public:
 	 * 
 	 * @param position The position value.
 	 */
-	void set_light_position(const vec3f& position) const 
+	void setLightPosition(const vec3f& position) const 
 		noexcept;
 
 	/**
@@ -1120,17 +1122,17 @@ public:
 	 * 
 	 * @param attenuation The attenuation value.
 	 */
-	void set_light_attenuation(const vec4f& attenuation) const 
+	void setLightAttenuation(const vec4f& attenuation) const 
 		noexcept;
 protected:
 
 	/// Forwarding constructor.
-	lp_point_shader(
+	PointLightShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	lp_point_shader( 
+	PointLightShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
@@ -1138,31 +1140,31 @@ protected:
 private:
 
 	#ifndef NDEBUG
-	GLuint loc_debugflag;
+	GLuint mDebugFlag;
 	#endif
 	
-	GLuint loc_viewport_size;
-	GLuint loc_gbuffer_position;
-	GLuint loc_gbuffer_diffuse;
-	GLuint loc_gbuffer_specular;
-	GLuint loc_gbuffer_normal;
-	GLuint loc_light_intensity;
-	GLuint loc_light_position;
-	GLuint loc_light_attenuation;
+	GLuint mViewportSize;
+	GLuint mGeometryBufferPositionTexture;
+	GLuint mGeometryBufferDiffuseTexture;
+	GLuint mGeometryBufferSpecularTexture;
+	GLuint mGeometryBufferNormalTexture;
+	GLuint mLightIntensity;
+	GLuint mLightPosition;
+	GLuint mLightAttenuation;
 };
 
 /**
  * @brief Light pass shader for a spot light.
  */
-class lp_spot_shader : public matrix_PVM_shader
+class SpotLightShaderProgram : public Matrix_PVM_ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	lp_spot_shader();
+	SpotLightShaderProgram();
 
 	/// Destructor.
-	virtual ~lp_spot_shader() noexcept;
+	virtual ~SpotLightShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the viewport size uniform variable.
@@ -1172,7 +1174,7 @@ public:
 	 * @param size The size of the viewport. Should always use
 	 * Renderer::viewport_size unless you have a specific reason not to.
 	 */
-	void set_viewport_size(const vec2f& size) const noexcept;
+	void setViewportSize(const vec2f& size) const noexcept;
 
 	/**
 	 * @brief Set the geometry buffer position sampler.
@@ -1183,7 +1185,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer position sampler.
 	 * Must always be equal to Renderer::GBUFFER_POSITION.
 	 */
-	void set_gbuffer_position(const GLint texture_unit) const 
+	void setGeometryBufferPositionTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -1195,7 +1197,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer diffuse sampler.
 	 * Must always be equal to Renderer::GBUFFER_DIFFUSE.
 	 */
-	void set_gbuffer_diffuse(const GLint texture_unit) const 
+	void setGeometryBufferDiffuseTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -1207,7 +1209,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer specular sampler.
 	 * Must always be equal to Renderer::GBUFFER_SPECULAR.
 	 */
-	void set_gbuffer_specular(const GLint texture_unit) const 
+	void setGeometryBufferSpecularTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -1219,7 +1221,7 @@ public:
 	 * @param texture_unit The value for the geometry buffer normal sampler.
 	 * Must always be equal to Renderer::GBUFFER_NORMAL.
 	 */
-	void set_gbuffer_normal(const GLint texture_unit) const 
+	void setGeometryBufferNormalTexture(const GLint texture_unit) const 
 		noexcept;
 
 	/**
@@ -1229,7 +1231,7 @@ public:
 	 * 
 	 * @param intensity The intensity value.
 	 */
-	void set_light_intensity(const vec4f& intensity) const 
+	void setLightIntensity(const vec4f& intensity) const 
 		noexcept;
 
 	/**
@@ -1239,7 +1241,7 @@ public:
 	 * 
 	 * @param position The position value.
 	 */
-	void set_light_position(const vec3f& position) const 
+	void setLightPosition(const vec3f& position) const 
 		noexcept;
 
 	/**
@@ -1249,7 +1251,7 @@ public:
 	 * 
 	 * @param direction The direction value.
 	 */
-	void set_light_direction(const vec3f& direction) const noexcept;
+	void setLightDirection(const vec3f& direction) const noexcept;
 
 	/**
 	 * @brief Set the light attenuation uniform variable.
@@ -1258,16 +1260,16 @@ public:
 	 * 
 	 * @param attenuation The attenuation value.
 	 */
-	void set_light_attenuation(const vec4f& attenuation) const noexcept;
+	void setLightAttenuation(const vec4f& attenuation) const noexcept;
 
 	/**
-	 * @brief Set the spot light's angle in radians.
+	 * @brief Set the spot light's cosine of the half angle.
 	 * @details The name of the uniform in the shader is assumed to be equal
-	 * to "light.angle".
+	 * to "light.cosineHalfAngle".
 	 * 
-	 * @param angle The spot light's angle.
+	 * @param angle The spot light's cosine half angle.
 	 */
-	void set_light_angle(const GLfloat angle) const noexcept;
+	void setLightCosineHalfAngle(const GLfloat cosineHalfAngle) const noexcept;
 
 	#ifndef NDEBUG
 	/**
@@ -1280,44 +1282,44 @@ public:
 	 * @param value The value for the debug flag. Either 1 or 2. All other
 	 * values do nothing special.
 	 */
-	void set_debugflag(const GLint value) const noexcept;
+	void setDebugFlag(const GLint value) const noexcept;
 	#endif
 
 protected:
 
 	/// Forwarding constructor.
-	lp_spot_shader(
+	SpotLightShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	lp_spot_shader( 
+	SpotLightShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_viewport_size;
-	GLuint loc_gbuffer_position;
-	GLuint loc_gbuffer_diffuse;
-	GLuint loc_gbuffer_specular;
-	GLuint loc_gbuffer_normal;
-	GLuint loc_light_intensity;
-	GLuint loc_light_position;
-	GLuint loc_light_direction;
-	GLuint loc_light_attenuation;
-	GLuint loc_light_angle;
+	GLuint mViewportSize;
+	GLuint mGeometryBufferPositionTexture;
+	GLuint mGeometryBufferDiffuseTexture;
+	GLuint mGeometryBufferSpecularTexture;
+	GLuint mGeometryBufferNormalTexture;
+	GLuint mLightIntensity;
+	GLuint mLightPosition;
+	GLuint mLightDirection;
+	GLuint mLightAttenuation;
+	GLuint mLightCosineHalfAngle;
 
 	#ifndef NDEBUG
-	GLuint loc_debugflag;
+	GLuint mDebugFlag;
 	#endif
 };
 
 /**
  * @brief Shadow pass shader for a directional light.
  */
-class sp_directional_shader : public matrix_PVM_shader
+class sp_directional_shader : public Matrix_PVM_ShaderProgram
 {
 public:
 	/// Default constructor.
@@ -1330,22 +1332,22 @@ public:
 /**
  * @brief Shader for a skybox.
  */
-class skybox_shader : public OpenGL::ShaderProgram
+class SkyboxShaderProgram : public OpenGL::ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	skybox_shader();
+	SkyboxShaderProgram();
 
 	/// Destructor.
-	virtual ~skybox_shader() noexcept;
+	virtual ~SkyboxShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the matrix_PV uniform variable in the shader.
 	 * 
 	 * @param matrix The matrix_PV to set the uniform to.
 	 */
-	void set_matrix_PV(const mat4f& matrix) const noexcept;
+	void setMatrixPV(const mat4f& matrix) const noexcept;
 
 	/**
 	 * @brief Set the skybox diffuse sampler.
@@ -1353,46 +1355,46 @@ public:
 	 * @param texture_unit The value of the active texture that the skybox
 	 * cube texture is bound for.
 	 */
-	void set_skybox_diffuse(const GLint texture_unit) const 
-		noexcept;
+	void setDiffuseTexture(const GLint texture_unit) const noexcept;
+
 protected:
 
 	/// Forwarding constructor.
-	skybox_shader(
+	SkyboxShaderProgram(
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path fragment_shader);
 
 	/// Forwarding constructor.
-	skybox_shader( 
+	SkyboxShaderProgram( 
 		boost::filesystem::path vertex_shader, 
 		boost::filesystem::path geometry_shader,
 		boost::filesystem::path fragment_shader);
 
 private:
 
-	GLuint loc_matrix_PV;
-	GLuint loc_skybox_diffuse;
+	GLuint mMatrixPV;
+	GLuint mDiffuseTexture;
 };
 
 /**
  * @brief Simple shader for two-dimensional text.
  */
-class text_shader : public OpenGL::ShaderProgram
+class FlatTextShaderProgram : public OpenGL::ShaderProgram
 {
 public:
 
 	/// Default constructor.
-	text_shader();
+	FlatTextShaderProgram();
 
 	/// Destructor.
-	virtual ~text_shader() noexcept;
+	virtual ~FlatTextShaderProgram() noexcept;
 
 	/**
 	 * @brief Set the text color uniform variable.
 	 * 
 	 * @param color The color of the text.
 	 */
-	void set_color(const vec3f& color) const noexcept;
+	void setColor(const vec3f& color) const noexcept;
 
 	/**
 	 * @brief Set the text texture.
@@ -1403,13 +1405,13 @@ public:
 	 * @param texture_unit The same number as the active texture unit for the
 	 * text.
 	 */	
-	void set_texture(const GLint texture_unit) const 
+	void setTexture(const GLint texture_unit) const 
 		noexcept;
 
 private:
 	
-	GLuint loc_color;
-	GLuint loc_texture;
+	GLuint mColor;
+	GLuint mTexture;
 };
 
 } // namespace gintonic

@@ -1,7 +1,7 @@
 //
-// gp_n.fs
+// Geometry_N.frag
 //
-// Uses gp_n.vs as vertex shader.
+// Uses Geometry_N.vert as vertex shader.
 
 #version 330
 

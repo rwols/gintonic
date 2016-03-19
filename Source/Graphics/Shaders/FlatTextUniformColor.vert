@@ -1,5 +1,5 @@
 //
-// flat_text_uniform_color.vs
+// FlatTextUniformColor.vert
 //
 
 #version 330

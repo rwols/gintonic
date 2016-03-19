@@ -1,7 +1,7 @@
 //
-// lp_ambient.fs
+// AmbientLight.frag
 //
-// Uses lp.vs
+// Uses LightPass.vert
 //
 
 #version 330 core

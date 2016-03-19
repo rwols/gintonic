@@ -4,7 +4,6 @@ set(executables BasicShapes
 	DirectionalLight
 	FbxViewer
 	HelloWorldText
-	StreamBuffers
 	PointLights
 	SpotLights
 	TexturedCube)

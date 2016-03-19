@@ -1,5 +1,5 @@
 //
-// gp_null.vs
+// GeometryNull.vert
 //
 // Geometry Pass: Does nothing but show a pure red color
 //

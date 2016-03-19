@@ -109,7 +109,7 @@ public:
 
 	Entity(std::string name);
 
-	Entity(std::string name, SQT localTransform);
+	Entity(std::string name, const SQT& localTransform);
 
 	bool castShadow = false;
 

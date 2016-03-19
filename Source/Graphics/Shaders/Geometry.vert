@@ -1,5 +1,5 @@
 //
-// gp.vs
+// Geometry.vert
 //
 // Geometry pass vertex shader, non-instanced version, no tangents and bitangents.
 //

@@ -1,7 +1,7 @@
 //
-// gp_dn.fs
+// Geometry_SN.fs
 //
-// Uses gp_n.vs as vertex shader.
+// Uses Geometry_N.vs as vertex shader.
 
 #version 330
 
@@ -24,7 +24,7 @@ uniform struct Material
 {
 	vec4 diffuse_color;
 	vec4 specular_color;
-	sampler2D diffuse_texture;
+	sampler2D specular_texture;
 	sampler2D normal_texture;
 } material;
 
@@ -32,8 +32,8 @@ void main()
 {
 	outPosition = viewPosition;
 	outDiffuse = material.diffuse_color;
-	outDiffuse *= texture(material.diffuse_texture, texCoords);
 	outSpecular = material.specular_color;
+	outSpecular *= texture(material.specular_texture, texCoords);
 
 	// Sample the normal vector from the materials' "normal texture".
 	vec3 normal = texture(material.normal_texture, texCoords).rgb;

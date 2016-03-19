@@ -1,7 +1,7 @@
 //
-// lp_spot.fs
+// SpotLight.frag
 //
-// Uses lp_pvm.fs
+// Uses LightPassPVM.vert
 //
 
 #version 330 core

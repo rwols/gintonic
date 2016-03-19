@@ -1,5 +1,5 @@
 //
-// flat_text_uniform_color.fs
+// FlatTextUniformColor.frag
 //
 
 #version 330

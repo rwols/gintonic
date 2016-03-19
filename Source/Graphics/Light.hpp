@@ -54,16 +54,6 @@ public:
 	 */
 	virtual void shine(const Entity& e) const noexcept = 0;
 
-	virtual void beginShadowPass(const Entity& light_ent)
-	{
-		/* Put me in a CPP file */
-	}
-
-	virtual void renderShadow(const Entity& geometry) const noexcept
-	{
-		/* Put me in a CPP file */
-	}
-
 	/**
 	 * @brief Set the brightness, or intensity of the light.
 	 * 

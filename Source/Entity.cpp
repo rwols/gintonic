@@ -36,7 +36,7 @@ Entity::Entity(std::string name)
 	/* Empty on purpose. */
 }
 
-Entity::Entity(std::string name, SQT localTransform)
+Entity::Entity(std::string name, const SQT& localTransform)
 : Object<Entity, std::string>(std::move(name))
 , mLocalTransform(localTransform)
 , mGlobalTransform(mLocalTransform)

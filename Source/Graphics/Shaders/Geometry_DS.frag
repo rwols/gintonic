@@ -1,7 +1,7 @@
 //
-// gp.fs
+// Geometry_DS.frag
 //
-// Uses gp.vs OR gpi.vs as vertex shader
+// Uses Geometry.vert as vertex shader
 
 #version 330
 
@@ -16,20 +16,24 @@ in vec2 texCoords;
 in vec3 viewNormal;
 
 layout (location = GBUFFER_POSITION) out vec3 outPosition;
-layout (location = GBUFFER_DIFFUSE)  out vec4 outDiffuse;
+layout (location = GBUFFER_DIFFUSE) out vec4 outDiffuse;
 layout (location = GBUFFER_SPECULAR) out vec4 outSpecular;
-layout (location = GBUFFER_NORMAL)   out vec3 outNormal;
+layout (location = GBUFFER_NORMAL) out vec3 outNormal;
 
 uniform struct Material 
 {
 	vec4 diffuse_color;
 	vec4 specular_color;
+	sampler2D diffuse_texture;
+	sampler2D specular_texture;
 } material;
 
 void main()
 {
 	outPosition = viewPosition;
 	outDiffuse = material.diffuse_color;
+	outDiffuse *= texture(material.diffuse_texture, texCoords);
 	outSpecular = material.specular_color;
+	outSpecular *= texture(material.specular_texture, texCoords);
 	outNormal = normalize(viewNormal);
 }

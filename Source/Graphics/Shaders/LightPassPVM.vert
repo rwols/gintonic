@@ -1,11 +1,11 @@
 //
-// lp_pvm.vs
+// LightPassPVM.vert
 //
 // Used by:
 //
-// * lp_point.fs
-// * lp_spot.fs
-// * null.fs
+// * PointLight.frag
+// * SpotLight.frag
+// * Null.frag
 //
 
 #version 330 core

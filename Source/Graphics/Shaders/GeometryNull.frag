@@ -1,7 +1,7 @@
 //
-// gp_null.fs
+// GeometryNull.frag
 //
-// Geometry Pass: Does nothing but show a pure red color
+// Geometry Pass: Does nothing but show a pure red color. Uses GeometryNull.vert
 //
 
 #version 330

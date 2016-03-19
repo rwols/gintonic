@@ -7,6 +7,7 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif()
 
 set(SSE_VERSION 30)
+set(SHADER_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/Source/Graphics/Shaders/")
 
 set(lua_src_dir "lua-5.3.1/src")
 file(GLOB_RECURSE gintonic_source_files "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp")

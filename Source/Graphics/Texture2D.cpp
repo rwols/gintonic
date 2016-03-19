@@ -59,12 +59,17 @@ void Texture2D::loadFromFile(boost::filesystem::path filename)
 	int lHeight;
 	int lComp;
 
-	auto lDeleter = [](unsigned char* ptr) { stbi_image_free(ptr); };
-
-	std::unique_ptr<unsigned char, decltype(lDeleter)> data(
+	#ifdef BOOST_MSVC
+	const auto lString = this->name.string();
+	std::unique_ptr<unsigned char, decltype(&stbi_image_free)> data(
+		stbi_load(lString.c_str(), &lWidth, &lHeight, &lComp, STBI_default), 
+		&stbi_image_free);
+	#else
+	std::unique_ptr<unsigned char, decltype(&stbi_image_free)> data(
 		stbi_load(this->name.c_str(), &lWidth, &lHeight, &lComp, STBI_default), 
-		lDeleter);
-
+		&stbi_image_free);
+	#endif
+	
 	if (!data)
 	{
 		exception lException(this->name.string());

@@ -5,7 +5,7 @@
 
 #include "Mesh.hpp"
 #include "basic_shapes.hpp"
-#include "shaders.hpp"
+#include "ShaderPrograms.hpp"
 #include "Material.hpp"
 #include "Light.hpp"
 
@@ -130,36 +130,36 @@ WriteLock Renderer::sEntityQueueLock;
 std::vector<std::shared_ptr<Entity>> Renderer::sFutureQueue;
 std::vector<std::shared_ptr<Entity>> Renderer::sCurrentQueue;
 
-matrix_PVM_shader* Renderer::s_matrix_PVM_shader = nullptr;
+Matrix_PVM_ShaderProgram* Renderer::sNullShaderProgram = nullptr;
 
-gp_shader* Renderer::s_gp_shader = nullptr;
-gp_d_shader* Renderer::s_gp_d_shader = nullptr;
-gp_s_shader* Renderer::s_gp_s_shader = nullptr;
-gp_n_shader* Renderer::s_gp_n_shader = nullptr;
-gp_ds_shader* Renderer::s_gp_ds_shader = nullptr;
-gp_dn_shader* Renderer::s_gp_dn_shader = nullptr;
-gp_sn_shader* Renderer::s_gp_sn_shader = nullptr;
-gp_dsn_shader* Renderer::s_gp_dsn_shader = nullptr;
+GeometryShaderProgram* Renderer::sGeometryShaderProgram = nullptr;
+Geometry_D_ShaderProgram* Renderer::sGeometry_D_ShaderProgram = nullptr;
+Geometry_S_ShaderProgram* Renderer::sGeometry_S_ShaderProgram = nullptr;
+Geometry_N_ShaderProgram* Renderer::sGeometry_N_ShaderProgram = nullptr;
+Geometry_DS_ShaderProgram* Renderer::sGeometry_DS_ShaderProgram = nullptr;
+Geometry_DN_ShaderProgram* Renderer::sGeometry_DN_ShaderProgram = nullptr;
+Geometry_SN_ShaderProgram* Renderer::sGeometry_SN_ShaderProgram = nullptr;
+Geometry_DSN_ShaderProgram* Renderer::sGeometry_DSN_ShaderProgram = nullptr;
 
-gpi_shader* Renderer::s_gpi_shader = nullptr;
-gpi_d_shader* Renderer::s_gpi_d_shader = nullptr;
-gpi_s_shader* Renderer::s_gpi_s_shader = nullptr;
-gpi_n_shader* Renderer::s_gpi_n_shader = nullptr;
-gpi_ds_shader* Renderer::s_gpi_ds_shader = nullptr;
-gpi_dn_shader* Renderer::s_gpi_dn_shader = nullptr;
-gpi_sn_shader* Renderer::s_gpi_sn_shader = nullptr;
-gpi_dsn_shader* Renderer::s_gpi_dsn_shader = nullptr;
+GeometryInstancedShaderProgram* Renderer::sGeometryInstancedShaderProgram = nullptr;
+GeometryInstanced_D_ShaderProgram* Renderer::sGeometryInstanced_D_ShaderProgram = nullptr;
+GeometryInstanced_S_ShaderProgram* Renderer::sGeometryInstanced_S_ShaderProgram = nullptr;
+GeometryInstanced_N_ShaderProgram* Renderer::sGeometryInstanced_N_ShaderProgram = nullptr;
+GeometryInstanced_DS_ShaderProgram* Renderer::sGeometryInstanced_DS_ShaderProgram = nullptr;
+GeometryInstanced_DN_ShaderProgram* Renderer::sGeometryInstanced_DN_ShaderProgram = nullptr;
+GeometryInstanced_SN_ShaderProgram* Renderer::sGeometryInstanced_SN_ShaderProgram = nullptr;
+GeometryInstanced_DSN_ShaderProgram* Renderer::sGeometryInstanced_DSN_ShaderProgram = nullptr;
 
-lp_ambient_shader* Renderer::s_lp_ambient_shader = nullptr;
-lp_directional_shader* Renderer::s_lp_directional_shader = nullptr;
-lp_point_shader* Renderer::s_lp_point_shader = nullptr;
-lp_spot_shader* Renderer::s_lp_spot_shader = nullptr;
+AmbientLightShaderProgram* Renderer::sAmbientLightShaderProgram = nullptr;
+DirectionalLightShaderProgram* Renderer::sDirectionalLightShaderProgram = nullptr;
+PointLightShaderProgram* Renderer::sPointLightShaderProgram = nullptr;
+SpotLightShaderProgram* Renderer::sSpotLightShaderProgram = nullptr;
 
 sp_directional_shader* Renderer::s_sp_directional_shader = nullptr;
 
-skybox_shader* Renderer::s_skybox_shader = nullptr;
+SkyboxShaderProgram* Renderer::sSkyboxShaderProgram = nullptr;
 
-text_shader* Renderer::s_text_shader = nullptr;
+FlatTextShaderProgram* Renderer::sFlatTextShaderProgram = nullptr;
 
 unit_quad_P* Renderer::s_unit_quad_P = nullptr;
 unit_cube_P* Renderer::s_unit_cube_P = nullptr;
@@ -697,10 +697,10 @@ void Renderer::update() noexcept
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Ambient lighting
-	s_lp_ambient_shader->activate();
-	s_lp_ambient_shader->set_gbuffer_diffuse(GBUFFER_DIFFUSE);
-	s_lp_ambient_shader->set_viewport_size(viewportSize());
-	s_lp_ambient_shader->set_light_intensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
+	sAmbientLightShaderProgram->activate();
+	sAmbientLightShaderProgram->set_gbuffer_diffuse(GBUFFER_DIFFUSE);
+	sAmbientLightShaderProgram->set_viewport_size(viewportSize());
+	sAmbientLightShaderProgram->set_light_intensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 	sUnitQuadPUN->draw();
 	
 	for (auto lEntity : sShadowCastingLightEntities)
@@ -720,8 +720,8 @@ void Renderer::update() noexcept
 	sEntitiesLock.release();
 
 	#ifdef ENABLE_DEBUG_TRACE
-	get_text_shader()->activate();
-	get_text_shader()->set_color(vec3f(1.0f, 1.0f, 1.0f));
+	get_FlatTextShaderProgram()->activate();
+	get_FlatTextShaderProgram()->set_color(vec3f(1.0f, 1.0f, 1.0f));
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -900,8 +900,8 @@ void Renderer::blit_drawbuffers_to_screen(FontStream& stream)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	get_text_shader()->activate();
-	get_text_shader()->set_color(vec3f(1.0f, 1.0f, 1.0f));
+	get_FlatTextShaderProgram()->activate();
+	get_FlatTextShaderProgram()->set_color(vec3f(1.0f, 1.0f, 1.0f));
 
 	stream << "GBUFFER_NORMAL" << std::endl;
 	stream->position.x += 1.0f;
@@ -916,7 +916,7 @@ void Renderer::blit_drawbuffers_to_screen(FontStream& stream)
 
 void Renderer::ambient_light_pass() noexcept
 {
-	const auto& s = get_lp_ambient_shader();
+	const auto& s = get_AmbientLightShaderProgram();
 	s.activate();
 	s.set_gbuffer_diffuse(GBUFFER_DIFFUSE);
 	s.set_viewport_size(viewportSize());
@@ -1118,211 +1118,211 @@ void Renderer::init_shaders()
 {
 	try
 	{
-		s_matrix_PVM_shader = new matrix_PVM_shader();
+		s_Matrix_PVM_ShaderProgram = new Matrix_PVM_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load matrix_PVM_shader: ");
+		e.prepend(": Failed to load Matrix_PVM_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gp_shader = new gp_shader();
+		sGeometryShaderProgram = new GeometryShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gp_shader: ");
+		e.prepend(": Failed to load GeometryShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gp_d_shader = new gp_d_shader();
+		sGeometry_D_ShaderProgram = new Geometry_D_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gp_d_shader: ");
+		e.prepend(": Failed to load Geometry_D_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gp_s_shader = new gp_s_shader();
+		sGeometry_S_ShaderProgram = new Geometry_S_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gp_s_shader: ");
+		e.prepend(": Failed to load Geometry_S_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gp_n_shader = new gp_n_shader();
+		sGeometry_N_ShaderProgram = new Geometry_N_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gp_n_shader: ");
+		e.prepend(": Failed to load Geometry_N_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gp_ds_shader = new gp_ds_shader();
+		sGeometry_DS_ShaderProgram = new Geometry_DS_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gp_ds_shader: ");
+		e.prepend(": Failed to load Geometry_DS_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gp_dn_shader = new gp_dn_shader();
+		sGeometry_DN_ShaderProgram = new Geometry_DN_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gp_dn_shader: ");
+		e.prepend(": Failed to load Geometry_DN_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gp_sn_shader = new gp_sn_shader();
+		sGeometry_SN_ShaderProgram = new Geometry_SN_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gp_sn_shader: ");
+		e.prepend(": Failed to load Geometry_SN_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gp_dsn_shader = new gp_dsn_shader();
+		sGeometry_DSN_ShaderProgram = new Geometry_DSN_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gp_dsn_shader: ");
+		e.prepend(": Failed to load Geometry_DSN_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gpi_shader = new gpi_shader();
+		sGeometryInstancedShaderProgram = new GeometryInstancedShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gpi_shader: ");
+		e.prepend(": Failed to load GeometryInstancedShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gpi_d_shader = new gpi_d_shader();
+		sGeometryInstanced_D_ShaderProgram = new GeometryInstanced_D_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gpi_d_shader: ");
+		e.prepend(": Failed to load GeometryInstanced_D_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gpi_s_shader = new gpi_s_shader();
+		sGeometryInstanced_S_ShaderProgram = new GeometryInstanced_S_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gpi_s_shader: ");
+		e.prepend(": Failed to load GeometryInstanced_S_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gpi_n_shader = new gpi_n_shader();
+		sGeometryInstanced_N_ShaderProgram = new GeometryInstanced_N_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gpi_n_shader: ");
+		e.prepend(": Failed to load GeometryInstanced_N_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gpi_ds_shader = new gpi_ds_shader();
+		sGeometryInstanced_DS_ShaderProgram = new GeometryInstanced_DS_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gpi_ds_shader: ");
+		e.prepend(": Failed to load GeometryInstanced_DS_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gpi_dn_shader = new gpi_dn_shader();
+		sGeometryInstanced_DN_ShaderProgram = new GeometryInstanced_DN_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gpi_dn_shader: ");
+		e.prepend(": Failed to load GeometryInstanced_DN_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gpi_sn_shader = new gpi_sn_shader();
+		sGeometryInstanced_SN_ShaderProgram = new GeometryInstanced_SN_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gpi_sn_shader: ");
+		e.prepend(": Failed to load GeometryInstanced_SN_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_gpi_dsn_shader = new gpi_dsn_shader();
+		sGeometryInstanced_DSN_ShaderProgram = new GeometryInstanced_DSN_ShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load gpi_dsn_shader: ");
+		e.prepend(": Failed to load GeometryInstanced_DSN_ShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_lp_ambient_shader = new lp_ambient_shader();
+		sAmbientLightShaderProgram = new AmbientLightShaderProgram();
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load lp_ambient_shader: ");
+		e.prepend(": Failed to load AmbientLightShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_lp_directional_shader = new lp_directional_shader();	
+		sDirectionalLightShaderProgram = new DirectionalLightShaderProgram();	
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load lp_directional_shader: ");
+		e.prepend(": Failed to load DirectionalLightShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_lp_point_shader = new lp_point_shader();	
+		sPointLightShaderProgram = new PointLightShaderProgram();	
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load lp_point_shader: ");
+		e.prepend(": Failed to load PointLightShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_lp_spot_shader = new lp_spot_shader();	
+		sSpotLightShaderProgram = new SpotLightShaderProgram();	
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load lp_spot_shader: ");
+		e.prepend(": Failed to load SpotLightShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
@@ -1338,17 +1338,17 @@ void Renderer::init_shaders()
 	}
 	try
 	{
-		s_skybox_shader = new skybox_shader();	
+		sSkyboxShaderProgram = new SkyboxShaderProgram();	
 	}
 	catch (exception& e)
 	{
-		e.prepend(": Failed to load skybox_shader: ");
+		e.prepend(": Failed to load SkyboxShaderProgram: ");
 		e.prepend(name());
 		throw;
 	}
 	try
 	{
-		s_text_shader = new text_shader();
+		sFlatTextShaderProgram = new FlatTextShaderProgram();
 	}
 	catch (exception& e)
 	{

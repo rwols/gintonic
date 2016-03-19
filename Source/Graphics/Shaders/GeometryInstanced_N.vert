@@ -1,7 +1,7 @@
 //
-// gp_n.vs
+// GeometryInstanced_N.vert
 //
-// Geometry pass vertex shader, non-instanced version, tangents and bitangents.
+// Geometry pass vertex shader, instanced version, tangents and bitangents.
 //
 
 #version 330
@@ -18,13 +18,13 @@
 layout(location = GT_VERTEX_LAYOUT_POSITION)   in vec4 iSlot0;
 layout(location = GT_VERTEX_LAYOUT_TEXCOORD)   in vec4 iSlot1;
 layout(location = GT_VERTEX_LAYOUT_NORMAL)     in vec4 iSlot2;
-// layout(location = GT_VERTEX_LAYOUT_PVM_MATRIX) in mat4 in_matrix_PVM;
-// layout(location = GT_VERTEX_LAYOUT_VM_MATRIX)  in mat4 in_matrix_VM;
-// layout(location = GT_VERTEX_LAYOUT_N_MATRIX)   in mat3 in_matrix_N;
+layout(location = GT_VERTEX_LAYOUT_PVM_MATRIX) in mat4 iMatrix_PVM;
+layout(location = GT_VERTEX_LAYOUT_VM_MATRIX)  in mat4 iMatrix_VM;
+layout(location = GT_VERTEX_LAYOUT_N_MATRIX)   in mat3 iMatrix_N;
 
-uniform mat4 matrix_PVM;
-uniform mat4 matrix_VM;
-uniform mat3 matrix_N;
+// uniform mat4 matrix_PVM;
+// uniform mat4 matrix_VM;
+// uniform mat3 matrix_N;
 
 out vec3 viewPosition; // in VIEW space
 out vec2 texCoords;
@@ -40,14 +40,14 @@ void main()
 	texCoords = vec2(iSlot0.w, iSlot1.w);
 
 	// Do the usual calculations
-	gl_Position  = matrix_PVM * localPosition;
-	viewPosition = (matrix_VM * localPosition).xyz;
+	gl_Position  = iMatrix_PVM * localPosition;
+	viewPosition = (iMatrix_VM * localPosition).xyz;
 	
 	// Transform the normal, tangent and bitangent vectors
 	// from MODEL (or LOCAL) space to VIEW (or CAMERA) space
-	localTangent   = matrix_N * localTangent;
-	localBitangent = matrix_N * localBitangent;
-	localNormal    = matrix_N * localNormal;
+	localTangent   = iMatrix_N * localTangent;
+	localBitangent = iMatrix_N * localBitangent;
+	localNormal    = iMatrix_N * localNormal;
 
 	// Gramm-Schmidt orthonormalization
 	// Not sure if this is really necessary...

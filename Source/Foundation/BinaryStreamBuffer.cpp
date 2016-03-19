@@ -1,3 +1,0 @@
-#include "BinaryStreamBuffer.hpp"
-
-// nothing

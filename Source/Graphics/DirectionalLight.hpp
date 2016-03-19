@@ -47,10 +47,6 @@ public:
 
 	virtual void initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const;
 
-	virtual void beginShadowPass(const Entity& light_ent);
-
-	virtual void renderShadow(const Entity& geometry) const noexcept;
-
 	/// Stream output support for a directional light.
 	friend std::ostream& operator << (std::ostream&, const DirectionalLight&);
 

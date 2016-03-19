@@ -1,8 +1,8 @@
 //
-// skybox.vs
+// Skybox.vert
 //
 // Used for drawing a skybox.
-// Used by: skybox.fs
+// Used by: Skybox.frag
 
 #version 330
 

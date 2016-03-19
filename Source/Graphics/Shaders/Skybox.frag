@@ -1,7 +1,7 @@
 //
-// skybox.fs
+// Skybox.frag
 //
-// Uses: skybox.vs
+// Uses: Skybox.vert
 
 #version 330
 

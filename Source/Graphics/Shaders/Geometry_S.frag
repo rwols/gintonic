@@ -1,7 +1,7 @@
 //
-// gp_s.fs
+// Geometry_S.frag
 //
-// Uses gp.vs as vertex shader
+// Uses Geometry.vert as vertex shader
 
 #version 330
 

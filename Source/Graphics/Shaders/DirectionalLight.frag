@@ -1,7 +1,7 @@
 //
-// lp_directional.fs
+// DirectionalLight.frag
 //
-// Uses lp.vs
+// Uses LightPass.vert
 //
 
 #version 330 core

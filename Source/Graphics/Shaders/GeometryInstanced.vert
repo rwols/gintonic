@@ -1,5 +1,5 @@
 //
-// gpi.vs
+// GeometryInstanced.vs
 //
 // Geometry pass vertex shader, instanced version, no tangents and bitangents.
 //

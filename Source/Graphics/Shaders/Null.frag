@@ -1,8 +1,8 @@
 //
-// null.fs
+// Null.frag
 //
 // Does absolutely nothing. Useful for stencil operations.
-// Uses lp_pvm.vs
+// Uses LightPassPVM.vs
 //
 
 #version 330
