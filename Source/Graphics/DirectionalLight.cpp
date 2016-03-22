@@ -4,7 +4,7 @@
 
 #include "DirectionalShadowBuffer.hpp"
 #include "Renderer.hpp"
-#include "shaders.hpp"
+#include "ShaderPrograms.hpp"
 #include "Mesh.hpp"
 
 #include "../Entity.hpp"
@@ -23,23 +23,23 @@ DirectionalLight::DirectionalLight(const vec4f& intensity)
 
 void DirectionalLight::shine(const Entity& e) const noexcept
 {
-	const auto& s = Renderer::get_lp_directional_shader();
-	s.activate();
+	const auto& lProgram = DirectionalLightShaderProgram::get();
+	lProgram.activate();
 
 	// These uniforms are always the same for every light shader.
 	// Consider using uniform buffers ...
-	s.set_viewport_size(Renderer::viewportSize());
-	s.set_gbuffer_position(Renderer::GBUFFER_POSITION);
-	s.set_gbuffer_diffuse(Renderer::GBUFFER_DIFFUSE);
-	s.set_gbuffer_specular(Renderer::GBUFFER_SPECULAR);
-	s.set_gbuffer_normal(Renderer::GBUFFER_NORMAL);
+	lProgram.setViewportSize(Renderer::viewportSize());
+	lProgram.setGeometryBufferPositionTexture(Renderer::GBUFFER_POSITION);
+	lProgram.setGeometryBufferDiffuseTexture(Renderer::GBUFFER_DIFFUSE);
+	lProgram.setGeometryBufferSpecularTexture(Renderer::GBUFFER_SPECULAR);
+	lProgram.setGeometryBufferNormalTexture(Renderer::GBUFFER_NORMAL);
 
 	// These uniforms are different for each DirectionalLight.
-	s.set_light_intensity(this->mIntensity);
+	lProgram.setLightIntensity(this->mIntensity);
 
 	const auto lLightDirection = Renderer::matrix_V() * (e.globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f));
 	
-	s.set_light_direction(vec3f(lLightDirection.data));
+	lProgram.setLightDirection(vec3f(lLightDirection.data));
 
 	Renderer::getUnitQuad()->draw();
 }

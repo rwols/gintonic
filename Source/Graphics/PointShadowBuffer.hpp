@@ -10,12 +10,16 @@ class PointShadowBuffer : public ShadowBuffer
 public:
 	PointShadowBuffer();
 	virtual ~PointShadowBuffer() noexcept = default;
-	virtual void bindForWriting() const noexcept;
-	virtual void bindForReading() const noexcept;
+
+	virtual void collect(
+		Entity& lightEntity, 
+		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) noexcept;
+
+	virtual void bindDepthTextures() const noexcept;
+
 private:
-	OpenGL::Framebuffer mFramebuffer;
-	OpenGL::TextureObject mTexture;
-	// mutable int m_face = 0;
+	OpenGL::Framebuffer mFramebuffer[6];
+	OpenGL::TextureObject mTexture[6];
 };
 
 } // namespace gintonic 

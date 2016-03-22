@@ -203,13 +203,13 @@ public:
 	 */
 	static void setCameraEntity(std::shared_ptr<Entity> cameraEntity);
 
-	template <class ForwardIter>
-	static void submitEntities(ForwardIter first, ForwardIter last)
-	{
-		sEntityQueueLock.obtain();
-		std::copy(first, last, std::back_inserter(sFutureQueue));
-		sEntityQueueLock.release();
-	}
+	// template <class ForwardIter>
+	// static void submitEntities(ForwardIter first, ForwardIter last)
+	// {
+	// 	sEntityQueueLock.obtain();
+	// 	std::copy(first, last, std::back_inserter(sFutureQueue));
+	// 	sEntityQueueLock.release();
+	// }
 
 	static void submitEntityRecursive(std::shared_ptr<Entity> toSubmit);
 	
@@ -554,42 +554,42 @@ public:
 	/**
 	 * @brief Start the geometry pass.
 	 */
-	static void begin_geometry_pass();
+	// static void begin_geometry_pass();
 
 	/**
 	 * @brief Start a stencil pass.
 	 */
-	static void begin_stencil_pass();
+	// static void begin_stencil_pass();
 
 	/**
 	 * @brief Start the light pass.
 	 */
-	static void begin_light_pass();
+	// static void begin_light_pass();
 	
 	/**
 	 * @brief Set the read buffer.
 	 * @param type The read buffer.
 	 */
-	static void set_read_buffer(const enum GBUFFER type);
+	// static void set_read_buffer(const enum GBUFFER type);
 
 	/**
 	 * @brief This will split the screen up into four parts that show
 	 * the raw geometry buffers.
 	 */
-	static void blit_drawbuffers_to_screen();
+	// static void blit_drawbuffers_to_screen();
 
 	/**
 	 * @brief This will split the screen up itno four parts that show the
 	 * raw geometry buffers.
 	 * @param f A FontStream to denote the names of the geometry buffers.
 	 */
-	static void blit_drawbuffers_to_screen(FontStream& f);
+	// static void blit_drawbuffers_to_screen(FontStream& f);
 
 	/**
 	 * @brief Do an ambient light pass. This should be called after the call
 	 * to Renderer::begin_light_pass.
 	 */
-	static void ambient_light_pass() noexcept;
+	// static void ambient_light_pass() noexcept;
 
 	///@}
 
@@ -602,31 +602,31 @@ public:
 	///@{
 
 	/// Event that fires when a character on the keyboard is typed.
-	static boost::signals2::signal<void(wchar_t)> char_typed;
+	static boost::signals2::signal<void(wchar_t)> onCharTyped;
 
 	/// Event that fires when the mouse has scrolled.
-	static boost::signals2::signal<void(double, double)> mouse_scrolled;
+	static boost::signals2::signal<void(double, double)> onMouseScroll;
 
 	/// Event that fires when the mouse has moved.
-	static boost::signals2::signal<void(double, double)> mouse_moved;
+	static boost::signals2::signal<void(double, double)> onMouseMove;
 
 	/// Event that fires when a key is pressed.
-	static boost::signals2::signal<void(int, int, int, int)> key_pressed;
+	static boost::signals2::signal<void(int, int, int, int)> onKeyPress;
 
 	/// Event that fires when a mouse button is pressed.
-	static boost::signals2::signal<void(int, int, int)> mouse_pressed;
+	static boost::signals2::signal<void(int, int, int)> onMousePressed;
 
 	/// Event that fires when the window is resized.
-	static boost::signals2::signal<void(int, int)> window_resized;
+	static boost::signals2::signal<void(int, int)> onWindowResize;
 
 	/// Event that fires when the mouse has entered the window.
-	static boost::signals2::signal<void(void)> mouse_entered;
+	static boost::signals2::signal<void(void)> onMouseEnter;
 
 	/// Event that fires when the mouse has left the window.
-	static boost::signals2::signal<void(void)> mouse_left;
+	static boost::signals2::signal<void(void)> onMouseLeave;
 
 	/// Event that fires when the Renderer is about to close.
-	static boost::signals2::signal<void(void)> about_to_close;
+	static boost::signals2::signal<void(void)> onAboutToClose;
 
 	///@}
 
@@ -642,214 +642,214 @@ public:
 	 * @brief Get a shader that does nothing.
 	 * @return A shader that does nothing.
 	 */
-	inline static const Matrix_PVM_ShaderProgram& getNullShaderProgram() 
-		noexcept
-	{
-		return *sNullShaderProgram;
-	}
+	// inline static const Matrix_PVM_ShaderProgram& getNullShaderProgram() 
+	// 	noexcept
+	// {
+	// 	return *sNullShaderProgram;
+	// }
 
-	/**
-	 * @brief Get GeometryShaderProgram.
-	 * @return GeometryShaderProgram.
-	 */
-	inline static const GeometryShaderProgram& getGeometryShaderProgram() noexcept
-	{
-		return *sGeometryShader;
-	}
+	// /**
+	//  * @brief Get GeometryShaderProgram.
+	//  * @return GeometryShaderProgram.
+	//  */
+	// inline static const GeometryShaderProgram& getGeometryShaderProgram() noexcept
+	// {
+	// 	return *sGeometryShader;
+	// }
 
-	/**
-	 * @brief Get Geometry_D_ShaderProgram.
-	 * @return Geometry_D_ShaderProgram.
-	 */
-	inline static const Geometry_D_ShaderProgram& getGeometry_D_ShaderProgram() noexcept
-	{
-		return *sGeometry_D_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get Geometry_D_ShaderProgram.
+	//  * @return Geometry_D_ShaderProgram.
+	//  */
+	// inline static const Geometry_D_ShaderProgram& getGeometry_D_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometry_D_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get Geometry_S_ShaderProgram.
-	 * @return Geometry_S_ShaderProgram.
-	 */
-	inline static const Geometry_S_ShaderProgram& getGeometry_S_ShaderProgram() noexcept
-	{
-		return *sGeometry_S_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get Geometry_S_ShaderProgram.
+	//  * @return Geometry_S_ShaderProgram.
+	//  */
+	// inline static const Geometry_S_ShaderProgram& getGeometry_S_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometry_S_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get Geometry_N_ShaderProgram.
-	 * @return Geometry_N_ShaderProgram.
-	 */
-	inline static const Geometry_N_ShaderProgram& getGeometry_N_ShaderProgram() noexcept
-	{
-		return *sGeometry_N_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get Geometry_N_ShaderProgram.
+	//  * @return Geometry_N_ShaderProgram.
+	//  */
+	// inline static const Geometry_N_ShaderProgram& getGeometry_N_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometry_N_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get Geometry_DS_ShaderProgram.
-	 * @return Geometry_DS_ShaderProgram.
-	 */
-	inline static const Geometry_DS_ShaderProgram& getGeometry_DS_ShaderProgram() noexcept
-	{
-		return *sGeometry_DS_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get Geometry_DS_ShaderProgram.
+	//  * @return Geometry_DS_ShaderProgram.
+	//  */
+	// inline static const Geometry_DS_ShaderProgram& getGeometry_DS_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometry_DS_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get Geometry_DN_ShaderProgram.
-	 * @return Geometry_DN_ShaderProgram.
-	 */
-	inline static const Geometry_DN_ShaderProgram& getGeometry_DN_ShaderProgram() noexcept
-	{
-		return *sGeometry_DN_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get Geometry_DN_ShaderProgram.
+	//  * @return Geometry_DN_ShaderProgram.
+	//  */
+	// inline static const Geometry_DN_ShaderProgram& getGeometry_DN_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometry_DN_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get Geometry_SN_ShaderProgram.
-	 * @return Geometry_SN_ShaderProgram.
-	 */
-	inline static const Geometry_SN_ShaderProgram& getGeometry_SN_ShaderProgram() noexcept
-	{
-		return *sGeometry_SN_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get Geometry_SN_ShaderProgram.
+	//  * @return Geometry_SN_ShaderProgram.
+	//  */
+	// inline static const Geometry_SN_ShaderProgram& getGeometry_SN_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometry_SN_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get Geometry_DSN_ShaderProgram.
-	 * @return Geometry_DSN_ShaderProgram.
-	 */
-	inline static const Geometry_DSN_ShaderProgram& getGeometry_DSN_ShaderProgram() noexcept
-	{
-		return *sGeometry_DSN_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get Geometry_DSN_ShaderProgram.
+	//  * @return Geometry_DSN_ShaderProgram.
+	//  */
+	// inline static const Geometry_DSN_ShaderProgram& getGeometry_DSN_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometry_DSN_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get GeometryInstancedShaderProgram.
-	 * @return GeometryInstancedShaderProgram.
-	 */
-	inline static const GeometryInstancedShaderProgram& getGeometryInstancedShaderProgram() noexcept
-	{
-		return *sGeometryInstancedShaderProgram;
-	}
+	// /**
+	//  * @brief Get GeometryInstancedShaderProgram.
+	//  * @return GeometryInstancedShaderProgram.
+	//  */
+	// inline static const GeometryInstancedShaderProgram& getGeometryInstancedShaderProgram() noexcept
+	// {
+	// 	return *sGeometryInstancedShaderProgram;
+	// }
 
-	/**
-	 * @brief Get GeometryInstanced_D_ShaderProgram.
-	 * @return GeometryInstanced_D_ShaderProgram.
-	 */
-	inline static const GeometryInstanced_D_ShaderProgram& getGeometryInstanced_D_ShaderProgram() noexcept
-	{
-		return *sGeometryInstanced_D_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get GeometryInstanced_D_ShaderProgram.
+	//  * @return GeometryInstanced_D_ShaderProgram.
+	//  */
+	// inline static const GeometryInstanced_D_ShaderProgram& getGeometryInstanced_D_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometryInstanced_D_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get GeometryInstance_DS_ShaderProgram.
-	 * @return GeometryInstance_DS_ShaderProgram.
-	 */
-	inline static const GeometryInstance_DS_ShaderProgram& getGeometryInstance_DS_ShaderProgram() noexcept
-	{
-		return *sGeometryInstance_DS_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get GeometryInstanced_S_ShaderProgram.
+	//  * @return GeometryInstanced_S_ShaderProgram.
+	//  */
+	// inline static const GeometryInstanced_S_ShaderProgram& getGeometryInstanced_S_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometryInstanced_S_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get GeometryInstance_DN_ShaderProgram.
-	 * @return GeometryInstance_DN_ShaderProgram.
-	 */
-	inline static const GeometryInstance_DN_ShaderProgram& getGeometryInstance_DN_ShaderProgram() noexcept
-	{
-		return *sGeometryInstance_DN_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get GeometryInstanced_N_ShaderProgram.
+	//  * @return GeometryInstanced_N_ShaderProgram.
+	//  */
+	// inline static const GeometryInstanced_N_ShaderProgram& getGeometryInstanced_N_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometryInstanced_N_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get GeometryInstanced_DS_ShaderProgram.
-	 * @return GeometryInstanced_DS_ShaderProgram.
-	 */
-	inline static const GeometryInstanced_DS_ShaderProgram& getGeometryInstanced_DS_ShaderProgram() noexcept
-	{
-		return *sGeometryInstanced_DS_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get GeometryInstanced_DS_ShaderProgram.
+	//  * @return GeometryInstanced_DS_ShaderProgram.
+	//  */
+	// inline static const GeometryInstanced_DS_ShaderProgram& getGeometryInstanced_DS_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometryInstanced_DS_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get GeometryInstanced_DN_ShaderProgram.
-	 * @return GeometryInstanced_DN_ShaderProgram.
-	 */
-	inline static const GeometryInstanced_DN_ShaderProgram& getGeometryInstanced_DN_ShaderProgram() noexcept
-	{
-		return *sGeometryInstanced_DN_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get GeometryInstanced_DN_ShaderProgram.
+	//  * @return GeometryInstanced_DN_ShaderProgram.
+	//  */
+	// inline static const GeometryInstanced_DN_ShaderProgram& getGeometryInstanced_DN_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometryInstanced_DN_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get GeometryInstanced_SN_ShaderProgram.
-	 * @return GeometryInstanced_SN_ShaderProgram.
-	 */
-	inline static const GeometryInstanced_SN_ShaderProgram& getGeometryInstanced_SN_ShaderProgram() noexcept
-	{
-		return *sGeometryInstanced_SN_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get GeometryInstanced_SN_ShaderProgram.
+	//  * @return GeometryInstanced_SN_ShaderProgram.
+	//  */
+	// inline static const GeometryInstanced_SN_ShaderProgram& getGeometryInstanced_SN_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometryInstanced_SN_ShaderProgram;
+	// }
 
-	/**
-	 * @brief Get GeometryInstanced_DSN_ShaderProgram.
-	 * @return GeometryInstanced_DSN_ShaderProgram.
-	 */
-	inline static const GeometryInstanced_DSN_ShaderProgram& getGeometryInstanced_DSN_ShaderProgram() noexcept
-	{
-		return *sGeometryInstanced_DSN_ShaderProgram;
-	}
+	// /**
+	//  * @brief Get GeometryInstanced_DSN_ShaderProgram.
+	//  * @return GeometryInstanced_DSN_ShaderProgram.
+	//  */
+	// inline static const GeometryInstanced_DSN_ShaderProgram& getGeometryInstanced_DSN_ShaderProgram() noexcept
+	// {
+	// 	return *sGeometryInstanced_DSN_ShaderProgram;
+	// }
 
 	/**
 	 * @brief Get AmbientLightShaderProgram.
 	 * @return AmbientLightShaderProgram.
 	 */
-	inline static const AmbientLightShaderProgram& getAmbientLightShaderProgram() noexcept
-	{
-		return *sAmbientLightShaderProgram;
-	}
+	// inline static const AmbientLightShaderProgram& getAmbientLightShaderProgram() noexcept
+	// {
+	// 	return *sAmbientLightShaderProgram;
+	// }
 
 	/**
 	 * @brief Get DirectionalLightShaderProgram.
 	 * @return DirectionalLightShaderProgram.
 	 */
-	inline static const DirectionalLightShaderProgram& getDirectionalLightShaderProgram() noexcept
-	{
-		return *sDirectionalLightShaderProgram;
-	}
+	// inline static const DirectionalLightShaderProgram& getDirectionalLightShaderProgram() noexcept
+	// {
+	// 	return *sDirectionalLightShaderProgram;
+	// }
 
 	/**
 	 * @brief Get PointLightShaderProgram.
 	 * @return PointLightShaderProgram.
 	 */
-	inline static const PointLightShaderProgram& getPointLightShaderProgram() noexcept
-	{
-		return *sPointLightShaderProgram;
-	}
+	// inline static const PointLightShaderProgram& getPointLightShaderProgram() noexcept
+	// {
+	// 	return *sPointLightShaderProgram;
+	// }
 
 	/**
 	 * @brief Get SpotLightShaderProgram.
 	 * @return SpotLightShaderProgram.
 	 */
-	inline static const SpotLightShaderProgram& getSpotLightShaderProgram() noexcept
-	{
-		return *sSpotLightShaderProgram;
-	}
+	// inline static const SpotLightShaderProgram& getSpotLightShaderProgram() noexcept
+	// {
+	// 	return *sSpotLightShaderProgram;
+	// }
 
-	inline static const sp_directional_shader& getsp_directional_shader() noexcept
-	{
-		return *s_sp_directional_shader;
-	}
+	// inline static const sp_directional_shader& getsp_directional_shader() noexcept
+	// {
+	// 	return *s_sp_directional_shader;
+	// }
 
 	/**
 	 * @brief Get SkyboxShaderProgram.
 	 * @return SkyboxShaderProgram.
 	 */
-	inline static const SkyboxShaderProgram& getSkyboxShaderProgram() noexcept
-	{
-		return *sSkyboxShaderProgram;
-	}
+	// inline static const SkyboxShaderProgram& getSkyboxShaderProgram() noexcept
+	// {
+	// 	return *sSkyboxShaderProgram;
+	// }
 
 	/**
 	 * @brief Get FlatTextShaderProgram.
 	 * @return FlatTextShaderProgram.
 	 */
-	inline static FlatTextShaderProgram& getFlatTextShaderProgram() noexcept
-	{
-		return sFlatTextShaderProgram;
-	}
+	// inline static FlatTextShaderProgram& getFlatTextShaderProgram() noexcept
+	// {
+	// 	return *sFlatTextShaderProgram;
+	// }
 
 	///@}
 	
@@ -866,46 +866,46 @@ public:
 	 * Get unit_quad_P.
 	 * @return unit_quad_P
 	 */
-	inline static unit_quad_P& getunit_quad_P() noexcept
-	{
-		return *s_unit_quad_P;
-	}
+	// inline static unit_quad_P& getunit_quad_P() noexcept
+	// {
+	// 	return *s_unit_quad_P;
+	// }
 
 	/**
 	 * Get unit_cube_P.
 	 * @return unit_cube_P
 	 */
-	inline static unit_cube_P& getunit_cube_P() noexcept
-	{
-		return *s_unit_cube_P;
-	}
+	// inline static unit_cube_P& getunit_cube_P() noexcept
+	// {
+	// 	return *s_unit_cube_P;
+	// }
 
 	/**
 	 * Get unit_cube_P_flipped.
 	 * @return unit_cube_P_flipped
 	 */
-	inline static unit_cube_P_flipped& getunit_cube_P_flipped() noexcept
-	{
-		return *s_unit_cube_P_flipped;
-	}
+	// inline static unit_cube_P_flipped& getunit_cube_P_flipped() noexcept
+	// {
+	// 	return *s_unit_cube_P_flipped;
+	// }
 
 	/**
 	 * Get unit_sphere_P.
 	 * @return unit_sphere_P
 	 */
-	inline static unit_sphere_P& getunit_sphere_P() noexcept
-	{
-		return *s_unit_sphere_P;
-	}
+	// inline static unit_sphere_P& getunit_sphere_P() noexcept
+	// {
+	// 	return *s_unit_sphere_P;
+	// }
 
 	/**
 	 * Get unit_cone_P.
 	 * @return unit_cone_P
 	 */
-	inline static unit_cone_P& getunit_cone_P() noexcept
-	{
-		return *s_unit_cone_P;
-	}
+	// inline static unit_cone_P& getunit_cone_P() noexcept
+	// {
+	// 	return *s_unit_cone_P;
+	// }
 
 	inline static std::shared_ptr<Mesh> getUnitQuad() noexcept
 	{
@@ -992,46 +992,46 @@ private:
 	static std::shared_ptr<Entity> sCameraEntity;
 	static vec3f sCameraPosition;
 
-	static WriteLock sEntityQueueLock;
-	static std::vector<std::shared_ptr<Entity>> sFutureQueue;
-	static std::vector<std::shared_ptr<Entity>> sCurrentQueue;
+	// static WriteLock sEntityQueueLock;
+	// static std::vector<std::shared_ptr<Entity>> sFutureQueue;
+	// static std::vector<std::shared_ptr<Entity>> sCurrentQueue;
 
-	static matrix_PVM_shader* sNullShaderProgram;
+	// static Matrix_PVM_ShaderProgram* sNullShaderProgram;
 
-	static GeometryShaderProgram* sGeometryShader;
-	static Geometry_D_ShaderProgram* sGeometry_D_ShaderProgram;
-	static Geometry_S_ShaderProgram* sGeometry_S_ShaderProgram;
-	static Geometry_N_ShaderProgram* sGeometry_N_ShaderProgram;
-	static Geometry_DS_ShaderProgram* sGeometry_DS_ShaderProgram;
-	static Geometry_DN_ShaderProgram* sGeometry_DN_ShaderProgram;
-	static Geometry_SN_ShaderProgram* sGeometry_SN_ShaderProgram;
-	static Geometry_DSN_ShaderProgram* sGeometry_DSN_ShaderProgram;
+	// static GeometryShaderProgram* sGeometryShader;
+	// static Geometry_D_ShaderProgram* sGeometry_D_ShaderProgram;
+	// static Geometry_S_ShaderProgram* sGeometry_S_ShaderProgram;
+	// static Geometry_N_ShaderProgram* sGeometry_N_ShaderProgram;
+	// static Geometry_DS_ShaderProgram* sGeometry_DS_ShaderProgram;
+	// static Geometry_DN_ShaderProgram* sGeometry_DN_ShaderProgram;
+	// static Geometry_SN_ShaderProgram* sGeometry_SN_ShaderProgram;
+	// static Geometry_DSN_ShaderProgram* sGeometry_DSN_ShaderProgram;
 	
-	static GeometryInstancedShaderProgram* sGeometryInstancedShaderProgram;
-	static GeometryInstanced_D_ShaderProgram* sGeometryInstanced_D_ShaderProgram;
-	static GeometryInstance_DS_ShaderProgram* sGeometryInstance_DS_ShaderProgram;
-	static GeometryInstance_DN_ShaderProgram* sGeometryInstance_DN_ShaderProgram;
-	static GeometryInstanced_DS_ShaderProgram* sGeometryInstanced_DS_ShaderProgram;
-	static GeometryInstanced_DN_ShaderProgram* sGeometryInstanced_DN_ShaderProgram;
-	static GeometryInstanced_SN_ShaderProgram* sGeometryInstanced_SN_ShaderProgram;
-	static GeometryInstanced_DSN_ShaderProgram* sGeometryInstanced_DSN_ShaderProgram;
+	// static GeometryInstancedShaderProgram* sGeometryInstancedShaderProgram;
+	// static GeometryInstanced_D_ShaderProgram* sGeometryInstanced_D_ShaderProgram;
+	// static GeometryInstanced_S_ShaderProgram* sGeometryInstanced_S_ShaderProgram;
+	// static GeometryInstanced_N_ShaderProgram* sGeometryInstanced_N_ShaderProgram;
+	// static GeometryInstanced_DS_ShaderProgram* sGeometryInstanced_DS_ShaderProgram;
+	// static GeometryInstanced_DN_ShaderProgram* sGeometryInstanced_DN_ShaderProgram;
+	// static GeometryInstanced_SN_ShaderProgram* sGeometryInstanced_SN_ShaderProgram;
+	// static GeometryInstanced_DSN_ShaderProgram* sGeometryInstanced_DSN_ShaderProgram;
 
-	static AmbientLightShaderProgram* sAmbientLightShaderProgram;
-	static DirectionalLightShaderProgram* sDirectionalLightShaderProgram;
-	static PointLightShaderProgram* sPointLightShaderProgram;
-	static SpotLightShaderProgram* sSpotLightShaderProgram;
+	// static AmbientLightShaderProgram* sAmbientLightShaderProgram;
+	// static DirectionalLightShaderProgram* sDirectionalLightShaderProgram;
+	// static PointLightShaderProgram* sPointLightShaderProgram;
+	// static SpotLightShaderProgram* sSpotLightShaderProgram;
 
-	static sp_directional_shader* s_sp_directional_shader;
+	// static sp_directional_shader* s_sp_directional_shader;
 
-	static SkyboxShaderProgram* sSkyboxShaderProgram;
+	// static SkyboxShaderProgram* sSkyboxShaderProgram;
 
-	static FlatTextShaderProgram* sFlatTextShaderProgram;
+	// static FlatTextShaderProgram* sFlatTextShaderProgram;
 
-	static unit_quad_P* s_unit_quad_P;
-	static unit_cube_P* s_unit_cube_P;
-	static unit_cube_P_flipped* s_unit_cube_P_flipped;
-	static unit_sphere_P* s_unit_sphere_P;
-	static unit_cone_P* s_unit_cone_P;
+	// static unit_quad_P* s_unit_quad_P;
+	// static unit_cube_P* s_unit_cube_P;
+	// static unit_cube_P_flipped* s_unit_cube_P_flipped;
+	// static unit_sphere_P* s_unit_sphere_P;
+	// static unit_cone_P* s_unit_cone_P;
 
 	static std::shared_ptr<Mesh> sUnitQuadPUN;
 	static std::shared_ptr<Mesh> sUnitCubePUN;
@@ -1041,7 +1041,7 @@ private:
 	static std::shared_ptr<Mesh> sUnitConePUN;
 	static std::shared_ptr<Mesh> sUnitCylinderPUN;
 
-	static void submitEntityRecursiveHelper(std::shared_ptr<Entity>);
+	// static void submitEntityRecursiveHelper(std::shared_ptr<Entity>);
 
 };
 

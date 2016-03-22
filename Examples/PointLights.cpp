@@ -152,10 +152,10 @@ private:
 		lTransform.scale = 1.0f;
 		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 
-		auto lDaVinciTexture       = std::make_shared<Texture2D>("../../Examples/DaVinci.jpg");
-		auto lBrickDiffuseTexture  = std::make_shared<Texture2D>("../../Examples/bricks.jpg");
-		auto lBrickSpecularTexture = std::make_shared<Texture2D>("../../Examples/bricks_SPEC.png");
-		auto lBrickNormalTexture   = std::make_shared<Texture2D>("../../Examples/bricks_NRM.png");
+		auto lDaVinciTexture       = std::make_shared<Texture2D>("Resources/DaVinci.jpg");
+		auto lBrickDiffuseTexture  = std::make_shared<Texture2D>("Resources/bricks.jpg");
+		auto lBrickSpecularTexture = std::make_shared<Texture2D>("Resources/bricks_SPEC.png");
+		auto lBrickNormalTexture   = std::make_shared<Texture2D>("Resources/bricks_NRM.png");
 
 		auto lDaVinciMaterial            = std::make_shared<Material>();
 		lDaVinciMaterial->name           = "DaVinci";

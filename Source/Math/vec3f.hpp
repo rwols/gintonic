@@ -236,7 +236,16 @@ public:
 	/// Addition operator.
 	inline vec3f operator + (const vec3f& v) const noexcept
 	{
+		#ifdef BOOST_MSVC
+
+		auto copy = v.data;
+		return _mm_add_ps(data, copy);
+
+		#else
+
 		return _mm_add_ps(data, v.data);
+
+		#endif
 	}
 
 	/// Addition operator that first builds a vec3f.

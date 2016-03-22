@@ -1,7 +1,7 @@
 #include "AmbientLight.hpp"
 
 #include "Renderer.hpp"
-#include "shaders.hpp"
+#include "ShaderPrograms.hpp"
 #include "Mesh.hpp"
 
 #include <iostream>
@@ -16,10 +16,10 @@ AmbientLight::AmbientLight(const vec4f& intensity)
 
 void AmbientLight::shine(const Entity& e) const noexcept
 {
-	const auto& s = Renderer::get_lp_ambient_shader();
-	s.activate();
-	s.set_viewport_size(Renderer::viewportSize());
-	s.set_light_intensity(this->mIntensity);
+	const auto& lProgram = AmbientLightShaderProgram::get();
+	lProgram.activate();
+	lProgram.setViewportSize(Renderer::viewportSize());
+	lProgram.setLightIntensity(this->mIntensity);
 	Renderer::getUnitQuad()->draw();
 }
 

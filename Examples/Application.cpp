@@ -2,7 +2,10 @@
 
 Application::Application(const char* windowTitle, int argc, char** argv)
 {
-	gintonic::initializeEverything(windowTitle);
+	DEBUG_PRINT;
+	auto lCameraEntity = std::make_shared<gintonic::Entity>("DefaultCamera");
+	gintonic::Renderer::init(windowTitle, std::move(lCameraEntity), false, 800, 640);
+	DEBUG_PRINT;
 }
 
 void Application::renderUpdate()
@@ -20,33 +23,35 @@ void Application::processCameraInput()
 
 	auto lCameraEntity = Renderer::getCameraEntity();
 
+	const float lDeltaTime = static_cast<float>(mDeltaTime);
+
 	if (Renderer::key(SDL_SCANCODE_Q))
 	{
 		close();
 	}
 	if (Renderer::key(SDL_SCANCODE_W))
 	{
-		lCameraEntity->moveForward(mMoveSpeed * mDeltaTime);
+		lCameraEntity->moveForward(mMoveSpeed * lDeltaTime);
 	}
 	if (Renderer::key(SDL_SCANCODE_A))
 	{
-		lCameraEntity->moveLeft(mMoveSpeed * mDeltaTime);
+		lCameraEntity->moveLeft(mMoveSpeed * lDeltaTime);
 	}
 	if (Renderer::key(SDL_SCANCODE_S))
 	{
-		lCameraEntity->moveBackward(mMoveSpeed * mDeltaTime);
+		lCameraEntity->moveBackward(mMoveSpeed * lDeltaTime);
 	}
 	if (Renderer::key(SDL_SCANCODE_D))
 	{
-		lCameraEntity->moveRight(mMoveSpeed * mDeltaTime);
+		lCameraEntity->moveRight(mMoveSpeed * lDeltaTime);
 	}
 	if (Renderer::key(SDL_SCANCODE_SPACE))
 	{
-		lCameraEntity->moveUp(mMoveSpeed * mDeltaTime);
+		lCameraEntity->moveUp(mMoveSpeed * lDeltaTime);
 	}
 	if (Renderer::key(SDL_SCANCODE_C))
 	{
-		lCameraEntity->moveDown(mMoveSpeed * mDeltaTime);
+		lCameraEntity->moveDown(mMoveSpeed * lDeltaTime);
 	}
 	if (Renderer::keyTogglePress(SDL_SCANCODE_T))
 	{
@@ -61,9 +66,9 @@ void Application::processCameraInput()
 gintonic::vec3f Application::getRandomNormalizedVector3(const int resolution) const noexcept
 {
 	gintonic::vec3f lResult(
-		std::rand() % resolution,
-		std::rand() % resolution,
-		std::rand() % resolution);
+		static_cast<float>(std::rand() % resolution),
+		static_cast<float>(std::rand() % resolution),
+		static_cast<float>(std::rand() % resolution));
 
 	lResult.normalize();
 
@@ -73,10 +78,10 @@ gintonic::vec3f Application::getRandomNormalizedVector3(const int resolution) co
 gintonic::vec4f Application::getRandomNormalizedVector4(const int resolution) const noexcept
 {
 	gintonic::vec4f lResult(
-		std::rand() % resolution, 
-		std::rand() % resolution, 
-		std::rand() % resolution, 
-		std::rand() % resolution);
+		static_cast<float>(std::rand() % resolution), 
+		static_cast<float>(std::rand() % resolution), 
+		static_cast<float>(std::rand() % resolution), 
+		static_cast<float>(std::rand() % resolution));
 
 	lResult.normalize();
 	return lResult;

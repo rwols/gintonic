@@ -9,5 +9,5 @@ include_directories(${CMAKE_SOURCE_DIR}/Source)
 
 foreach (exe ${executables})
 	add_executable(${exe} ${exe}.cpp)
-	target_link_libraries(${exe} gintonic)
+	target_link_with_gintonic(${exe})
 endforeach ()

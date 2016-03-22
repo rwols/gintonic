@@ -49,8 +49,10 @@ private:
 #define DEFINE_MAIN(DerivedApplicationName)\
 int main(int argc, char* argv[])\
 {\
+	DEBUG_PRINT;\
 	try\
 	{\
+		DEBUG_PRINT;\
 		DerivedApplicationName lDerivedApplicationName(argc, argv);\
 		while (lDerivedApplicationName.shouldClose() == false)\
 		{\
@@ -59,8 +61,10 @@ int main(int argc, char* argv[])\
 	}\
 	catch (const gintonic::exception& lException)\
 	{\
+		DEBUG_PRINT;\
 		std::cerr << lException.what() << '\n';\
 		return EXIT_FAILURE;\
 	}\
+	DEBUG_PRINT;\
 	return EXIT_SUCCESS;\
 }

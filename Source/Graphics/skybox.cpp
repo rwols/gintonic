@@ -1,6 +1,6 @@
 #include "skybox.hpp"
 #include "Renderer.hpp"
-#include "shaders.hpp"
+#include "ShaderPrograms.hpp"
 #include "basic_shapes.hpp"
 
 namespace gintonic {
@@ -25,10 +25,10 @@ skybox& skybox::operator = (skybox&& other)
 
 void skybox::draw() const noexcept
 {
-	const auto& s = Renderer::get_skybox_shader();
-	s.activate();
-	s.set_matrix_PV(Renderer::matrix_P() * Renderer::matrix_V());
-	s.set_skybox_diffuse(0);
+	const auto& lProgram = SkyboxShaderProgram::get();
+	lProgram.activate();
+	lProgram.setMatrixPV(Renderer::matrix_P() * Renderer::matrix_V());
+	lProgram.setDiffuseTexture(0);
 	diffuse_texture.bind(0);
 
 	// We must enable depth testing.
@@ -42,7 +42,7 @@ void skybox::draw() const noexcept
 	// are equal to depth buffer's content
 	glDepthFunc(GL_LEQUAL);
 	
-	Renderer::get_unit_cube_P_flipped().draw();
+	Renderer::getInsideOutUnitCube()->draw();
 
 	// Restore default values.
 	glDepthFunc(GL_LESS);

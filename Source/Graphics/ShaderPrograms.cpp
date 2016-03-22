@@ -1,10 +1,107 @@
-#include "shaders.hpp"
+#include "ShaderPrograms.hpp"
 
 namespace gintonic {
 
-/*****************************************************************************
- * gintonic::Matrix_PVM_ShaderProgram                                        *
- ****************************************************************************/
+ShadowShaderProgram*           ShadowShaderProgram::sInstance           = nullptr;
+MaterialShaderProgram*         MaterialShaderProgram::sInstance         = nullptr;
+AmbientLightShaderProgram*     AmbientLightShaderProgram::sInstance     = nullptr;
+DirectionalLightShaderProgram* DirectionalLightShaderProgram::sInstance = nullptr;
+PointLightShaderProgram*       PointLightShaderProgram::sInstance       = nullptr;
+SpotLightShaderProgram*        SpotLightShaderProgram::sInstance        = nullptr;
+SkyboxShaderProgram*           SkyboxShaderProgram::sInstance           = nullptr;
+FlatTextShaderProgram*         FlatTextShaderProgram::sInstance         = nullptr;
+
+ShadowShaderProgram::ShadowShaderProgram()
+: OpenGL::ShaderProgram("Shaders/Shadow.vert", "Shaders/Shadow.frag")
+{
+	mMatrixPVM = getUniformLocation("matrixPVM");
+	mInstancedRendering = getUniformLocation("instancedRendering");
+}
+
+void ShadowShaderProgram::setMatrixPVM(const mat4f& value) const noexcept
+{
+	setUniform(mMatrixPVM, value);
+}
+
+void ShadowShaderProgram::setInstancedRendering(const GLint value) const noexcept
+{
+	setUniform(mInstancedRendering, value);
+}
+
+MaterialShaderProgram::MaterialShaderProgram()
+: OpenGL::ShaderProgram("Shaders/Material.vert", "Shaders/Material.frag")
+{
+	mMatrixPVM = getUniformLocation("matrixPVM");
+	mMatrixVM = getUniformLocation("matrixVM");
+	mMatrixN = getUniformLocation("matrixN");
+	mInstancedRendering = getUniformLocation("instancedRendering");
+	mHasTangentsAndBitangents = getUniformLocation("hasTangentsAndBitangents");
+	mMaterialDiffuseColor = getUniformLocation("materialDiffuseColor");
+	mMaterialSpecularColor = getUniformLocation("materialSpecularColor");
+	mMaterialDiffuseTexture = getUniformLocation("materialDiffuseTexture");
+	mMaterialSpecularTexture = getUniformLocation("materialSpecularTexture");
+	mMaterialNormalTexture = getUniformLocation("materialNormalTexture");
+	mMaterialFlag = getUniformLocation("materialFlag");
+}
+
+void MaterialShaderProgram::setMatrixPVM(const mat4f& value) const noexcept
+{
+	setUniform(mMatrixPVM, value);
+}
+
+void MaterialShaderProgram::setMatrixVM(const mat4f& value) const noexcept
+{
+	setUniform(mMatrixVM, value);
+}
+
+void MaterialShaderProgram::setMatrixN(const mat4f& value) const noexcept
+{
+	setUniform(mMatrixN, value);
+}
+
+void MaterialShaderProgram::setInstancedRendering(const GLint value) const noexcept
+{
+	setUniform(mInstancedRendering, value);
+}
+
+void MaterialShaderProgram::setHasTangentsAndBitangents(const GLint value) const noexcept
+{
+	setUniform(mHasTangentsAndBitangents, value);
+}
+
+void MaterialShaderProgram::setMaterialDiffuseColor(const vec4f& value) const noexcept
+{
+	setUniform(mMaterialDiffuseColor, value);
+}
+
+void MaterialShaderProgram::setMaterialSpecularColor(const vec4f& value) const noexcept
+{
+	setUniform(mMaterialSpecularColor, value);
+}
+
+void MaterialShaderProgram::setMaterialDiffuseTexture(const GLint value) const noexcept
+{
+	setUniform(mMaterialDiffuseTexture, value);
+}
+
+void MaterialShaderProgram::setMaterialSpecularTexture(const GLint value) const noexcept
+{
+	setUniform(mMaterialSpecularTexture, value);
+}
+
+void MaterialShaderProgram::setMaterialNormalTexture(const GLint value) const noexcept
+{
+	setUniform(mMaterialNormalTexture, value);
+}
+
+void MaterialShaderProgram::setMaterialFlag(const GLint value) const noexcept
+{
+	setUniform(mMaterialFlag, value);
+}
+
+// /*****************************************************************************
+//  * gintonic::Matrix_PVM_ShaderProgram                                        *
+//  ****************************************************************************/
 
 Matrix_PVM_ShaderProgram::Matrix_PVM_ShaderProgram()
 : OpenGL::ShaderProgram("Shaders/LightPassPVM.vert", "Shaders/Null.frag")
@@ -39,669 +136,669 @@ void Matrix_PVM_ShaderProgram::setMatrixPVM(const mat4f& m) const noexcept
 	setUniform(mMatrixPVM, m);
 }
 
-/*****************************************************************************
- * gintonic::Matrix_PVM_VM_ShaderProgram                                     *
- ****************************************************************************/
-
-Matrix_PVM_VM_ShaderProgram::Matrix_PVM_VM_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: Matrix_PVM_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mMatrixVM = getUniformLocation("matrix_VM");
-}
-
-Matrix_PVM_VM_ShaderProgram::Matrix_PVM_VM_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: Matrix_PVM_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mMatrixVM = getUniformLocation("matrix_VM");
-}
-
-Matrix_PVM_VM_ShaderProgram::~Matrix_PVM_VM_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void Matrix_PVM_VM_ShaderProgram::setMatrixVM(const mat4f& m) const noexcept
-{
-	setUniform(mMatrixVM, m);
-}
-
-/*****************************************************************************
- * gintonic::Matrix_PVM_V_N_ShaderProgram                                    *
- ****************************************************************************/
-
-Matrix_PVM_V_N_ShaderProgram::Matrix_PVM_V_N_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: Matrix_PVM_VM_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mMatrixN = getUniformLocation("matrix_N");
-}
-
-Matrix_PVM_V_N_ShaderProgram::Matrix_PVM_V_N_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: Matrix_PVM_VM_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mMatrixN = getUniformLocation("matrix_N");
-}
-
-Matrix_PVM_V_N_ShaderProgram::~Matrix_PVM_V_N_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void Matrix_PVM_V_N_ShaderProgram::setMatrixN(const mat3f& m) const noexcept
-{
-	setUniform(mMatrixN, m);
-}
-
-/*****************************************************************************
- * gintonic::GeometryShaderProgram                                           *
- ****************************************************************************/
-
-GeometryShaderProgram::GeometryShaderProgram()
-: Matrix_PVM_V_N_ShaderProgram("Shaders/Geometry.vert", "Shaders/Geometry.frag")
-{
-	mDiffuseColor = getUniformLocation("material.diffuse_color");
-	mSpecularColor = getUniformLocation("material.specular_color");
-}
-GeometryShaderProgram::~GeometryShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void GeometryShaderProgram::setDiffuseColor(const vec4f& color) const noexcept
-{
-	setUniform(mDiffuseColor, color);
-}
-
-void GeometryShaderProgram::setSpecularColor(const vec4f& color) const noexcept
-{
-	setUniform(mSpecularColor, color);
-}
-
-GeometryShaderProgram::GeometryShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: Matrix_PVM_V_N_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mDiffuseColor = getUniformLocation("material.diffuse_color");
-	mSpecularColor = getUniformLocation("material.specular_color");
-}
-
-GeometryShaderProgram::GeometryShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: Matrix_PVM_V_N_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mDiffuseColor = getUniformLocation("material.diffuse_color");
-	mSpecularColor = getUniformLocation("material.specular_color");
-}
-
-/*****************************************************************************
- * gintonic::Geometry_D_ShaderProgram                                        *
- ****************************************************************************/
-
-Geometry_D_ShaderProgram::Geometry_D_ShaderProgram()
-: GeometryShaderProgram("Shaders/Geometry.vert", "Shaders/Geometry_D.frag")
-{
-	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
-}
-
-Geometry_D_ShaderProgram::~Geometry_D_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void Geometry_D_ShaderProgram::setDiffuseTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mDiffuseTexture, texture_unit);
-}
-
-Geometry_D_ShaderProgram::Geometry_D_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: GeometryShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
-}
-Geometry_D_ShaderProgram::Geometry_D_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: GeometryShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
-}
-
-/*****************************************************************************
- * gintonic::Geometry_S_ShaderProgram                                        *
- ****************************************************************************/
-
-Geometry_S_ShaderProgram::Geometry_S_ShaderProgram()
-: GeometryShaderProgram("Shaders/Geometry.vert", "Shaders/Geometry_S.frag")
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-Geometry_S_ShaderProgram::~Geometry_S_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void Geometry_S_ShaderProgram::setSpecularTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mSpecularTexture, texture_unit);
-}
-
-Geometry_S_ShaderProgram::Geometry_S_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: GeometryShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-Geometry_S_ShaderProgram::Geometry_S_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: GeometryShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-/*****************************************************************************
- * gintonic::Geometry_N_ShaderProgram                                        *
- ****************************************************************************/
-
-Geometry_N_ShaderProgram::Geometry_N_ShaderProgram()
-: GeometryShaderProgram("Shaders/Geometry_N.vert", "Shaders/Geometry_N.frag")
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-Geometry_N_ShaderProgram::~Geometry_N_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void Geometry_N_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mNormalTexture, texture_unit);
-}
-
-Geometry_N_ShaderProgram::Geometry_N_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: GeometryShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-Geometry_N_ShaderProgram::Geometry_N_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: GeometryShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-/*****************************************************************************
- * gintonic::Geometry_DS_ShaderProgram                                       *
- ****************************************************************************/
-
-Geometry_DS_ShaderProgram::Geometry_DS_ShaderProgram()
-: Geometry_D_ShaderProgram("Shaders/Geometry.vert", "Shaders/Geometry_DS.frag")
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-Geometry_DS_ShaderProgram::~Geometry_DS_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void Geometry_DS_ShaderProgram::setSpecularTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mSpecularTexture, texture_unit);
-}
-
-Geometry_DS_ShaderProgram::Geometry_DS_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: Geometry_D_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-Geometry_DS_ShaderProgram::Geometry_DS_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: Geometry_D_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-/*****************************************************************************
- * gintonic::Geometry_DN_ShaderProgram                                       *
- ****************************************************************************/
-
-Geometry_DN_ShaderProgram::Geometry_DN_ShaderProgram()
-: Geometry_D_ShaderProgram("Shaders/Geometry_N.vert", "Shaders/Geometry_DN.frag")
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-Geometry_DN_ShaderProgram::~Geometry_DN_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void Geometry_DN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mNormalTexture, texture_unit);
-}
-
-Geometry_DN_ShaderProgram::Geometry_DN_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: Geometry_D_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-Geometry_DN_ShaderProgram::Geometry_DN_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: Geometry_D_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-/*****************************************************************************
- * gintonic::Geometry_SN_ShaderProgram                                       *
- ****************************************************************************/
-
-Geometry_SN_ShaderProgram::Geometry_SN_ShaderProgram()
-: Geometry_S_ShaderProgram("Shaders/Geometry_N.vert", "Shaders/Geometry_SN.frag")
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-Geometry_SN_ShaderProgram::~Geometry_SN_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void Geometry_SN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mNormalTexture, texture_unit);
-}
-
-Geometry_SN_ShaderProgram::Geometry_SN_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: Geometry_S_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-Geometry_SN_ShaderProgram::Geometry_SN_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: Geometry_S_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-/*****************************************************************************
- * gintonic::Geometry_DSN_ShaderProgram                                      *
- ****************************************************************************/
-
-Geometry_DSN_ShaderProgram::Geometry_DSN_ShaderProgram()
-: Geometry_DS_ShaderProgram("Shaders/Geometry_N.vert", "Shaders/Geometry_DSN.frag")
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-Geometry_DSN_ShaderProgram::~Geometry_DSN_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void Geometry_DSN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mNormalTexture, texture_unit);
-}
-
-Geometry_DSN_ShaderProgram::Geometry_DSN_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-Geometry_DSN_ShaderProgram::Geometry_DSN_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: Geometry_DS_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-/*****************************************************************************
- * gintonic::GeometryInstancedShaderProgram                                  *
- ****************************************************************************/
-
-GeometryInstancedShaderProgram::GeometryInstancedShaderProgram()
-: OpenGL::ShaderProgram("Shaders/GeometryInstanced.vert", "Shaders/Geometry.frag")
-{
-	mDiffuseColor = getUniformLocation("material.diffuse_color");
-	mSpecularColor = getUniformLocation("material.specular_color");
-}
-GeometryInstancedShaderProgram::~GeometryInstancedShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void GeometryInstancedShaderProgram::setDiffuseColor(const vec4f& color) const noexcept
-{
-	setUniform(mDiffuseColor, color);
-}
-
-void GeometryInstancedShaderProgram::setSpecularColor(const vec4f& color) const noexcept
-{
-	setUniform(mSpecularColor, color);
-}
-
-GeometryInstancedShaderProgram::GeometryInstancedShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: OpenGL::ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mDiffuseColor = getUniformLocation("material.diffuse_color");
-	mSpecularColor = getUniformLocation("material.specular_color");
-}
-
-GeometryInstancedShaderProgram::GeometryInstancedShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: OpenGL::ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mDiffuseColor = getUniformLocation("material.diffuse_color");
-	mSpecularColor = getUniformLocation("material.specular_color");
-}
-
-/*****************************************************************************
- * gintonic::GeometryInstanced_D_ShaderProgram                               *
- ****************************************************************************/
-
-GeometryInstanced_D_ShaderProgram::GeometryInstanced_D_ShaderProgram()
-: GeometryInstancedShaderProgram("Shaders/GeometryInstanced.vert", "Shaders/Geometry_D.frag")
-{
-	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
-}
-
-GeometryInstanced_D_ShaderProgram::~GeometryInstanced_D_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void GeometryInstanced_D_ShaderProgram::setDiffuseTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mDiffuseTexture, texture_unit);
-}
-
-GeometryInstanced_D_ShaderProgram::GeometryInstanced_D_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
-}
-GeometryInstanced_D_ShaderProgram::GeometryInstanced_D_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
-}
-
-/*****************************************************************************
- * gintonic::GeometryInstanced_S_ShaderProgram                               *
- ****************************************************************************/
-
-GeometryInstanced_S_ShaderProgram::GeometryInstanced_S_ShaderProgram()
-: GeometryInstancedShaderProgram("Shaders/GeometryInstanced.vert", "Shaders/Geometry_S.frag")
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-GeometryInstanced_S_ShaderProgram::~GeometryInstanced_S_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void GeometryInstanced_S_ShaderProgram::setSpecularTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mSpecularTexture, texture_unit);
-}
-
-GeometryInstanced_S_ShaderProgram::GeometryInstanced_S_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-GeometryInstanced_S_ShaderProgram::GeometryInstanced_S_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-/*****************************************************************************
- * gintonic::GeometryInstanced_N_ShaderProgram                               *
- ****************************************************************************/
-
-GeometryInstanced_N_ShaderProgram::GeometryInstanced_N_ShaderProgram()
-: GeometryInstancedShaderProgram("Shaders/GeometryInstanced_N.vert", "Shaders/Geometry_N.frag")
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-GeometryInstanced_N_ShaderProgram::~GeometryInstanced_N_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void GeometryInstanced_N_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mNormalTexture, texture_unit);
-}
-
-GeometryInstanced_N_ShaderProgram::GeometryInstanced_N_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-GeometryInstanced_N_ShaderProgram::GeometryInstanced_N_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-/*****************************************************************************
- * gintonic::GeometryInstanced_DS_ShaderProgram                              *
- ****************************************************************************/
-
-GeometryInstanced_DS_ShaderProgram::GeometryInstanced_DS_ShaderProgram()
-: GeometryInstanced_D_ShaderProgram("Shaders/GeometryInstanced.vert", "Shaders/Geometry_DS.frag")
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-GeometryInstanced_DS_ShaderProgram::~GeometryInstanced_DS_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void GeometryInstanced_DS_ShaderProgram::setSpecularTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mSpecularTexture, texture_unit);
-}
-
-GeometryInstanced_DS_ShaderProgram::GeometryInstanced_DS_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: GeometryInstanced_D_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-GeometryInstanced_DS_ShaderProgram::GeometryInstanced_DS_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: GeometryInstanced_D_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mSpecularTexture = getUniformLocation("material.specular_texture");
-}
-
-/*****************************************************************************
- * gintonic::GeometryInstanced_DN_ShaderProgram                              *
- ****************************************************************************/
-
-GeometryInstanced_DN_ShaderProgram::GeometryInstanced_DN_ShaderProgram()
-: GeometryInstanced_D_ShaderProgram("Shaders/GeometryInstanced_N.vert", "Shaders/Geometry_DN.frag")
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-GeometryInstanced_DN_ShaderProgram::~GeometryInstanced_DN_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void GeometryInstanced_DN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mNormalTexture, texture_unit);
-}
-
-GeometryInstanced_DN_ShaderProgram::GeometryInstanced_DN_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: GeometryInstanced_D_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-GeometryInstanced_DN_ShaderProgram::GeometryInstanced_DN_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: GeometryInstanced_D_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-/*****************************************************************************
- * gintonic::GeometryInstanced_SN_ShaderProgram                              *
- ****************************************************************************/
-
-GeometryInstanced_SN_ShaderProgram::GeometryInstanced_SN_ShaderProgram()
-: GeometryInstanced_S_ShaderProgram("Shaders/GeometryInstanced_N.vert", "Shaders/Geometry_SN.frag")
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-GeometryInstanced_SN_ShaderProgram::~GeometryInstanced_SN_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void GeometryInstanced_SN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mNormalTexture, texture_unit);
-}
-
-GeometryInstanced_SN_ShaderProgram::GeometryInstanced_SN_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-: GeometryInstanced_S_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-GeometryInstanced_SN_ShaderProgram::GeometryInstanced_SN_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: GeometryInstanced_S_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-/*****************************************************************************
- * gintonic::GeometryInstanced_DSN_ShaderProgram                             *
- ****************************************************************************/
-
-GeometryInstanced_DSN_ShaderProgram::GeometryInstanced_DSN_ShaderProgram()
-: GeometryInstanced_DS_ShaderProgram("Shaders/GeometryInstanced_N.vert", "Shaders/Geometry_DSN.frag")
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-GeometryInstanced_DSN_ShaderProgram::~GeometryInstanced_DSN_ShaderProgram() noexcept
-{
-	/* Empty on purpose. */
-}
-
-void GeometryInstanced_DSN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
-{
-	setUniform(mNormalTexture, texture_unit);
-}
-
-GeometryInstanced_DSN_ShaderProgram::GeometryInstanced_DSN_ShaderProgram(
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path fragment_shader)
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
-
-GeometryInstanced_DSN_ShaderProgram::GeometryInstanced_DSN_ShaderProgram( 
-	boost::filesystem::path vertex_shader, 
-	boost::filesystem::path geometry_shader,
-	boost::filesystem::path fragment_shader)
-: GeometryInstanced_DS_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
-{
-	mNormalTexture = getUniformLocation("material.normal_texture");
-}
+// /*****************************************************************************
+//  * gintonic::Matrix_PVM_VM_ShaderProgram                                     *
+//  ****************************************************************************/
+
+// Matrix_PVM_VM_ShaderProgram::Matrix_PVM_VM_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : Matrix_PVM_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mMatrixVM = getUniformLocation("matrix_VM");
+// }
+
+// Matrix_PVM_VM_ShaderProgram::Matrix_PVM_VM_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : Matrix_PVM_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mMatrixVM = getUniformLocation("matrix_VM");
+// }
+
+// Matrix_PVM_VM_ShaderProgram::~Matrix_PVM_VM_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void Matrix_PVM_VM_ShaderProgram::setMatrixVM(const mat4f& m) const noexcept
+// {
+// 	setUniform(mMatrixVM, m);
+// }
+
+// /*****************************************************************************
+//  * gintonic::Matrix_PVM_V_N_ShaderProgram                                    *
+//  ****************************************************************************/
+
+// Matrix_PVM_V_N_ShaderProgram::Matrix_PVM_V_N_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : Matrix_PVM_VM_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mMatrixN = getUniformLocation("matrix_N");
+// }
+
+// Matrix_PVM_V_N_ShaderProgram::Matrix_PVM_V_N_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : Matrix_PVM_VM_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mMatrixN = getUniformLocation("matrix_N");
+// }
+
+// Matrix_PVM_V_N_ShaderProgram::~Matrix_PVM_V_N_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void Matrix_PVM_V_N_ShaderProgram::setMatrixN(const mat3f& m) const noexcept
+// {
+// 	setUniform(mMatrixN, m);
+// }
+
+// /*****************************************************************************
+//  * gintonic::GeometryShaderProgram                                           *
+//  ****************************************************************************/
+
+// GeometryShaderProgram::GeometryShaderProgram()
+// : Matrix_PVM_V_N_ShaderProgram("Shaders/Geometry.vert", "Shaders/Geometry.frag")
+// {
+// 	mDiffuseColor = getUniformLocation("material.diffuse_color");
+// 	mSpecularColor = getUniformLocation("material.specular_color");
+// }
+// GeometryShaderProgram::~GeometryShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void GeometryShaderProgram::setDiffuseColor(const vec4f& color) const noexcept
+// {
+// 	setUniform(mDiffuseColor, color);
+// }
+
+// void GeometryShaderProgram::setSpecularColor(const vec4f& color) const noexcept
+// {
+// 	setUniform(mSpecularColor, color);
+// }
+
+// GeometryShaderProgram::GeometryShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : Matrix_PVM_V_N_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mDiffuseColor = getUniformLocation("material.diffuse_color");
+// 	mSpecularColor = getUniformLocation("material.specular_color");
+// }
+
+// GeometryShaderProgram::GeometryShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : Matrix_PVM_V_N_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mDiffuseColor = getUniformLocation("material.diffuse_color");
+// 	mSpecularColor = getUniformLocation("material.specular_color");
+// }
+
+// /*****************************************************************************
+//  * gintonic::Geometry_D_ShaderProgram                                        *
+//  ****************************************************************************/
+
+// Geometry_D_ShaderProgram::Geometry_D_ShaderProgram()
+// : GeometryShaderProgram("Shaders/Geometry.vert", "Shaders/Geometry_D.frag")
+// {
+// 	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
+// }
+
+// Geometry_D_ShaderProgram::~Geometry_D_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void Geometry_D_ShaderProgram::setDiffuseTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mDiffuseTexture, texture_unit);
+// }
+
+// Geometry_D_ShaderProgram::Geometry_D_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : GeometryShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
+// }
+// Geometry_D_ShaderProgram::Geometry_D_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : GeometryShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::Geometry_S_ShaderProgram                                        *
+//  ****************************************************************************/
+
+// Geometry_S_ShaderProgram::Geometry_S_ShaderProgram()
+// : GeometryShaderProgram("Shaders/Geometry.vert", "Shaders/Geometry_S.frag")
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// Geometry_S_ShaderProgram::~Geometry_S_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void Geometry_S_ShaderProgram::setSpecularTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mSpecularTexture, texture_unit);
+// }
+
+// Geometry_S_ShaderProgram::Geometry_S_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : GeometryShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// Geometry_S_ShaderProgram::Geometry_S_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : GeometryShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::Geometry_N_ShaderProgram                                        *
+//  ****************************************************************************/
+
+// Geometry_N_ShaderProgram::Geometry_N_ShaderProgram()
+// : GeometryShaderProgram("Shaders/Geometry_N.vert", "Shaders/Geometry_N.frag")
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// Geometry_N_ShaderProgram::~Geometry_N_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void Geometry_N_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mNormalTexture, texture_unit);
+// }
+
+// Geometry_N_ShaderProgram::Geometry_N_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : GeometryShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// Geometry_N_ShaderProgram::Geometry_N_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : GeometryShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::Geometry_DS_ShaderProgram                                       *
+//  ****************************************************************************/
+
+// Geometry_DS_ShaderProgram::Geometry_DS_ShaderProgram()
+// : Geometry_D_ShaderProgram("Shaders/Geometry.vert", "Shaders/Geometry_DS.frag")
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// Geometry_DS_ShaderProgram::~Geometry_DS_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void Geometry_DS_ShaderProgram::setSpecularTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mSpecularTexture, texture_unit);
+// }
+
+// Geometry_DS_ShaderProgram::Geometry_DS_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : Geometry_D_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// Geometry_DS_ShaderProgram::Geometry_DS_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : Geometry_D_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::Geometry_DN_ShaderProgram                                       *
+//  ****************************************************************************/
+
+// Geometry_DN_ShaderProgram::Geometry_DN_ShaderProgram()
+// : Geometry_D_ShaderProgram("Shaders/Geometry_N.vert", "Shaders/Geometry_DN.frag")
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// Geometry_DN_ShaderProgram::~Geometry_DN_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void Geometry_DN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mNormalTexture, texture_unit);
+// }
+
+// Geometry_DN_ShaderProgram::Geometry_DN_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : Geometry_D_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// Geometry_DN_ShaderProgram::Geometry_DN_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : Geometry_D_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::Geometry_SN_ShaderProgram                                       *
+//  ****************************************************************************/
+
+// Geometry_SN_ShaderProgram::Geometry_SN_ShaderProgram()
+// : Geometry_S_ShaderProgram("Shaders/Geometry_N.vert", "Shaders/Geometry_SN.frag")
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// Geometry_SN_ShaderProgram::~Geometry_SN_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void Geometry_SN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mNormalTexture, texture_unit);
+// }
+
+// Geometry_SN_ShaderProgram::Geometry_SN_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : Geometry_S_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// Geometry_SN_ShaderProgram::Geometry_SN_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : Geometry_S_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// ****************************************************************************
+//  * gintonic::Geometry_DSN_ShaderProgram                                      *
+//  ***************************************************************************
+
+// Geometry_DSN_ShaderProgram::Geometry_DSN_ShaderProgram()
+// : Geometry_DS_ShaderProgram("Shaders/Geometry_N.vert", "Shaders/Geometry_DSN.frag")
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// Geometry_DSN_ShaderProgram::~Geometry_DSN_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void Geometry_DSN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mNormalTexture, texture_unit);
+// }
+
+// Geometry_DSN_ShaderProgram::Geometry_DSN_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// Geometry_DSN_ShaderProgram::Geometry_DSN_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : Geometry_DS_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::GeometryInstancedShaderProgram                                  *
+//  ****************************************************************************/
+
+// GeometryInstancedShaderProgram::GeometryInstancedShaderProgram()
+// : OpenGL::ShaderProgram("Shaders/GeometryInstanced.vert", "Shaders/Geometry.frag")
+// {
+// 	mDiffuseColor = getUniformLocation("material.diffuse_color");
+// 	mSpecularColor = getUniformLocation("material.specular_color");
+// }
+// GeometryInstancedShaderProgram::~GeometryInstancedShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void GeometryInstancedShaderProgram::setDiffuseColor(const vec4f& color) const noexcept
+// {
+// 	setUniform(mDiffuseColor, color);
+// }
+
+// void GeometryInstancedShaderProgram::setSpecularColor(const vec4f& color) const noexcept
+// {
+// 	setUniform(mSpecularColor, color);
+// }
+
+// GeometryInstancedShaderProgram::GeometryInstancedShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : OpenGL::ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mDiffuseColor = getUniformLocation("material.diffuse_color");
+// 	mSpecularColor = getUniformLocation("material.specular_color");
+// }
+
+// GeometryInstancedShaderProgram::GeometryInstancedShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : OpenGL::ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mDiffuseColor = getUniformLocation("material.diffuse_color");
+// 	mSpecularColor = getUniformLocation("material.specular_color");
+// }
+
+// /*****************************************************************************
+//  * gintonic::GeometryInstanced_D_ShaderProgram                               *
+//  ****************************************************************************/
+
+// GeometryInstanced_D_ShaderProgram::GeometryInstanced_D_ShaderProgram()
+// : GeometryInstancedShaderProgram("Shaders/GeometryInstanced.vert", "Shaders/Geometry_D.frag")
+// {
+// 	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
+// }
+
+// GeometryInstanced_D_ShaderProgram::~GeometryInstanced_D_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void GeometryInstanced_D_ShaderProgram::setDiffuseTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mDiffuseTexture, texture_unit);
+// }
+
+// GeometryInstanced_D_ShaderProgram::GeometryInstanced_D_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
+// }
+// GeometryInstanced_D_ShaderProgram::GeometryInstanced_D_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mDiffuseTexture = getUniformLocation("material.diffuse_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::GeometryInstanced_S_ShaderProgram                               *
+//  ****************************************************************************/
+
+// GeometryInstanced_S_ShaderProgram::GeometryInstanced_S_ShaderProgram()
+// : GeometryInstancedShaderProgram("Shaders/GeometryInstanced.vert", "Shaders/Geometry_S.frag")
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// GeometryInstanced_S_ShaderProgram::~GeometryInstanced_S_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void GeometryInstanced_S_ShaderProgram::setSpecularTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mSpecularTexture, texture_unit);
+// }
+
+// GeometryInstanced_S_ShaderProgram::GeometryInstanced_S_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// GeometryInstanced_S_ShaderProgram::GeometryInstanced_S_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::GeometryInstanced_N_ShaderProgram                               *
+//  ****************************************************************************/
+
+// GeometryInstanced_N_ShaderProgram::GeometryInstanced_N_ShaderProgram()
+// : GeometryInstancedShaderProgram("Shaders/GeometryInstanced_N.vert", "Shaders/Geometry_N.frag")
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// GeometryInstanced_N_ShaderProgram::~GeometryInstanced_N_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void GeometryInstanced_N_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mNormalTexture, texture_unit);
+// }
+
+// GeometryInstanced_N_ShaderProgram::GeometryInstanced_N_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// GeometryInstanced_N_ShaderProgram::GeometryInstanced_N_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstancedShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::GeometryInstanced_DS_ShaderProgram                              *
+//  ****************************************************************************/
+
+// GeometryInstanced_DS_ShaderProgram::GeometryInstanced_DS_ShaderProgram()
+// : GeometryInstanced_D_ShaderProgram("Shaders/GeometryInstanced.vert", "Shaders/Geometry_DS.frag")
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// GeometryInstanced_DS_ShaderProgram::~GeometryInstanced_DS_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void GeometryInstanced_DS_ShaderProgram::setSpecularTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mSpecularTexture, texture_unit);
+// }
+
+// GeometryInstanced_DS_ShaderProgram::GeometryInstanced_DS_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstanced_D_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// GeometryInstanced_DS_ShaderProgram::GeometryInstanced_DS_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstanced_D_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mSpecularTexture = getUniformLocation("material.specular_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::GeometryInstanced_DN_ShaderProgram                              *
+//  ****************************************************************************/
+
+// GeometryInstanced_DN_ShaderProgram::GeometryInstanced_DN_ShaderProgram()
+// : GeometryInstanced_D_ShaderProgram("Shaders/GeometryInstanced_N.vert", "Shaders/Geometry_DN.frag")
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// GeometryInstanced_DN_ShaderProgram::~GeometryInstanced_DN_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void GeometryInstanced_DN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mNormalTexture, texture_unit);
+// }
+
+// GeometryInstanced_DN_ShaderProgram::GeometryInstanced_DN_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstanced_D_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// GeometryInstanced_DN_ShaderProgram::GeometryInstanced_DN_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstanced_D_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::GeometryInstanced_SN_ShaderProgram                              *
+//  ****************************************************************************/
+
+// GeometryInstanced_SN_ShaderProgram::GeometryInstanced_SN_ShaderProgram()
+// : GeometryInstanced_S_ShaderProgram("Shaders/GeometryInstanced_N.vert", "Shaders/Geometry_SN.frag")
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// GeometryInstanced_SN_ShaderProgram::~GeometryInstanced_SN_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void GeometryInstanced_SN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mNormalTexture, texture_unit);
+// }
+
+// GeometryInstanced_SN_ShaderProgram::GeometryInstanced_SN_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstanced_S_ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// GeometryInstanced_SN_ShaderProgram::GeometryInstanced_SN_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstanced_S_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// /*****************************************************************************
+//  * gintonic::GeometryInstanced_DSN_ShaderProgram                             *
+//  ****************************************************************************/
+
+// GeometryInstanced_DSN_ShaderProgram::GeometryInstanced_DSN_ShaderProgram()
+// : GeometryInstanced_DS_ShaderProgram("Shaders/GeometryInstanced_N.vert", "Shaders/Geometry_DSN.frag")
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// GeometryInstanced_DSN_ShaderProgram::~GeometryInstanced_DSN_ShaderProgram() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
+
+// void GeometryInstanced_DSN_ShaderProgram::setNormalTexture(const GLint texture_unit) const noexcept
+// {
+// 	setUniform(mNormalTexture, texture_unit);
+// }
+
+// GeometryInstanced_DSN_ShaderProgram::GeometryInstanced_DSN_ShaderProgram(
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path fragment_shader)
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
+
+// GeometryInstanced_DSN_ShaderProgram::GeometryInstanced_DSN_ShaderProgram( 
+// 	boost::filesystem::path vertex_shader, 
+// 	boost::filesystem::path geometry_shader,
+// 	boost::filesystem::path fragment_shader)
+// : GeometryInstanced_DS_ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
+// {
+// 	mNormalTexture = getUniformLocation("material.normal_texture");
+// }
 
 /*****************************************************************************
  * gintonic::LightShaderProgram                                                  *
@@ -982,7 +1079,7 @@ SpotLightShaderProgram::SpotLightShaderProgram()
 	mLightPosition = getUniformLocation("light.position");
 	mLightDirection = getUniformLocation("light.direction");
 	mLightAttenuation = getUniformLocation("light.attenuation");
-	mCosineHalfAngle = getUniformLocation("light.angle");
+	mLightCosineHalfAngle = getUniformLocation("light.angle");
 
 	#ifndef NDEBUG
 	mDebugFlag = getUniformLocation("debugflag");
@@ -1041,7 +1138,7 @@ void SpotLightShaderProgram::setLightAttenuation(const vec4f& attenuation) const
 
 void SpotLightShaderProgram::setLightCosineHalfAngle(const GLfloat angle) const noexcept
 {
-	setUniform(mCosineHalfAngle, angle);
+	setUniform(mLightCosineHalfAngle, angle);
 }
 
 #ifndef NDEBUG
@@ -1065,7 +1162,7 @@ SpotLightShaderProgram::SpotLightShaderProgram(
 	mLightPosition = getUniformLocation("light.position");
 	mLightDirection = getUniformLocation("light.direction");
 	mLightAttenuation = getUniformLocation("light.attenuation");
-	mCosineHalfAngle = getUniformLocation("light.angle");
+	mLightCosineHalfAngle = getUniformLocation("light.angle");
 
 	#ifndef NDEBUG
 	mDebugFlag = getUniformLocation("debugflag");
@@ -1087,7 +1184,7 @@ SpotLightShaderProgram::SpotLightShaderProgram(
 	mLightPosition = getUniformLocation("light.position");
 	mLightDirection = getUniformLocation("light.direction");
 	mLightAttenuation = getUniformLocation("light.attenuation");
-	mCosineHalfAngle = getUniformLocation("light.angle");
+	mLightCosineHalfAngle = getUniformLocation("light.angle");
 
 	#ifndef NDEBUG
 	mDebugFlag = getUniformLocation("debugflag");
@@ -1098,15 +1195,15 @@ SpotLightShaderProgram::SpotLightShaderProgram(
  * gintonic::sp_directional_shader                                           *
  ****************************************************************************/
 
-sp_directional_shader::sp_directional_shader()
-: Matrix_PVM_ShaderProgram("Shaders/LightPassPVM.vert", "Shaders/Null.frag")
-{
-	/* Empty on purpose. */
-}
-sp_directional_shader::~sp_directional_shader() noexcept
-{
-	/* Empty on purpose. */
-}
+// sp_directional_shader::sp_directional_shader()
+// : Matrix_PVM_ShaderProgram("Shaders/LightPassPVM.vert", "Shaders/Null.frag")
+// {
+// 	/* Empty on purpose. */
+// }
+// sp_directional_shader::~sp_directional_shader() noexcept
+// {
+// 	/* Empty on purpose. */
+// }
 
 /*****************************************************************************
  * gintonic::SkyboxShaderProgram                                             *
@@ -1116,7 +1213,7 @@ SkyboxShaderProgram::SkyboxShaderProgram()
 : OpenGL::ShaderProgram("Shaders/Skybox.vert", "Shaders/Skybox.frag")
 {
 	mMatrixPV = getUniformLocation("matrix_PV");
-	mSkyboxDiffuse = getUniformLocation("skybox.diffuse_texture");
+	mDiffuseTexture = getUniformLocation("skybox.diffuse_texture");
 }
 
 SkyboxShaderProgram::~SkyboxShaderProgram() noexcept
@@ -1131,7 +1228,7 @@ void SkyboxShaderProgram::setMatrixPV(const mat4f& matrix_PV) const noexcept
 
 void SkyboxShaderProgram::setDiffuseTexture(const GLint texture_unit) const noexcept
 {
-	setUniform(mSkyboxDiffuse, texture_unit);
+	setUniform(mDiffuseTexture, texture_unit);
 }
 
 SkyboxShaderProgram::SkyboxShaderProgram(
@@ -1140,7 +1237,7 @@ SkyboxShaderProgram::SkyboxShaderProgram(
 : OpenGL::ShaderProgram(std::move(vertex_shader), std::move(fragment_shader))
 {
 	mMatrixPV = getUniformLocation("matrix_PV");
-	mSkyboxDiffuse = getUniformLocation("skybox.diffuse_texture");
+	mDiffuseTexture = getUniformLocation("skybox.diffuse_texture");
 }
 
 SkyboxShaderProgram::SkyboxShaderProgram( 
@@ -1150,7 +1247,7 @@ SkyboxShaderProgram::SkyboxShaderProgram(
 : OpenGL::ShaderProgram(std::move(vertex_shader), std::move(geometry_shader), std::move(fragment_shader))
 {
 	mMatrixPV = getUniformLocation("matrix_PV");
-	mSkyboxDiffuse = getUniformLocation("skybox.diffuse_texture");
+	mDiffuseTexture = getUniformLocation("skybox.diffuse_texture");
 }
 
 /*****************************************************************************
@@ -1158,7 +1255,7 @@ SkyboxShaderProgram::SkyboxShaderProgram(
  ****************************************************************************/
 
 FlatTextShaderProgram::FlatTextShaderProgram()
-: OpenGL::ShaderProgram("Shaders/flat_text_uniform_color.vs", "Shaders/flat_text_uniform_color.fs")
+: OpenGL::ShaderProgram("Shaders/FlatTextUniformColor.vert", "Shaders/FlatTextUniformColor.frag")
 {
 	mColor = getUniformLocation("color");
 	mTexture = getUniformLocation("tex");

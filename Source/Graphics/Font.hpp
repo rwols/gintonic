@@ -178,6 +178,10 @@ namespace gintonic {
 				const std::streamsize length) 
 			const noexcept;
 
+			//!@cond
+			GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+			//!@endcond
+
 		};
 	} // namespace Detail
 	//!@endcond

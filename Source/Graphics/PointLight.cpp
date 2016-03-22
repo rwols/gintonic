@@ -4,7 +4,7 @@
 
 #include "PointShadowBuffer.hpp"
 #include "Renderer.hpp"
-#include "shaders.hpp"
+#include "ShaderPrograms.hpp"
 #include "Mesh.hpp"
 
 #include "../Entity.hpp"
@@ -64,27 +64,30 @@ void PointLight::shine(const Entity& e) const noexcept
 
 	Renderer::setModelMatrix(lSphereTransform);
 
-	const auto& lPointShader = Renderer::get_lp_point_shader();
+	const auto& lPointShader = PointLightShaderProgram::get();
 
 	lPointShader.activate();
-	lPointShader.set_viewport_size(Renderer::viewportSize());
-	lPointShader.set_gbuffer_position(Renderer::GBUFFER_POSITION);
-	lPointShader.set_gbuffer_diffuse(Renderer::GBUFFER_DIFFUSE);
-	lPointShader.set_gbuffer_specular(Renderer::GBUFFER_SPECULAR);
-	lPointShader.set_gbuffer_normal(Renderer::GBUFFER_NORMAL);
-	lPointShader.set_light_intensity(this->mIntensity);
-	lPointShader.set_light_position(lLightPos);
-	lPointShader.set_light_attenuation(mAttenuation);
-	lPointShader.set_matrix_PVM(Renderer::matrix_PVM());
+	lPointShader.setViewportSize(Renderer::viewportSize());
+	lPointShader.setGeometryBufferPositionTexture(Renderer::GBUFFER_POSITION);
+	lPointShader.setGeometryBufferDiffuseTexture(Renderer::GBUFFER_DIFFUSE);
+	lPointShader.setGeometryBufferSpecularTexture(Renderer::GBUFFER_SPECULAR);
+	lPointShader.setGeometryBufferNormalTexture(Renderer::GBUFFER_NORMAL);
+	lPointShader.setLightIntensity(this->mIntensity);
+	lPointShader.setLightPosition(lLightPos);
+	lPointShader.setLightAttenuation(mAttenuation);
+	lPointShader.setMatrixPVM(Renderer::matrix_PVM());
 
 	// Is the camera inside or outside the sphere?
 	const auto lDist = gintonic::distance(Renderer::getCameraPosition(), lSphereTransform.translation);
+
+	// EPSILON is defined at the top of the file.
 	const auto lCutoffWithEpsilon = cutoffPoint() + EPSILON * cutoffPoint();
+
 	if (lDist < lCutoffWithEpsilon)
 	{
 		// Inside
 		#ifdef DEBUG_POINT_LIGHTS
-		lPointShader.set_debugflag(1);
+		lPointShader.setDebugFlag(1);
 		#endif
 		glCullFace(GL_FRONT);
 	}
@@ -92,7 +95,7 @@ void PointLight::shine(const Entity& e) const noexcept
 	{
 		// Outside
 		#ifdef DEBUG_POINT_LIGHTS
-		lPointShader.set_debugflag(2);
+		lPointShader.setDebugFlag(2);
 		#endif
 		glCullFace(GL_BACK);
 	}

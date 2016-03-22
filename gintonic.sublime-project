@@ -1,31 +1,4 @@
 {
-	"folders":
-	[
-		{
-			"path": "resources",
-			"name": "Resources"
-		},
-		{
-			"path": "s",
-			"name": "Shaders"
-		},
-		{
-			"path": "lib",
-			"name": "Library"
-		},
-		{
-			"path": "tools",
-			"name": "Tools"
-		},
-		{
-			"path": "examples",
-			"name": "Examples"
-		},
-		{
-			"path": "test",
-			"name": "Unit Tests"
-		}
-	],
 	"settings":
 	{
 		"tab_size": 4

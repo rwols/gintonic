@@ -10,8 +10,13 @@ class SpotShadowBuffer : public ShadowBuffer
 public:
 	SpotShadowBuffer();
 	virtual ~SpotShadowBuffer() noexcept = default;
-	virtual void bindForWriting() const noexcept;
-	virtual void bindForReading() const noexcept;
+
+	virtual void collect(
+		Entity& lightEntity, 
+		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) noexcept;
+
+	virtual void bindDepthTextures() const noexcept;
+	
 private:
 	OpenGL::Framebuffer mFramebuffer;
 	OpenGL::TextureObject mTexture;

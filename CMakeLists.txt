@@ -6,28 +6,17 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   	Gintonic source code and call CMake from there.")
 endif()
 
+set(CMAKE_BUILD_TYPE Debug CACHE STRING "The build type. Can be Debug or Release or whatnot")
+
 set(SSE_VERSION 30)
-set(SHADER_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/Source/Graphics/Shaders/")
+set(shader_folder "${CMAKE_CURRENT_SOURCE_DIR}/Source/Graphics/Shaders/")
 
 set(lua_src_dir "lua-5.3.1/src")
-file(GLOB_RECURSE gintonic_source_files "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp")
-file(GLOB lua_source_files "${CMAKE_CURRENT_SOURCE_DIR}/Source/${lua_src_dir}/*.c")
+set(source_directory "${CMAKE_CURRENT_SOURCE_DIR}/Source")
+file(GLOB_RECURSE gintonic_source_files "${source_directory}/*.cpp")
+file(GLOB lua_source_files "${source_directory}/${lua_src_dir}/*.c")
+file(GLOB shader_source_files "${source_directory}/Graphics/Shaders/*.vert" "${source_directory}/Graphics/Shaders/*.frag")
 set(src_files ${gintonic_source_files} ${lua_source_files})
-
-if (WIN32)
-	# This flattens all directory structures in the build directory.
-	# We do this so that we don't have to copy DLLs around for each
-	# directory that contains executables.
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-	foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
-	    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
-	    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR})
-	    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR})
-	    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR})
-	endforeach()
-endif ()
 
 project(gintonic C CXX)
 
@@ -36,11 +25,15 @@ if (WIN32)
 		message(WARNING "The %BOOST_ROOT% environment variable is not set.")
 	endif ()
 
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SCL_SECURE_NO_WARNINGS /DNOMINMAX /D_USE_MATH_DEFINES /DBOOST_ALL_NO_LIB /arch:SSE2") 
+
+	add_definitions(/arch:SSE)
+
 	# Various bugfixes
-	add_definitions(/D_SCL_SECURE_NO_WARNINGS)
-	add_definitions(/DNOMINMAX)
-	add_definitions(/D_USE_MATH_DEFINES)
-	add_definitions(/DBOOST_ALL_NO_LIB) # THIS FIXES STUFF FOR SOME MAGICAL REASON
+	# add_definitions(/D_SCL_SECURE_NO_WARNINGS)
+	# add_definitions(/DNOMINMAX)
+	# add_definitions(/D_USE_MATH_DEFINES)
+	# add_definitions(/DBOOST_ALL_NO_LIB) # THIS FIXES STUFF FOR SOME MAGICAL REASON
 	# add_definitions(/DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 	# add_definitions(/MT)
 
@@ -101,21 +94,6 @@ option(ENABLE_DEBUG_TRACE "Enable debug tracing via the renderer." ON)
 option(HIDE_CONSOLE "Hide the console on Windows." OFF)
 option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output streams to files." OFF)
 
-if (BUILD_DOCUMENTATION)
-	configure_file(Doxyfile.cmake ${CMAKE_BINARY_DIR}/Doxyfile)
-	add_custom_command(TARGET gintonic
-		PRE_BUILD
-		COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-		COMMENT "Generating documentation."
-		VERBATIM)
-	# add_custom_target(doc ALL
-	# 	COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
-	# 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-	# 	COMMENT "Generating documentation."
-	# 	VERBATIM)
-endif()
-
 if (HIDE_CONSOLE)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 endif ()
@@ -123,8 +101,17 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(ENABLE_DEBUG_TRACE ON CACHE BOOL "Enable debug tracing via the renderer.")	
 endif ()
 
-configure_file(Source/config.cmake ${CMAKE_BINARY_DIR}/config.hpp)
+configure_file(Source/config.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.hpp)
 add_library(gintonic ${src_files})
+
+if (BUILD_DOCUMENTATION)
+	configure_file(Doxyfile.cmake ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+	add_custom_command(TARGET gintonic POST_BUILD
+		COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		COMMENT "Generating documentation."
+		VERBATIM)
+endif()
 
 include_directories(
 	${SDL2_INCLUDE_DIR}
@@ -132,7 +119,7 @@ include_directories(
 	${FREETYPE_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIRS}
 	${FBX_INCLUDE_DIR}
-	${CMAKE_BINARY_DIR} # For the config file
+	${CMAKE_CURRENT_BINARY_DIR} # For the config file
 	"Source/lua-5.3.1/src" # For Lua
 	)
 
@@ -165,17 +152,29 @@ if (WIN32)
 	set (DEBUG_DLLS ${Boost_DEBUG_DLLS} ${SDL2_DLL} ${FBX_DLL})
 	set (RELEASE_DLLS ${Boost_DLLS} ${SDL2_DLL} ${FBX_DLL})
 
-	message(STATUS "Here's the list of debug DLLs:")
-	foreach (DLL ${DEBUG_DLLS})
-		message(STATUS "${DLL}")
-		file (COPY ${DLL} DESTINATION ${CMAKE_BINARY_DIR})
-	endforeach()
+	if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+		set (DLLS ${DEBUG_DLLS})
+	elseif (${CMAKE_BUILD_TYPE} STREQUAL Release)
+		set (DLLS ${RELEASE_DLLS})
+	else ()
+		message(FATAL_ERROR "${CMAKE_BUILD_TYPE} is an unknown build type for me.")
+	endif ()
 
-	message(STATUS "Here's the list of release DLLs:")
-	foreach (DLL ${RELEASE_DLLS})
-		message(STATUS "${DLL}")
-		file (COPY ${DLL} DESTINATION ${CMAKE_BINARY_DIR})
-	endforeach()
+	# message(STATUS "Here's the list of debug DLLs:")
+	# foreach (DLL ${DEBUG_DLLS})
+	# 	message(STATUS "${DLL}")
+		# file (COPY ${DLL} DESTINATION ${CMAKE_BINARY_DIR})
+	# endforeach()
+
+	# message(STATUS "Here's the list of release DLLs:")
+	# foreach (DLL ${RELEASE_DLLS})
+	# 	message(STATUS "${DLL}")
+		# file (COPY ${DLL} DESTINATION ${CMAKE_BINARY_DIR})
+	# endforeach()
+
+	# add_custom_command(TARGET gintonic POST_BUILD
+	# 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+	# 	${DLLS} $<TARGET_FILE_DIR:gintonic>)
 
 else ()
 	include_directories(
@@ -223,6 +222,32 @@ else ()
 		${CMAKE_THREAD_LIBS_INIT}
 		-ldl)
 endif ()
+
+function(target_link_with_gintonic targetName)
+
+	target_link_libraries(${targetName} gintonic)
+
+	add_custom_command(TARGET ${targetName} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory
+		"$<TARGET_FILE_DIR:${targetName}>/Shaders")
+
+	add_custom_command(TARGET ${targetName} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory
+		"$<TARGET_FILE_DIR:${targetName}>/Resources")
+
+	add_custom_command(TARGET ${targetName} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		${shader_source_files} "$<TARGET_FILE_DIR:${targetName}>/Shaders")
+
+	add_custom_command(TARGET ${targetName} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		${DLLS} $<TARGET_FILE_DIR:${targetName}>)
+
+	add_custom_command(TARGET ${targetName} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		"${CMAKE_SOURCE_DIR}/Resources/Inconsolata-Regular.ttf" "$<TARGET_FILE_DIR:${targetName}>/Resources")
+
+endfunction(target_link_with_gintonic)
 
 mark_as_advanced(FBX_INCLUDE_DIR)
 mark_as_advanced(FBX_LIBRARY)

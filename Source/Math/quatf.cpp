@@ -101,9 +101,23 @@ quatf quatf::axis_angle(const vec3f& rotation_axis, const float rotation_angle)
 
 float quatf::length2() const noexcept
 {
+	#ifdef BOOST_MSVC
+	
+	auto a = data;
+	auto b = data;
+	auto c = _mm_mul_ps(a, b);
+	b = c;
+	a = _mm_hadd_ps(b, c);
+	b = a;
+	return _mm_cvtss_f32(_mm_hadd_ps(a, b));
+	
+	#else
+	
 	__m128 l = _mm_mul_ps(data, data);
 	__m128 k = _mm_hadd_ps(l, l);
 	return _mm_cvtss_f32(_mm_hadd_ps(k, k));
+	
+	#endif
 }
 
 quatf quatf::operator * (const quatf& other) const noexcept
@@ -112,9 +126,21 @@ quatf quatf::operator * (const quatf& other) const noexcept
 	/* The product of two quaternions is:                                 */
 	/* (X,Y,Z,W) = (xd+yc-zb+wa, -xc+yd+za+wb, xb-ya+zd+wc, -xa-yb-zc+wd) */
 
+	#ifdef BOOST_MSVC
+
+	auto copy = data;
+	auto wzyx = _mm_shuffle_ps(copy, copy, _MM_SHUFFLE(0,1,2,3));
+	copy = other.data;
+	auto baba = _mm_shuffle_ps(copy, copy, _MM_SHUFFLE(0,1,0,1));
+	auto dcdc = _mm_shuffle_ps(copy, copy, _MM_SHUFFLE(2,3,2,3));
+
+	#else
+
 	auto wzyx = _mm_shuffle_ps(data, data, _MM_SHUFFLE(0,1,2,3));
 	auto baba = _mm_shuffle_ps(other.data, other.data, _MM_SHUFFLE(0,1,0,1));
 	auto dcdc = _mm_shuffle_ps(other.data, other.data, _MM_SHUFFLE(2,3,2,3));
+
+	#endif
 
 	/* variable names below are for parts of componens of result (X,Y,Z,W) */
 	/* nX stands for -X and similarly for the other components             */

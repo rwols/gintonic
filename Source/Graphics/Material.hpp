@@ -60,7 +60,7 @@ public:
 	 * @param instanced Set wether we are doing instanced rendering or not.
 	 * The default is false.
 	 */
-	void bind(const bool instanced = false) const noexcept;
+	// void bind(const bool instanced = false) const noexcept;
 
 	//@}
 

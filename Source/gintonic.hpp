@@ -14,7 +14,7 @@
 #include "Graphics/Renderer.hpp"
 #include "Graphics/Material.hpp"
 #include "Graphics/static_mesh.hpp"
-#include "Graphics/shaders.hpp"
+#include "Graphics/ShaderPrograms.hpp"
 #include "Graphics/Font.hpp"
 #include "Graphics/basic_shapes.hpp"
 #include "Graphics/vertices.hpp"

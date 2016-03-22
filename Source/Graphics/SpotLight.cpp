@@ -4,7 +4,7 @@
 
 #include "SpotShadowBuffer.hpp"
 #include "Renderer.hpp"
-#include "shaders.hpp"
+#include "ShaderPrograms.hpp"
 #include "Mesh.hpp"
 
 #include "../Entity.hpp"
@@ -55,20 +55,20 @@ void SpotLight::shine(const Entity& e) const noexcept
 
 	Renderer::setModelMatrix(lSphereTransform);
 
-	const auto& lSpotShader = Renderer::get_lp_spot_shader();
+	const auto& lProgram = SpotLightShaderProgram::get();
 
-	lSpotShader.activate();
-	lSpotShader.set_viewport_size(Renderer::viewportSize());
-	lSpotShader.set_gbuffer_position(Renderer::GBUFFER_POSITION);
-	lSpotShader.set_gbuffer_diffuse(Renderer::GBUFFER_DIFFUSE);
-	lSpotShader.set_gbuffer_specular(Renderer::GBUFFER_SPECULAR);
-	lSpotShader.set_gbuffer_normal(Renderer::GBUFFER_NORMAL);
-	lSpotShader.set_light_intensity(this->mIntensity);
-	lSpotShader.set_light_position(lLightPos);
-	lSpotShader.set_light_direction(lLightDir);
-	lSpotShader.set_light_attenuation(getAttenuation());
-	lSpotShader.set_light_angle(mAngle);
-	lSpotShader.set_matrix_PVM(Renderer::matrix_PVM());
+	lProgram.activate();
+	lProgram.setViewportSize(Renderer::viewportSize());
+	lProgram.setGeometryBufferPositionTexture(Renderer::GBUFFER_POSITION);
+	lProgram.setGeometryBufferDiffuseTexture(Renderer::GBUFFER_DIFFUSE);
+	lProgram.setGeometryBufferSpecularTexture(Renderer::GBUFFER_SPECULAR);
+	lProgram.setGeometryBufferNormalTexture(Renderer::GBUFFER_NORMAL);
+	lProgram.setLightIntensity(this->mIntensity);
+	lProgram.setLightPosition(lLightPos);
+	lProgram.setLightDirection(lLightDir);
+	lProgram.setLightAttenuation(getAttenuation());
+	lProgram.setLightCosineHalfAngle(mAngle);
+	lProgram.setMatrixPVM(Renderer::matrix_PVM());
 
 	// Is the camera inside or outside the sphere?
 	const auto lDist = gintonic::distance(Renderer::getCameraPosition(), lSphereTransform.translation);
@@ -77,7 +77,7 @@ void SpotLight::shine(const Entity& e) const noexcept
 	{
 		// Inside
 		#ifdef DEBUG_SPOT_LIGHTS
-		lSpotShader.set_debugflag(1);
+		lProgram.setDebugFlag(1);
 		#endif
 		glCullFace(GL_FRONT);
 	}
@@ -85,7 +85,7 @@ void SpotLight::shine(const Entity& e) const noexcept
 	{
 		// Outside
 		#ifdef DEBUG_SPOT_LIGHTS
-		lSpotShader.set_debugflag(2);
+		lProgram.setDebugFlag(2);
 		#endif
 		glCullFace(GL_BACK);
 	}
