@@ -3,6 +3,23 @@
 namespace gintonic {
 namespace OpenGL {
 
+const char* Framebuffer::Exception::statusCodeToErrorString(const GLenum status) noexcept
+{
+	switch (status)
+	{
+		case GL_FRAMEBUFFER_COMPLETE: return "GL_FRAMEBUFFER_COMPLETE";
+		case GL_FRAMEBUFFER_UNDEFINED: return "GL_FRAMEBUFFER_UNDEFINED";
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: return "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: return "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+		case GL_FRAMEBUFFER_UNSUPPORTED: return "GL_FRAMEBUFFER_UNSUPPORTED";
+		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: return "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+		case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: return "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+		default: return "Unknown status code";
+	}
+}
+
 Framebuffer::Framebuffer()
 {
 	glGenFramebuffers(1, &mHandle);
@@ -24,9 +41,10 @@ void Framebuffer::bind(const GLenum token) const noexcept
 
 void Framebuffer::checkStatus() const
 {
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	const auto lStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (lStatus != GL_FRAMEBUFFER_COMPLETE)
 	{
-		throw std::runtime_error("Framebuffer status was not complete.");
+		throw Exception(lStatus);
 	}
 }
 

@@ -74,7 +74,7 @@ public:
 
 	void setMatrixPVM(const mat4f& value) const noexcept;
 	void setMatrixVM(const mat4f& value) const noexcept;
-	void setMatrixN(const mat4f& value) const noexcept;
+	void setMatrixN(const mat3f& value) const noexcept;
 	void setInstancedRendering(const GLint value) const noexcept;
 	void setHasTangentsAndBitangents(const GLint value) const noexcept;
 	void setMaterialDiffuseColor(const vec4f& value) const noexcept;

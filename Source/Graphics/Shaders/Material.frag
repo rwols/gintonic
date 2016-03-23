@@ -34,30 +34,24 @@ void main()
 
 	outDiffuse = materialDiffuseColor;
 
-	if (materialFlag & HAS_DIFFUSE_TEXTURE)
+	if ((materialFlag & HAS_DIFFUSE_TEXTURE) == HAS_DIFFUSE_TEXTURE)
 	{
 		outDiffuse *= texture(materialDiffuseTexture, textureCoordinates);
 	}
 
 	outSpecular = materialSpecularColor;
 
-	if (materialFlag & HAS_SPECULAR_TEXTURE)
+	if ((materialFlag & HAS_SPECULAR_TEXTURE) == HAS_SPECULAR_TEXTURE)
 	{
 		outSpecular *= texture(materialSpecularTexture, textureCoordinates);
 	}
 
-	if (hasTangentsAndBitangents)
+	if (hasTangentsAndBitangents != 0 && (materialFlag & HAS_NORMAL_TEXTURE) == HAS_NORMAL_TEXTURE)
 	{
-		if (materialFlag & HAS_NORMAL_TEXTURE)
-		{
-			vec3 lSampledNormal = texture(materialNormalTexture, textureCoordinates).xyz;
-			lSampledNormal = 2.0f * lSampledNormal - 1.0f;
-			outNormal = normalize(tangentMatrix * lSampledNormal);
-		}
-		else
-		{
-			outNormal = normalize(tangentMatrix * vec3(0.0f, 0.0f, 1.0f));
-		}
+		vec3 lSampledNormal = texture(materialNormalTexture, textureCoordinates).xyz;
+		lSampledNormal = 2.0f * lSampledNormal - 1.0f;
+		
+		outNormal = normalize(tangentMatrix * lSampledNormal);
 	}
 	else
 	{

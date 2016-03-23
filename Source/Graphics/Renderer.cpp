@@ -3,6 +3,7 @@
 #include "../Foundation/exception.hpp"
 #include "../Math/vec4f.hpp"
 
+#include "GeometryBuffer.hpp"
 #include "Mesh.hpp"
 #include "basic_shapes.hpp"
 #include "ShaderPrograms.hpp"
@@ -31,6 +32,8 @@
 namespace gintonic {
 
 // Anybody want to make the Renderer a proper singleton class?
+
+GeometryBuffer* sGeometryBuffer = nullptr;
 
 std::shared_ptr<Camera> sDefaultCamera = std::make_shared<Camera>();
 
@@ -103,6 +106,7 @@ SDL_Event sEvent = SDL_Event();
 bool Renderer::sShouldClose = false;
 bool Renderer::sFullscreen = false;
 bool Renderer::sRenderInWireframeMode = false;
+bool Renderer::sViewGeometryBuffers = false;
 int Renderer::sWidth = 800;
 int Renderer::sHeight = 640;
 float Renderer::sAspectRatio = (float)Renderer::sWidth / (float)Renderer::sHeight;
@@ -130,54 +134,8 @@ mat4f Renderer::s_matrix_VM = mat4f();
 mat4f Renderer::s_matrix_PVM = mat4f();
 mat3f Renderer::s_matrix_N = mat3f();
 
-GLuint Renderer::s_fbo;
-GLuint Renderer::s_textures[Renderer::GBUFFER_COUNT];
-GLuint Renderer::s_depth_texture;
-GLuint Renderer::s_shadow_texture;
-
 std::shared_ptr<Entity> Renderer::sCameraEntity = std::shared_ptr<Entity>(nullptr);
 vec3f Renderer::sCameraPosition = vec3f(0.0f, 0.0f, 0.0f);
-
-// WriteLock Renderer::sEntityQueueLock;
-// std::vector<std::shared_ptr<Entity>> Renderer::sFutureQueue;
-// std::vector<std::shared_ptr<Entity>> Renderer::sCurrentQueue;
-
-// Matrix_PVM_ShaderProgram* Renderer::sNullShaderProgram = nullptr;
-
-// GeometryShaderProgram* Renderer::sGeometryShaderProgram = nullptr;
-// Geometry_D_ShaderProgram* Renderer::sGeometry_D_ShaderProgram = nullptr;
-// Geometry_S_ShaderProgram* Renderer::sGeometry_S_ShaderProgram = nullptr;
-// Geometry_N_ShaderProgram* Renderer::sGeometry_N_ShaderProgram = nullptr;
-// Geometry_DS_ShaderProgram* Renderer::sGeometry_DS_ShaderProgram = nullptr;
-// Geometry_DN_ShaderProgram* Renderer::sGeometry_DN_ShaderProgram = nullptr;
-// Geometry_SN_ShaderProgram* Renderer::sGeometry_SN_ShaderProgram = nullptr;
-// Geometry_DSN_ShaderProgram* Renderer::sGeometry_DSN_ShaderProgram = nullptr;
-
-// GeometryInstancedShaderProgram* Renderer::sGeometryInstancedShaderProgram = nullptr;
-// GeometryInstanced_D_ShaderProgram* Renderer::sGeometryInstanced_D_ShaderProgram = nullptr;
-// GeometryInstanced_S_ShaderProgram* Renderer::sGeometryInstanced_S_ShaderProgram = nullptr;
-// GeometryInstanced_N_ShaderProgram* Renderer::sGeometryInstanced_N_ShaderProgram = nullptr;
-// GeometryInstanced_DS_ShaderProgram* Renderer::sGeometryInstanced_DS_ShaderProgram = nullptr;
-// GeometryInstanced_DN_ShaderProgram* Renderer::sGeometryInstanced_DN_ShaderProgram = nullptr;
-// GeometryInstanced_SN_ShaderProgram* Renderer::sGeometryInstanced_SN_ShaderProgram = nullptr;
-// GeometryInstanced_DSN_ShaderProgram* Renderer::sGeometryInstanced_DSN_ShaderProgram = nullptr;
-
-// AmbientLightShaderProgram*     Renderer::sAmbientLightShaderProgram     = nullptr;
-// DirectionalLightShaderProgram* Renderer::sDirectionalLightShaderProgram = nullptr;
-// PointLightShaderProgram*       Renderer::sPointLightShaderProgram       = nullptr;
-// SpotLightShaderProgram*        Renderer::sSpotLightShaderProgram        = nullptr;
-
-// sp_directional_shader* Renderer::s_sp_directional_shader = nullptr;
-
-// SkyboxShaderProgram* Renderer::sSkyboxShaderProgram = nullptr;
-
-// FlatTextShaderProgram* Renderer::sFlatTextShaderProgram = nullptr;
-
-// unit_quad_P* Renderer::s_unit_quad_P = nullptr;
-// unit_cube_P* Renderer::s_unit_cube_P = nullptr;
-// unit_cube_P_flipped* Renderer::s_unit_cube_P_flipped = nullptr;
-// unit_sphere_P* Renderer::s_unit_sphere_P = nullptr;
-// unit_cone_P* Renderer::s_unit_cone_P = nullptr;
 
 std::shared_ptr<Mesh> Renderer::sUnitQuadPUN        = nullptr;
 std::shared_ptr<Mesh> Renderer::sUnitCubePUN        = nullptr;
@@ -197,23 +155,6 @@ boost::signals2::signal<void(void)> Renderer::onMouseEnter;
 boost::signals2::signal<void(void)> Renderer::onMouseLeave;
 boost::signals2::signal<void(void)> Renderer::onAboutToClose;
 
-constexpr GLenum gbuffer_tex_internal[Renderer::GBUFFER_COUNT] = 
-{
-	GL_RGBA32F, // GBUFFER_POSITION
-	GL_RGBA,    // GBUFFER_DIFFUSE
-	GL_RGBA,    // GBUFFER_SPECULAR
-	GL_RGBA16F, // GBUFFER_NORMAL
-	GL_RGB      // GBUFFER_FINAL_COLOR
-};
-constexpr GLenum gbuffer_tex_format[Renderer::GBUFFER_COUNT] = 
-{
-	GL_RGBA, // GBUFFER_POSITION
-	GL_RGBA, // GBUFFER_DIFFUSE
-	GL_RGBA, // GBUFFER_SPECULAR
-	GL_RGBA, // GBUFFER_NORMAL
-	GL_RGB   // GBUFFER_FINAL_COLOR
-};
-
 #ifdef ENABLE_DEBUG_TRACE
 FontStream& Renderer::cerr() { return *sDebugStream; }
 #endif
@@ -226,7 +167,12 @@ void Renderer::getElapsedAndDeltaTime(double& t, double& dt)
 	dt = static_cast<double>(duration_cast<nanoseconds>(deltaTime()).count()) / double(1e9);
 }
 
-void Renderer::init(const char* title, std::shared_ptr<Entity> cameraEntity, const bool fullscreen, const int width, const int height)
+void Renderer::init(
+	const char* title, 
+	std::shared_ptr<Entity> cameraEntity, 
+	const bool fullscreen, 
+	const int width, 
+	const int height)
 {
 
 	DEBUG_PRINT;
@@ -336,30 +282,17 @@ void Renderer::init(const char* title, std::shared_ptr<Entity> cameraEntity, con
 	//
 	// Initialize framebuffers
 	//
-	glGenFramebuffers(1, &s_fbo); 
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
-	glGenTextures(GBUFFER_COUNT, s_textures);
-	glGenTextures(1, &s_depth_texture);
-	glGenTextures(1, &s_shadow_texture);
-	for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
+	try
 	{
-		glBindTexture(GL_TEXTURE_2D, s_textures[i]);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, gbuffer_tex_internal[i], sWidth, sHeight, 0, gbuffer_tex_format[i], GL_FLOAT, nullptr);
-		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, s_textures[i], 0);
+		sGeometryBuffer = new GeometryBuffer(sWidth, sHeight);	
 	}
-	glBindTexture(GL_TEXTURE_2D, s_depth_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, sWidth, sHeight, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, s_depth_texture, 0);
-	const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
+	catch (const OpenGL::Framebuffer::Exception& framebufferException)
 	{
-		throw exception("Frame buffer status was not complete: " + std::to_string(framebuffer_status));
+		exception lException(name());
+		lException.append(": GeometryBuffer failed to initialize: ");
+		lException.append(framebufferException.what());
+		throw lException;
 	}
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-	DEBUG_PRINT;
 
 	//
 	// Initialize default camera and camera entity
@@ -382,11 +315,6 @@ void Renderer::init(const char* title, std::shared_ptr<Entity> cameraEntity, con
 	//
 	// Initialize basic shapes
 	//
-	// s_unit_quad_P = new unit_quad_P();
-	// s_unit_cube_P = new unit_cube_P();
-	// s_unit_cube_P_flipped = new unit_cube_P_flipped();
-	// s_unit_sphere_P = new unit_sphere_P(64, 64);
-	// s_unit_cone_P = new unit_cone_P(16);
 
 	initializeBasicShapes();
 
@@ -460,24 +388,18 @@ void Renderer::resize(const int width, const int height)
 	//
 	// resize framebuffers
 	//
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
-
-	for (unsigned int i = 0 ; i < GBUFFER_COUNT; ++i) 
+	try
 	{
-		glBindTexture(GL_TEXTURE_2D, s_textures[i]);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, gbuffer_tex_internal[i], sWidth, sHeight, 0, gbuffer_tex_format[i], GL_FLOAT, nullptr);
+		sGeometryBuffer->resize(sWidth, sHeight);	
 	}
-	glBindTexture(GL_TEXTURE_2D, s_depth_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, sWidth, sHeight, 0, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, nullptr);
-	const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE)
+	catch (const OpenGL::Framebuffer::Exception& framebufferException)
 	{
-		throw exception("Frame buffer status was not complete: " + std::to_string(framebuffer_status));
+		exception lException(name());
+		lException.append(": GeometryBuffer failed to resize: ");
+		lException.append(framebufferException.what());
+		throw lException;
 	}
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
+	
 	//
 	// Update projection matrix
 	//
@@ -544,6 +466,11 @@ void Renderer::setWireframeMode(const bool yesOrNo) noexcept
 	sRenderInWireframeMode = yesOrNo;
 }
 
+void Renderer::setViewGeometryBuffers(const bool yesOrNo) noexcept
+{
+	sViewGeometryBuffers = yesOrNo;
+}
+
 void Renderer::show() noexcept 
 { 
 	SDL_ShowWindow(sWindow); 
@@ -597,6 +524,11 @@ bool Renderer::mouseButton(const int buttoncode) noexcept
 
 void Renderer::release()
 {
+	if (sGeometryBuffer)
+	{
+		delete sGeometryBuffer;
+		sGeometryBuffer = nullptr;
+	}
 	if (sContext) // deletes shaders, textures, framebuffers, etc.
 	{
 		SDL_GL_DeleteContext(sContext);
@@ -611,26 +543,24 @@ void Renderer::release()
 
 void Renderer::update() noexcept
 {
-	sEntitiesLock.obtain();
-
-	// Geometry collection phase.
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
-	// glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
-	// glClear(GL_COLOR_BUFFER_BIT);
-	constexpr GLenum DrawBuffers[4] = 
+	prepareRendering();
+	renderGeometry();
+	if (sViewGeometryBuffers)
 	{
-		GL_COLOR_ATTACHMENT0 + GBUFFER_POSITION, 
-		GL_COLOR_ATTACHMENT0 + GBUFFER_DIFFUSE, 
-		GL_COLOR_ATTACHMENT0 + GBUFFER_SPECULAR, 
-		GL_COLOR_ATTACHMENT0 + GBUFFER_NORMAL
-	}; 
-	glDrawBuffers(4, DrawBuffers);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDepthMask(GL_TRUE);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+		sGeometryBuffer->blitDrawbuffersToPostProcessingBuffer(sWidth, sHeight);
+	}
+	else
+	{
+		renderShadows();
+		renderLights();
+	}
+	finalizeRendering();
+	processEvents();
+}
+
+void Renderer::prepareRendering() noexcept
+{
+	sEntitiesLock.obtain();
 
 	if (sRenderInWireframeMode)
 	{
@@ -640,12 +570,23 @@ void Renderer::update() noexcept
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
+}
+
+void Renderer::renderGeometry() noexcept
+{
+	sGeometryBuffer->prepareGeometryPhase();
+	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	const auto& lMaterialShaderProgram = MaterialShaderProgram::get();
 	lMaterialShaderProgram.activate();
 	lMaterialShaderProgram.setMaterialDiffuseTexture(GBUFFER_TEX_DIFFUSE);
 	lMaterialShaderProgram.setMaterialSpecularTexture(GBUFFER_TEX_SPECULAR);
 	lMaterialShaderProgram.setMaterialNormalTexture(GBUFFER_TEX_NORMAL);
+	lMaterialShaderProgram.setInstancedRendering(0);
 
 	for (auto lEntity : sShadowCastingGeometryEntities)
 	{
@@ -672,9 +613,10 @@ void Renderer::update() noexcept
 
 		if (lEntity->mesh->hasTangentsAndBitangents()) lHasTangentsAndBitangents = 1;
 
+		lMaterialShaderProgram.setMaterialDiffuseColor(lEntity->material->diffuseColor);
+		lMaterialShaderProgram.setMaterialSpecularColor(lEntity->material->specularColor);
 		lMaterialShaderProgram.setMaterialFlag(lMaterialFlag);
 		lMaterialShaderProgram.setHasTangentsAndBitangents(lHasTangentsAndBitangents);
-		lMaterialShaderProgram.setInstancedRendering(0);
 		lMaterialShaderProgram.setMatrixPVM(matrix_PVM());
 		lMaterialShaderProgram.setMatrixVM(matrix_VM());
 		lMaterialShaderProgram.setMatrixN(matrix_N());
@@ -706,37 +648,36 @@ void Renderer::update() noexcept
 
 		if (lEntity->mesh->hasTangentsAndBitangents()) lHasTangentsAndBitangents = 1;
 
+		lMaterialShaderProgram.setMaterialDiffuseColor(lEntity->material->diffuseColor);
+		lMaterialShaderProgram.setMaterialSpecularColor(lEntity->material->specularColor);
 		lMaterialShaderProgram.setMaterialFlag(lMaterialFlag);
 		lMaterialShaderProgram.setHasTangentsAndBitangents(lHasTangentsAndBitangents);
-		lMaterialShaderProgram.setInstancedRendering(0);
 		lMaterialShaderProgram.setMatrixPVM(matrix_PVM());
 		lMaterialShaderProgram.setMatrixVM(matrix_VM());
 		lMaterialShaderProgram.setMatrixN(matrix_N());
 
 		lEntity->mesh->draw();
 	}
+}
 
-	// Shadow collection phase.
+void Renderer::renderShadows() noexcept
+{
 	ShadowShaderProgram::get().activate();
 	ShadowShaderProgram::get().setInstancedRendering(0);
 	for (auto lEntity : sShadowCastingLightEntities)
 	{
 		lEntity->shadowBuffer->collect(*lEntity, sShadowCastingGeometryEntities);
 	}
+}
 
-	// Illumination phase.
+void Renderer::renderLights() noexcept
+{
+	sGeometryBuffer->prepareLightingPhase();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	for (unsigned int i = 0; i < GBUFFER_FINAL_COLOR; ++i) 
-	{
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, s_textures[i]);
-	}
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_ONE, GL_ONE);
-	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Ambient lighting
 	const auto& lAmbientLightShaderProgram = AmbientLightShaderProgram::get();
@@ -754,8 +695,10 @@ void Renderer::update() noexcept
 	{
 		lEntity->light->shine(*lEntity);
 	}
+}
 
-	// At this point we're done with the entities.
+void Renderer::finalizeRendering() noexcept
+{
 	sShadowCastingLightEntities.clear();
 	sShadowCastingGeometryEntities.clear();
 	sNonShadowCastingLightEntities.clear();
@@ -771,19 +714,17 @@ void Renderer::update() noexcept
 	sDebugStream->close();
 	#endif
 
-	// glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	// glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
-	// glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
-	// glBlitFramebuffer(0, 0, sWidth, sHeight, 0, 0, sWidth, sHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	sGeometryBuffer->finalize(sWidth, sHeight);
 
-	// glClear(GL_COLOR_BUFFER_BIT);
-	
 	SDL_GL_SwapWindow(sWindow);
 
 	#ifdef ENABLE_DEBUG_TRACE
 	sDebugStream->open(sDebugFont);
 	#endif
-	
+}
+
+void Renderer::processEvents() noexcept
+{
 	sPrevElapsedTime = sElapsedTime;
 	sElapsedTime = clock_type::now() - sStartTime;
 	sDeltaTime = sElapsedTime - sPrevElapsedTime;
@@ -835,6 +776,25 @@ void Renderer::update() noexcept
 	sCameraEntity->getViewMatrix(s_matrix_V);
 	sCameraPosition = vec3f((sCameraEntity->globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data);
 }
+
+// void Renderer::renderRawGeometryBuffers() noexcept
+// {
+// 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+// 	glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
+
+// 	const GLsizei halfwidth = (GLsizei)(width() / 2.0f);
+// 	const GLsizei halfheight = (GLsizei)(height() / 2.0f);
+
+// 	glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_POSITION);
+// 	glBlitFramebuffer(0, 0, width(), height(), 0, 0, halfwidth, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+// 	glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_NORMAL);
+// 	glBlitFramebuffer(0, 0, width(), height(), 0, halfheight, halfwidth, height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+// 	glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_DIFFUSE);
+// 	glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
+// 	glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_SPECULAR);
+// 	glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+// }
+
 
 // void Renderer::begin_geometry_pass()
 // {
@@ -1183,256 +1143,6 @@ void Renderer::init_shaders()
 	INIT_SHADER(FlatTextShaderProgram);
 
 	DEBUG_PRINT;
-
-	// try
-	// {
-	// 	s_Matrix_PVM_ShaderProgram = new Matrix_PVM_ShaderProgram();
-	// }
-	// catch (exception& e)
-	// {
-	// 	e.prepend(": Failed to load Matrix_PVM_ShaderProgram: ");
-	// 	e.prepend(name());
-	// 	throw;
-	// }
-	// // try
-	// // {
-	// // 	sGeometryShaderProgram = new GeometryShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load GeometryShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometry_D_ShaderProgram = new Geometry_D_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load Geometry_D_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometry_S_ShaderProgram = new Geometry_S_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load Geometry_S_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometry_N_ShaderProgram = new Geometry_N_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load Geometry_N_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometry_DS_ShaderProgram = new Geometry_DS_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load Geometry_DS_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometry_DN_ShaderProgram = new Geometry_DN_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load Geometry_DN_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometry_SN_ShaderProgram = new Geometry_SN_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load Geometry_SN_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometry_DSN_ShaderProgram = new Geometry_DSN_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load Geometry_DSN_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometryInstancedShaderProgram = new GeometryInstancedShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load GeometryInstancedShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometryInstanced_D_ShaderProgram = new GeometryInstanced_D_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load GeometryInstanced_D_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometryInstanced_S_ShaderProgram = new GeometryInstanced_S_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load GeometryInstanced_S_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometryInstanced_N_ShaderProgram = new GeometryInstanced_N_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load GeometryInstanced_N_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometryInstanced_DS_ShaderProgram = new GeometryInstanced_DS_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load GeometryInstanced_DS_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometryInstanced_DN_ShaderProgram = new GeometryInstanced_DN_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load GeometryInstanced_DN_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometryInstanced_SN_ShaderProgram = new GeometryInstanced_SN_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load GeometryInstanced_SN_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// // try
-	// // {
-	// // 	sGeometryInstanced_DSN_ShaderProgram = new GeometryInstanced_DSN_ShaderProgram();
-	// // }
-	// // catch (exception& e)
-	// // {
-	// // 	e.prepend(": Failed to load GeometryInstanced_DSN_ShaderProgram: ");
-	// // 	e.prepend(name());
-	// // 	throw;
-	// // }
-	// try
-	// {
-	// 	sAmbientLightShaderProgram = new AmbientLightShaderProgram();
-	// }
-	// catch (exception& e)
-	// {
-	// 	e.prepend(": Failed to load AmbientLightShaderProgram: ");
-	// 	e.prepend(name());
-	// 	throw;
-	// }
-	// try
-	// {
-	// 	sDirectionalLightShaderProgram = new DirectionalLightShaderProgram();	
-	// }
-	// catch (exception& e)
-	// {
-	// 	e.prepend(": Failed to load DirectionalLightShaderProgram: ");
-	// 	e.prepend(name());
-	// 	throw;
-	// }
-	// try
-	// {
-	// 	sPointLightShaderProgram = new PointLightShaderProgram();	
-	// }
-	// catch (exception& e)
-	// {
-	// 	e.prepend(": Failed to load PointLightShaderProgram: ");
-	// 	e.prepend(name());
-	// 	throw;
-	// }
-	// try
-	// {
-	// 	sSpotLightShaderProgram = new SpotLightShaderProgram();	
-	// }
-	// catch (exception& e)
-	// {
-	// 	e.prepend(": Failed to load SpotLightShaderProgram: ");
-	// 	e.prepend(name());
-	// 	throw;
-	// }
-	// try
-	// {
-	// 	s_sp_directional_shader = new sp_directional_shader();
-	// }
-	// catch (exception& e)
-	// {
-	// 	e.prepend(": Failed to load sp_directional_shader: ");
-	// 	e.prepend(name());
-	// 	throw;
-	// }
-	// try
-	// {
-	// 	sSkyboxShaderProgram = new SkyboxShaderProgram();	
-	// }
-	// catch (exception& e)
-	// {
-	// 	e.prepend(": Failed to load SkyboxShaderProgram: ");
-	// 	e.prepend(name());
-	// 	throw;
-	// }
-	// try
-	// {
-	// 	sFlatTextShaderProgram = new FlatTextShaderProgram();
-	// }
-	// catch (exception& e)
-	// {
-	// 	e.prepend(": Failed to load text shader: ");
-	// 	e.prepend(name());
-	// 	throw;
-	// }
-	// try
-	// {
-	// 	sMaterialShaderProgram = new MaterialShaderProgram();
-	// }
-	// catch (exception& e)
-	// {
-	// 	e.prepend(": Failed to load MaterialShaderProgram: ");
-	// 	e.prepend(name());
-	// }
 }
 
 

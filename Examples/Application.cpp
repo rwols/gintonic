@@ -57,6 +57,10 @@ void Application::processCameraInput()
 	{
 		Renderer::setWireframeMode(!Renderer::getWireframeMode());
 	}
+	if (Renderer::keyTogglePress(SDL_SCANCODE_G))
+	{
+		Renderer::setViewGeometryBuffers(!Renderer::getViewGeometryBuffers());
+	}
 
 	const auto lMouseDelta = -deg2rad(Renderer::mouseDelta()) / 10.0f;
 	lCameraEntity->camera->addMouse(lMouseDelta);

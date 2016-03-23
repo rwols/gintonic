@@ -21,6 +21,25 @@ private:
 	GLuint mHandle;
 public:
 
+	class Exception : public std::exception
+	{
+	public:
+
+		inline Exception(const GLenum status) noexcept : statusCode(status) {}
+		virtual ~Exception() noexcept = default;
+		inline virtual const char* what() const noexcept
+		{
+			return statusCodeToErrorString(statusCode);
+		}
+
+		const GLenum statusCode;
+
+	private:
+
+		static const char* statusCodeToErrorString(const GLenum status) noexcept;
+
+	};
+
 	/// Default constructor.
 	Framebuffer();
 

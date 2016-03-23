@@ -42,11 +42,12 @@ void main()
 	vec3 localNormal   = iSlot1.xyz;
 	textureCoordinates = vec2(iSlot0.w, iSlot1.w);
 
-	if (instancedRendering)
+	if (instancedRendering != 0)
 	{
 		gl_Position = iMatrixPVM * localPosition;
 		viewSpaceVertexPosition = (iMatrixVM * localPosition).xyz;
-		if (hasTangentsAndBitangents)
+		viewSpaceVertexNormal = iMatrixN * localNormal;
+		if (hasTangentsAndBitangents != 0)
 		{
 			vec3 localTangent = vec3(iSlot2.xyz);
 			vec3 localBitangent = cross(localNormal, localTangent) * iSlot2.w;
@@ -55,16 +56,13 @@ void main()
 				iMatrixN * localBitangent, 
 				iMatrixN * localNormal);
 		}
-		else
-		{
-			viewSpaceVertexNormal = iMatrixN * localNormal;
-		}
 	}
 	else
 	{
 		gl_Position = matrixPVM * localPosition;
 		viewSpaceVertexPosition = (matrixVM * localPosition).xyz;
-		if (hasTangentsAndBitangents)
+		viewSpaceVertexNormal = matrixN * localNormal;
+		if (hasTangentsAndBitangents != 0)
 		{
 			vec3 localTangent = vec3(iSlot2.xyz);
 			vec3 localBitangent = cross(localNormal, localTangent) * iSlot2.w;
@@ -72,10 +70,6 @@ void main()
 				matrixN * localTangent, 
 				matrixN * localBitangent, 
 				matrixN * localNormal);
-		}
-		else
-		{
-			viewSpaceVertexNormal = matrixN * localNormal;
 		}
 	}
 }

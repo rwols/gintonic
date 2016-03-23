@@ -239,9 +239,13 @@ function(target_link_with_gintonic targetName)
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${shader_source_files} "$<TARGET_FILE_DIR:${targetName}>/Shaders")
 
-	add_custom_command(TARGET ${targetName} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${DLLS} $<TARGET_FILE_DIR:${targetName}>)
+	if (WIN32)
+
+		add_custom_command(TARGET ${targetName} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${DLLS} $<TARGET_FILE_DIR:${targetName}>)
+
+	endif ()
 
 	add_custom_command(TARGET ${targetName} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different

@@ -54,7 +54,7 @@ void MaterialShaderProgram::setMatrixVM(const mat4f& value) const noexcept
 	setUniform(mMatrixVM, value);
 }
 
-void MaterialShaderProgram::setMatrixN(const mat4f& value) const noexcept
+void MaterialShaderProgram::setMatrixN(const mat3f& value) const noexcept
 {
 	setUniform(mMatrixN, value);
 }
