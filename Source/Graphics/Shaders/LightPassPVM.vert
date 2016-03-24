@@ -12,9 +12,9 @@
 
 layout (location = 0) in vec4 iSlot0;
 
-uniform mat4 matrix_PVM;
+uniform mat4 matrixPVM;
 
 void main()
 {
-	gl_Position = matrix_PVM * vec4(iSlot0.xyz, 1.0f);
+	gl_Position = matrixPVM * vec4(iSlot0.xyz, 1.0f);
 }

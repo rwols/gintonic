@@ -243,7 +243,7 @@ mat4f::mat4f(const vec3f& axis, const float rotation_angle)
 mat4f& mat4f::set_orthographic(const float left, const float right, const float bottom, const float top, const float nearplane, const float farplane)
 {
 	const float rl = right - left;
-	const float tp = top - bottom;
+	const float tb = top - bottom;
 	const float fn = farplane - nearplane;
 
 	data[0] = _mm_set1_ps(0.0f);
@@ -251,30 +251,54 @@ mat4f& mat4f::set_orthographic(const float left, const float right, const float 
 	data[2] = _mm_set1_ps(0.0f);
 	data[3] = _mm_set1_ps(0.0f);
 
-	m00 = 2.0f * nearplane / rl;
-	m11 = 2.0f * nearplane / tp;
-	m02 = (right + left) / rl;
-	m12 = (top + bottom) / tp;
-	m22 = -(farplane + nearplane) / fn;
-	m32 = 0.0f;
-	m23 = -(2.0f * farplane * nearplane) / fn;
+	// m00 = 2.0f * nearplane / rl;
+	// m11 = 2.0f * nearplane / tb;
+	// m02 = (right + left) / rl;
+	// m12 = (top + bottom) / tb;
+	// m22 = -(farplane + nearplane) / fn;
+	// m32 = 0.0f;
+	// m23 = -(2.0f * farplane * nearplane) / fn;
+	// m33 = 1.0f;
+
+	m00 =  2.0f / rl;
+	m11 =  2.0f / tb;
+	m22 =  2.0f / fn;
+	m03 = -(right + left) / rl;
+	m13 = -(top + bottom) / tb;
+	m23 = -(farplane + nearplane) / fn;
 	m33 = 1.0f;
+
 	return *this;
 }
 
 mat4f& mat4f::set_orthographic(const float width, const float height, const float nearplane, const float farplane)
 {
+	const float fn = farplane - nearplane;
+
 	data[0] = _mm_set1_ps(0.0f);
 	data[1] = _mm_set1_ps(0.0f);
 	data[2] = _mm_set1_ps(0.0f);
 	data[3] = _mm_set1_ps(0.0f);
 
-	m00 = 1.0f / width;
-	m11 = 1.0f / height;
-	m22 = -2.0f / (farplane - nearplane);
-	m23 = -(farplane + nearplane) / (farplane - nearplane);
+	m00 = 2.0f / width;
+	m11 = 2.0f / height;
+	m22 = 2.0f / fn;
+	m23 = -(farplane + nearplane) / fn;
 	m33 = 1.0f;
+
 	return *this;
+
+	// data[0] = _mm_set1_ps(0.0f);
+	// data[1] = _mm_set1_ps(0.0f);
+	// data[2] = _mm_set1_ps(0.0f);
+	// data[3] = _mm_set1_ps(0.0f);
+
+	// m00 = 1.0f / width;
+	// m11 = 1.0f / height;
+	// m22 = -2.0f / (farplane - nearplane);
+	// m23 = -(farplane + nearplane) / (farplane - nearplane);
+	// m33 = 1.0f;
+	// return *this;
 }
 
 mat4f::mat4f(const vec3f& eye_location, const vec3f& subject_location, const vec3f& up_direction)

@@ -6,29 +6,23 @@
 
 #version 330 core
 
-uniform vec2 viewport_size;
+uniform vec2 viewportSize;
 
-uniform struct GeometryBuffer
-{
-	sampler2D diffuse;
-} gbuffer;
+uniform sampler2D geometryBufferDiffuseTexture;
 
-uniform struct AmbientLight
-{
-	vec4 intensity;
-} light;
+uniform vec4 lightIntensity;
 
 // Returns the current fragment's clip-space coordinates, for
 // fetching it from the g-buffer.
-vec2 calculate_screen_position()
+vec2 calculateScreenUV()
 {
-	return vec2(gl_FragCoord.x / viewport_size.x, gl_FragCoord.y / viewport_size.y);
+	return vec2(gl_FragCoord.x / viewportSize.x, gl_FragCoord.y / viewportSize.y);
 }
 
 out vec3 final_color;
 
 void main()
 {
-	vec4 diffuse = texture(gbuffer.diffuse, calculate_screen_position());
-	final_color = (1.0f - diffuse.a) * light.intensity.a * light.intensity.rgb * diffuse.rgb;
+	vec4 diffuse = texture(geometryBufferDiffuseTexture, calculateScreenUV());
+	final_color = (1.0f - diffuse.a) * lightIntensity.a * lightIntensity.rgb * diffuse.rgb;
 }

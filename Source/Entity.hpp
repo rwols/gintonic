@@ -559,8 +559,32 @@ public:
 	 * @brief Get the `VIEW` matrix of this Entity.
 	 *
 	 * @param m The matrix to set.
+	 * 
+	 * @sa Entity::updateViewMatrix
 	 */
 	void getViewMatrix(mat4f& m) const noexcept;
+
+	/**
+	 * @brief Update the given `VIEW` matrix.
+	 * @details The assumption is that the given matrix
+	 * is already an affine matrix. If it's not, this 
+	 * method will produce incorrect results. This method
+	 * is a tiny bit more efficient than Entity::getViewMatrix
+	 * 
+	 * @param alreadyAffineMatrix A mutable reference to a
+	 * matrix which is assumed to already be affine.
+	 * 
+	 * @sa Entity::getViewMatrix
+	 */
+	void updateViewMatrix(mat4f& alreadyAffineMatrix) const noexcept;
+
+	/**
+	 * @brief Get the `VIEW` matrix of this Entity.
+	 * @return The view matrix.
+	 * 
+	 * @sa Entity::updateViewMatrix
+	 */
+	mat4f getViewMatrix() const noexcept;
 
 	/**
 	 * @brief Get the global transformation matrix, i.e. from `MODEL` space

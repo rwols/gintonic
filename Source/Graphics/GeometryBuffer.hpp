@@ -26,11 +26,12 @@ public:
 
 	void resize(const int width, const int height);
 
-	void prepareGeometryPhase() noexcept;
-	void prepareLightingPhase() noexcept;
-	void preparePostProcessingPhase() noexcept;
-	void blitDrawbuffersToPostProcessingBuffer(const int width, const int height) noexcept;
-	void finalize(const int width, const int height) noexcept;
+	void prepareGeometryPhase() const noexcept;
+	void prepareLightingPhase() const noexcept;
+	void preparePostProcessingPhase() const noexcept;
+	void blitDrawbuffersToScreen(const int width, const int height) const noexcept;
+	void finalize(const int width, const int height) const noexcept;
+	void drawDepthBufferToScreen() const noexcept;
 
 private:
 	OpenGL::Framebuffer mFramebuffer;

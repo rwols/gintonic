@@ -2,10 +2,13 @@
 
 Application::Application(const char* windowTitle, int argc, char** argv)
 {
-	DEBUG_PRINT;
+	bool lFullscreen = true;
+	if (argc > 1)
+	{
+		lFullscreen = static_cast<bool>(std::atoi(argv[1]));
+	}
 	auto lCameraEntity = std::make_shared<gintonic::Entity>("DefaultCamera");
-	gintonic::Renderer::init(windowTitle, std::move(lCameraEntity), false, 800, 640);
-	DEBUG_PRINT;
+	gintonic::Renderer::init(windowTitle, std::move(lCameraEntity), lFullscreen, 800, 640);
 }
 
 void Application::renderUpdate()
@@ -60,6 +63,10 @@ void Application::processCameraInput()
 	if (Renderer::keyTogglePress(SDL_SCANCODE_G))
 	{
 		Renderer::setViewGeometryBuffers(!Renderer::getViewGeometryBuffers());
+	}
+	if (Renderer::keyTogglePress(SDL_SCANCODE_B))
+	{
+		Renderer::setViewCameraDepthBuffer(!Renderer::getViewCameraDepthBuffer());
 	}
 
 	const auto lMouseDelta = -deg2rad(Renderer::mouseDelta()) / 10.0f;

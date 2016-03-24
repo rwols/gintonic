@@ -130,6 +130,8 @@ public:
 
 protected:
 
+	ShaderProgram() = default;
+
 	/// Forwarding constructor.
 	ShaderProgram(
 		boost::filesystem::path vertexShaderFilename,

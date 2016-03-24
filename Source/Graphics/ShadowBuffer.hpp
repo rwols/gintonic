@@ -16,6 +16,8 @@ public:
 		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) noexcept = 0;
 
 	virtual void bindDepthTextures() const noexcept = 0;
+
+	virtual const mat4f& projectionMatrix() const noexcept = 0;
 };
 
 } // namespace gintonic

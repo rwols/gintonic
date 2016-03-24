@@ -8,33 +8,28 @@
 
 // #define NDEBUG
 
-uniform vec2 viewport_size;
+uniform vec2 viewportSize;
 
 #ifndef NDEBUG
-uniform int debugflag;
+uniform int debugFlag;
 #endif
 
-uniform struct GeometryBuffer
-{
-	sampler2D position; // these are in VIEW coordinates
-	sampler2D diffuse;
-	sampler2D specular;
-	sampler2D normal;
-} gbuffer;
+uniform sampler2D geometryBufferPositionTexture;
+uniform sampler2D geometryBufferDiffuseTexture;
+uniform sampler2D geometryBufferSpecularTexture;
+uniform sampler2D geometryBufferNormalTexture;
 
-uniform struct PointLight {
-	vec4 intensity;
-	vec3 position; // in VIEW coordinates
-	vec4 attenuation;
-} light;
+uniform vec4 lightIntensity;
+uniform vec3 lightPosition;
+uniform vec4 lightAttenuation;
 
-out vec3 final_color;
+out vec3 finalColor;
 
 // Returns the current fragment's clip-space coordinates, for
 // fetching it from the g-buffer.
-vec2 calculate_screen_position()
+vec2 calculateScreenPosition()
 {
-	return vec2(gl_FragCoord.x / viewport_size.x, gl_FragCoord.y / viewport_size.y);
+	return vec2(gl_FragCoord.x / viewportSize.x, gl_FragCoord.y / viewportSize.y);
 }
 
 float maxdot(in vec3 A, in vec3 B)
@@ -47,24 +42,24 @@ float clamppowmaxdot(in vec3 A, in vec3 B, in float exponent)
 	return clamp(pow(maxdot(A,B), exponent), 0.0f, 1.0f);
 }
 
-float quadratic_poly(in float a, in float b, in float c, in float x)
+float quadraticPoly(in float a, in float b, in float c, in float x)
 {
 	return a + b * x + c * x * x;
 }
 
 void main()
 {
-	vec2 screen_uv = calculate_screen_position();
+	vec2 lScreenUV = calculateScreenPosition();
 
-	vec3 P = texture(gbuffer.position, screen_uv).xyz;
-	vec4 diffuse = texture(gbuffer.diffuse, screen_uv);
-	vec4 specular = texture(gbuffer.specular, screen_uv);
-	vec3 N = texture(gbuffer.normal, screen_uv).xyz;
+	vec3 lViewSpaceVertexPosition = texture(geometryBufferPositionTexture, lScreenUV).xyz;
+	vec4 lDiffuseColor            = texture(geometryBufferDiffuseTexture,  lScreenUV);
+	vec4 lSpecularColor           = texture(geometryBufferSpecularTexture, lScreenUV);
+	vec3 lViewSpaceVertexNormal   = texture(geometryBufferNormalTexture,   lScreenUV).xyz;
 
 	// L is the direction from the surface position to the light position
-	// P is in VM-coordinates, so light.position must be supplied in
+	// P is in VM-coordinates, so lightPosition must be supplied in
 	// VM-coordinates too.
-	vec3 L = light.position - P;
+	vec3 L = lightPosition - lViewSpaceVertexPosition;
 
 	// d is the distance from the surface position to the light position
 	float d = length(L);
@@ -77,34 +72,34 @@ void main()
 	L = normalize(L);
 
 	// The attenuation factor for a point light
-	att = 1.0f / quadratic_poly(light.attenuation.x, light.attenuation.y, light.attenuation.z, d);
+	att = 1.0f / quadraticPoly(lightAttenuation.x, lightAttenuation.y, lightAttenuation.z, d);
 	
 	// dc is the diffuse contribution.
-	dc = maxdot(N,L);
+	dc = maxdot(lViewSpaceVertexNormal, L);
 
 	// Since we are in VIEW coordinates, the eye position is at the origin.
 	// Therefore the unit direction vector from the point on the surface P
 	// to the eye is given by (0 - P) / (||0 - P||) = normalize(-P).
-	vec3 E = normalize(-P);
+	vec3 E = normalize(-lViewSpaceVertexPosition);
 
 	// We reflect the E direction vector *around* the surface normal.
 	// The idea is now that if the angle of incidence of the light is equal
 	// to the outgoing angle of incidence to the eye, we experience specularity.
-	vec3 R = reflect(E,N);
+	vec3 R = reflect(E,lViewSpaceVertexNormal);
 
 	// sc is the specular contribution.
-	sc = dc > 0.0f ? clamppowmaxdot(R,E, specular.a) : 0.0f;
+	sc = dc > 0.0f ? clamppowmaxdot(R,E, lSpecularColor.a) : 0.0f;
 	
-	final_color = light.intensity.a * att * diffuse.a * light.intensity.rgb * (dc * diffuse.rgb + sc * specular.rgb);
+	finalColor = lightIntensity.a * att * lDiffuseColor.a * lightIntensity.rgb * (dc * lDiffuseColor.rgb + sc * lSpecularColor.rgb);
 
 	#ifndef NDEBUG
-	if (debugflag == 1)
+	if (debugFlag == 1)
 	{
-		final_color.r += 0.1f;
+		finalColor.r += 0.1f;
 	}
-	else if (debugflag == 2)
+	else if (debugFlag == 2)
 	{
-		final_color.g += 0.1f;
+		finalColor.g += 0.1f;
 	}
 	#endif
 }

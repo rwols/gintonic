@@ -492,6 +492,23 @@ public:
 		return sViewGeometryBuffers;
 	}
 
+	static void setViewCameraDepthBuffer(const bool yesOrNo) noexcept;
+
+	inline static bool getViewCameraDepthBuffer() noexcept
+	{
+		return sViewCameraDepthBuffer;
+	}
+
+	static void setEntityDebugShadowBuffer(std::shared_ptr<Entity> entityWithShadowBuffer) noexcept
+	{
+		sDebugShadowBufferEntity = std::move(entityWithShadowBuffer);
+	}
+
+	inline static std::shared_ptr<Entity> getEntityDebugShadowBuffer() noexcept
+	{
+		return sDebugShadowBufferEntity;
+	}
+
 	/**
 	 * @brief Enable or disable virtual synchronization.
 	 * @param b True to enable, false to disable.
@@ -500,10 +517,16 @@ public:
 
 	#ifdef ENABLE_DEBUG_TRACE
 	/**
-	 * @brief Output to a debug stream on the Renderer's viewport.
+	 * @brief Output to a debug stream on the Renderer's viewport. The color is red.
 	 * @return A reference to a FontStream.
 	 */
 	static FontStream& cerr();
+
+	/**
+	 * @brief Output to a debug stream on the Renderer's viewport. The color is white.
+	 * @return A reference to a FontStream.
+	 */
+	static FontStream& cout();
 	#endif
 
 	/**
@@ -712,6 +735,7 @@ private:
 	static bool sFullscreen;
 	static bool sRenderInWireframeMode;
 	static bool sViewGeometryBuffers;
+	static bool sViewCameraDepthBuffer;
 	static int sWidth;
 	static int sHeight;
 	static float sAspectRatio;
@@ -736,6 +760,7 @@ private:
 	static mat3f s_matrix_N;
 
 	static std::shared_ptr<Entity> sCameraEntity;
+	static std::shared_ptr<Entity> sDebugShadowBufferEntity;
 	static vec3f sCameraPosition;
 
 	static std::shared_ptr<Mesh> sUnitQuadPUN;

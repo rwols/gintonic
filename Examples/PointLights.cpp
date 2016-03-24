@@ -12,16 +12,16 @@ public:
 	: Application(APPNAME, argc, argv)
 	{
 		using namespace gintonic;
-		if (argc < 2)
+		if (argc < 4)
 		{
 			exception lException("Usage: ");
 			lException.append(argv[0]);
-			lException.append(" <grid-size> <number-of-point-lights>");
+			lException.append("<fullscreen?> <grid-size> <number-of-point-lights>");
 			throw lException;
 		}
 
-		mNumObjects = std::atoi(argv[1]);
-		mNumLights = std::atoi(argv[2]);
+		mNumObjects = std::atoi(argv[2]);
+		mNumLights = std::atoi(argv[3]);
 
 		if (mNumObjects <= 0)
 		{

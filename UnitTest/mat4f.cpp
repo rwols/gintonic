@@ -4,6 +4,8 @@
 #include "../Source/Math/vec4f.hpp"
 #include "../Source/Math/mat4f.hpp"
 #include "../Source/Math/SQT.hpp"
+#include "../Source/Entity.hpp"
+#include "../Source/Camera.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>
@@ -233,4 +235,103 @@ BOOST_AUTO_TEST_CASE ( various_functions_test )
 	BOOST_CHECK_CLOSE(aspectratio, recovered_aspectratio, 0.001f);
 	BOOST_CHECK_CLOSE(nearplane, recovered_nearplane, 0.001f);
 	BOOST_CHECK_CLOSE(farplane, recovered_farplane, 0.001f);
+}
+
+BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
+{
+	const float width = 1440.0f;
+	const float height = 900.0f;
+	const float fieldofview = deg2rad(60.0f);
+	const float aspectratio = width / height; // typical resolution
+	const float nearplane = 1.0;
+	const float farplane = 1000.0f;
+
+	auto lLightEntity = std::make_shared<Entity>("Light");
+
+	auto lGeometryEntity = std::make_shared<Entity>("SomeEntity");
+
+	auto lCamera = std::make_shared<Camera>();
+	lCamera->name = "DefaultCamera";
+	lCamera->setNearPlane(nearplane);
+	lCamera->setFarPlane(farplane);
+	lCamera->setProjectionType(Camera::kPerspective);
+	auto lCameraEntity = std::make_shared<Entity>("Camera");
+	lCameraEntity->camera = lCamera;
+	lCameraEntity->camera->setWidth(width);
+	lCameraEntity->camera->setHeight(height);
+
+	std::srand((int)std::clock());
+
+	const int maxoffset = 10000;
+
+	auto createRandomVector3 = [&] ()
+	{
+		const float x = - 0.5f * static_cast<float>(maxoffset) + (rand() % maxoffset);
+		const float y = - 0.5f * static_cast<float>(maxoffset) + (rand() % maxoffset);
+		const float z = - 0.5f * static_cast<float>(maxoffset) + (rand() % maxoffset);
+		return vec3f(x, y, z);
+	};
+
+	for (int i = 0; i < 1000000; ++i)
+	{
+		lLightEntity->setLocalTransform
+		(
+			SQT
+			(
+				vec3f(1.0f, 1.0f, 1.0f),
+				quatf(rand(), rand(), rand(), rand()).normalize(),
+				createRandomVector3()
+			)
+		);
+
+		lGeometryEntity->setLocalTransform
+		(
+			SQT
+			(
+				vec3f(1.0f, 1.0f, 1.0f),
+				quatf(rand(), rand(), rand(), rand()).normalize(),
+				createRandomVector3()
+			)
+		);
+
+		lCameraEntity->setLocalTransform
+		(
+			SQT
+			(
+				vec3f(1.0f, 1.0f, 1.0f),
+				quatf(rand(), rand(), rand(), rand()).normalize(),
+				createRandomVector3()
+			)
+		);
+
+		mat4f lProjection;
+		mat4f lLightProjection;
+		mat4f lCameraView;
+		mat4f lLightView;
+		mat4f lLightInverseView;
+		mat4f lCameraInverseView;
+		mat4f lModel;
+		mat4f lShadowMatrix;
+
+		lProjection = lCameraEntity->camera->projectionMatrix();
+		lCameraEntity->getViewMatrix(lCameraView);
+		lLightEntity->getViewMatrix(lLightView);
+		lLightInverseView = lLightEntity->globalTransform();
+		lCameraInverseView = lCameraEntity->globalTransform();
+		lModel = lGeometryEntity->globalTransform();
+
+		lLightProjection.set_orthographic(100, 100, nearplane, farplane);
+
+		const vec4f lPoint = vec4f(createRandomVector3(), 1.0f);
+
+		lShadowMatrix = lLightProjection * lLightView * lCameraInverseView;
+
+		const auto lViewPoint = lCameraView * lModel * lPoint;
+		const auto lViewClipSpacePoint = lLightProjection * lCameraView * lModel * lPoint;
+		const auto lLightClipPoint = lLightProjection * lLightView * lModel * lPoint;
+
+		const auto lFromViewToLightPoint = lShadowMatrix * lViewPoint;
+
+		BOOST_CHECK_CLOSE(lLightClipPoint.z, lFromViewToLightPoint.z, 0.5f);
+	}
 }

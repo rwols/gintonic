@@ -8,6 +8,7 @@
 #include "Mesh.hpp"
 
 #include "../Entity.hpp"
+#include "../Camera.hpp"
 
 #include <iostream>
 
@@ -23,6 +24,7 @@ DirectionalLight::DirectionalLight(const vec4f& intensity)
 
 void DirectionalLight::shine(const Entity& e) const noexcept
 {
+
 	const auto& lProgram = DirectionalLightShaderProgram::get();
 	lProgram.activate();
 
@@ -40,6 +42,21 @@ void DirectionalLight::shine(const Entity& e) const noexcept
 	const auto lLightDirection = Renderer::matrix_V() * (e.globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f));
 	
 	lProgram.setLightDirection(vec3f(lLightDirection.data));
+
+	if (e.shadowBuffer)
+	{
+		e.shadowBuffer->bindDepthTextures();
+		lProgram.setLightShadowDepthTexture(4);
+		mat4f lLightViewMatrix;
+		e.getViewMatrix(lLightViewMatrix);
+		const auto lShadowMatrix = e.shadowBuffer->projectionMatrix() * lLightViewMatrix * Renderer::getCameraEntity()->globalTransform();
+		lProgram.setLightCastShadow(1);
+		lProgram.setLightShadowMatrix(lShadowMatrix);
+	}
+	else
+	{
+		lProgram.setLightCastShadow(0);
+	}
 
 	Renderer::getUnitQuad()->draw();
 }

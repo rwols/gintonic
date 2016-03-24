@@ -27,5 +27,12 @@ uniform int  instancedRendering;
 void main()
 {
 	vec4 localPosition = vec4(iSlot0.xyz, 1.0f);
-	gl_Position = instancedRendering ? iMatrixPVM * localPosition : matrixPVM * localPosition;
+      if (instancedRendering != 0)
+      {
+            gl_Position = iMatrixPVM * localPosition;
+      }
+      else
+      {
+            gl_Position = matrixPVM * localPosition;
+      }
 }

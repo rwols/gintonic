@@ -399,32 +399,88 @@ void Entity::unsetParent()
 	if (auto lParent = mParent.lock()) lParent->removeChild(shared_from_this());
 }
 
-void Entity::getViewMatrix(mat4f& m) const noexcept
+void Entity::getViewMatrix(mat4f& result) const noexcept
 {
-	const auto f = globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f);
-	const auto u = globalTransform() * vec4f(0.0f, 1.0f, 0.0f, 0.0f);
-	const auto r = globalTransform() * vec4f(1.0f, 0.0f, 0.0f, 0.0f);
-	const auto eye = globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+	const auto lRight   = globalTransform() * vec4f(1.0f, 0.0f,  0.0f, 0.0f);
+	const auto lUp      = globalTransform() * vec4f(0.0f, 1.0f,  0.0f, 0.0f);
+	const auto lForward = globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f);
+	const auto lEye     = globalTransform() * vec4f(0.0f, 0.0f,  0.0f, 1.0f);
 
-	m.m00 = r.x;
-	m.m10 = u.x;
-	m.m20 = -f.x;
-	m.m30 = 0.0f;
+	result.m00 =  lRight.x;
+	result.m10 =  lUp.x;
+	result.m20 = -lForward.x;
+	result.m30 =  0.0f;
 
-	m.m01 = r.y;
-	m.m11 = u.y;
-	m.m21 = -f.y;
-	m.m31 = 0.0f;
+	result.m01 =  lRight.y;
+	result.m11 =  lUp.y;
+	result.m21 = -lForward.y;
+	result.m31 =  0.0f;
 
-	m.m02 = r.z;
-	m.m12 = u.z;
-	m.m22 = -f.z;
-	m.m32 = 0.0f;
+	result.m02 =  lRight.z;
+	result.m12 =  lUp.z;
+	result.m22 = -lForward.z;
+	result.m32 =  0.0f;
 
-	m.m03 = -dot(r, eye);
-	m.m13 = -dot(u, eye);
-	m.m23 =  dot(f, eye);
-	m.m33 = 1.0f;
+	result.m03 = -dot(lRight,   lEye);
+	result.m13 = -dot(lUp,      lEye);
+	result.m23 =  dot(lForward, lEye);
+	result.m33 =  1.0f;
+}
+
+void Entity::updateViewMatrix(mat4f& alreadyAffineMatrix) const noexcept
+{
+	const auto lRight   = globalTransform() * vec4f(1.0f, 0.0f,  0.0f, 0.0f);
+	const auto lUp      = globalTransform() * vec4f(0.0f, 1.0f,  0.0f, 0.0f);
+	const auto lForward = globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f);
+	const auto lEye     = globalTransform() * vec4f(0.0f, 0.0f,  0.0f, 1.0f);
+
+	alreadyAffineMatrix.m00 =  lRight.x;
+	alreadyAffineMatrix.m10 =  lUp.x;
+	alreadyAffineMatrix.m20 = -lForward.x;
+
+	alreadyAffineMatrix.m01 =  lRight.y;
+	alreadyAffineMatrix.m11 =  lUp.y;
+	alreadyAffineMatrix.m21 = -lForward.y;
+
+	alreadyAffineMatrix.m02 =  lRight.z;
+	alreadyAffineMatrix.m12 =  lUp.z;
+	alreadyAffineMatrix.m22 = -lForward.z;
+	
+	alreadyAffineMatrix.m03 = -dot(lRight,   lEye);
+	alreadyAffineMatrix.m13 = -dot(lUp,      lEye);
+	alreadyAffineMatrix.m23 =  dot(lForward, lEye);
+}
+
+mat4f Entity::getViewMatrix() const noexcept
+{
+	const auto lRight   = globalTransform() * vec4f(1.0f, 0.0f,  0.0f, 0.0f);
+	const auto lUp      = globalTransform() * vec4f(0.0f, 1.0f,  0.0f, 0.0f);
+	const auto lForward = globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f);
+	const auto lEye     = globalTransform() * vec4f(0.0f, 0.0f,  0.0f, 1.0f);
+
+	mat4f lResult;
+
+	lResult.m00 =  lRight.x;
+	lResult.m10 =  lUp.x;
+	lResult.m20 = -lForward.x;
+	lResult.m30 =  0.0f;
+
+	lResult.m01 =  lRight.y;
+	lResult.m11 =  lUp.y;
+	lResult.m21 = -lForward.y;
+	lResult.m31 =  0.0f;
+
+	lResult.m02 =  lRight.z;
+	lResult.m12 =  lUp.z;
+	lResult.m22 = -lForward.z;
+	lResult.m32 =  0.0f;
+
+	lResult.m03 = -dot(lRight,   lEye);
+	lResult.m13 = -dot(lUp,      lEye);
+	lResult.m23 =  dot(lForward, lEye);
+	lResult.m33 =  1.0f;
+
+	return lResult;
 }
 
 Entity::~Entity()

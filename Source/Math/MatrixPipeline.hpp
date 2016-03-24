@@ -9,24 +9,26 @@ class MatrixPipeline
 public:
 
 	template <class ...MatrixConstructorArguments>
-	void setModelMatrix(MatrixConstructorArguments&& args)
+	void setModelMatrix(MatrixConstructorArguments&&... args)
 	{
 		mModelMatrix = mat4f(std::forward<MatrixConstructorArguments>(args)...);
 		mViewModelMatrixIsDirty = true;
 		mProjectionViewModelMatrixIsDirty = true;
+		mNormalMatrixIsDirty = true;
 	}
 
 	template <class ...MatrixConstructorArguments>
-	void setViewMatrix(MatrixConstructorArguments&& args)
+	void setViewMatrix(MatrixConstructorArguments&&... args)
 	{
 		mViewMatrix = mat4f(std::forward<MatrixConstructorArguments>(args)...);
 		mViewModelMatrixIsDirty = true;
 		mProjectionViewModelMatrixIsDirty = true;
 		mProjectionViewMatrixIsDirty = true;
+		mNormalMatrixIsDirty = true;
 	}
 
 	template <class ...MatrixConstructorArguments>
-	void setProjectionMatrix(MatrixConstructorArguments&& args)
+	void setProjectionMatrix(MatrixConstructorArguments&&... args)
 	{
 		mProjectionMatrix = mat4f(std::forward<MatrixConstructorArguments>(args)...);
 		mProjectionViewModelMatrixIsDirty = true;
@@ -41,17 +43,19 @@ public:
 		mViewModelMatrixIsDirty = true;
 		mProjectionViewModelMatrixIsDirty = true;
 		mProjectionViewMatrixIsDirty = true;
+		mNormalMatrixIsDirty = true;
 	}
 
-	template <class Arg0, class Arg1, class Arg2)
+	template <class Arg0, class Arg1, class Arg2>
 	void setProjectionViewModelMatrices(Arg0&& projectionMatrix, Arg1&& viewMatrix, Arg2&& modelMatrix)
 	{
 		mProjectionMatrix = std::forward<Arg0>(projectionMatrix);
-		mViewMatrix = std:::forward<Arg1>(viewMatrix);
+		mViewMatrix = std::forward<Arg1>(viewMatrix);
 		mModelMatrix = std::forward<Arg2>(modelMatrix);
 		mViewModelMatrixIsDirty = true;
 		mProjectionViewModelMatrixIsDirty = true;
 		mProjectionViewMatrixIsDirty = true;
+		mNormalMatrixIsDirty = true;
 	}
 
 	inline const mat4f& getProjectionMatrix() const noexcept
@@ -99,6 +103,16 @@ public:
 		return mProjectionViewModelMatrix;
 	}
 
+	inline const mat3f& getNormalMatrix() const noexcept
+	{
+		if (mNormalMatrixIsDirty)
+		{
+			mNormalMatrix = getViewModelMatrix().upper_left_33().invert().transpose();
+			mNormalMatrixIsDirty = false;
+		}
+		return mNormalMatrix;
+	}
+
 private:
 	        mat4f mProjectionMatrix;
 	        mat4f mViewMatrix;
@@ -107,10 +121,12 @@ private:
 	mutable mat4f mViewModelMatrix;
 	mutable mat4f mProjectionViewModelMatrix;
 	mutable mat4f mProjectionViewMatrix;
+	mutable mat3f mNormalMatrix;
 
 	mutable bool  mViewModelMatrixIsDirty = true;
 	mutable bool  mProjectionViewModelMatrixIsDirty = true;
 	mutable bool  mProjectionViewMatrixIsDirty = true;
+	mutable bool  mNormalMatrixIsDirty = true;
 };
 
 } // namespace gintonic

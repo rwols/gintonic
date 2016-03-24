@@ -28,8 +28,8 @@ public:
 	/// Projection type. Either orthographic or perspective.
 	enum ProjectionType
 	{
-		kOrthographicProjection,
-		kPerspectiveProjection
+		kOrthographic,
+		kPerspective
 	};
 
 
@@ -68,6 +68,11 @@ public:
 		return mFieldOfView;
 	}
 
+	inline ProjectionType projectionType() const noexcept
+	{
+		return mProjection;
+	}
+
 	void setProjectionType(const ProjectionType type)
 	{
 		mProjection = type;
@@ -95,7 +100,7 @@ private:
 
 	mutable bool mProjectionMatrixIsDirty = true;
 
-	ProjectionType mProjection = kPerspectiveProjection;
+	ProjectionType mProjection = kPerspective;
 
 	float mFieldOfView = 1.22173048f;
 

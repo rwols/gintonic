@@ -46,25 +46,21 @@ private:
 
 };
 
-#define DEFINE_MAIN(DerivedApplicationName)\
-int main(int argc, char* argv[])\
-{\
-	DEBUG_PRINT;\
-	try\
-	{\
-		DEBUG_PRINT;\
-		DerivedApplicationName lDerivedApplicationName(argc, argv);\
-		while (lDerivedApplicationName.shouldClose() == false)\
-		{\
-			lDerivedApplicationName.renderUpdate();\
-		}\
-	}\
-	catch (const gintonic::exception& lException)\
-	{\
-		DEBUG_PRINT;\
-		std::cerr << lException.what() << '\n';\
-		return EXIT_FAILURE;\
-	}\
-	DEBUG_PRINT;\
-	return EXIT_SUCCESS;\
+#define DEFINE_MAIN(DerivedApplicationName)                         \
+int main(int argc, char* argv[])                                    \
+{                                                                   \
+	try                                                             \
+	{                                                               \
+		DerivedApplicationName lDerivedApplicationName(argc, argv); \
+		while (lDerivedApplicationName.shouldClose() == false)      \
+		{                                                           \
+			lDerivedApplicationName.renderUpdate();                 \
+		}                                                           \
+	}                                                               \
+	catch (const gintonic::exception& lException)                   \
+	{                                                               \
+		std::cerr << lException.what() << '\n';                     \
+		return EXIT_FAILURE;                                        \
+	}                                                               \
+	return EXIT_SUCCESS;                                            \
 }

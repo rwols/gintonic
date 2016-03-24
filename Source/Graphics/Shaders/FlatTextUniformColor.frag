@@ -7,12 +7,12 @@
 in vec2 v_texcoord;
 
 uniform vec3 color;
-uniform sampler2D tex;
+uniform sampler2D glyphTexture;
 
-out vec4 final_color;
+out vec4 finalColor;
 
 void main()
 {
-	float alpha = texture(tex, v_texcoord).r;
-	final_color = vec4(alpha * color, alpha);
+	float alpha = texture(glyphTexture, v_texcoord).r;
+	finalColor = vec4(alpha * color, alpha);
 }

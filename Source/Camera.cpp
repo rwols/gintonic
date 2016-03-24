@@ -1,5 +1,7 @@
 #include "Camera.hpp"
+
 #include "Math/mat4f.hpp"
+
 #include "Entity.hpp"
 
 #include <fbxsdk.h>
@@ -12,29 +14,19 @@ namespace gintonic {
 Camera::Camera(const FbxCamera* pFbxCamera)
 : Object<Camera, std::string>(pFbxCamera)
 {
-	// auto lGlobalName = boost::filesystem::path(pFbxCamera->GetScene()->GetSceneInfo()->Url.Get().Buffer()).stem().string();
-	// if (std::strcmp(pFbxCamera->GetName(), "") == 0)
-	// {
-	// 	setName(std::move(lGlobalName), pFbxCamera->GetName());
-	// }
-	// else
-	// {
-	// 	setName(std::move(lGlobalName), pFbxCamera->GetNode()->GetName());
-	// }
-	
 	mNearPlane = static_cast<float>(pFbxCamera->GetNearPlane());
 	mFarPlane = static_cast<float>(pFbxCamera->GetFarPlane());
-	if (pFbxCamera->ProjectionType.Get() == FbxCamera::ePerspective) mProjection = kPerspectiveProjection;
+	if (pFbxCamera->ProjectionType.Get() == FbxCamera::ePerspective) mProjection = kPerspective;
 	switch (pFbxCamera->ProjectionType.Get())
 	{
 		case FbxCamera::ePerspective:
-			mProjection = kPerspectiveProjection;
+			mProjection = kPerspective;
 			break;
 		case FbxCamera::eOrthogonal:
-			mProjection = kOrthographicProjection;
+			mProjection = kOrthographic;
 			break;
 		default:
-			mProjection = kPerspectiveProjection;
+			mProjection = kPerspective;
 	}
 	mFieldOfView = deg2rad(static_cast<float>(pFbxCamera->FieldOfView.Get()));
 	mProjectionMatrixIsDirty = true;
@@ -78,8 +70,6 @@ void Camera::addMouse(const vec2f& mouseAngles) noexcept
 
 	if (mAngles.y < -M_PIf2) mAngles.y = -M_PIf2;
 	else if (mAngles.y > M_PIf2) mAngles.y = M_PIf2;
-
-	// for (auto e = begin(); e != end(); ++e) (*e)->set_rotation(quatf::mouse(mAngles));
 }
 
 const mat4f& Camera::projectionMatrix() const noexcept
@@ -88,14 +78,14 @@ const mat4f& Camera::projectionMatrix() const noexcept
 	{
 		switch (mProjection)
 		{
-			case kOrthographicProjection:
+			case kOrthographic:
 				mProjectionMatrix.set_orthographic(
 					mWidth, 
 					mHeight, 
 					mNearPlane,
 					mFarPlane);
 				break;
-			case kPerspectiveProjection:
+			case kPerspective:
 				mProjectionMatrix.set_perspective(
 					mFieldOfView, 
 					mWidth / mHeight, 

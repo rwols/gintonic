@@ -2,6 +2,7 @@
 
 #include "../Foundation/exception.hpp"
 #include "../Math/vec4f.hpp"
+#include "../Math/MatrixPipeline.hpp"
 
 #include "GeometryBuffer.hpp"
 #include "Mesh.hpp"
@@ -96,7 +97,8 @@ public:
 
 #ifdef ENABLE_DEBUG_TRACE
 std::shared_ptr<Font> sDebugFont = nullptr;
-FontStream* sDebugStream = nullptr;
+FontStream* sDebugErrorStream = nullptr;
+FontStream* sDebugLogStream = nullptr;
 #endif
 
 SDL_Window* sWindow = nullptr;
@@ -107,6 +109,7 @@ bool Renderer::sShouldClose = false;
 bool Renderer::sFullscreen = false;
 bool Renderer::sRenderInWireframeMode = false;
 bool Renderer::sViewGeometryBuffers = false;
+bool Renderer::sViewCameraDepthBuffer = false;
 int Renderer::sWidth = 800;
 int Renderer::sHeight = 640;
 float Renderer::sAspectRatio = (float)Renderer::sWidth / (float)Renderer::sHeight;
@@ -122,19 +125,22 @@ Uint8* sKeyPrevState = nullptr;
 const Uint8* sKeyState = nullptr;
 int sKeyStateCount;
 
+MatrixPipeline sMatrixPipeline;
+
 bool Renderer::s_matrix_P_dirty = true;
 bool Renderer::s_matrix_VM_dirty = true;
 bool Renderer::s_matrix_PVM_dirty = true;
 bool Renderer::s_matrix_N_dirty = true;
 
-mat4f Renderer::s_matrix_P = mat4f();
-mat4f Renderer::s_matrix_V = mat4f();
-mat4f Renderer::s_matrix_M = mat4f();
-mat4f Renderer::s_matrix_VM = mat4f();
-mat4f Renderer::s_matrix_PVM = mat4f();
-mat3f Renderer::s_matrix_N = mat3f();
+mat4f Renderer::s_matrix_P = mat4f(1.0f);
+mat4f Renderer::s_matrix_V = mat4f(1.0f);
+mat4f Renderer::s_matrix_M = mat4f(1.0f);
+mat4f Renderer::s_matrix_VM = mat4f(1.0f);
+mat4f Renderer::s_matrix_PVM = mat4f(1.0f);
+mat3f Renderer::s_matrix_N = mat3f(1.0f);
 
 std::shared_ptr<Entity> Renderer::sCameraEntity = std::shared_ptr<Entity>(nullptr);
+std::shared_ptr<Entity> Renderer::sDebugShadowBufferEntity = std::shared_ptr<Entity>(nullptr);
 vec3f Renderer::sCameraPosition = vec3f(0.0f, 0.0f, 0.0f);
 
 std::shared_ptr<Mesh> Renderer::sUnitQuadPUN        = nullptr;
@@ -156,7 +162,8 @@ boost::signals2::signal<void(void)> Renderer::onMouseLeave;
 boost::signals2::signal<void(void)> Renderer::onAboutToClose;
 
 #ifdef ENABLE_DEBUG_TRACE
-FontStream& Renderer::cerr() { return *sDebugStream; }
+FontStream& Renderer::cerr() { return *sDebugErrorStream; }
+FontStream& Renderer::cout() { return *sDebugLogStream;   }
 #endif
 
 void Renderer::getElapsedAndDeltaTime(double& t, double& dt)
@@ -174,8 +181,6 @@ void Renderer::init(
 	const int width, 
 	const int height)
 {
-
-	DEBUG_PRINT;
 	bool was_already_initialized;
 	if (isInitialized())
 	{
@@ -193,8 +198,6 @@ void Renderer::init(
 	}
 
 	sFullscreen = fullscreen;
-
-	DEBUG_PRINT;
 
 	if (sFullscreen)
 	{
@@ -215,8 +218,6 @@ void Renderer::init(
 		sHeight = height;
 	}
 
-	DEBUG_PRINT;
-
 	sAspectRatio = (float) sWidth / (float) sHeight;
 
 	if (was_already_initialized == false) std::atexit(SDL_Quit);
@@ -225,8 +226,6 @@ void Renderer::init(
 	if (sFullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	sWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, sWidth, sHeight, flags);
 	// SDL_GetWindowSize(sWindow, &sWidth, &sHeight);
-
-	DEBUG_PRINT;
 
 	//
 	// We start by trying to obtain an OpenGL 4.1 context.
@@ -259,8 +258,6 @@ void Renderer::init(
 		return;
 	}
 
-	DEBUG_PRINT;
-
 	SDL_GetKeyboardState(&sKeyStateCount);
 	sKeyPrevState = new Uint8[sKeyStateCount];
 	std::memset(sKeyPrevState, 0, sizeof(Uint8) * sKeyStateCount);
@@ -276,8 +273,6 @@ void Renderer::init(
 	#ifdef BOOST_MSVC
 	CoInitialize(nullptr); // initialize COM
 	#endif
-
-	DEBUG_PRINT;
 
 	//
 	// Initialize framebuffers
@@ -299,18 +294,14 @@ void Renderer::init(
 	//
 	sDefaultCamera->name = "DefaultCamera";
 	sDefaultCamera->setNearPlane(1.0f);
-	sDefaultCamera->setFarPlane(1000.0f);
-	sDefaultCamera->setProjectionType(Camera::kPerspectiveProjection);
+	sDefaultCamera->setFarPlane(50.0f);
+	sDefaultCamera->setProjectionType(Camera::kPerspective);
 	setCameraEntity(std::move(cameraEntity));
-
-	DEBUG_PRINT;
 
 	//
 	// Initializer shaders
 	//
 	init_shaders();
-
-	DEBUG_PRINT;
 
 	//
 	// Initialize basic shapes
@@ -318,23 +309,18 @@ void Renderer::init(
 
 	initializeBasicShapes();
 
-	DEBUG_PRINT;
-
 	//
 	// Initialize debug variables
 	//
 	#ifdef ENABLE_DEBUG_TRACE
 	// Determine the point size. We take 1/100 of the width
 	const unsigned int lPointSize = static_cast<unsigned int>((float)sWidth / 80.0f);
-	PRINT_VAR(sWidth);
-	PRINT_VAR(sHeight);
-	PRINT_VAR(lPointSize);
 	sDebugFont = std::make_shared<Font>("Resources/Inconsolata-Regular.ttf", lPointSize);
-	sDebugStream = new FontStream();
-	sDebugStream->open(sDebugFont);
+	sDebugErrorStream = new FontStream();
+	sDebugErrorStream->open(sDebugFont);
+	sDebugLogStream = new FontStream();
+	sDebugLogStream->open(sDebugFont);
 	#endif
-
-	DEBUG_PRINT;
 }
 
 void Renderer::initDummy(const bool construct_shaders)
@@ -405,8 +391,6 @@ void Renderer::resize(const int width, const int height)
 	//
 	sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
 	sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
-
-	DEBUG_PRINT;
 }
 
 bool Renderer::isInitialized() noexcept
@@ -417,12 +401,37 @@ bool Renderer::isInitialized() noexcept
 void Renderer::setCameraEntity(std::shared_ptr<Entity> cameraEntity)
 {
 	sCameraEntity = std::move(cameraEntity);
+	std::cout << "Got new camera entity: " << sCameraEntity->name <<'\n';
 	if (!sCameraEntity->camera)
 	{
+		std::cout << "Entity had no camera component. Adding default one.\n";
 		sCameraEntity->camera = sDefaultCamera;
 	}
-	sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
-	sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
+	switch (sCameraEntity->camera->projectionType())
+	{
+		case Camera::kPerspective:
+		{
+			std::cout << "The camera component is a perspective projection.\n";
+			sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
+			sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
+			break;
+		}
+		case Camera::kOrthographic:
+		{
+			std::cout << "The camera component is an orthographic projection.\n";
+			sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
+			sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
+			break;
+		}
+		default:
+		{
+			std::cout << "The camera component has an unknown projection type.\n";
+			sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
+			sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
+			break;
+		}
+	}
+
 }
 
 void Renderer::focusContext() noexcept
@@ -469,6 +478,13 @@ void Renderer::setWireframeMode(const bool yesOrNo) noexcept
 void Renderer::setViewGeometryBuffers(const bool yesOrNo) noexcept
 {
 	sViewGeometryBuffers = yesOrNo;
+	if (sViewGeometryBuffers) sViewCameraDepthBuffer = false;
+}
+
+void Renderer::setViewCameraDepthBuffer(const bool yesOrNo) noexcept
+{
+	sViewCameraDepthBuffer = yesOrNo;
+	if (sViewCameraDepthBuffer) sViewGeometryBuffers = false;
 }
 
 void Renderer::show() noexcept 
@@ -543,18 +559,69 @@ void Renderer::release()
 
 void Renderer::update() noexcept
 {
+	MatrixPipeline lPipeline;
+	lPipeline.setProjectionMatrix(sCameraEntity->camera->projectionMatrix());
+	lPipeline.setViewMatrix(sCameraEntity->getViewMatrix());
+
 	prepareRendering();
+
+	sGeometryBuffer->prepareGeometryPhase();
+
+	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+
 	renderGeometry();
+	
 	if (sViewGeometryBuffers)
 	{
-		sGeometryBuffer->blitDrawbuffersToPostProcessingBuffer(sWidth, sHeight);
+		sGeometryBuffer->blitDrawbuffersToScreen(sWidth, sHeight);
+		cerr() << "GEOMETRY BUFFERS\n";
+	}
+	else if (sViewCameraDepthBuffer)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDisable(GL_DEPTH_TEST);
+		sGeometryBuffer->drawDepthBufferToScreen();
+		cerr() << "CAMERA DEPTH BUFFER\n";
+	}
+	else if (sDebugShadowBufferEntity)
+	{
+		renderShadows();
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDisable(GL_DEPTH_TEST);
+		sDebugShadowBufferEntity->shadowBuffer->bindDepthTextures();
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		const auto& lProgram = DepthBufferShaderProgram::get();
+		lProgram.activate();
+		lProgram.setViewportSize(viewportSize());
+		lProgram.setDepthTexture(4);
+		lProgram.setFarPlane(10.0f);
+		sUnitQuadPUN->draw();
+		cerr() << sDebugShadowBufferEntity->name << " SHADOW BUFFER\n";
 	}
 	else
 	{
 		renderShadows();
+
+		sGeometryBuffer->prepareLightingPhase();
+		
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_ONE, GL_ONE);
+
 		renderLights();
+		
+		sGeometryBuffer->finalize(sWidth, sHeight);
 	}
+
 	finalizeRendering();
+
 	processEvents();
 }
 
@@ -574,13 +641,6 @@ void Renderer::prepareRendering() noexcept
 
 void Renderer::renderGeometry() noexcept
 {
-	sGeometryBuffer->prepareGeometryPhase();
-	glDepthMask(GL_TRUE);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-
 	const auto& lMaterialShaderProgram = MaterialShaderProgram::get();
 	lMaterialShaderProgram.activate();
 	lMaterialShaderProgram.setMaterialDiffuseTexture(GBUFFER_TEX_DIFFUSE);
@@ -672,13 +732,6 @@ void Renderer::renderShadows() noexcept
 
 void Renderer::renderLights() noexcept
 {
-	sGeometryBuffer->prepareLightingPhase();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_ONE, GL_ONE);
-
 	// Ambient lighting
 	const auto& lAmbientLightShaderProgram = AmbientLightShaderProgram::get();
 	lAmbientLightShaderProgram.activate();
@@ -706,20 +759,27 @@ void Renderer::finalizeRendering() noexcept
 	sEntitiesLock.release();
 
 	#ifdef ENABLE_DEBUG_TRACE
-	FlatTextShaderProgram::get().activate();
-	FlatTextShaderProgram::get().setColor(vec3f(1.0f, 1.0f, 1.0f));
+
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	sDebugStream->close();
-	#endif
 
-	sGeometryBuffer->finalize(sWidth, sHeight);
+	const auto& lTextProgram = FlatTextShaderProgram::get();
+	lTextProgram.activate();
+	lTextProgram.setColor(vec3f(1.0f, 0.0f, 0.0f));
+
+	sDebugErrorStream->close();
+
+	lTextProgram.setColor(vec3f(0.8f, 0.8f, 0.8f));
+
+	sDebugLogStream->close();
+	#endif
 
 	SDL_GL_SwapWindow(sWindow);
 
 	#ifdef ENABLE_DEBUG_TRACE
-	sDebugStream->open(sDebugFont);
+	sDebugErrorStream->open(sDebugFont);
+	sDebugLogStream->open(sDebugFont);
 	#endif
 }
 
@@ -773,157 +833,9 @@ void Renderer::processEvents() noexcept
 	}
 
 	// Update the WORLD->VIEW matrix.
-	sCameraEntity->getViewMatrix(s_matrix_V);
+	sCameraEntity->updateViewMatrix(s_matrix_V);
 	sCameraPosition = vec3f((sCameraEntity->globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data);
 }
-
-// void Renderer::renderRawGeometryBuffers() noexcept
-// {
-// 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-// 	glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
-
-// 	const GLsizei halfwidth = (GLsizei)(width() / 2.0f);
-// 	const GLsizei halfheight = (GLsizei)(height() / 2.0f);
-
-// 	glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_POSITION);
-// 	glBlitFramebuffer(0, 0, width(), height(), 0, 0, halfwidth, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-// 	glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_NORMAL);
-// 	glBlitFramebuffer(0, 0, width(), height(), 0, halfheight, halfwidth, height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-// 	glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_DIFFUSE);
-// 	glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-// 	glReadBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_SPECULAR);
-// 	glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-// }
-
-
-// void Renderer::begin_geometry_pass()
-// {
-// 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
-// 	glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
-// 	glClear(GL_COLOR_BUFFER_BIT);
-// 	constexpr GLenum DrawBuffers[4] = 
-// 	{
-// 		GL_COLOR_ATTACHMENT0 + GBUFFER_POSITION, 
-// 		GL_COLOR_ATTACHMENT0 + GBUFFER_DIFFUSE, 
-// 		GL_COLOR_ATTACHMENT0 + GBUFFER_SPECULAR, 
-// 		GL_COLOR_ATTACHMENT0 + GBUFFER_NORMAL
-// 	}; 
-// 	glDrawBuffers(4, DrawBuffers);
-// 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-// 	glDepthMask(GL_TRUE);
-// 	glEnable(GL_DEPTH_TEST);
-// 	glDisable(GL_BLEND);
-// 	glEnable(GL_CULL_FACE);
-// 	glCullFace(GL_BACK);
-// }
-
-// void Renderer::begin_stencil_pass()
-// {
-// 	glDrawBuffer(GL_NONE);
-// 	glEnable(GL_DEPTH_TEST);
-// 	glDisable(GL_CULL_FACE);
-// 	glClear(GL_STENCIL_BUFFER_BIT);
-// 	glStencilFunc(GL_ALWAYS, 0, 0);
-// 	glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-// 	glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-// }
-
-// void Renderer::begin_light_pass()
-// {
-// 	glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
-// 	for (unsigned int i = 0; i < GBUFFER_FINAL_COLOR; ++i) 
-// 	{
-// 		glActiveTexture(GL_TEXTURE0 + i);
-// 		glBindTexture(GL_TEXTURE_2D, s_textures[i]);
-// 	}
-// 	glDisable(GL_DEPTH_TEST);
-// 	glEnable(GL_BLEND);
-// 	glBlendEquation(GL_FUNC_ADD);
-// 	glBlendFunc(GL_ONE, GL_ONE);
-// 	// glClear(GL_COLOR_BUFFER_BIT);
-// }
-
-// void Renderer::set_read_buffer(const enum GBUFFER type)
-// {
-// 	glReadBuffer(GL_COLOR_ATTACHMENT0 + type);
-// }
-
-// void Renderer::blit_drawbuffers_to_screen()
-// {
-// 	// Take s_fbo as the active framebuffer.
-// 	// We blit the geometry stuff into yet another color attachment.
-// 	// This final color attachment gets blitted to the screen in the update()
-// 	// method which is (or rather should be) called at the end of the main render loop.
-// 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
-// 	glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
-// 	glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
-
-// 	const GLsizei halfwidth = (GLsizei)(width() / 2.0f);
-// 	const GLsizei halfheight = (GLsizei)(height() / 2.0f);
-
-// 	set_read_buffer(GBUFFER_POSITION);
-// 	glBlitFramebuffer(0, 0, width(), height(), 0, 0, halfwidth, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-// 	set_read_buffer(GBUFFER_NORMAL);
-// 	glBlitFramebuffer(0, 0, width(), height(), 0, halfheight, halfwidth, height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-// 	set_read_buffer(GBUFFER_DIFFUSE);
-// 	glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-// 	set_read_buffer(GBUFFER_SPECULAR);
-// 	glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-// }
-
-// void Renderer::blit_drawbuffers_to_screen(FontStream& stream)
-// {
-// 	// Take s_fbo as the active framebuffer.
-// 	// We blit the geometry stuff into yet another color attachment.
-// 	// This final color attachment gets blitted to the screen in the update()
-// 	// method which is (or rather should be) called at the end of the main render loop.
-// 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, s_fbo);
-// 	glBindFramebuffer(GL_READ_FRAMEBUFFER, s_fbo);
-// 	glDrawBuffer(GL_COLOR_ATTACHMENT0 + GBUFFER_FINAL_COLOR);
-
-// 	const GLsizei halfwidth = (GLsizei)(width() / 2.0f);
-// 	const GLsizei halfheight = (GLsizei)(height() / 2.0f);		
-	
-// 	set_read_buffer(GBUFFER_POSITION);
-// 	glBlitFramebuffer(0, 0, width(), height(), 0, 0, halfwidth, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-	
-// 	set_read_buffer(GBUFFER_NORMAL);
-// 	glBlitFramebuffer(0, 0, width(), height(), 0, halfheight, halfwidth, height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-	
-// 	set_read_buffer(GBUFFER_DIFFUSE);
-// 	glBlitFramebuffer(0, 0, width(), height(), halfwidth, halfheight, width(), height(), GL_COLOR_BUFFER_BIT, GL_LINEAR);
-	
-// 	set_read_buffer(GBUFFER_SPECULAR);
-// 	glBlitFramebuffer(0, 0, width(), height(), halfwidth, 0, width(), halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-
-// 	glDisable(GL_CULL_FACE);
-// 	glEnable(GL_BLEND);
-// 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-// 	FlatTextShaderProgram::get().activate();
-// 	FlatTextShaderProgram::get().setColor(vec3f(1.0f, 1.0f, 1.0f));
-
-// 	stream << "GBUFFER_NORMAL" << std::endl;
-// 	stream->position.x += 1.0f;
-// 	stream << "GBUFFER_DIFFUSE" << std::endl;
-// 	stream->position.y -= 1.0f;
-// 	stream << "GBUFFER_SPECULAR" << std::endl;
-// 	stream->position.x -= 1.0f;
-// 	stream << "GBUFFER_POSITION" << std::endl;
-
-// 	glEnable(GL_CULL_FACE);
-// }
-
-// void Renderer::ambient_light_pass() noexcept
-// {
-// 	const auto& s = get_AmbientLightShaderProgram();
-// 	s.activate();
-// 	s.set_gbuffer_diffuse(GBUFFER_DIFFUSE);
-// 	s.set_viewport_size(viewportSize());
-// 	s.set_light_intensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
-// 	get_unit_quad_P().draw();
-// }
 
 void Renderer::update_matrix_P()
 {
@@ -949,7 +861,7 @@ void Renderer::update_matrix_PVM()
 	update_matrix_VM();
 	if (s_matrix_PVM_dirty)
 	{
-		s_matrix_PVM = s_matrix_P * s_matrix_VM;
+		s_matrix_PVM = sCameraEntity->camera->projectionMatrix()  * s_matrix_VM;
 		s_matrix_PVM_dirty = false;
 	}
 }
@@ -1132,8 +1044,7 @@ void Renderer::init_shaders()
 		throw;                                        \
 	}
 
-	DEBUG_PRINT;
-
+	INIT_SHADER(DepthBufferShaderProgram);
 	INIT_SHADER(ShadowShaderProgram);
 	INIT_SHADER(MaterialShaderProgram);
 	INIT_SHADER(AmbientLightShaderProgram);
@@ -1141,8 +1052,6 @@ void Renderer::init_shaders()
 	INIT_SHADER(PointLightShaderProgram);
 	INIT_SHADER(SpotLightShaderProgram);
 	INIT_SHADER(FlatTextShaderProgram);
-
-	DEBUG_PRINT;
 }
 
 
@@ -1275,16 +1184,16 @@ void Renderer::initializeBasicShapes()
 			0,1,2,2,1,3 // indices
 		},
 		{
-			{-1.0f, -1.0f, 0.0f, -1.0f}, // position_XYZ_texcoords_X
+			{-1.0f, -1.0f, 0.0f,  0.0f}, // position_XYZ_texcoords_X
 			{ 1.0f, -1.0f, 0.0f,  1.0f},
-			{-1.0f,  1.0f, 0.0f, -1.0f},
+			{-1.0f,  1.0f, 0.0f,  0.0f},
 			{ 1.0f,  1.0f, 0.0f,  1.0f}
 		},
 		{
-			{ 0.0f,  0.0f, 1.0f, -1.0f}, // normal_XYZ_texcoords_Y
-			{ 0.0f,  0.0f, 1.0f, -1.0f},
+			{ 0.0f,  0.0f, 1.0f,  1.0f}, // normal_XYZ_texcoords_Y
 			{ 0.0f,  0.0f, 1.0f,  1.0f},
-			{ 0.0f,  0.0f, 1.0f,  1.0f}
+			{ 0.0f,  0.0f, 1.0f,  0.0f},
+			{ 0.0f,  0.0f, 1.0f,  0.0f}
 		}
 	);
 
