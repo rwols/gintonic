@@ -47,9 +47,9 @@ public:
 	/// Destructor.
 	virtual ~SpotLight() noexcept = default;
 
-	virtual void setAngle(const float angle);
+	virtual void setCosineHalfAngle(const float angle);
 
-	virtual float getAngle() const noexcept;
+	virtual float getCosineHalfAngle() const noexcept;
 	
 	/**
 	 * @brief Shine the spot light given the global transformation of the
@@ -74,7 +74,7 @@ public:
 
 private:
 
-	float mAngle;
+	float mCosineHalfAngle;
 
 	// Reimplement this method to support output streams.
 	virtual std::ostream& prettyPrint(std::ostream&) const noexcept;

@@ -124,3 +124,8 @@ include(FindPackageHandleStandardArgs)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(FBX REQUIRED_VARS FBX_LIBRARY FBX_INCLUDE_DIR)
 
+mark_as_advanced(FBX_FOUND)
+mark_as_advanced(FBX_INCLUDE_DIR)
+mark_as_advanced(FBX_LIBRARY)
+mark_as_advanced(FBX_LIBRARY_DEBUG)
+mark_as_advanced(FBX_NAMESPACE)

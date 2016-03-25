@@ -21,17 +21,29 @@ private:
 	GLuint mHandle;
 public:
 
+	/**
+	 * @brief Used when checking the status of a Framebuffer.
+	 */
 	class Exception : public std::exception
 	{
 	public:
 
+		/**
+		 * @brief Constructor.
+		 * @param [in] status The status code that OpenGL returns.
+		 */
 		inline Exception(const GLenum status) noexcept : statusCode(status) {}
+		
+		/// Defaulted destructor.
 		virtual ~Exception() noexcept = default;
+
+		/// Returns a string representation of the status code.
 		inline virtual const char* what() const noexcept
 		{
 			return statusCodeToErrorString(statusCode);
 		}
 
+		/// The status code.
 		const GLenum statusCode;
 
 	private:
@@ -71,8 +83,23 @@ public:
 		return mHandle;
 	}
 
+	/**
+	 * @brief Bind this Framebuffer.
+	 * @param token Either `GL_DRAW_FRAMEBUFFER` or `GL_READ_FRAMEBUFFER`.
+	 */
 	void bind(const GLenum token) const noexcept;
+
+	/**
+	 * @brief Check the status of this Framebuffer.
+	 * @exception gintonic::OpenGL::Framebuffer::Exception
+	 */
 	void checkStatus() const;
+
+	/**
+	 * @brief Check the status of this Framebuffer.
+	 * @param [out] r True if the Framebuffer is complete,
+	 * false if it is not complete.
+	 */
 	void checkStatus(bool& r) const noexcept;
 };
 

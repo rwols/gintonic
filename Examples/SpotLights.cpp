@@ -23,16 +23,16 @@ public:
 	: Application(APPNAME, argc, argv)
 	{
 		using namespace gintonic;
-		if (argc < 2)
+		if (argc < 4)
 		{
 			exception lException("Usage: ");
 			lException.append(argv[0]);
-			lException.append(" <grid-size> <number-of-point-lights>");
+			lException.append("<fullscreen?> <grid-size> <number-of-point-lights>");
 			throw lException;
 		}
 
-		mNumObjects = std::atoi(argv[1]);
-		mNumLights = std::atoi(argv[2]);
+		mNumObjects = std::atoi(argv[2]);
+		mNumLights = std::atoi(argv[3]);
 
 		if (mNumObjects <= 0)
 		{
@@ -244,29 +244,21 @@ private:
 		if (Renderer::key(SDL_SCANCODE_LEFT))
 		{
 			mSpotlightAngle -= mDeltaTime * ANGLE_CHANGE_SPEED;
-
-			if (mSpotlightAngle < 0.0f)
-			{
-				mSpotlightAngle = 0.0f;
-			}
+			mSpotlightAngle = std::max(0.0f, mSpotlightExponent);
 
 			for (auto lChild : *mRootOfLights)
 			{
-				lChild->light->setAngle(mSpotlightAngle);
+				lChild->light->setCosineHalfAngle(mSpotlightAngle);
 			}
 		}
 		if (Renderer::key(SDL_SCANCODE_RIGHT))
 		{
 			mSpotlightAngle += mDeltaTime * ANGLE_CHANGE_SPEED;
-
-			if (mSpotlightAngle > static_cast<float>(M_PI) * 0.5f)
-			{
-				mSpotlightAngle = static_cast<float>(M_PI) * 0.5f;
-			}
+			mSpotlightAngle = std::min(1.0f, mSpotlightExponent);
 
 			for (auto lChild : *mRootOfLights)
 			{
-				lChild->light->setAngle(mSpotlightAngle);
+				lChild->light->setCosineHalfAngle(mSpotlightAngle);
 			}
 		}
 		if (Renderer::key(SDL_SCANCODE_EQUALS))

@@ -12,26 +12,23 @@
 namespace gintonic {
 
 /**
- * @brief A light. Virtual base component for inheritance.
+ * @brief A light. This is an abstract class, meant for inheritance.
  */
 class Light : public Object<Light, std::string>
 {
 public:
 
-	static std::shared_ptr<Light> create(const FBXSDK_NAMESPACE::FbxLight*);
-
 	/**
-	 * @brief The intensity of the light.
-	 * 
-	 * @details The first three components, the X, Y and Z values, define the
-	 * color of the light. The fourth component, the W value, defines the
-	 * intensity of the light.
+	 * @brief Construct a light from an FbxLight.
+	 * @details This static method returns a shared pointer to a new light.
+	 * The light is polymorphically constructed from the data found in
+	 * the FbxLight.
+	 * @param pFbxLight Pointer to an FbxLight.
+	 * @return Shared pointer to a new light.
+	 * @throws std::runtime_error when the decay type of the FbxLight is cubic,
+	 * because we only support constant, linear and quadratic attenuation values.
 	 */
-	// vec4f intensity;
-
-	// virtual void attach(Entity&);
-
-	// virtual void detach(Entity&);
+	static std::shared_ptr<Light> create(const FBXSDK_NAMESPACE::FbxLight* pFbxLight);
 
 	/// Default constructor.
 	Light() = default;
@@ -55,32 +52,72 @@ public:
 	virtual void shine(const Entity& e) const noexcept = 0;
 
 	/**
-	 * @brief Set the brightness, or intensity of the light.
-	 * 
+	 * @brief Set the brightness.
+	 * All lights have a brightness. It's simply the W-component of the intensity.
 	 * @param brightness The new brightness value.
 	 */
 	virtual void setBrightness(const float brightness);
 
 	/**
-	 * @brief Get the brightness, or intensity of the light.
+	 * @brief Get the brightness.
+	 * All lights have a brightness. It's simply the W-component of the intensity.
 	 * @return The current brightness, or intensity.
 	 */
 	virtual float getBrightness() const noexcept;
 
+	/**
+	 * @brief Get the attenuation value.
+	 * Some lights do not have an attenuation.
+	 * @return The attenuation value.
+	 */
 	virtual vec4f getAttenuation() const noexcept = 0;
+
+	/**
+	 * @brief Set the attenuation value.
+	 * Some lights do not have an attenuation.
+	 * @param attenuation The new attenuation value.
+	 */
 	virtual void setAttenuation(const vec4f& attenuation) = 0;
+
+	/**
+	 * @brief Get the intensity value.
+	 * All lights have an intensity.
+	 * @return The intensity value.
+	 */
 	inline virtual vec4f getIntensity() const noexcept
 	{
 		return mIntensity;
 	}
+
+	/**
+	 * @brief Set the intensty value.
+	 * All lights have an intensity.
+	 * @param intensity The new intensity value.
+	 */
 	inline virtual void setIntensity(const vec4f& intensity)
 	{
 		mIntensity = intensity;
 	}
 
-	virtual float getAngle() const noexcept = 0;
-	virtual void setAngle(const float angle) = 0;
+	/**
+	 * @brief Get the cosine of the half angle value.
+	 * @details This property is used for a SpotLight.
+	 * @return The cosine of the half angle.
+	 */
+	virtual float getCosineHalfAngle() const noexcept = 0;
 
+	/**
+	 * @brief Get the cosine of the half angle value.
+	 * @details This property is used for a SpotLight.
+	 * @param cosineHalfAngle The new cosine of the half angle.
+	 */
+	virtual void setCosineHalfAngle(const float cosineHalfAngle) = 0;
+
+	/**
+	 * @brief Initialize the shadow buffer.
+	 * @param lightEntity The light entity that is attached
+	 * to this light.
+	 */
 	virtual void initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const = 0;
 
 	/**
@@ -115,6 +152,13 @@ public:
 
 protected:
 
+	/**
+	 * @brief The intensity of the light.
+	 * 
+	 * @details The first three components, the X, Y and Z values, define the
+	 * color of the light. The fourth component, the W value, defines the
+	 * intensity of the light.
+	 */
 	vec4f mIntensity;
 
 private:

@@ -515,7 +515,6 @@ public:
 	 */
 	static void vsync(const bool b);
 
-	#ifdef ENABLE_DEBUG_TRACE
 	/**
 	 * @brief Output to a debug stream on the Renderer's viewport. The color is red.
 	 * @return A reference to a FontStream.
@@ -527,7 +526,6 @@ public:
 	 * @return A reference to a FontStream.
 	 */
 	static FontStream& cout();
-	#endif
 
 	/**
 	 * @brief Update the Renderer.

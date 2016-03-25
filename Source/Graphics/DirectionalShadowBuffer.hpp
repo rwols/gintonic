@@ -6,10 +6,21 @@
 
 namespace gintonic {
 
+/**
+ * @brief Shadow buffer for a directional light.
+ */
 class DirectionalShadowBuffer : public ShadowBuffer
 {
 public:
+
+	/**
+	 * @brief Constructor builds a depth buffer attached to a new OpenGL::Framebuffer.
+	 * @throw gintonic::OpenGL::Framebuffer::Exception when the OpenGL::Framebuffer
+	 * fails to initialize.
+	 */
 	DirectionalShadowBuffer();
+
+	/// Default destructor does nothing special.
 	virtual ~DirectionalShadowBuffer() noexcept = default;
 
 	virtual void collect(

@@ -7,7 +7,7 @@
 #include "../../Math/mat4f.hpp"
 
 namespace gintonic {
-namespace opengl {
+namespace OpenGL {
 
 void setUniform(const GLint location, const GLint value) noexcept
 {

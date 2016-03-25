@@ -17,6 +17,7 @@ namespace Uniform {
 #define GT_PASTE_TOGETHER(x, y) x ## y
 
 #define GT_DEFINE_UNIFORM(UNIFORM_TYPE, UNIFORM_NAME, UNIFORM_NAME_WITH_FIRST_CAPITAL) \
+/** @brief Class that encapsulates a uniform variable in a shader. */                  \
 class UNIFORM_NAME : virtual public OpenGL::ShaderProgram                              \
 {                                                                                      \
 private:                                                                               \
@@ -81,33 +82,66 @@ GT_DEFINE_UNIFORM(GLint,        glyphTexture,                  GlyphTexture);
 
 } // namespace Uniform
 
+/**
+ * @brief Base class for a shader program. Defines the various
+ * static methods common across all shaders.
+ * @tparam DerivedShaderProgram The derived type.
+ */
 template <class DerivedShaderProgram>
 class ShaderProgramBase
 {
 public:
+
+	/**
+	 * @brief Initialize this shader program.
+	 * The Renderer takes care of that.
+	 * @attention Never call this method yourself.
+	 */
 	inline static void initialize()
 	{
 		delete sInstance;
 		sInstance = new DerivedShaderProgram();
 	}
+
+	/**
+	 * @brief Release this shader.
+	 * The Renderer takes care of that.
+	 * @attention Never call this method yourself.
+	 */
 	inline static void release() noexcept
 	{
 		delete sInstance;
 		sInstance = nullptr;
 	}
+
+	/**
+	 * @brief Get a const reference to this shader program.
+	 * @return A const reference to this shader program.
+	 */
 	inline static const DerivedShaderProgram& get() noexcept
 	{
 		return *sInstance;
 	}
 protected:
+
+	/// Defaulted constructor.
 	ShaderProgramBase() = default;
+
+	/// Defaulted destructor.
 	virtual ~ShaderProgramBase() noexcept = default;
+
 private:
+
 	static DerivedShaderProgram* sInstance;
 };
 
+//!@cond
 template <class D> D* ShaderProgramBase<D>::sInstance = nullptr;
+//!@endcond
 
+/**
+ * @brief Shader program for materials.
+ */
 class MaterialShaderProgram
 : public ShaderProgramBase<MaterialShaderProgram>
 , public Uniform::matrixPVM
@@ -123,7 +157,11 @@ class MaterialShaderProgram
 , public Uniform::materialFlag
 {
 public:
+
+	/// Defaulted constructor.
 	MaterialShaderProgram();
+
+	/// Defaulted destructor.
 	virtual ~MaterialShaderProgram() noexcept = default;
 };
 

@@ -21,21 +21,21 @@ namespace gintonic {
 
 SpotLight::SpotLight(const vec4f& intensity)
 : PointLight(intensity)
-, mAngle(1.0f)
+, mCosineHalfAngle(1.0f)
 {
-	// The cosine of pi/2 is 1, so that's why we set mAngle to 1.
+	// The cosine of pi/2 is 1, so that's why we set mCosineHalfAngle to 1.
 }
 
 SpotLight::SpotLight(const vec4f& intensity, const vec4f& attenuation)
 : PointLight(intensity, attenuation)
-, mAngle(1.0f)
+, mCosineHalfAngle(1.0f)
 {
-	// The cosine of pi/2 is 1, so that's why we set mAngle to 1.
+	// The cosine of pi/2 is 1, so that's why we set mCosineHalfAngle to 1.
 }
 
 SpotLight::SpotLight(const vec4f& intensity, const vec4f& attenuation, const float angle)
 : PointLight(intensity, attenuation)
-, mAngle(std::cos(angle))
+, mCosineHalfAngle(std::cos(angle))
 {
 	/* Empty on purpose. */
 }
@@ -67,7 +67,7 @@ void SpotLight::shine(const Entity& e) const noexcept
 	lProgram.setLightPosition(lLightPos);
 	lProgram.setLightDirection(lLightDir);
 	lProgram.setLightAttenuation(getAttenuation());
-	lProgram.setLightCosineHalfAngle(mAngle);
+	lProgram.setLightCosineHalfAngle(mCosineHalfAngle);
 	lProgram.setMatrixPVM(Renderer::matrix_PVM());
 
 	// Is the camera inside or outside the sphere?
@@ -94,14 +94,14 @@ void SpotLight::shine(const Entity& e) const noexcept
 	Renderer::getUnitSphere()->draw();
 }
 
-void SpotLight::setAngle(const float angle)
+void SpotLight::setCosineHalfAngle(const float cosineHalfAngle)
 {
-	mAngle = std::cos(angle);
+	mCosineHalfAngle = cosineHalfAngle;
 }
 
-float SpotLight::getAngle() const noexcept
+float SpotLight::getCosineHalfAngle() const noexcept
 {
-	return std::acos(mAngle);
+	return mCosineHalfAngle;
 }
 
 void SpotLight::initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const

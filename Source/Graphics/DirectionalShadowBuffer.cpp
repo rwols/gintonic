@@ -12,22 +12,22 @@
 
 #include <iomanip>
 
-#define SHADOWBUFFER_QUALITY 512
+#define DEPTH_TEXTURE_UNIT 4
+
+#define SHADOW_QUALITY 512
 
 namespace gintonic {
 
 DirectionalShadowBuffer::DirectionalShadowBuffer()
 {
-	// THROW_NOT_IMPLEMENTED_EXCEPTION();
-
 	mFramebuffer.bind(GL_DRAW_FRAMEBUFFER);
 	glBindTexture(GL_TEXTURE_2D, mTexture);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOWBUFFER_QUALITY, SHADOWBUFFER_QUALITY, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_QUALITY, SHADOW_QUALITY, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mTexture, 0);
-	// glReadBuffer(GL_NONE);
-	// glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glDrawBuffer(GL_NONE);
 	mFramebuffer.checkStatus();
 }
 
@@ -36,38 +36,37 @@ void DirectionalShadowBuffer::collect(
 	Entity& lightEntity, 
 	const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) noexcept
 {
-	Renderer::cerr() << "Collecting depth buffer for " << lightEntity.name << '\n';
-
 	const auto& lShadowProgram = ShadowShaderProgram::get();
-	mat4f lViewMatrix;
-	mat4f lProjectionViewMatrix;
+
+	lightEntity.setTranslation(vec3f(0.0f, 0.0f, 0.0f));
+	
 	mat4f lProjectionViewModelMatrix;
+	const auto lViewMatrix = lightEntity.getViewMatrix();
 
 	mFramebuffer.bind(GL_DRAW_FRAMEBUFFER);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	mProjectionMatrix.set_orthographic(1.0f, 1.0f, -1.0f, 1.0f);
+	mProjectionMatrix.set_orthographic(2.0f, 2.0f, -1.0f, 1.0f);
+	const auto lProjectionViewMatrix = mProjectionMatrix * lViewMatrix;
 
-	lightEntity.getViewMatrix(lViewMatrix);
-	lProjectionViewMatrix = mProjectionMatrix * lViewMatrix;
-
-	Renderer::cerr() << "Projection matix: " << std::fixed << std::setprecision(4) << mProjectionMatrix << '\n';
-	Renderer::cerr() << "View matrix:      " << std::fixed << std::setprecision(4) << lViewMatrix << '\n';
-	Renderer::cerr() << "ProjectionView:   " << std::fixed << std::setprecision(4) << lProjectionViewMatrix << '\n';
+	Renderer::cerr() << "Collecting depth buffer for " << lightEntity.name << '\n'
+		<< "Projection matix: " << std::fixed << std::setprecision(4) << mProjectionMatrix << '\n'
+		<< "ProjectionView:   " << std::fixed << std::setprecision(4) << lProjectionViewMatrix << '\n';
 
 	for (const auto lGeometryEntity : shadowCastingGeometryEntities)
 	{
-		Renderer::cerr() << "Rendering to depth buffer: " << lGeometryEntity->name << '\n';
 		lProjectionViewModelMatrix = lProjectionViewMatrix * lGeometryEntity->globalTransform();
+		Renderer::cerr() << "Rendering to depth buffer:  " << lGeometryEntity->name << '\n'
+			<< "ProjectionViewModel matrix: " << std::fixed << std::setprecision(4) 
+			<< lProjectionViewModelMatrix << "\n\n";
 		lShadowProgram.setMatrixPVM(lProjectionViewModelMatrix);
-		// lShadowProgram.setInstancedRendering(0);
 		lGeometryEntity->mesh->draw();
 	}
 }
 
 void DirectionalShadowBuffer::bindDepthTextures() const noexcept
 {
-	mTexture.bind(GL_TEXTURE_2D, 4);
+	mTexture.bind(GL_TEXTURE_2D, DEPTH_TEXTURE_UNIT);
 }
 
 const mat4f& DirectionalShadowBuffer::projectionMatrix() const noexcept

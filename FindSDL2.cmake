@@ -253,3 +253,7 @@ INCLUDE(FindPackageHandleStandardArgs)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL2 REQUIRED_VARS SDL2_LIBRARY SDL2_INCLUDE_DIR)
 
+mark_as_advanced(SDL2_FOUND)
+mark_as_advanced(SDL2MAIN_LIBRARY)
+mark_as_advanced(SDL2_INCLUDE_DIR)
+mark_as_advanced(SDL2_LIBRARY)

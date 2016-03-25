@@ -34,6 +34,9 @@ class Mesh : public Object<Mesh, std::string>
 {
 public:
 
+	/**
+	 * @deprecated
+	 */
 	enum MeshType
 	{
 		kStaticMesh,
@@ -180,23 +183,7 @@ public:
 		}
 	};
 
-	struct LocalData
-	{
-		LocalData() = default;
-		LocalData(const FBXSDK_NAMESPACE::FbxMesh*);
-
-		std::vector<GLuint> mIndices;
-		std::vector<Mesh::vec4f> mSlot0;
-		std::vector<Mesh::vec4f> mSlot1;
-		std::vector<Mesh::vec4f> mSlot2;
-
-		template <class Archive> 
-		void serialize(Archive& ar, const unsigned int /*version*/)
-		{
-			ar & mIndices & mSlot0 & mSlot1 & mSlot2;
-		}
-	};
-
+	/// Get the local bounding box.
 	const box3f& getLocalBoundingBox() const noexcept
 	{
 		return mLocalBoundingBox;

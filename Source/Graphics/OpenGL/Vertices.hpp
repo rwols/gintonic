@@ -1,5 +1,5 @@
 /**
- * @file vertices.hpp
+ * @file Vertices.hpp
  * @brief Defines various vertex types.
  * @author Raoul Wols
  */
@@ -7,9 +7,9 @@
 #ifndef vertices_hpp
 #define vertices_hpp
 
-#include "../Math/vec2f.hpp"
-#include "../Math/vec3f.hpp"
-#include "../Math/vec4f.hpp"
+#include "../../Math/vec2f.hpp"
+#include "../../Math/vec3f.hpp"
+#include "../../Math/vec4f.hpp"
 
 #ifdef __clang__
 	#pragma clang diagnostic push
@@ -82,7 +82,7 @@ namespace FBX
 }
 
 namespace gintonic {
-namespace opengl {
+namespace OpenGL {
 
 /**
  * @brief Vertex with positions.
@@ -1416,7 +1416,7 @@ public:
 	enum { value = sizeof(test<T>(0)) == sizeof(char) };
 };
 
-} // end of namespace opengl
+} // end of namespace OpenGL
 } // end of namespace gintonic
 
 #ifdef __clang__

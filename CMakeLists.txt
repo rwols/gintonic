@@ -8,7 +8,8 @@ endif()
 
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "The build type. Can be Debug or Release or whatnot")
 
-set(SSE_VERSION 30)
+set(SSE_VERSION 30 CACHE STRING "The SSE version.")
+
 set(shader_folder "${CMAKE_CURRENT_SOURCE_DIR}/Source/Graphics/Shaders/")
 
 set(lua_src_dir "lua-5.3.1/src")
@@ -20,45 +21,7 @@ set(src_files ${gintonic_source_files} ${lua_source_files})
 
 project(gintonic C CXX)
 
-if (WIN32)
-	if ("$ENV{BOOST_ROOT}" STREQUAL "")
-		message(WARNING "The %BOOST_ROOT% environment variable is not set.")
-	endif ()
-
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SCL_SECURE_NO_WARNINGS /DNOMINMAX /D_USE_MATH_DEFINES /DBOOST_ALL_NO_LIB /arch:SSE2") 
-
-	add_definitions(/arch:SSE)
-
-	# Various bugfixes
-	# add_definitions(/D_SCL_SECURE_NO_WARNINGS)
-	# add_definitions(/DNOMINMAX)
-	# add_definitions(/D_USE_MATH_DEFINES)
-	# add_definitions(/DBOOST_ALL_NO_LIB) # THIS FIXES STUFF FOR SOME MAGICAL REASON
-	# add_definitions(/DBOOST_PROGRAM_OPTIONS_DYN_LINK)
-	# add_definitions(/MT)
-
-	# WARNING: BIG HACK!!!
-	# Remove this when the above is fixed.
-	# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ignore:4098" CACHE INTERNAL "Big hack")
-
-	# Make the linker shut up about not inlining functions
-	# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ignore:4710" CACHE INTERNAL "Shut up about inlining")
-
-	# Enable multithreaded compilation
-	# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-	# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
-else ()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -msse3")
-	# add_definitions(-std=c++11)
-	# add_definitions(-Wall)
-	# add_definitions(-msse3)
-
-	if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\$$ORIGIN" 
-			CACHE INTERNAL "Set dynamic library path to the executable's folder.")
-	endif ()
-	
-endif ()
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 
 find_package(Boost
 	COMPONENTS
@@ -79,38 +42,50 @@ else ()
 	find_package(PNG REQUIRED)
 endif ()
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 find_package(Freetype REQUIRED)
 find_package(FBX REQUIRED)
 find_package(SDL2 REQUIRED)
 
 find_package(Doxygen)
 
-option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
-option(WITH_PROFILING "Profile various math functions. Does nothing at the moment." OFF)
+if (NOT DOXYGEN_FOUND)
+	message(WARNING "Doxygen is not present on this system. Documentation cannot be built.")
+else ()
+	option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
+endif ()
+
 option(WITH_PROFILING "Profile various math functions." OFF)
 option(WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
-option(ENABLE_DEBUG_TRACE "Enable debug tracing via the renderer." ON)
-option(HIDE_CONSOLE "Hide the console on Windows." OFF)
-option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output streams to files." OFF)
+if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+	option(ENABLE_DEBUG_TRACE "Enable debug tracing via the renderer." ON)
+else ()
+	option(ENABLE_DEBUG_TRACE "Enable debug tracing via the renderer." OFF)
+endif ()
+option(HIDE_CONSOLE "Hide the console on Windows." ON)
+option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output to the renderer's error stream." ${ENABLE_DEBUG_TRACE})
 
-if (HIDE_CONSOLE)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+configure_file(Source/config.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.hpp)
+add_library(gintonic ${src_files})
+if (WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SCL_SECURE_NO_WARNINGS /DNOMINMAX /D_USE_MATH_DEFINES /DBOOST_ALL_NO_LIB /arch:SSE")
+else ()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -msse3")
+endif ()
+set_target_properties(gintonic PROPERTIES INSTALL_RPATH "")
+
+if (WIN32 AND HIDE_CONSOLE)
+	set_target_properties(gintonic PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
 endif ()
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(ENABLE_DEBUG_TRACE ON CACHE BOOL "Enable debug tracing via the renderer.")	
 endif ()
 
-configure_file(Source/config.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.hpp)
-add_library(gintonic ${src_files})
-
 if (BUILD_DOCUMENTATION)
 	configure_file(Doxyfile.cmake ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-	add_custom_command(TARGET gintonic POST_BUILD
+	add_custom_target(doc ALL
 		COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		COMMENT "Generating documentation."
-		VERBATIM)
+		COMMENT "Generating documentation." VERBATIM)
 endif()
 
 include_directories(
@@ -159,22 +134,6 @@ if (WIN32)
 	else ()
 		message(FATAL_ERROR "${CMAKE_BUILD_TYPE} is an unknown build type for me.")
 	endif ()
-
-	# message(STATUS "Here's the list of debug DLLs:")
-	# foreach (DLL ${DEBUG_DLLS})
-	# 	message(STATUS "${DLL}")
-		# file (COPY ${DLL} DESTINATION ${CMAKE_BINARY_DIR})
-	# endforeach()
-
-	# message(STATUS "Here's the list of release DLLs:")
-	# foreach (DLL ${RELEASE_DLLS})
-	# 	message(STATUS "${DLL}")
-		# file (COPY ${DLL} DESTINATION ${CMAKE_BINARY_DIR})
-	# endforeach()
-
-	# add_custom_command(TARGET gintonic POST_BUILD
-	# 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	# 	${DLLS} $<TARGET_FILE_DIR:gintonic>)
 
 else ()
 	include_directories(
@@ -253,14 +212,8 @@ function(target_link_with_gintonic targetName)
 
 endfunction(target_link_with_gintonic)
 
-mark_as_advanced(FBX_INCLUDE_DIR)
-mark_as_advanced(FBX_LIBRARY)
-mark_as_advanced(FBX_LIBRARY_DEBUG)
-mark_as_advanced(SDL2MAIN_LIBRARY)
-mark_as_advanced(SDL2_INCLUDE_DIR)
-mark_as_advanced(SDL2_LIBRARY)
-mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
-mark_as_advanced(CMAKE_INSTALL_PREFIX)
+# mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
+# mark_as_advanced(CMAKE_INSTALL_PREFIX)
 
 add_subdirectory (Tools)
 add_subdirectory (Examples)

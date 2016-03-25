@@ -262,7 +262,7 @@ mat4f& mat4f::set_orthographic(const float left, const float right, const float 
 
 	m00 =  2.0f / rl;
 	m11 =  2.0f / tb;
-	m22 =  2.0f / fn;
+	m22 = -2.0f / fn;
 	m03 = -(right + left) / rl;
 	m13 = -(top + bottom) / tb;
 	m23 = -(farplane + nearplane) / fn;
@@ -280,9 +280,9 @@ mat4f& mat4f::set_orthographic(const float width, const float height, const floa
 	data[2] = _mm_set1_ps(0.0f);
 	data[3] = _mm_set1_ps(0.0f);
 
-	m00 = 2.0f / width;
-	m11 = 2.0f / height;
-	m22 = 2.0f / fn;
+	m00 = 1.0f / width;
+	m11 = 1.0f / height;
+	m22 = -2.0f / fn;
 	m23 = -(farplane + nearplane) / fn;
 	m33 = 1.0f;
 

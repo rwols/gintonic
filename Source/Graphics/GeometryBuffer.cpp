@@ -118,20 +118,9 @@ void GeometryBuffer::blitDrawbuffersToScreen(const int width, const int height) 
 	glBlitFramebuffer(0, 0, width, height, halfwidth, 0, width, halfheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 }
 
-void GeometryBuffer::drawDepthBufferToScreen() const noexcept
+void GeometryBuffer::bindDepthTexture(const GLint textureUnit) const noexcept
 {
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	// glBindFramebuffer(GL_READ_FRAMEBUFFER, mFramebuffer);
-
-	// glDrawBuffer(GL_COLOR_ATTACHMENT0 + kPostProcessing);
-	// glClear(GL_COLOR_BUFFER_BIT);
-	mTextures[kDepth].bind(GL_TEXTURE_2D, 0);
-	const auto& lProgram = DepthBufferShaderProgram::get();
-	lProgram.activate();
-	lProgram.setViewportSize(Renderer::viewportSize());
-	lProgram.setDepthTexture(0);
-	lProgram.setFarPlane(Renderer::getCameraEntity()->camera->farPlane());
-	Renderer::getUnitQuad()->draw();
+	mTextures[kDepth].bind(GL_TEXTURE_2D, textureUnit);
 }
 
 void GeometryBuffer::finalize(const int width, const int height) const noexcept

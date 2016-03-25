@@ -73,8 +73,15 @@ public:
 	 */
 	float cutoffPoint() const noexcept;
 
-	inline virtual float getAngle() const noexcept { return 0.0f; }
-	inline virtual void setAngle(const float angle) { /* do nothing */ }
+	inline virtual float getCosineHalfAngle() const noexcept
+	{
+		return 0.0f;
+	}
+
+	inline virtual void setCosineHalfAngle(const float angle)
+	{
+		/* do nothing */
+	}
 
 	virtual void setIntensity(const vec4f& intensity);
 

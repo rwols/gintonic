@@ -4,25 +4,24 @@
 
 #define APPNAME "Orthographic Projection"
 
-class HelloWorldTextApplication : public Application
+class OrthographicApplication : public Application
 {
 public:
 
-	HelloWorldTextApplication(int argc, char** argv)
+	OrthographicApplication(int argc, char** argv)
 	: Application(APPNAME, argc, argv)
 	{
 		using namespace gintonic;
 		auto lCamera = std::make_shared<Camera>();
 		lCamera->name = "OrthoCamera";
-		lCamera->setNearPlane(1.0f);
-		lCamera->setFarPlane(10.0f);
-		lCamera->setWidth(5.0f);
-		lCamera->setHeight(5.0f);
+		lCamera->setNearPlane(-5.0f);
+		lCamera->setFarPlane(5.0f);
+		lCamera->setWidth(4.0f * Renderer::aspectRatio());
+		lCamera->setHeight(4.0f);
 		lCamera->setProjectionType(Camera::kOrthographic);
 		auto lCameraEntity = Renderer::getCameraEntity();
 		lCameraEntity->camera = lCamera;
-		lCameraEntity->setTranslationZ(4.0f);
-		// Renderer::setCameraEntity(lCameraEntity);
+		lCameraEntity->setTranslationZ(0.0f);
 		Renderer::setFreeformCursor(true);
 		Renderer::show();
 
@@ -37,16 +36,22 @@ public:
 		lCube->setParent(mRootEntity);
 	}
 
-	virtual ~HelloWorldTextApplication() noexcept = default;
+	virtual ~OrthographicApplication() noexcept = default;
 
 private:
 
 	virtual void onRenderUpdate() final
 	{
 		using namespace gintonic;
-		Renderer::cerr() << "Hello world!\n";
+		auto lCameraEntity = Renderer::getCameraEntity();
+		Renderer::cerr() << "Camera projection: " << lCameraEntity->camera->projectionMatrix() << '\n';
+		Renderer::cerr() << "Camera width:      " << lCameraEntity->camera->width() << '\n';
+		Renderer::cerr() << "Camera height:     " << lCameraEntity->camera->height() << '\n';
+		Renderer::cerr() << "Camera near plane: " << lCameraEntity->camera->nearPlane() << '\n';
+		Renderer::cerr() << "Camera far plane:  " << lCameraEntity->camera->farPlane() << '\n';
+
 	}
 
 };
 
-DEFINE_MAIN(HelloWorldTextApplication);
+DEFINE_MAIN(OrthographicApplication);

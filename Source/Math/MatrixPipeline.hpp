@@ -1,13 +1,27 @@
+/**
+ * @file MatrixPipeline.hpp
+ * @author Raoul Wols
+ * @brief Defines the MatrixPipeline class.
+ */
+
 #pragma once
 
 #include "mat4f.hpp"
 
 namespace gintonic {
 
+/**
+ * @brief Easy manipulation of projection, view and model matrices.
+ */
 class MatrixPipeline
 {
 public:
 
+	/**
+	 * @brief Set the model matrix.
+	 * @param args The constructor arguments for the model matrix.
+	 * @tparam MatrixConstructorArguments Template pack.
+	 */
 	template <class ...MatrixConstructorArguments>
 	void setModelMatrix(MatrixConstructorArguments&&... args)
 	{
@@ -17,6 +31,11 @@ public:
 		mNormalMatrixIsDirty = true;
 	}
 
+	/**
+	 * @brief Set the view matrix.
+	 * @param args The constructor arguments for the view matrix.
+	 * @tparam MatrixConstructorArguments Template pack.
+	 */
 	template <class ...MatrixConstructorArguments>
 	void setViewMatrix(MatrixConstructorArguments&&... args)
 	{
@@ -27,6 +46,11 @@ public:
 		mNormalMatrixIsDirty = true;
 	}
 
+	/**
+	 * @brief Set the projection matrix.
+	 * @param args The constructor arguments for the projection matrix.
+	 * @tparam MatrixConstructorArguments Template pack.
+	 */
 	template <class ...MatrixConstructorArguments>
 	void setProjectionMatrix(MatrixConstructorArguments&&... args)
 	{
@@ -35,6 +59,13 @@ public:
 		mProjectionViewMatrixIsDirty = true;
 	}
 
+	/**
+	 * @brief Set the view and model matrix.
+	 * @param viewMatrix The new view matrix.
+	 * @param modelMatrix the new model matrix.
+	 * @tparam Arg0 Universal reference.
+	 * @tparam Arg1 Universal reference.
+	 */
 	template <class Arg0, class Arg1>
 	void setViewModelMatrices(Arg0&& viewMatrix, Arg1&& modelMatrix)
 	{
@@ -46,6 +77,15 @@ public:
 		mNormalMatrixIsDirty = true;
 	}
 
+	/**
+	 * @brief Set the projection, view and model matrix.
+	 * @param projectionMatrix The new projection matrix.
+	 * @param viewMatrix The new view matrix.
+	 * @param modelMatrix the new model matrix.
+	 * @tparam Arg0 Universal reference.
+	 * @tparam Arg1 Universal reference.
+	 * @tparam Arg2 Universal reference.
+	 */
 	template <class Arg0, class Arg1, class Arg2>
 	void setProjectionViewModelMatrices(Arg0&& projectionMatrix, Arg1&& viewMatrix, Arg2&& modelMatrix)
 	{
@@ -58,21 +98,37 @@ public:
 		mNormalMatrixIsDirty = true;
 	}
 
+	/**
+	 * @brief Get the projection matrix.
+	 * @return The projection matrix.
+	 */
 	inline const mat4f& getProjectionMatrix() const noexcept
 	{
 		return mProjectionMatrix;
 	}
 
+	/**
+	 * @brief Get the view matrix.
+	 * @return The view matrix.
+	 */
 	inline const mat4f& getViewMatrix() const noexcept
 	{
 		return mViewMatrix;
 	}
 
+	/**
+	 * @brief Get the model matrix.
+	 * @return The model matrix.
+	 */
 	inline const mat4f& getModelMatrix() const noexcept
 	{
 		return mModelMatrix;
 	}
 
+	/**
+	 * @brief Get the product of the projection and view matrix.
+	 * @return The product of the projection and view matrix.
+	 */
 	inline const mat4f& getProjectionViewMatrix() const noexcept
 	{
 		if (mProjectionViewMatrixIsDirty)
@@ -83,6 +139,10 @@ public:
 		return mProjectionViewMatrix;
 	}
 
+	/**
+	 * @brief Get the product of the view and model matrix.
+	 * @return The product of the view and model matrix.
+	 */
 	inline const mat4f& getViewModelMatrix() const noexcept
 	{
 		if (mViewModelMatrixIsDirty)
@@ -93,6 +153,10 @@ public:
 		return mViewModelMatrix;
 	}
 
+	/**
+	 * @brief Get the product of the projection, view and model matrix.
+	 * @return The product of the projection, view and model matrix.
+	 */
 	inline const mat4f& getProjectionViewModelMatrix() const noexcept
 	{
 		if (mProjectionViewModelMatrixIsDirty)
@@ -103,6 +167,10 @@ public:
 		return mProjectionViewModelMatrix;
 	}
 
+	/**
+	 * @brief Get the normal matrix.
+	 * @return The normal matrix.
+	 */
 	inline const mat3f& getNormalMatrix() const noexcept
 	{
 		if (mNormalMatrixIsDirty)

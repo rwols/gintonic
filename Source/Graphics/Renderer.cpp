@@ -6,7 +6,6 @@
 
 #include "GeometryBuffer.hpp"
 #include "Mesh.hpp"
-#include "basic_shapes.hpp"
 #include "ShaderPrograms.hpp"
 #include "Material.hpp"
 #include "Light.hpp"
@@ -29,6 +28,8 @@
 #define GBUFFER_TEX_DIFFUSE 0
 #define GBUFFER_TEX_SPECULAR 1
 #define GBUFFER_TEX_NORMAL 2
+
+#define DEPTH_TEXTURE_UNIT 4
 
 namespace gintonic {
 
@@ -95,11 +96,9 @@ public:
 
 // ALL the global variables.
 
-#ifdef ENABLE_DEBUG_TRACE
 std::shared_ptr<Font> sDebugFont = nullptr;
 FontStream* sDebugErrorStream = nullptr;
 FontStream* sDebugLogStream = nullptr;
-#endif
 
 SDL_Window* sWindow = nullptr;
 SDL_GLContext sContext;
@@ -161,10 +160,8 @@ boost::signals2::signal<void(void)> Renderer::onMouseEnter;
 boost::signals2::signal<void(void)> Renderer::onMouseLeave;
 boost::signals2::signal<void(void)> Renderer::onAboutToClose;
 
-#ifdef ENABLE_DEBUG_TRACE
 FontStream& Renderer::cerr() { return *sDebugErrorStream; }
 FontStream& Renderer::cout() { return *sDebugLogStream;   }
-#endif
 
 void Renderer::getElapsedAndDeltaTime(double& t, double& dt)
 {
@@ -312,13 +309,14 @@ void Renderer::init(
 	//
 	// Initialize debug variables
 	//
-	#ifdef ENABLE_DEBUG_TRACE
-	// Determine the point size. We take 1/100 of the width
+	// Determine the point size. We take 1/80 of the width
 	const unsigned int lPointSize = static_cast<unsigned int>((float)sWidth / 80.0f);
 	sDebugFont = std::make_shared<Font>("Resources/Inconsolata-Regular.ttf", lPointSize);
 	sDebugErrorStream = new FontStream();
-	sDebugErrorStream->open(sDebugFont);
 	sDebugLogStream = new FontStream();
+
+	#ifdef ENABLE_DEBUG_TRACE
+	sDebugErrorStream->open(sDebugFont);
 	sDebugLogStream->open(sDebugFont);
 	#endif
 }
@@ -389,8 +387,11 @@ void Renderer::resize(const int width, const int height)
 	//
 	// Update projection matrix
 	//
-	sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
-	sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
+	if (sCameraEntity->camera->projectionType() == Camera::kPerspective)
+	{
+		sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
+		sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
+	}
 }
 
 bool Renderer::isInitialized() noexcept
@@ -401,37 +402,15 @@ bool Renderer::isInitialized() noexcept
 void Renderer::setCameraEntity(std::shared_ptr<Entity> cameraEntity)
 {
 	sCameraEntity = std::move(cameraEntity);
-	std::cout << "Got new camera entity: " << sCameraEntity->name <<'\n';
 	if (!sCameraEntity->camera)
 	{
-		std::cout << "Entity had no camera component. Adding default one.\n";
 		sCameraEntity->camera = sDefaultCamera;
 	}
-	switch (sCameraEntity->camera->projectionType())
+	if (sCameraEntity->camera->projectionType() == Camera::kPerspective)
 	{
-		case Camera::kPerspective:
-		{
-			std::cout << "The camera component is a perspective projection.\n";
-			sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
-			sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
-			break;
-		}
-		case Camera::kOrthographic:
-		{
-			std::cout << "The camera component is an orthographic projection.\n";
-			sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
-			sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
-			break;
-		}
-		default:
-		{
-			std::cout << "The camera component has an unknown projection type.\n";
-			sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
-			sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
-			break;
-		}
+		sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
+		sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
 	}
-
 }
 
 void Renderer::focusContext() noexcept
@@ -572,20 +551,40 @@ void Renderer::update() noexcept
 	glDisable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-
-	renderGeometry();
 	
 	if (sViewGeometryBuffers)
 	{
+		renderGeometry();
 		sGeometryBuffer->blitDrawbuffersToScreen(sWidth, sHeight);
 		cerr() << "GEOMETRY BUFFERS\n";
 	}
 	else if (sViewCameraDepthBuffer)
 	{
+		auto lOldCamera = getCameraEntity()->camera;
+		auto lTempCamera = std::make_shared<Camera>();
+		lTempCamera->setProjectionType(Camera::kOrthographic);
+		lTempCamera->setWidth(5.0f);
+		lTempCamera->setHeight(5.0f);
+		lTempCamera->setFarPlane(5.0f);
+		lTempCamera->setNearPlane(-5.0f);
+
+		getCameraEntity()->camera = lTempCamera;
+
+		renderGeometry();
+
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDisable(GL_DEPTH_TEST);
-		sGeometryBuffer->drawDepthBufferToScreen();
+		sGeometryBuffer->bindDepthTexture(DEPTH_TEXTURE_UNIT);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		const auto& lProgram = DepthBufferShaderProgram::get();
+		lProgram.activate();
+		lProgram.setViewportSize(viewportSize());
+		lProgram.setDepthTexture(DEPTH_TEXTURE_UNIT);
+		lProgram.setFarPlane(5.0f);
+		sUnitQuadPUN->draw();
 		cerr() << "CAMERA DEPTH BUFFER\n";
+
+		getCameraEntity()->camera = lOldCamera;
 	}
 	else if (sDebugShadowBufferEntity)
 	{
@@ -598,13 +597,14 @@ void Renderer::update() noexcept
 		const auto& lProgram = DepthBufferShaderProgram::get();
 		lProgram.activate();
 		lProgram.setViewportSize(viewportSize());
-		lProgram.setDepthTexture(4);
-		lProgram.setFarPlane(10.0f);
+		lProgram.setDepthTexture(DEPTH_TEXTURE_UNIT);
+		lProgram.setFarPlane(5.0f);
 		sUnitQuadPUN->draw();
 		cerr() << sDebugShadowBufferEntity->name << " SHADOW BUFFER\n";
 	}
-	else
+	else // This is the "default" path.
 	{
+		renderGeometry();
 		renderShadows();
 
 		sGeometryBuffer->prepareLightingPhase();
@@ -763,23 +763,22 @@ void Renderer::finalizeRendering() noexcept
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	const auto& lTextProgram = FlatTextShaderProgram::get();
 	lTextProgram.activate();
 	lTextProgram.setColor(vec3f(1.0f, 0.0f, 0.0f));
-
 	sDebugErrorStream->close();
-
 	lTextProgram.setColor(vec3f(0.8f, 0.8f, 0.8f));
-
 	sDebugLogStream->close();
+
 	#endif
 
 	SDL_GL_SwapWindow(sWindow);
 
 	#ifdef ENABLE_DEBUG_TRACE
+
 	sDebugErrorStream->open(sDebugFont);
 	sDebugLogStream->open(sDebugFont);
+
 	#endif
 }
 

@@ -1,9 +1,9 @@
-#include "vertices.hpp"
-#include "OpenGL/utilities.hpp"
+#include "Vertices.hpp"
+#include "utilities.hpp"
 #include <fbxsdk.h>
 
 namespace gintonic {
-namespace opengl {
+namespace OpenGL {
 
 vertex_P::vertex_P(const float px, const float py, const float pz)
 {
@@ -771,5 +771,5 @@ std::ostream& operator << (std::ostream& os, const vertex_text2d& v)
 	return os;
 }
 
-} // end of namespace opengl
+} // end of namespace OpenGL
 } // end of namespace gintonic

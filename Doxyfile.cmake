@@ -677,7 +677,7 @@ FILE_VERSION_FILTER    =
 # DoxygenLayout.xml, doxygen will parse it automatically even if the LAYOUT_FILE
 # tag is left empty.
 
-LAYOUT_FILE            =
+LAYOUT_FILE            = ${CMAKE_CURRENT_SOURCE_DIR}/Doxygen.xml
 
 # The CITE_BIB_FILES tag can be used to specify one or more bib files containing
 # the reference definitions. This must be a list of .bib files. The .bib
@@ -758,7 +758,7 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT = ${CMAKE_CURRENT_SOURCE_DIR}
+INPUT = ${CMAKE_CURRENT_SOURCE_DIR}/Source
 INPUT += ${CMAKE_CURRENT_SOURCE_DIR}/README.md
 
 # This tag can be used to specify the character encoding of the source files

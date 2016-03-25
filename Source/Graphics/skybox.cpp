@@ -1,7 +1,7 @@
 #include "skybox.hpp"
+#include "Mesh.hpp"
 #include "Renderer.hpp"
 #include "ShaderPrograms.hpp"
-#include "basic_shapes.hpp"
 
 namespace gintonic {
 

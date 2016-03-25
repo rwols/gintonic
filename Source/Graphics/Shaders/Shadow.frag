@@ -3,5 +3,7 @@
 
 void main()
 {
-	discard;
+	// NOTE: Do not replace this with "discard".
+	// "return" is the right keyword.
+	return;
 }

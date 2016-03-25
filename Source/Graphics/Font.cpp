@@ -1,6 +1,6 @@
 #include "Font.hpp"
 #include "../Foundation/exception.hpp"
-#include "vertices.hpp"
+#include "OpenGL/Vertices.hpp"
 #include "Renderer.hpp"
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -48,7 +48,7 @@ Font::Font(boost::filesystem::path filename, const unsigned int pointsize)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindVertexArray(mVertexArrayObject);
 	glBindBuffer(GL_ARRAY_BUFFER, mBufferObject);
-	opengl::vertex_text2d::enable_attributes();
+	OpenGL::vertex_text2d::enable_attributes();
 	for (int i = 32; i < 128; ++i)
 	{
 		if (FT_Load_Char(lFace, i, FT_LOAD_RENDER)) continue;
@@ -75,7 +75,7 @@ Font::Font(boost::filesystem::path filename, const unsigned int pointsize)
 
 void Font::draw(const char* text, const std::size_t length, const vec2f& in_position, const vec2f& scale) const noexcept
 {
-	using vert = opengl::vertex_text2d;
+	using vert = OpenGL::vertex_text2d;
 
 	GLsizei n = 0;
 	vec2f position(in_position);
