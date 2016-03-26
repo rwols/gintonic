@@ -11,14 +11,13 @@
 #include "../Camera.hpp"
 
 #include <iostream>
-
-#include <iostream>
+#include <iomanip>
 
 #define EPSILON 0.1f // Used in PointLight::shine
 
 // Comment or uncomment this to see the bounding spheres
 // Only works in a debug build
-// #define DEBUG_POINT_LIGHTS
+#define DEBUG_POINT_LIGHTS
 
 namespace gintonic {
 
@@ -100,13 +99,26 @@ void PointLight::shine(const Entity& e) const noexcept
 		glCullFace(GL_BACK);
 	}
 	#undef EPSILON
+
+	#ifdef DEBUG_POINT_LIGHTS
+
+	lPointShader.setDebugFlag(0);
+
+	Renderer::cerr() 
+		<< "Light name:           " << this->name << '\n'
+		<< "lightIntensity:       " << std::fixed << std::setprecision(2) << mIntensity << '\n'
+		<< "lightPosition:        " << lLightPos << '\n'
+		<< "lightAttenuation:     " << getAttenuation() << '\n'
+		<< "lightCastShadow:      " << (e.shadowBuffer ? "YES" : "NO") << "\n\n";
+
+	#endif
 	
 	Renderer::getUnitSphere()->draw();
 }
 
-void PointLight::initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const
+void PointLight::initializeShadowBuffer(Entity& lightEntity) const
 {
-	lightEntity->shadowBuffer.reset(new PointShadowBuffer());
+	lightEntity.shadowBuffer.reset(new PointShadowBuffer());
 }
 
 void PointLight::setBrightness(const float value)
@@ -162,9 +174,9 @@ void PointLight::calculateCutoffRadius() noexcept
 	const auto lFarplane = Renderer::getCameraEntity()->camera->farPlane();
 	if (lFarplane / 2.0f < mCutoffPoint) mCutoffPoint = lFarplane / 2.0f;
 
-	#ifdef DEBUG_POINT_LIGHTS
-	PRINT_VAR(mCutoffPoint);
-	#endif
+	// #ifdef DEBUG_POINT_LIGHTS
+	// PRINT_VAR(mCutoffPoint);
+	// #endif
 
 	#undef in
 	#undef att

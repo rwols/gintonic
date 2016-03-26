@@ -4,6 +4,9 @@
 #include <vector>
 #include <memory>
 
+#define DEPTH_TEXTURE_UNIT 4
+#define SHADOW_QUALITY 0.5f
+
 namespace gintonic {
 
 /**
@@ -15,7 +18,7 @@ public:
 
 	/// Destructor.
 	virtual ~ShadowBuffer() noexcept = default;
-	
+
 	/**
 	 * @brief Draw the shadow map.
 	 * @param lightEntity The light entity that houses this ShadowBuffer.

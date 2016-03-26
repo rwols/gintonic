@@ -64,6 +64,45 @@ public:
 	/// The duration type to record the delta time and elapsed time.
 	typedef clock_type::duration duration_type;
 
+	class InitException : public std::exception
+	{
+	public:
+		inline InitException(const char* errorMessage) noexcept
+		: mErrorMessage(errorMessage) {}
+		virtual ~InitException() noexcept = default;
+		inline virtual const char* what() const noexcept { return mErrorMessage; }
+	private:
+		const char* mErrorMessage;
+	};
+
+	class NoDisplaysException : public std::exception
+	{
+	public:
+		NoDisplaysException() noexcept = default;
+		virtual ~NoDisplaysException() noexcept = default;
+		inline virtual const char* what() const noexcept { return "No displays"; }
+	};
+
+	class NoContextAvailableException : public std::exception
+	{
+	public:
+		inline NoContextAvailableException(const int major, const int minor) noexcept
+		: versionMajor(major), versionMinor(minor) {}
+		virtual ~NoContextAvailableException() noexcept = default;
+		inline virtual const char* what() const noexcept { return "No context available"; }
+
+		const int versionMajor;
+		const int versionMinor;
+	};
+
+	class FunctionLoadException : public std::exception
+	{
+	public:
+		FunctionLoadException() noexcept = default;
+		virtual ~FunctionLoadException() noexcept = default;
+		inline virtual const char* what() const noexcept { return "Failed to load OpenGL functions"; }
+	};
+
 	/**
 	 * @name Initialization and Shutdown Procedures
 	 * 

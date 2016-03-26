@@ -71,12 +71,13 @@ public:
 				sShadowCastingLightEntities.push_back(entity);
 				if (!entity->shadowBuffer)
 				{
-					entity->light->initializeShadowBuffer(entity);
+					entity->light->initializeShadowBuffer(*entity);
 				}
+				assert(entity->shadowBuffer);
 			}
 			if (entity->material && entity->mesh)
 			{
-				sShadowCastingGeometryEntities.emplace_back(std::move(entity));
+				sShadowCastingGeometryEntities.push_back(entity);
 			}
 		}
 		else // non-shadow casting entity
@@ -84,10 +85,17 @@ public:
 			if (entity->light)
 			{
 				sNonShadowCastingLightEntities.push_back(entity);
+				if (entity->shadowBuffer)
+				{
+					// Non-shadow casting light entity
+					// But it has a shadow buffer. We can remove that.
+					entity->shadowBuffer.reset();
+					assert(!entity->shadowBuffer);
+				}
 			}
 			if (entity->material && entity->mesh)
 			{
-				sNonShadowCastingGeometryEntities.emplace_back(std::move(entity));
+				sNonShadowCastingGeometryEntities.push_back(entity);
 			}
 		}
 		return true;
@@ -178,19 +186,18 @@ void Renderer::init(
 	const int width, 
 	const int height)
 {
-	bool was_already_initialized;
+	bool lWasAlreadyInitialized;
 	if (isInitialized())
 	{
-		was_already_initialized = true;
+		lWasAlreadyInitialized = true;
 		release();
 	}
 	else
 	{
-		was_already_initialized = false;
+		lWasAlreadyInitialized = false;
 		if (SDL_Init(SDL_INIT_EVERYTHING) != 0) 
 		{
-			std::clog << SDL_GetError() << '\n';
-			return;
+			throw InitException(SDL_GetError());
 		}
 	}
 
@@ -201,8 +208,7 @@ void Renderer::init(
 		const auto lNumDisplays = SDL_GetNumVideoDisplays();
 		if (lNumDisplays <= 0)
 		{
-			std::clog << "No displays.\n";
-			return;
+			throw NoDisplaysException();
 		}
 		SDL_Rect lRect;
 		SDL_GetDisplayBounds(0, &lRect);
@@ -217,12 +223,11 @@ void Renderer::init(
 
 	sAspectRatio = (float) sWidth / (float) sHeight;
 
-	if (was_already_initialized == false) std::atexit(SDL_Quit);
+	if (lWasAlreadyInitialized == false) std::atexit(SDL_Quit);
 
 	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
 	if (sFullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	sWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, sWidth, sHeight, flags);
-	// SDL_GetWindowSize(sWindow, &sWidth, &sHeight);
 
 	//
 	// We start by trying to obtain an OpenGL 4.1 context.
@@ -244,23 +249,26 @@ void Renderer::init(
 		{
 			// The user should update their drivers at this point...
 			release();
-			throw exception("Failed to obtain OpenGL 3.3 context.");
+			throw NoContextAvailableException(3, 3);
 		}
 	}
-	const auto glad_error = gladLoadGL();
-	if (glad_error != 1)
+
+	if (gladLoadGL() != 1)
 	{
-		std::clog << "Could not initialize OpenGL.\n";
 		release();
-		return;
+		throw FunctionLoadException();
 	}
 
 	SDL_GetKeyboardState(&sKeyStateCount);
 	sKeyPrevState = new Uint8[sKeyStateCount];
+	if (!sKeyPrevState)
+	{
+		throw std::bad_alloc();
+	}
 	std::memset(sKeyPrevState, 0, sizeof(Uint8) * sKeyStateCount);
 	sKeyState = SDL_GetKeyboardState(nullptr);
 	
-	if (was_already_initialized == false) std::atexit(Renderer::release);
+	if (lWasAlreadyInitialized == false) std::atexit(Renderer::release);
 	
 	vsync(true);
 	glClearColor(0.03f, 0.03f, 0.03f, 0.0f);
@@ -290,6 +298,8 @@ void Renderer::init(
 	// Initialize default camera and camera entity
 	//
 	sDefaultCamera->name = "DefaultCamera";
+	sDefaultCamera->setWidth(static_cast<float>(sWidth));
+	sDefaultCamera->setHeight(static_cast<float>(sHeight));
 	sDefaultCamera->setNearPlane(1.0f);
 	sDefaultCamera->setFarPlane(50.0f);
 	sDefaultCamera->setProjectionType(Camera::kPerspective);
@@ -310,7 +320,8 @@ void Renderer::init(
 	// Initialize debug variables
 	//
 	// Determine the point size. We take 1/80 of the width
-	const unsigned int lPointSize = static_cast<unsigned int>((float)sWidth / 80.0f);
+	// const unsigned int lPointSize = static_cast<unsigned int>((float)sWidth / 80.0f);
+	const unsigned int lPointSize = 24;
 	sDebugFont = std::make_shared<Font>("Resources/Inconsolata-Regular.ttf", lPointSize);
 	sDebugErrorStream = new FontStream();
 	sDebugLogStream = new FontStream();
@@ -344,15 +355,13 @@ void Renderer::initDummy(const bool construct_shaders)
 		{
 			// The user should update their drivers at this point...
 			release();
-			throw exception("Failed to obtain OpenGL 3.3 context.");
+			throw NoContextAvailableException(3, 3);
 		}
 	}
-	const auto glad_error = gladLoadGL();
-	if (glad_error != 1)
+	if (gladLoadGL() != 1)
 	{
-		std::clog << "Could not initialize OpenGL.\n";
 		release();
-		return;
+		throw FunctionLoadException();
 	}
 
 	if (construct_shaders) init_shaders();
@@ -385,13 +394,10 @@ void Renderer::resize(const int width, const int height)
 	}
 	
 	//
-	// Update projection matrix
+	// Update default camera
 	//
-	if (sCameraEntity->camera->projectionType() == Camera::kPerspective)
-	{
-		sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
-		sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
-	}
+	sDefaultCamera->setWidth(static_cast<float>(sWidth));
+	sDefaultCamera->setHeight(static_cast<float>(sHeight));
 }
 
 bool Renderer::isInitialized() noexcept
@@ -404,12 +410,8 @@ void Renderer::setCameraEntity(std::shared_ptr<Entity> cameraEntity)
 	sCameraEntity = std::move(cameraEntity);
 	if (!sCameraEntity->camera)
 	{
+		std::cout << sCameraEntity->name << " had no camera component!\n";
 		sCameraEntity->camera = sDefaultCamera;
-	}
-	if (sCameraEntity->camera->projectionType() == Camera::kPerspective)
-	{
-		sCameraEntity->camera->setWidth(static_cast<float>(sWidth));
-		sCameraEntity->camera->setHeight(static_cast<float>(sHeight));
 	}
 }
 
@@ -538,9 +540,9 @@ void Renderer::release()
 
 void Renderer::update() noexcept
 {
-	MatrixPipeline lPipeline;
-	lPipeline.setProjectionMatrix(sCameraEntity->camera->projectionMatrix());
-	lPipeline.setViewMatrix(sCameraEntity->getViewMatrix());
+	// MatrixPipeline lPipeline;
+	// lPipeline.setProjectionMatrix(sCameraEntity->camera->projectionMatrix());
+	// lPipeline.setViewMatrix(sCameraEntity->getViewMatrix());
 
 	prepareRendering();
 
@@ -552,63 +554,55 @@ void Renderer::update() noexcept
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	
-	if (sViewGeometryBuffers)
+	if (sViewGeometryBuffers) // <--- debug path
 	{
 		renderGeometry();
 		sGeometryBuffer->blitDrawbuffersToScreen(sWidth, sHeight);
 		cerr() << "GEOMETRY BUFFERS\n";
 	}
-	else if (sViewCameraDepthBuffer)
+	else if (sViewCameraDepthBuffer) // <--- debug path
 	{
-		auto lOldCamera = getCameraEntity()->camera;
-		auto lTempCamera = std::make_shared<Camera>();
-		lTempCamera->setProjectionType(Camera::kOrthographic);
-		lTempCamera->setWidth(5.0f);
-		lTempCamera->setHeight(5.0f);
-		lTempCamera->setFarPlane(5.0f);
-		lTempCamera->setNearPlane(-5.0f);
-
-		getCameraEntity()->camera = lTempCamera;
-
 		renderGeometry();
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDisable(GL_DEPTH_TEST);
 		sGeometryBuffer->bindDepthTexture(DEPTH_TEXTURE_UNIT);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glViewport(0, 0, sWidth, sHeight);
 		const auto& lProgram = DepthBufferShaderProgram::get();
 		lProgram.activate();
 		lProgram.setViewportSize(viewportSize());
 		lProgram.setDepthTexture(DEPTH_TEXTURE_UNIT);
-		lProgram.setFarPlane(5.0f);
+		lProgram.setFarPlane(sCameraEntity->camera->farPlane() / 10.0f);
 		sUnitQuadPUN->draw();
 		cerr() << "CAMERA DEPTH BUFFER\n";
-
-		getCameraEntity()->camera = lOldCamera;
 	}
-	else if (sDebugShadowBufferEntity)
+	else if (sDebugShadowBufferEntity) // <--- debug path
 	{
+		assert(sDebugShadowBufferEntity->shadowBuffer);
+
 		renderShadows();
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDisable(GL_DEPTH_TEST);
 		sDebugShadowBufferEntity->shadowBuffer->bindDepthTextures();
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glViewport(0, 0, sWidth, sHeight);
 		const auto& lProgram = DepthBufferShaderProgram::get();
 		lProgram.activate();
 		lProgram.setViewportSize(viewportSize());
 		lProgram.setDepthTexture(DEPTH_TEXTURE_UNIT);
-		lProgram.setFarPlane(5.0f);
+		lProgram.setFarPlane(25.0f);
 		sUnitQuadPUN->draw();
 		cerr() << sDebugShadowBufferEntity->name << " SHADOW BUFFER\n";
 	}
-	else // This is the "default" path.
+	else // <--- This is the "default" path.
 	{
 		renderGeometry();
 		renderShadows();
 
 		sGeometryBuffer->prepareLightingPhase();
-		
+		glViewport(0, 0, sWidth, sHeight);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -621,7 +615,6 @@ void Renderer::update() noexcept
 	}
 
 	finalizeRendering();
-
 	processEvents();
 }
 
@@ -898,18 +891,6 @@ void Renderer::submitEntityRecursive(std::shared_ptr<Entity> current)
 	// submitEntityRecursiveHelper(current);
 	// sEntityQueueLock.release();
 }
-
-// void Renderer::submitEntityRecursiveHelper(std::shared_ptr<Entity> current)
-// {
-// 	if ((current->mesh && current->material) || current->light)
-// 	{
-// 		sFutureQueue.push_back(current);
-// 	}
-// 	for (auto child : *current)
-// 	{
-// 		submitEntityRecursiveHelper(child);
-// 	}
-// }
 
 std::shared_ptr<Entity> Renderer::createGizmo()
 {

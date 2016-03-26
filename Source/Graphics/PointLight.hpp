@@ -93,7 +93,7 @@ public:
 	 */
 	virtual void shine(const Entity&) const noexcept;
 
-	virtual void initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const;
+	virtual void initializeShadowBuffer(Entity& lightEntity) const;
 
 	/**
 	 * @brief Set the brightness.

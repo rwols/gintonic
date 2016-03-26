@@ -62,7 +62,7 @@ public:
 		/* do nothing */
 	}
 
-	virtual void initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const
+	virtual void initializeShadowBuffer(Entity& lightEntity) const
 	{
 		/* Empty on purpose. */
 	}

@@ -118,7 +118,7 @@ public:
 	 * @param lightEntity The light entity that is attached
 	 * to this light.
 	 */
-	virtual void initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const = 0;
+	virtual void initializeShadowBuffer(Entity& lightEntity) const = 0;
 
 	/**
 	 * @brief Polymorphic stream output operator.

@@ -32,30 +32,6 @@ void Application::processCameraInput()
 	{
 		close();
 	}
-	if (Renderer::key(SDL_SCANCODE_W))
-	{
-		lCameraEntity->moveForward(mMoveSpeed * lDeltaTime);
-	}
-	if (Renderer::key(SDL_SCANCODE_A))
-	{
-		lCameraEntity->moveLeft(mMoveSpeed * lDeltaTime);
-	}
-	if (Renderer::key(SDL_SCANCODE_S))
-	{
-		lCameraEntity->moveBackward(mMoveSpeed * lDeltaTime);
-	}
-	if (Renderer::key(SDL_SCANCODE_D))
-	{
-		lCameraEntity->moveRight(mMoveSpeed * lDeltaTime);
-	}
-	if (Renderer::key(SDL_SCANCODE_SPACE))
-	{
-		lCameraEntity->moveUp(mMoveSpeed * lDeltaTime);
-	}
-	if (Renderer::key(SDL_SCANCODE_C))
-	{
-		lCameraEntity->moveDown(mMoveSpeed * lDeltaTime);
-	}
 	if (Renderer::keyTogglePress(SDL_SCANCODE_T))
 	{
 		Renderer::setWireframeMode(!Renderer::getWireframeMode());
@@ -69,9 +45,40 @@ void Application::processCameraInput()
 		Renderer::setViewCameraDepthBuffer(!Renderer::getViewCameraDepthBuffer());
 	}
 
-	const auto lMouseDelta = -deg2rad(Renderer::mouseDelta()) / 10.0f;
-	lCameraEntity->camera->addMouse(lMouseDelta);
-	lCameraEntity->setRotation(quatf::mouse(lCameraEntity->camera->angles()));
+	if (mCameraRespondsToKeyboard)
+	{
+
+		if (Renderer::key(SDL_SCANCODE_W))
+		{
+			lCameraEntity->moveForward(mMoveSpeed * lDeltaTime);
+		}
+		if (Renderer::key(SDL_SCANCODE_A))
+		{
+			lCameraEntity->moveLeft(mMoveSpeed * lDeltaTime);
+		}
+		if (Renderer::key(SDL_SCANCODE_S))
+		{
+			lCameraEntity->moveBackward(mMoveSpeed * lDeltaTime);
+		}
+		if (Renderer::key(SDL_SCANCODE_D))
+		{
+			lCameraEntity->moveRight(mMoveSpeed * lDeltaTime);
+		}
+		if (Renderer::key(SDL_SCANCODE_SPACE))
+		{
+			lCameraEntity->moveUp(mMoveSpeed * lDeltaTime);
+		}
+		if (Renderer::key(SDL_SCANCODE_C))
+		{
+			lCameraEntity->moveDown(mMoveSpeed * lDeltaTime);
+		}
+	}
+	if (mCameraRespondsToMouse)
+	{
+		const auto lMouseDelta = -deg2rad(Renderer::mouseDelta()) / 10.0f;
+		lCameraEntity->camera->addMouse(lMouseDelta);
+		lCameraEntity->setRotation(quatf::mouse(lCameraEntity->camera->angles()));
+	}
 }
 
 gintonic::vec3f Application::getRandomNormalizedVector3(const int resolution) const noexcept

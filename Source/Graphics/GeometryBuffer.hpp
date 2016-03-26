@@ -12,7 +12,7 @@
 namespace gintonic {
 
 /**
- * @brief Handles the various buffer during geometry collection.
+ * @brief Handles the various buffers during geometry collection.
  */
 class GeometryBuffer
 {

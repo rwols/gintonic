@@ -471,38 +471,43 @@ mat3f mat4f::upper_left_33() const
 
 std::ostream& operator << (std::ostream& os, const mat4f& m)
 {
-	// DEBUG_PRINT;
-	// const auto lTransposedCopy = mat4f(m).transpose();
-	// std::aligned_storage<4 * sizeof(float), 16>::type lFloats;
-	// std::size_t lFieldWidth(0);
-	// for (int i = 0; i < 4; ++i)
-	// {
-	// 	_mm_store_ps(reinterpret_cast<float*>(&lFloats), lTransposedCopy.data[i]);
-	// 	for (int j = 0; j < 4; ++j)
-	// 	{
-	// 		std::stringstream lField;
-	// 		lField << *(reinterpret_cast<float*>(&lFloats) + j);
-	// 		lField.seekg(0, std::ios::end);
-	// 		if (lFieldWidth < lField.tellg()) lFieldWidth = lField.tellg();
-	// 	}
-	// }
-
-	// for (int i = 0; i < 4; ++i)
-	// {
-	// 	_mm_store_ps(reinterpret_cast<float*>(&lFloats), lTransposedCopy.data[i]);
-	// 	os << '[' << std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 0) << ' '
-	// 		<< std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 1) << ' '
-	// 		<< std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 2) << ' '
-	// 		<< std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 3) << ']';
-	// 	if (i != 3) os << '\n';
-	// }
-
-	// return os;
+	#ifdef BOOST_MSVC
 
 	return os << m.m00 << ' ' << m.m10 << ' ' << m.m20 << ' ' << m.m30 << ' '
 		<< m.m01 << ' ' << m.m11 << ' ' << m.m21 << ' ' << m.m31 << ' '
 		<< m.m02 << ' ' << m.m12 << ' ' << m.m22 << ' ' << m.m32 << ' '
 		<< m.m03 << ' ' << m.m13 << ' ' << m.m23 << ' ' << m.m33;
+
+	#else
+
+	const auto lTransposedCopy = mat4f(m).transpose();
+	std::aligned_storage<4 * sizeof(float), 16>::type lFloats;
+	std::size_t lFieldWidth(0);
+	for (int i = 0; i < 4; ++i)
+	{
+		_mm_store_ps(reinterpret_cast<float*>(&lFloats), lTransposedCopy.data[i]);
+		for (int j = 0; j < 4; ++j)
+		{
+			std::stringstream lField;
+			lField << *(reinterpret_cast<float*>(&lFloats) + j);
+			lField.seekg(0, std::ios::end);
+			if (lFieldWidth < lField.tellg()) lFieldWidth = lField.tellg();
+		}
+	}
+
+	for (int i = 0; i < 4; ++i)
+	{
+		_mm_store_ps(reinterpret_cast<float*>(&lFloats), lTransposedCopy.data[i]);
+		os << '[' << std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 0) << ' '
+			<< std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 1) << ' '
+			<< std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 2) << ' '
+			<< std::setw(lFieldWidth) << *(reinterpret_cast<float*>(&lFloats) + 3) << ']';
+		if (i != 3) os << '\n';
+	}
+
+	return os;
+
+	#endif
 }
 
 } // namespace gintonic

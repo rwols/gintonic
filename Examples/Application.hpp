@@ -24,6 +24,9 @@ protected:
 
 	std::shared_ptr<gintonic::Entity> mRootEntity = std::make_shared<gintonic::Entity>("Root");
 
+	bool mCameraRespondsToKeyboard = true;
+	bool mCameraRespondsToMouse = true;
+
 	float mMoveSpeed = 1.0f;
 
 	double mElapsedTime = 0.0;

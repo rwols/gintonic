@@ -21,6 +21,7 @@ class Camera : public Object<Camera, std::string>
 public:
 
 	Camera() = default;
+	Camera(std::string name);
 	Camera(const FBX::FbxCamera*);
 
 	virtual ~Camera() noexcept = default;
@@ -90,6 +91,15 @@ public:
 	inline const vec2f& angles() const noexcept
 	{
 		return mAngles;
+	}
+
+	/**
+	 * @brief Set the angle explicitly.
+	 * @param angles The angles.
+	 */
+	inline void setAngles(const vec2f& angles) noexcept
+	{
+		mAngles = angles;
 	}
 
 	//!@cond

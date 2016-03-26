@@ -45,7 +45,7 @@ public:
 	 */
 	virtual void shine(const Entity& e) const noexcept;
 
-	virtual void initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const;
+	virtual void initializeShadowBuffer(Entity& lightEntity) const;
 
 	/// Stream output support for a directional light.
 	friend std::ostream& operator << (std::ostream&, const DirectionalLight&);

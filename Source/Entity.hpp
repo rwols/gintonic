@@ -51,9 +51,6 @@ private:
 	SQT mLocalTransform;
 	mat4f mGlobalTransform;
 
-	box3f mLocalBoundingBox;
-	box3f mGlobalBoundingBox;
-
 	children_datastructure_type mChildren;
 
 	std::weak_ptr<Entity> mParent = std::shared_ptr<Entity>(nullptr);
@@ -62,12 +59,7 @@ private:
 
 	Octree* mOctree = nullptr;
 
-	void updateGlobalInfo(mat4fstack&) noexcept;
-	void updateGlobalInfoStart() noexcept;
-	void updateGlobalDatamembers(const mat4fstack&) noexcept;
-	mat4f computeGlobalTransform() noexcept;
-
-
+	void updateGlobalInfo() noexcept;
 
 public:
 
@@ -148,7 +140,7 @@ public:
 	//@{
 
 	/// Destructor.
-	virtual ~Entity();
+	virtual ~Entity() noexcept;
 
 	/**
 	 * @brief Clone this entity; clone all its children too.
@@ -353,43 +345,6 @@ public:
 	 * @param amount The amount of translation.
 	 */
 	void moveDown(const float amount) noexcept;
-
-	/**
-	 * @brief Get the local bounding box.
-	 *
-	 * @return A constant reference to the local bounding box.
-	 */
-	inline const box3f& localBoundingBox() const noexcept
-	{
-		return mLocalBoundingBox;
-	}
-
-	/**
-	 * @brief Set the local bounding box of this Entity.
-	 *
-	 * @details The global bounding box is updated automatically. If the
-	 * Entity is part of a spatial tree, the spatial tree will be notified of
-	 * the changed global bounding box, and will update its datastructure
-	 * accordingly.
-	 *
-	 * @param b The new local bounding box.
-	 */
-	void setLocalBoundingBox(const box3f& b);
-
-	/**
-	 * @brief Set the local bounding box of this Entity.
-	 *
-	 * @details The global bounding box is updated automatically. If the
-	 * Entity is part of a spatial tree, the spatial tree will be notified of
-	 * the changed global bounding box, and will update its datastructure
-	 * accordingly.
-	 *
-	 * @param min_corner The new minimum corner of the local bounding box.
-	 * @param max_corner The new maximum corner of the local bounding box.
-	 */
-	void setLocalBoundingBox(
-		const vec2f& min_corner,
-		const vec2f& max_corner);
 
 	/**
 	 * @brief Get the local SQT transform.
@@ -602,10 +557,7 @@ public:
 	 *
 	 * @return A constant reference to the global bounding box.
 	 */
-	inline const box3f& globalBoundingBox() const noexcept
-	{
-		return mGlobalBoundingBox;
-	}
+	box3f globalBoundingBox() const noexcept;
 
 	//@}
 

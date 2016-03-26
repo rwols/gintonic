@@ -11,8 +11,11 @@
 #include "../Camera.hpp"
 
 #include <iostream>
+#include <iomanip>
 
-#include <iostream>
+// Comment or uncomment this to see the bounding spheres
+// Only works in a debug build
+#define DEBUG_DIRECTIONAL_LIGHTS
 
 namespace gintonic {
 
@@ -25,31 +28,24 @@ DirectionalLight::DirectionalLight(const vec4f& intensity)
 void DirectionalLight::shine(const Entity& e) const noexcept
 {
 
+	const vec3f lLightDir = vec3f((Renderer::matrix_V() * (e.globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f))).data).normalize();
+	
 	const auto& lProgram = DirectionalLightShaderProgram::get();
-	lProgram.activate();
 
-	// These uniforms are always the same for every light shader.
-	// Consider using uniform buffers ...
+	lProgram.activate();
 	lProgram.setViewportSize(Renderer::viewportSize());
 	lProgram.setGeometryBufferPositionTexture(Renderer::GBUFFER_POSITION);
 	lProgram.setGeometryBufferDiffuseTexture(Renderer::GBUFFER_DIFFUSE);
 	lProgram.setGeometryBufferSpecularTexture(Renderer::GBUFFER_SPECULAR);
 	lProgram.setGeometryBufferNormalTexture(Renderer::GBUFFER_NORMAL);
-
-	// These uniforms are different for each DirectionalLight.
+	lProgram.setLightShadowDepthTexture(DEPTH_TEXTURE_UNIT);
 	lProgram.setLightIntensity(this->mIntensity);
-
-	const auto lLightDirection = Renderer::matrix_V() * (e.globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f));
-	
-	lProgram.setLightDirection(vec3f(lLightDirection.data));
+	lProgram.setLightDirection(lLightDir);
 
 	if (e.shadowBuffer)
 	{
 		e.shadowBuffer->bindDepthTextures();
-		lProgram.setLightShadowDepthTexture(4);
-		mat4f lLightViewMatrix;
-		e.getViewMatrix(lLightViewMatrix);
-		const auto lShadowMatrix = e.shadowBuffer->projectionMatrix() * lLightViewMatrix * Renderer::getCameraEntity()->globalTransform();
+		const auto lShadowMatrix = e.shadowBuffer->projectionMatrix() * e.getViewMatrix() * Renderer::getCameraEntity()->globalTransform();
 		lProgram.setLightCastShadow(1);
 		lProgram.setLightShadowMatrix(lShadowMatrix);
 	}
@@ -58,12 +54,23 @@ void DirectionalLight::shine(const Entity& e) const noexcept
 		lProgram.setLightCastShadow(0);
 	}
 
+	#ifdef DEBUG_DIRECTIONAL_LIGHTS
+
+	Renderer::cerr() 
+		<< "Light name:           " << this->name << '\n'
+		<< "lightIntensity:       " << std::fixed << std::setprecision(2) << mIntensity << '\n'
+		<< "lightDirection:       " << lLightDir << '\n'
+		<< "lightCastShadow:      " << (e.shadowBuffer ? "YES" : "NO") << "\n\n";
+
+	#endif
+
+	glCullFace(GL_BACK);
 	Renderer::getUnitQuad()->draw();
 }
 
-void DirectionalLight::initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const
+void DirectionalLight::initializeShadowBuffer(Entity& lightEntity) const
 {
-	lightEntity->shadowBuffer.reset(new DirectionalShadowBuffer());
+	lightEntity.shadowBuffer.reset(new DirectionalShadowBuffer());
 }
 
 std::ostream& operator << (std::ostream& os, const DirectionalLight& l)

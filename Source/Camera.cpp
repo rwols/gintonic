@@ -11,6 +11,12 @@ namespace gintonic {
 #define M_PIf2 static_cast<float>(M_PI) * 0.5f
 #define M_2PIf static_cast<float>(M_PI) * 2.0f
 
+Camera::Camera(std::string inputName)
+: Object<Camera, std::string>(std::move(inputName))
+{
+	mProjectionMatrixIsDirty = true;
+}
+
 Camera::Camera(const FbxCamera* pFbxCamera)
 : Object<Camera, std::string>(pFbxCamera)
 {

@@ -257,6 +257,9 @@ class SpotLightShaderProgram
 , public Uniform::lightDirection
 , public Uniform::lightCosineHalfAngle
 , public Uniform::lightPosition
+, public Uniform::lightCastShadow
+, public Uniform::lightShadowMatrix
+, public Uniform::lightShadowDepthTexture
 #ifndef NDEBUG
 , public Uniform::debugFlag
 #endif

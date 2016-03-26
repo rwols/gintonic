@@ -11,6 +11,46 @@
 #include <vector>
 #include <algorithm>
 
+#define GINTONIC_CHECK_MATRICES_CLOSE(left, right, tolerance) \
+BOOST_CHECK_CLOSE(left.data[0][0], right.data[0][0], tolerance);\
+BOOST_CHECK_CLOSE(left.data[0][1], right.data[0][1], tolerance);\
+BOOST_CHECK_CLOSE(left.data[0][2], right.data[0][2], tolerance);\
+BOOST_CHECK_CLOSE(left.data[0][3], right.data[0][3], tolerance);\
+BOOST_CHECK_CLOSE(left.data[1][0], right.data[1][0], tolerance);\
+BOOST_CHECK_CLOSE(left.data[1][1], right.data[1][1], tolerance);\
+BOOST_CHECK_CLOSE(left.data[1][2], right.data[1][2], tolerance);\
+BOOST_CHECK_CLOSE(left.data[1][3], right.data[1][3], tolerance);\
+BOOST_CHECK_CLOSE(left.data[2][0], right.data[2][0], tolerance);\
+BOOST_CHECK_CLOSE(left.data[2][1], right.data[2][1], tolerance);\
+BOOST_CHECK_CLOSE(left.data[2][2], right.data[2][2], tolerance);\
+BOOST_CHECK_CLOSE(left.data[2][3], right.data[2][3], tolerance);\
+BOOST_CHECK_CLOSE(left.data[3][0], right.data[3][0], tolerance);\
+BOOST_CHECK_CLOSE(left.data[3][1], right.data[3][1], tolerance);\
+BOOST_CHECK_CLOSE(left.data[3][2], right.data[3][2], tolerance);\
+BOOST_CHECK_CLOSE(left.data[3][3], right.data[3][3], tolerance);
+
+#define GINTONIC_CHECK_VECTOR3_CLOSE(left, right, tolerance)\
+BOOST_CHECK_CLOSE(left.x, right.x, tolerance);\
+BOOST_CHECK_CLOSE(left.y, right.y, tolerance);\
+BOOST_CHECK_CLOSE(left.z, right.z, tolerance);
+
+#define GINTONIC_CHECK_VECTOR4_CLOSE(left, right, tolerance)\
+BOOST_CHECK_CLOSE(left.x, right.x, tolerance);\
+BOOST_CHECK_CLOSE(left.y, right.y, tolerance);\
+BOOST_CHECK_CLOSE(left.z, right.z, tolerance);\
+BOOST_CHECK_CLOSE(left.w, right.w, tolerance);
+
+#define GINTONIC_CHECK_VECTOR3_SMALL(val, tolerance)\
+BOOST_CHECK_SMALL(val.x, tolerance);\
+BOOST_CHECK_SMALL(val.y, tolerance);\
+BOOST_CHECK_SMALL(val.z, tolerance);
+
+#define GINTONIC_CHECK_VECTOR4_SMALL(val, tolerance)\
+BOOST_CHECK_SMALL(val.x, tolerance);\
+BOOST_CHECK_SMALL(val.y, tolerance);\
+BOOST_CHECK_SMALL(val.z, tolerance);\
+BOOST_CHECK_SMALL(val.w, tolerance);
+
 using namespace gintonic;
 
 BOOST_AUTO_TEST_CASE( constructor_test )
@@ -262,13 +302,14 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 
 	std::srand((int)std::clock());
 
-	const int maxoffset = 10000;
+	const int lMaxOffset = 10000;
+	const float lInverseOfMaxOffset = 1.0f / static_cast<float>(lMaxOffset);
 
 	auto createRandomVector3 = [&] ()
 	{
-		const float x = - 0.5f * static_cast<float>(maxoffset) + (rand() % maxoffset);
-		const float y = - 0.5f * static_cast<float>(maxoffset) + (rand() % maxoffset);
-		const float z = - 0.5f * static_cast<float>(maxoffset) + (rand() % maxoffset);
+		const float x = - 0.5f * static_cast<float>(lMaxOffset) + (rand() % lMaxOffset);
+		const float y = - 0.5f * static_cast<float>(lMaxOffset) + (rand() % lMaxOffset);
+		const float z = - 0.5f * static_cast<float>(lMaxOffset) + (rand() % lMaxOffset);
 		return vec3f(x, y, z);
 	};
 
@@ -304,34 +345,54 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 			)
 		);
 
-		mat4f lProjection;
+		float lNearPlane = rand() % 100;
+		float lFarPlane  = lNearPlane + 1 + (rand() % 100);
+
+		lCameraEntity->camera->setWidth(100 + (rand() % 1000));
+		lCameraEntity->camera->setHeight(100 + (rand() % 1000));
+		lCameraEntity->camera->setNearPlane(lNearPlane);
+		lCameraEntity->camera->setFarPlane(lFarPlane);
+
+		const auto lProjection     = lCameraEntity->camera->projectionMatrix();
+		const auto lCameraView     = lCameraEntity->getViewMatrix();
+		const auto lLightView      = lLightEntity->getViewMatrix();
+		const auto lLightInverseView = lLightEntity->globalTransform();
+		const auto lCameraInverseView = lCameraEntity->globalTransform();
+		const auto lModel          = lGeometryEntity->globalTransform();
+
+		lNearPlane                 = rand() % 100;
+		lFarPlane                  = lNearPlane + 1 + (rand() % 100);
+
 		mat4f lLightProjection;
-		mat4f lCameraView;
-		mat4f lLightView;
-		mat4f lLightInverseView;
-		mat4f lCameraInverseView;
-		mat4f lModel;
-		mat4f lShadowMatrix;
+		lLightProjection.set_orthographic(1 + (rand() % 100), 1 + (rand() % 100), lNearPlane, lFarPlane);
 
-		lProjection = lCameraEntity->camera->projectionMatrix();
-		lCameraEntity->getViewMatrix(lCameraView);
-		lLightEntity->getViewMatrix(lLightView);
-		lLightInverseView = lLightEntity->globalTransform();
-		lCameraInverseView = lCameraEntity->globalTransform();
-		lModel = lGeometryEntity->globalTransform();
+		mat4f lShouldBeAlmostIdentity;
+		mat4f lActualIndentity(1.0f);
 
-		lLightProjection.set_orthographic(100, 100, nearplane, farplane);
+		lShouldBeAlmostIdentity    = lCameraView * lCameraInverseView;
+		GINTONIC_CHECK_MATRICES_CLOSE(lShouldBeAlmostIdentity, lActualIndentity, 0.1f);
+		lShouldBeAlmostIdentity    = lCameraInverseView * lCameraView;
+		GINTONIC_CHECK_MATRICES_CLOSE(lShouldBeAlmostIdentity, lActualIndentity, 0.1f);
+		lShouldBeAlmostIdentity    = lLightView * lLightInverseView;
+		GINTONIC_CHECK_MATRICES_CLOSE(lShouldBeAlmostIdentity, lActualIndentity, 0.1f);
+		lShouldBeAlmostIdentity    = lLightInverseView * lLightView;
+		GINTONIC_CHECK_MATRICES_CLOSE(lShouldBeAlmostIdentity, lActualIndentity, 0.1f);
 
-		const vec4f lPoint = vec4f(createRandomVector3(), 1.0f);
+		const vec4f lPoint         = vec4f(createRandomVector3(), 1.0f);
 
-		lShadowMatrix = lLightProjection * lLightView * lCameraInverseView;
+		const auto lShadowMatrix   = lLightProjection * lLightView * lCameraInverseView;
 
-		const auto lViewPoint = lCameraView * lModel * lPoint;
-		const auto lViewClipSpacePoint = lLightProjection * lCameraView * lModel * lPoint;
-		const auto lLightClipPoint = lLightProjection * lLightView * lModel * lPoint;
+		auto lViewPoint            =                    lCameraView * lModel * lPoint;
+		auto lViewClipSpacePoint   = lProjection      * lCameraView * lModel * lPoint;
+		auto lLightClipPoint       = lLightProjection * lLightView  * lModel * lPoint;
+		auto lFromViewToLightPoint = lShadowMatrix                           * lViewPoint;
 
-		const auto lFromViewToLightPoint = lShadowMatrix * lViewPoint;
+		// Perspective division
+		lLightClipPoint           /= lLightClipPoint.w;
+		lFromViewToLightPoint     /= lFromViewToLightPoint.w;
 
-		BOOST_CHECK_CLOSE(lLightClipPoint.z, lFromViewToLightPoint.z, 0.5f);
+		const auto lShouldBeTiny   = lLightClipPoint - lFromViewToLightPoint;
+
+		GINTONIC_CHECK_VECTOR4_SMALL(lShouldBeTiny, 0.1f);
 	}
 }

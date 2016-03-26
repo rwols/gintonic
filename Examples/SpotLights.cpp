@@ -3,7 +3,7 @@
 #define APPNAME "Spot Lights"
 
 #define SPOTLIGHT_EXPONENT_START_VALUE 1.0f
-#define SPOTLIGHT_HALF_ANGLE_START_VALUE 1.50744f
+#define SPOTLIGHT_HALF_ANGLE_START_VALUE 0.7f
 #define SPOTLIGHT_INTENSITY_START_VALUE 4.0f
 
 #define MATERIAL_DIFFUSE_COLOR vec4f(0.8f, 0.8f, 0.8f, 1.0f)
@@ -123,7 +123,10 @@ private:
 			lTransform.rotation      = quatf::axis_angle(lUp, -lAngle);
 			lTransform.rotation     *= quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), -static_cast<float>(M_PI) / 2.0f);
 
+			// auto lLight              = std::shared_ptr<Light>(new PointLight(lIntensity, lAttenuation));
+			// lLight->name             = "PointLight" + std::to_string(i);
 			auto lLight              = std::shared_ptr<Light>(new SpotLight(lIntensity, lAttenuation, mSpotlightAngle));
+			lLight->name             = "SpotLight" + std::to_string(i);
 
 			lIntensity.w             = 0.0f;
 
@@ -244,7 +247,7 @@ private:
 		if (Renderer::key(SDL_SCANCODE_LEFT))
 		{
 			mSpotlightAngle -= mDeltaTime * ANGLE_CHANGE_SPEED;
-			mSpotlightAngle = std::max(0.0f, mSpotlightExponent);
+			mSpotlightAngle = std::max(0.0f, mSpotlightAngle);
 
 			for (auto lChild : *mRootOfLights)
 			{
@@ -254,7 +257,7 @@ private:
 		if (Renderer::key(SDL_SCANCODE_RIGHT))
 		{
 			mSpotlightAngle += mDeltaTime * ANGLE_CHANGE_SPEED;
-			mSpotlightAngle = std::min(1.0f, mSpotlightExponent);
+			mSpotlightAngle = std::min(1.0f, mSpotlightAngle);
 
 			for (auto lChild : *mRootOfLights)
 			{

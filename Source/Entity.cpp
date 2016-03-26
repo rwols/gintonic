@@ -2,6 +2,8 @@
 
 #include "Foundation/Octree.hpp"
 
+#include "Graphics/Mesh.hpp"
+
 #include "Math/vec4f.hpp"
 #include "Math/SQTstack.hpp"
 #include "Math/mat4fstack.hpp"
@@ -73,8 +75,6 @@ Entity::Entity(const FbxNode* pFbxNode)
 Entity::Entity(const Entity& other)
 : mLocalTransform(other.mLocalTransform)
 , mGlobalTransform(other.mGlobalTransform)
-, mLocalBoundingBox(other.mLocalBoundingBox)
-, mGlobalBoundingBox(other.mGlobalBoundingBox)
 , mOctree(other.mOctree)
 , castShadow(other.castShadow)
 , material(other.material)
@@ -90,8 +90,6 @@ Entity::Entity(const Entity& other)
 Entity::Entity(Entity&& other) noexcept
 : mLocalTransform(std::move(other.mLocalTransform))
 , mGlobalTransform(std::move(other.mGlobalTransform))
-, mLocalBoundingBox(std::move(other.mLocalBoundingBox))
-, mGlobalBoundingBox(std::move(other.mGlobalBoundingBox))
 , mChildren(std::move(other.mChildren))
 , mParent(std::move(other.mParent))
 , mOctree(std::move(other.mOctree))
@@ -111,8 +109,6 @@ Entity& Entity::operator = (const Entity& other)
 {
 	mLocalTransform = other.mLocalTransform;
 	mGlobalTransform = other.mGlobalTransform;
-	mLocalBoundingBox = other.mLocalBoundingBox;
-	mGlobalBoundingBox = other.mGlobalBoundingBox;
 	mOctree = other.mOctree;
 	castShadow = other.castShadow;
 	material = other.material;
@@ -131,8 +127,6 @@ Entity& Entity::operator = (Entity&& other) noexcept
 {
 	mLocalTransform = std::move(other.mLocalTransform);
 	mGlobalTransform = std::move(other.mGlobalTransform);
-	mLocalBoundingBox = std::move(other.mLocalBoundingBox);
-	mGlobalBoundingBox = std::move(other.mGlobalBoundingBox);
 	mChildren = std::move(other.mChildren);
 	mParent = std::move(other.mParent);
 	mOctree = std::move(other.mOctree);
@@ -150,179 +144,211 @@ Entity& Entity::operator = (Entity&& other) noexcept
 	return *this;
 }
 
-void Entity::updateGlobalInfo(mat4fstack& matrixStack) noexcept
+box3f Entity::globalBoundingBox() const noexcept
 {
-	matrixStack.push(mLocalTransform);
-	updateGlobalDatamembers(matrixStack);
-	for (auto child : mChildren)
+	box3f lGlobalBoundingBox(mGlobalTransform.data[3], mGlobalTransform.data[3]);
+	if (mesh)
 	{
-		if (child) child->updateGlobalInfo(matrixStack);
+		const auto& lBBox = mesh->getLocalBoundingBox();
+		lGlobalBoundingBox.min_corner += lBBox.min_corner;
+		lGlobalBoundingBox.max_corner += lBBox.max_corner;
 	}
-	matrixStack.pop();
+	return lGlobalBoundingBox;
 }
 
-void Entity::updateGlobalInfoStart() noexcept
+void Entity::updateGlobalInfo() noexcept
 {
-	mat4fstack lMatrixStack(computeGlobalTransform());
-	updateGlobalDatamembers(lMatrixStack);
+	if (auto lParent = mParent.lock())
+	{
+		mGlobalTransform = lParent->mGlobalTransform * mat4f(mLocalTransform);
+	}
+	else
+	{
+		mGlobalTransform = mat4f(mLocalTransform);
+	}
+	if (mOctree)
+	{
+		mOctree->notify(this);
+	}
 	for (auto lChild : mChildren)
 	{
-		if (lChild) lChild->updateGlobalInfo(lMatrixStack);
+		lChild->updateGlobalInfo();
 	}
 }
 
-void Entity::updateGlobalDatamembers(const mat4fstack& matrixStack) noexcept
-{
-	mGlobalTransform = matrixStack.top();
-	const vec3f t(mGlobalTransform.data[3]);
-	mGlobalBoundingBox.min_corner = t + mLocalBoundingBox.min_corner;
-	mGlobalBoundingBox.max_corner = t + mLocalBoundingBox.max_corner;
-	if (mOctree) mOctree->notify(this);
-}
+// void Entity::updateGlobalInfo(mat4fstack& matrixStack) noexcept
+// {
+// 	matrixStack.push(mLocalTransform);
+// 	updateGlobalDatamembers(matrixStack);
+// 	for (auto child : mChildren)
+// 	{
+// 		if (child) child->updateGlobalInfo(matrixStack);
+// 	}
+// 	matrixStack.pop();
+// }
+
+// void Entity::updateGlobalInfo() noexcept
+// {
+// 	mat4fstack lMatrixStack(computeGlobalTransform());
+// 	updateGlobalDatamembers(lMatrixStack);
+// 	for (auto lChild : mChildren)
+// 	{
+// 		if (lChild) lChild->updateGlobalInfo(lMatrixStack);
+// 	}
+// }
+
+// void Entity::updateGlobalDatamembers(const mat4fstack& matrixStack) noexcept
+// {
+// 	mGlobalTransform = matrixStack.top();
+// 	const vec3f t(mGlobalTransform.data[3]);
+// 	mGlobalBoundingBox.min_corner = t + mLocalBoundingBox.min_corner;
+// 	mGlobalBoundingBox.max_corner = t + mLocalBoundingBox.max_corner;
+// 	if (mOctree) mOctree->notify(this);
+// }
 
 void Entity::setScale(const vec3f& scale) noexcept
 {
 	mLocalTransform.scale = scale;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::multiplyScale(const vec3f& scale) noexcept
 {
 	mLocalTransform.scale *= scale;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::setTranslation(const vec3f& translation) noexcept
 {
 	mLocalTransform.translation = translation;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::setTranslationX(const float x) noexcept
 {
 	mLocalTransform.translation.x = x;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 void Entity::setTranslationY(const float y) noexcept
 {
 	mLocalTransform.translation.y = y;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::setTranslationZ(const float z) noexcept
 {
 	mLocalTransform.translation.z = z;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::addTranslation(const vec3f& translation) noexcept
 {
 	mLocalTransform.translation += translation;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::setRotation(const quatf& rotation) noexcept
 {
 	mLocalTransform.rotation = rotation;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::postMultiplyRotation(const quatf& rotation) noexcept
 {
 	mLocalTransform.rotation *= rotation;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::preMultiplyRotation(const quatf& rotation) noexcept
 {
 	mLocalTransform.rotation = rotation * mLocalTransform.rotation;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::setLocalTransform(const SQT& sqt) noexcept
 {
 	mLocalTransform = sqt;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::postAddLocalTransform(const SQT& sqt) noexcept
 {
 	mLocalTransform %= sqt;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::preAddLocalTransform(const SQT& sqt) noexcept
 {
 	mLocalTransform = sqt % mLocalTransform;
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::moveForward(const float amount) noexcept
 {
 	mLocalTransform.translation += amount * mLocalTransform.rotation.forward_direction();
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::moveBackward(const float amount) noexcept
 {
 	mLocalTransform.translation -= amount * mLocalTransform.rotation.forward_direction();
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::moveRight(const float amount) noexcept
 {
 	mLocalTransform.translation += amount * mLocalTransform.rotation.right_direction();
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::moveLeft(const float amount) noexcept
 {
 	mLocalTransform.translation -= amount * mLocalTransform.rotation.right_direction();
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::moveUp(const float amount) noexcept
 {
 	mLocalTransform.translation += amount * mLocalTransform.rotation.up_direction();
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
 void Entity::moveDown(const float amount) noexcept
 {
 	mLocalTransform.translation -= amount * mLocalTransform.rotation.up_direction();
-	updateGlobalInfoStart();
+	updateGlobalInfo();
 	onTransformChange(shared_from_this());
 }
 
-mat4f Entity::computeGlobalTransform() noexcept
-{
-	if (auto lParent = mParent.lock())
-	{
-		return lParent->globalTransform() * mat4f(mLocalTransform);
-	}
-	else
-	{
-		return mat4f(mLocalTransform);
-	}
-}
+// mat4f Entity::computeGlobalTransform() noexcept
+// {
+// 	if (auto lParent = mParent.lock())
+// 	{
+// 		return lParent->globalTransform() * mat4f(mLocalTransform);
+// 	}
+// 	else
+// 	{
+// 		return mat4f(mLocalTransform);
+// 	}
+// }
 
 void Entity::addChild(std::shared_ptr<Entity> child)
 {
@@ -334,7 +360,7 @@ void Entity::addChild(std::shared_ptr<Entity> child)
 			// We can move it!
 			child->mParent = shared_from_this();
 			mChildren.push_front(child);
-			child->updateGlobalInfoStart();
+			child->updateGlobalInfo();
 			child->onTransformChange(child);
 		}
 		else
@@ -343,7 +369,7 @@ void Entity::addChild(std::shared_ptr<Entity> child)
 			auto lCopy = child->cloneRecursive();
 			lCopy->mParent = shared_from_this();
 			mChildren.push_front(lCopy);
-			lCopy->updateGlobalInfoStart();
+			lCopy->updateGlobalInfo();
 			lCopy->onTransformChange(lCopy);			
 		}
 	}
@@ -351,7 +377,7 @@ void Entity::addChild(std::shared_ptr<Entity> child)
 	{
 		child->mParent = shared_from_this();
 		mChildren.push_front(child);
-		child->updateGlobalInfoStart();
+		child->updateGlobalInfo();
 		child->onTransformChange(child);
 	}
 }
@@ -483,10 +509,24 @@ mat4f Entity::getViewMatrix() const noexcept
 	return lResult;
 }
 
-Entity::~Entity()
+Entity::~Entity() noexcept
 {
-	onDie(*this);
+	try
+	{
+		onDie(*this);
+	}
+	catch (...)
+	{
+		// Absorb the exceptions
+	}
+	SQT lSQT;
 	if (mOctree) mOctree->erase(this);
+	for (auto lChild : mChildren)
+	{
+		lChild->mParent = std::shared_ptr<Entity>(nullptr);
+		lChild->mGlobalTransform.decompose(lSQT);
+		lChild->mLocalTransform = lSQT;
+	}
 	unsetParent();
 }
 

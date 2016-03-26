@@ -23,26 +23,26 @@ public:
 	/**
 	 * @brief Constructor.
 	 *
-	 * @param intensity The intensity of the spot light.
+	 * @param [in] intensity The intensity of the spot light.
 	 */
 	SpotLight(const vec4f& intensity);
 	
 	/**
 	 * @brief Constructor.
 	 *
-	 * @param intensity The intensity of the spot light.
-	 * @param attenuation The attenuation of the spot light, just as for a point light.
+	 * @param [in] intensity The intensity of the spot light.
+	 * @param [in] attenuation The attenuation of the spot light, just as for a point light.
 	 */
 	SpotLight(const vec4f& intensity, const vec4f& attenuation);
 
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param intensity The intensity of the spot light.
-	 * @param attenuation The attenuation of the spot light, just as for a point light.
-	 * @param angle The angle of the spot light.
+	 * @param [in] intensity The intensity of the spot light.
+	 * @param [in] attenuation The attenuation of the spot light, just as for a point light.
+	 * @param [in] cosineHalfAngle The cosine of the half angle for the spot light.
 	 */
-	SpotLight(const vec4f& intensity, const vec4f& attenuation, const float angle);
+	SpotLight(const vec4f& intensity, const vec4f& attenuation, const float cosineHalfAngle);
 
 	/// Destructor.
 	virtual ~SpotLight() noexcept = default;
@@ -59,11 +59,11 @@ public:
 	 * as the translation part of the global transformation of the Entity is
 	 * used.
 	 *
-	 * @param e The Entity to use for the global transformation matrix.
+	 * @param [in] e The Entity to use for the global transformation matrix.
 	 */
 	virtual void shine(const Entity& e) const noexcept;
 
-	virtual void initializeShadowBuffer(std::shared_ptr<Entity> lightEntity) const;
+	virtual void initializeShadowBuffer(Entity& lightEntity) const;
 
 	/// Stream output support for a spot light.
 	friend std::ostream& operator << (std::ostream&, const SpotLight&);
