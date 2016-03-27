@@ -20,13 +20,19 @@ namespace gintonic {
  */
 struct SQT
 {
-	/// The scale.
+	/**
+	 * @brief The scaling part of this SQT.
+	 */
 	vec3f scale;
 
-	/// The rotation.
+	/**
+	 * @brief The rotational part of this SQT.
+	 */
 	quatf rotation;
 
-	/// The translation.
+	/**
+	 * The translational part of this SQT.
+	 */
 	vec3f translation;
 
 	/**
@@ -58,12 +64,10 @@ struct SQT
 	}
 
 	/**
-	 * @brief Constructor that takes an affine matrix.
-	 * 
-	 * @details It extracts the scale, rotation and translation from the matrix.
-	 * This will silently fail if the supplied matrix is not an affine transformation.
-	 * 
-	 * @param assimpMatrix The affine matrix.
+	 * @brief Constructor that takes an affine matrix. It extracts the scale,
+	 * rotation and translation from the matrix. This will silently fail if
+	 * the supplied matrix is not an affine transformation.
+	 * @param affineTransformation The affine matrix.
 	 */
 	SQT(const mat4f& affineTransformation);
 
@@ -114,7 +118,6 @@ struct SQT
 	 * a way that, given this SQT's current translation and the
 	 * other SQT's translation, the forward direction points from
 	 * this SQT's translation to the other SQT's translation.
-	 * 
 	 * @param other The SQT to look at.
 	 */
 	inline void look_at(const SQT& other) noexcept
@@ -127,8 +130,7 @@ struct SQT
 	 * @details Given the current forward direction defined by
 	 * its rotation quaternion, you can move the SQT with a given
 	 * amount in the forward direction. The default forward direction
-	 * of OpenGL is the vector [0,0,-1].
-	 * 
+	 * of OpenGL is the vector `[0,0,-1]`.
 	 * @param amount The amount of movement to apply.
 	 */
 	inline void move_forward(const float amount) noexcept
@@ -141,9 +143,8 @@ struct SQT
 	 * @details Given the current forward direction defined by
 	 * its rotation quaternion, you can move the SQT with a given
 	 * amount in the backward direction. This is just the negative of
-	 * the forward direction. The default forward direction
-	 * of OpenGL is the vector [0,0,-1].
-	 * 
+	 * the forward direction. The default backward direction
+	 * of OpenGL is the vector `[0,0,1]`.
 	 * @param amount The amount of movement to apply.
 	 */
 	inline void move_backward(const float amount) noexcept
@@ -155,9 +156,8 @@ struct SQT
 	 * @brief Moves this SQT in its right direction.
 	 * @details Given the current right direction defined by
 	 * its rotation quaternion, you can move the SQT with a given
-	 * amount in the forward direction. The default forward direction
-	 * of OpenGL is the vector [1,0,0].
-	 * 
+	 * amount in the forward direction. The default right direction
+	 * of OpenGL is the vector `[1,0,0]`.
 	 * @param amount The amount of movement to apply.
 	 */
 	inline void move_right(const float amount) noexcept
@@ -170,9 +170,8 @@ struct SQT
 	 * @details Given the current left direction defined by
 	 * its rotation quaternion, you can move the SQT with a given
 	 * amount in the left direction. This is just the negative of
-	 * the right direction. The default right direction
-	 * of OpenGL is the vector [1,0,0].
-	 * 
+	 * the right direction. The default left direction
+	 * of OpenGL is the vector [-1,0,0]`.
 	 * @param amount The amount of movement to apply.
 	 */
 	inline void move_left(const float amount) noexcept
@@ -185,8 +184,7 @@ struct SQT
 	 * @details Given the current right direction defined by
 	 * its rotation quaternion, you can move the SQT with a given
 	 * amount in the up direction. The default up direction
-	 * of OpenGL is the vector [0,1,0].
-	 * 
+	 * of OpenGL is the vector `[0,1,0]`.
 	 * @param amount The amount of movement to apply.
 	 */
 	inline void move_up(const float amount) noexcept
@@ -199,9 +197,8 @@ struct SQT
 	 * @details Given the current down direction defined by
 	 * its rotation quaternion, you can move the SQT with a given
 	 * amount in the down direction. This is just the negative of
-	 * the up direction. The default up direction
-	 * of OpenGL is the vector [0,1,0].
-	 * 
+	 * the up direction. The default down direction
+	 * of OpenGL is the vector `[0,-1,0]`.
 	 * @param amount The amount of movement to apply.
 	 */
 	inline void move_down(const float amount) noexcept
@@ -211,7 +208,6 @@ struct SQT
 
 	/**
 	 * @brief Adds a mouse delta to the rotation quaternion.
-	 * 
 	 * @param delta The vector of angles.
 	 * @deprecated Don't use this method.
 	 */

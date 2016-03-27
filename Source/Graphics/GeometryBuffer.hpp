@@ -88,7 +88,7 @@ public:
 
 	/**
 	 * @brief Bind the depth texture of the geometry buffer.
-	 * @param [in] The texture unit.
+	 * @param [in] textureUnit The texture unit.
 	 */
 	void bindDepthTexture(const GLint textureUnit) const noexcept;
 

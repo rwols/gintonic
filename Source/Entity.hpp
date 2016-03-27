@@ -63,52 +63,132 @@ private:
 
 public:
 
-	Entity(const FBXSDK_NAMESPACE::FbxNode* pFbxNode);
-	Entity(const Entity&);
-	Entity(Entity&&) noexcept;
-	Entity& operator = (const Entity&);
-	Entity& operator = (Entity&&) noexcept;
-
 	/**
-	 * @brief Constructor.
-	 *
-	 * @param local_transform The local transform that the Entity starts out
-	 * with.
-	 *
-	 * @param local_bounding_box The local bounding box that the Entity starts
-	 * out with.
-	 *
-	 * @param octree_root If the Entity should be part of an octree, you can
-	 * pass the root of the octree here.
-	 * 
-	 * @param parent Wether the Entity should have a parent Entity.
+	 * @name Constructors and destructor
 	 */
-	// Entity(
-	// 	const SQT& local_transform,
-	// 	const box3f& local_bounding_box,
-	// 	octree* octree_root = nullptr,
-	// 	std::shared_ptr<Entity> parent = std::shared_ptr<Entity>(nullptr));
+
+	//@{
 
 	/**
 	 * @brief Default constructor.
-	 *
 	 * @details The default constructor constructs an Entity with a local
 	 * transform centered at the origin and with the standard unit axes of
-	 * three-dimensional space. It has a trivial local bounding box, so a
-	 * point. It has no parent and is not part of an octree.
+	 * three-dimensional space. It has no parent and is not part of an Octree.
+	 * The name will be "UntitledEntity".
 	 */
 	Entity();
 
+	/**
+	 * @brief Construct an Entity with a given name.
+	 * @details This constructor constructs an Entity with a local
+	 * SQT centered at the origin and with the standard unit axes of
+	 * three-dimensional space. It has no parent and is not part of an Octree.
+	 * @param name The name of the new Entity.
+	 */
 	Entity(std::string name);
 
+	/**
+	 * @brief Construct an Entity with a given name and local SQT.
+	 * @param name The name of the new Entity.
+	 * @param localTransform The SQT of the new Entity.
+	 */
 	Entity(std::string name, const SQT& localTransform);
 
+	/**
+	 * @brief Build an Entity from an FbxNode.
+	 * @param pFbxNode Pointer to an FbxNode.
+	 */
+	Entity(const FBXSDK_NAMESPACE::FbxNode* pFbxNode);
+
+	/**
+	 * @brief Copy constructor.
+	 * The copy constructor does not copy the children
+	 * and the parent. Nor does it copy the ShadowBuffer.
+	 * @param other Another entity.
+	 */
+	Entity(const Entity& other);
+
+	/**
+	 * @brief Move constructor.
+	 * The move constructor does move the children
+	 * and the parent. It also moves the ShadowBuffer.
+	 * @param other Another entity.
+	 */
+	Entity(Entity&& other) noexcept;
+
+	/**
+	 * @brief Copy assignment operator.
+	 * The copy assignment operator does not copy the children
+	 * and the parent. Nor does it copy the ShadowBuffer.
+	 * @param other Another entity.
+	 */
+	Entity& operator = (const Entity& other);
+
+	/**
+	 * @brief Move assignment operator.
+	 * The move assignment operator does move the children
+	 * and the parent. It also moves the ShadowBuffer.
+	 * @param other Another entity.
+	 */
+	Entity& operator = (Entity&& other) noexcept;
+
+	/**
+	 * @brief Highly non-trivial destructor. See details.
+	 * @details The destructor of an Entity first fires the event onDie.
+	 * It encloses this call into a try-catch block. Every possible
+	 * exception is caught and consumed. The exception is then ignored.
+	 * If the Entity is part of an Octree, it notifies the Octree of its
+	 * destruction so that the Octree removes this Entity. Next, for
+	 * each of the children of this Entity, the global transform is
+	 * decomposed into a scale, rotation and translation. The parent is
+	 * then set to a null pointer, and the local transform is set to
+	 * the computed scale, rotation and translation. That is, the global
+	 * transform becomes the local transform. Finally, if this Entity
+	 * has a parent then it is detached.
+	 */
+	virtual ~Entity() noexcept;
+
+	/**
+	 * @brief Clone this entity; clone all its children too.
+	 * @return The cloned entity.
+	 */
+	std::shared_ptr<Entity> cloneRecursive() const;
+
+	//@}
+
+	/**
+	 * @brief Set wether this Entity casts a shadow.
+	 * @detail If the Entity has a Light component, then
+	 * the Light will cast a shadow. Do not manage the
+	 * ShadowBuffer yourself, the Renderer takes care of that.
+	 * If the Entity has a Mesh and Material component, then
+	 * it will receive shadow.
+	 */
 	bool castShadow = false;
 
+	/**
+	 * @brief The Material associated to this Entity.
+	 */
 	std::shared_ptr<Material> material;
+
+	/**
+	 * @brief The Mesh associated to this Entity.
+	 */
 	std::shared_ptr<Mesh> mesh;
+
+	/**
+	 * @brief The Light associated to this Entity.
+	 */
 	std::shared_ptr<Light> light;
+
+	/**
+	 * @brief The Camera associated to this Entity.
+	 */
 	std::shared_ptr<Camera> camera;
+
+	/**
+	 * @brief The ShadowBuffer associated to this Entity.
+	 */
 	std::unique_ptr<ShadowBuffer> shadowBuffer;
 
 	/**
@@ -130,23 +210,6 @@ public:
 	 * @param e A reference to the Entity whose global transform has changed.
 	 */
 	boost::signals2::signal<void(std::shared_ptr<Entity>)> onTransformChange;
-
-	//@}
-
-	/**
-	 * @name Constructors and destructor
-	 */
-
-	//@{
-
-	/// Destructor.
-	virtual ~Entity() noexcept;
-
-	/**
-	 * @brief Clone this entity; clone all its children too.
-	 * @return The cloned entity.
-	 */
-	std::shared_ptr<Entity> cloneRecursive() const;
 
 	//@}
 

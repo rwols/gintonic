@@ -176,11 +176,13 @@ public:
 		 */
 		static void enable_attribute(const GLuint index) noexcept;
 
+		//!@cond
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int /*version*/)
 		{
 			ar & x & y & z & w;
 		}
+		//!@endcond
 	};
 
 	/// Get the local bounding box.
@@ -361,17 +363,6 @@ public:
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 	//!@endcond
-
-protected:
-
-	/// Constructor.
-	inline Mesh(const MeshType t)
-	: mMatrixBuffer(GL_DYNAMIC_DRAW)
-	, mNormalMatrixBuffer(GL_DYNAMIC_DRAW)
-	, m_type(t)
-	{
-		/* Empty on purpose. */
-	}
 
 private:
 

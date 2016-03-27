@@ -116,29 +116,6 @@ public:
 	}
 
 	/**
-	 * @brief Deleter function. `delete` is called on the argument.
-	 * @param [in] object Pointer to an object.
-	 * @deprecated Don't use this.
-	 */
-	static void deleter(Object* object)
-	{
-		delete object;
-	}
-
-	/**
-	 * @brief Syntax sugar to create a derived class.
-	 * @param args The constructor arguments for the derived class.
-	 * @return A shared pointer to a new derived class.
-	 */
-	template <class ...ConstructorArguments>
-	static std::shared_ptr<Derived> create(ConstructorArguments&&... args)
-	{
-		return std::shared_ptr<Derived>(
-			new Derived(std::forward<ConstructorArguments>(args)...),
-			Object::deleter);
-	}
-
-	/**
 	 * @brief Output stream operator support for an Object. It simply
 	 * prints the name of the object.
 	 * @param [in,out] os The output stream.

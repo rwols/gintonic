@@ -64,43 +64,115 @@ public:
 	/// The duration type to record the delta time and elapsed time.
 	typedef clock_type::duration duration_type;
 
+	/**
+	 * @brief Gets thrown when the renderer completely fails to initialize.
+	 */
 	class InitException : public std::exception
 	{
 	public:
+
+		//!@cond
 		inline InitException(const char* errorMessage) noexcept
 		: mErrorMessage(errorMessage) {}
 		virtual ~InitException() noexcept = default;
-		inline virtual const char* what() const noexcept { return mErrorMessage; }
+		//!@endcond
+
+		/**
+		 * @brief Contains a descriptive text of what went wrong.
+		 * @return A description of the error.
+		 */
+		inline virtual const char* what() const noexcept
+		{
+			return mErrorMessage;
+		}
+
 	private:
 		const char* mErrorMessage;
 	};
 
+	/**
+	 * @brief Gets thrown when not a single display is found during initialization.
+	 */
 	class NoDisplaysException : public std::exception
 	{
 	public:
+
+		//@!cond
 		NoDisplaysException() noexcept = default;
 		virtual ~NoDisplaysException() noexcept = default;
-		inline virtual const char* what() const noexcept { return "No displays"; }
+		//@!endcond
+
+		/**
+		 * @brief Returns the literal string "No displays".
+		 * @return The literal string "No displays".
+		 */
+		inline virtual const char* what() const noexcept
+		{
+			return "No displays";
+		}
 	};
 
+	/**
+	 * @brief Gets thrown when a valid OpenGL context could not be obtained.
+	 */
 	class NoContextAvailableException : public std::exception
 	{
 	public:
+
+		/**
+		 * @brief Simple constructor that sets the major version number
+		 * and minor version number.
+		 * @param [in] major The major version number that was requested.
+		 * @param [in] minor The minor version number that was requested.
+		 */
 		inline NoContextAvailableException(const int major, const int minor) noexcept
 		: versionMajor(major), versionMinor(minor) {}
-		virtual ~NoContextAvailableException() noexcept = default;
-		inline virtual const char* what() const noexcept { return "No context available"; }
 
+		/**
+		 * @brief Default destructor.
+		 */
+		virtual ~NoContextAvailableException() noexcept = default;
+
+		/**
+		 * @brief Returns the literal string "No context available".
+		 * @return The literal string "No context available".
+		 */
+		inline virtual const char* what() const noexcept
+		{
+			return "No context available";
+		}
+
+		/**
+		 * @brief The major version that was requested.
+		 */
 		const int versionMajor;
+
+		/**
+		 * @brief The minor version that was requested.
+		 */
 		const int versionMinor;
 	};
 
+	/**
+	 * @brief Gets thrown when loading the function pointers of OpenGL failed.
+	 */
 	class FunctionLoadException : public std::exception
 	{
 	public:
+
+		//@!cond
 		FunctionLoadException() noexcept = default;
 		virtual ~FunctionLoadException() noexcept = default;
-		inline virtual const char* what() const noexcept { return "Failed to load OpenGL functions"; }
+		//@!endcond
+
+		/**
+		 * @brief Returns the literal string "Failed to load OpenGL functions".
+		 * @return The literal string "Failed to load OpenGL functions".
+		 */
+		inline virtual const char* what() const noexcept
+		{
+			return "Failed to load OpenGL functions";
+		}
 	};
 
 	/**
@@ -115,8 +187,9 @@ public:
 	/**
 	 * @brief Initialize the Renderer.
 	 * @param title The window title.
-	 * @param camera The camera Entity to start out with. It is perfectly
-	 * possible to never change this.
+	 * @param cameraEntity The camera Entity to start out with. It is perfectly
+	 * possible to never change this. If the entity has no Camera component,
+	 * then this function will add a default Camera having a perspective projection.
 	 * @param fullscreen Wether we should open a fullscreen window or not.
 	 * @param width The preferred width of the window. Note that if the 
 	 * fullscreen parameter is set to true, then the current resolution is
@@ -124,6 +197,11 @@ public:
 	 * @param height The preferred height of the window. Note that if the
 	 * fullscreen parameter is set to true, then the current resolution is
 	 * taken instead and this parameter is ignored.
+	 * @throws InitException when the renderer completely failed to initialize.
+	 * @throws NoDisplaysException when no displays are present.
+	 * @throws NoContextAvailableException when no OpenGL context could be attained.
+	 * @throws FunctionLoadException when the process of loading the OpenGL
+	 * funcion pointers failed.
 	 */
 	static void init(
 		const char* title, 
@@ -138,6 +216,11 @@ public:
 	 * @param construct_shaders Set this to true to initialize all the shaders
 	 * too. If set to false, the shaders are not initialized. The default
 	 * is false.
+	 * @throws InitException when the renderer completely failed to initialize.
+	 * @throws NoDisplaysException when no displays are present.
+	 * @throws NoContextAvailableException when no OpenGL context could be attained.
+	 * @throws FunctionLoadException when the process of loading the OpenGL
+	 * funcion pointers failed.
 	 */
 	static void initDummy(const bool construct_shaders = false);
 
@@ -238,18 +321,14 @@ public:
 	 * @brief Set the camera.
 	 * @details The Renderer will update the `WORLD->VIEW` matrix using the
 	 * global transformation matrix of the given Entity.
-	 * @param e The Entity that will act as a camera.
+	 * @param cameraEntity The Entity that will act as a camera.
 	 */
 	static void setCameraEntity(std::shared_ptr<Entity> cameraEntity);
 
-	// template <class ForwardIter>
-	// static void submitEntities(ForwardIter first, ForwardIter last)
-	// {
-	// 	sEntityQueueLock.obtain();
-	// 	std::copy(first, last, std::back_inserter(sFutureQueue));
-	// 	sEntityQueueLock.release();
-	// }
-
+	/**
+	 * @brief Submit an entity and all of its children for rendering.
+	 * @param toSubmit The entity to submit.
+	 */
 	static void submitEntityRecursive(std::shared_ptr<Entity> toSubmit);
 	
 	/**
