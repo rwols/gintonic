@@ -1,5 +1,5 @@
 /**
- * @file fonts.hpp
+ * @file Font.hpp
  * @brief Defines a font class and a fontstream class. You usually don't use
  * fonts directly, but rather use fontstreams.
  * @author Raoul Wols

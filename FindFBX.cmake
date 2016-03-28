@@ -4,6 +4,7 @@
 # FBX_INCLUDE_DIR -- The FBX SDK include directory
 # FBX_LIBRARY -- The FBX SDK library (debug or release, depending on CMake's configuration)
 # FBX_NAMESPACE -- The C++ name of the FBX SDK namespace. This is useful for forward-declaring FBX types.
+# FBX_DLL -- The DLL location. Copy this into the build directory if necessary.
 # FBX_FOUND -- Wether everything went okay.
 #
 # If CMake has trouble finding the FBX library, you can define
@@ -120,6 +121,16 @@ endif ()
 
 set(FBX_LIBRARY optimized ${FBX_LIBRARY} debug ${FBX_LIBRARY_DEBUG} CACHE STRING "Fbx Library location.")
 
+if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    set (FBX_DLL ${FBX_LIBRARY_DEBUG})
+else ()
+    set (FBX_DLL ${FBX_LIBRARY})
+endif()
+
+if (WIN32)
+    string(REPLACE ".lib" ".dll" FBX_DLL ${FBX_DLL})
+endif ()
+
 include(FindPackageHandleStandardArgs)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(FBX REQUIRED_VARS FBX_LIBRARY FBX_INCLUDE_DIR)
@@ -128,4 +139,5 @@ mark_as_advanced(FBX_FOUND)
 mark_as_advanced(FBX_INCLUDE_DIR)
 mark_as_advanced(FBX_LIBRARY)
 mark_as_advanced(FBX_LIBRARY_DEBUG)
+mark_as_advanced(FBX_DLL)
 mark_as_advanced(FBX_NAMESPACE)

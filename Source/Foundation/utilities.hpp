@@ -1,5 +1,5 @@
 /**
- * @file lib/utilities.hpp
+ * @file Foundation/utilities.hpp
  * @brief Various utility functions and macros.
  * @author Raoul Wols
  */

@@ -5,7 +5,7 @@
 #include <memory>
 
 #define DEPTH_TEXTURE_UNIT 4
-#define SHADOW_QUALITY 0.5f
+#define SHADOW_QUALITY 1.0f
 
 namespace gintonic {
 

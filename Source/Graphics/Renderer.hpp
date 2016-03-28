@@ -186,29 +186,39 @@ public:
 
 	/**
 	 * @brief Initialize the Renderer.
-	 * @param title The window title.
+	 * @param windowTitle The window title.
 	 * @param cameraEntity The camera Entity to start out with. It is perfectly
 	 * possible to never change this. If the entity has no Camera component,
 	 * then this function will add a default Camera having a perspective projection.
 	 * @param fullscreen Wether we should open a fullscreen window or not.
-	 * @param width The preferred width of the window. Note that if the 
+	 * @param preferredWidth The preferred width of the window. Note that if the 
 	 * fullscreen parameter is set to true, then the current resolution is
 	 * taken instead and this parameter is ignored.
-	 * @param height The preferred height of the window. Note that if the
+	 * @param preferredHeight The preferred height of the window. Note that if the
 	 * fullscreen parameter is set to true, then the current resolution is
 	 * taken instead and this parameter is ignored.
+	 * @param initializeGeometryBuffer wether to initialize the GeometryBuffer.
+	 * You should supply a value of true unless you know what you're doing.
+	 * @param initializeShaderPrograms wether to initialize all the shader programs.
+	 * You should supply a value of true unless you know what you're doing.
+	 * @param initializeBasicMeshes wether to initialize all the basic meshes.
+	 * You should supply a value of true unless you know what you're doing.
 	 * @throws InitException when the renderer completely failed to initialize.
 	 * @throws NoDisplaysException when no displays are present.
 	 * @throws NoContextAvailableException when no OpenGL context could be attained.
 	 * @throws FunctionLoadException when the process of loading the OpenGL
 	 * funcion pointers failed.
+	 * @throws OpenGL::Framebuffer::Exception when the GeometryBuffer failed to initialize.
 	 */
-	static void init(
-		const char* title, 
-		std::shared_ptr<Entity> cameraEntity, 
-		const bool fullscreen, 
-		const int width, 
-		const int height);
+	static void initialize(
+		const char* windowTitle, 
+		std::shared_ptr<Entity> cameraEntity = std::make_shared<Entity>("DefaultCamera"), 
+		const bool fullscreen = true, 
+		const int preferredWidth = 800, 
+		const int preferredHeight = 640,
+		const bool initializeGeometryBuffer = true,
+		const bool initializeShaderPrograms = true,
+		const bool initializeBasicMeshes = true);
 
 	/**
 	 * @brief Only initialize the OpenGL context and optionally initialize

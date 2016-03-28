@@ -1,6 +1,6 @@
 /**
- * @file materials.hpp
- * @brief Defines, currently, only one material.
+ * @file Material.hpp
+ * @brief Defines a material for rendering.
  * @author Raoul Wols
  */
 

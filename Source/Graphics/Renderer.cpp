@@ -179,12 +179,15 @@ void Renderer::getElapsedAndDeltaTime(double& t, double& dt)
 	dt = static_cast<double>(duration_cast<nanoseconds>(deltaTime()).count()) / double(1e9);
 }
 
-void Renderer::init(
-	const char* title, 
-	std::shared_ptr<Entity> cameraEntity, 
-	const bool fullscreen, 
-	const int width, 
-	const int height)
+void Renderer::initialize(
+		const char* windowTitle, 
+		std::shared_ptr<Entity> cameraEntity, 
+		const bool fullscreen, 
+		const int preferredWidth, 
+		const int preferredHeight,
+		const bool initializeGeometryBuffer,
+		const bool initializeShaderPrograms,
+		const bool initializeBasicMeshes)
 {
 	bool lWasAlreadyInitialized;
 	if (isInitialized())
@@ -217,8 +220,8 @@ void Renderer::init(
 	}
 	else
 	{
-		sWidth = width;
-		sHeight = height;
+		sWidth = preferredWidth;
+		sHeight = preferredHeight;
 	}
 
 	sAspectRatio = (float) sWidth / (float) sHeight;
@@ -227,7 +230,7 @@ void Renderer::init(
 
 	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
 	if (sFullscreen) flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	sWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, sWidth, sHeight, flags);
+	sWindow = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, sWidth, sHeight, flags);
 
 	//
 	// We start by trying to obtain an OpenGL 4.1 context.
@@ -282,16 +285,14 @@ void Renderer::init(
 	//
 	// Initialize framebuffers
 	//
-	try
+	if (initializeGeometryBuffer)
 	{
-		sGeometryBuffer = new GeometryBuffer(sWidth, sHeight);	
+		sGeometryBuffer = new GeometryBuffer(sWidth, sHeight);
 	}
-	catch (const OpenGL::Framebuffer::Exception& framebufferException)
+	else
 	{
-		exception lException(name());
-		lException.append(": GeometryBuffer failed to initialize: ");
-		lException.append(framebufferException.what());
-		throw lException;
+		if (sGeometryBuffer) delete sGeometryBuffer;
+		sGeometryBuffer = nullptr;
 	}
 
 	//
@@ -308,13 +309,12 @@ void Renderer::init(
 	//
 	// Initializer shaders
 	//
-	init_shaders();
+	if (initializeShaderPrograms) init_shaders();	
 
 	//
 	// Initialize basic shapes
 	//
-
-	initializeBasicShapes();
+	if (initializeBasicMeshes) initializeBasicShapes();
 
 	//
 	// Initialize debug variables
@@ -540,9 +540,7 @@ void Renderer::release()
 
 void Renderer::update() noexcept
 {
-	// MatrixPipeline lPipeline;
-	// lPipeline.setProjectionMatrix(sCameraEntity->camera->projectionMatrix());
-	// lPipeline.setViewMatrix(sCameraEntity->getViewMatrix());
+	processEvents();
 
 	prepareRendering();
 
@@ -615,7 +613,6 @@ void Renderer::update() noexcept
 	}
 
 	finalizeRendering();
-	processEvents();
 }
 
 void Renderer::prepareRendering() noexcept

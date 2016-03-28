@@ -158,7 +158,7 @@ public:
 
 	/**
 	 * @brief Set wether this Entity casts a shadow.
-	 * @detail If the Entity has a Light component, then
+	 * @details If the Entity has a Light component, then
 	 * the Light will cast a shadow. Do not manage the
 	 * ShadowBuffer yourself, the Renderer takes care of that.
 	 * If the Entity has a Mesh and Material component, then
@@ -429,8 +429,7 @@ public:
 
 	/**
 	 * @brief Add a child Entity to this Entity.
-	 *
-	 * @details If the child Entity already had a parent, then this parent
+	 * If the child Entity already had a parent, then this parent
 	 * is first removed from the Entity. In the old parent Entity, the child
 	 * Entity is searched for and removed from the list.
 	 *
@@ -440,36 +439,30 @@ public:
 
 	/**
 	 * @brief Remove a child Entity of this Entity.
-	 *
-	 * @details If the child Entity is not present, then nothing will happen.
+	 * If the child Entity is not present, then nothing will happen.
 	 * The parent pointer of the child Entity will be set to null.
-	 *
 	 * @param child The child Entity to remove.
 	 */
 	void removeChild(std::shared_ptr<Entity> child);
 
 	/**
 	 * @brief Remove a child Entity of this Entity.
-	 *
-	 * @param iter An iterator pointing to a child.
+	 * @param child An iterator pointing to a child.
 	 */
 	void removeChild(iterator child);
 
 	/**
 	 * @brief Set the parent of this Entity.
-	 *
-	 * @details If the child already has a parent, then this parent is first
+	 * If the child already has a parent, then this parent is first
 	 * removed. In the parent's children list, this Entity is searched for
 	 * and removed.
-	 *
 	 * @param parent The parent Entity.
 	 */
 	void setParent(std::shared_ptr<Entity> parent);
 
 	/**
 	 * @brief Set this Entity to have no parent.
-	 *
-	 * @details The parent pointer will be set to null. If this Entity has a
+	 * The parent pointer will be set to null. If this Entity has a
 	 * parent, then this Entity is serached for in the children's list of the
 	 * parent Entity and removed.
 	 */
@@ -481,10 +474,12 @@ public:
 	 *
 	 * @details The pointer can be null, so be sure to check for that.
 	 * In order to get an actual pointer, use the following construct:
+	 * @code
 	 * if (auto ptr = e->parent().lock())
 	 * {
 	 *   // do stuff with ptr
 	 * }
+	 * @endcode
 	 *
 	 * @return A weak pointer to the parent of this Entity.
 	 */

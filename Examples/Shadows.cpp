@@ -18,7 +18,7 @@ public:
 
 		auto lMaterial = std::make_shared<Material>();
 		lMaterial->name = "Bricks";
-		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
+		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
 		lMaterial->specularColor = vec4f(1.0f, 1.0f, 1.0f, 20.0f);
 		lMaterial->diffuseTexture = lBricksDiffuseTexture;
 		lMaterial->specularTexture = lBricksSpecularTexture;
@@ -60,7 +60,7 @@ public:
 			new SpotLight
 			(
 				vec4f(1.0f, 0.0f, 0.0f, 10.0f), 
-				vec4f(0.0f, 0.0f, 1.0f, 4.0f), 
+				vec4f(0.0f, 0.5f, 0.5f, 4.0f), 
 				0.2f
 			)
 		);
@@ -82,7 +82,7 @@ public:
 		mDefaultCamera->camera->setAngles(vec2f(-0.5f, -0.1f));
 		mDefaultCamera->setTranslation(vec3f(-3.0f, 1.0f, 4.0f));
 		
-		mRootEntity->addChild(mDirectionalLight);
+		// mRootEntity->addChild(mDirectionalLight);
 		mRootEntity->addChild(mSpotLight);
 		
 		Renderer::setFreeformCursor(true);

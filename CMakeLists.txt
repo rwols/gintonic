@@ -21,6 +21,8 @@ set(src_files ${gintonic_source_files} ${lua_source_files})
 
 project(gintonic C CXX)
 
+enable_testing()
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 
 find_package(Boost
@@ -31,6 +33,20 @@ find_package(Boost
 		program_options
 		unit_test_framework
 	REQUIRED)
+
+if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+	set (BOOST_SYSTEM_DLL ${Boost_SYSTEM_LIBRARY_DEBUG})
+	set (BOOST_FILESYSTEM_DLL ${Boost_FILESYSTEM_LIBRARY_DEBUG})
+	set (BOOST_SERIALIZATION_DLL ${Boost_SERIALIZATION_LIBRARY_DEBUG})
+	set (BOOST_PROGRAM_OPTIONS_DLL ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG})
+	set (BOOST_UNIT_TEST_FRAMEWORK_DLL ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY_DEBUG})
+else ()
+	set (BOOST_SYSTEM_DLL ${Boost_SYSTEM_LIBRARY_RELEASE})
+	set (BOOST_FILESYSTEM_DLL ${Boost_FILESYSTEM_LIBRARY_RELEASE})
+	set (BOOST_SERIALIZATION_DLL ${Boost_SERIALIZATION_LIBRARY_RELEASE})
+	set (BOOST_PROGRAM_OPTIONS_DLL ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE})
+	set (BOOST_UNIT_TEST_FRAMEWORK_DLL ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY_RELEASE})
+endif ()
 
 find_package(OpenGL REQUIRED)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
@@ -122,7 +138,7 @@ if (WIN32)
 	endforeach()
 	list(GET SDL2_LIBRARY 1 SDL2_DLL)
 	string(REPLACE ".lib" ".dll" SDL2_DLL ${SDL2_DLL})
-	string(REPLACE ".lib" ".dll" FBX_DLL ${FBX_LIBRARY})
+	# string(REPLACE ".lib" ".dll" FBX_DLL ${FBX_LIBRARY})
 
 	set (DEBUG_DLLS ${Boost_DEBUG_DLLS} ${SDL2_DLL} ${FBX_DLL})
 	set (RELEASE_DLLS ${Boost_DLLS} ${SDL2_DLL} ${FBX_DLL})
@@ -140,12 +156,12 @@ else ()
 		${JPEG_INCLUDE_DIR}
 		${PNG_INCLUDE_DIRS})
 
-	if (APPLE)
-		# Need to copy fbxsdk
-		list(GET FBX_LIBRARY 0 FBX_DLL)
-		file (COPY ${FBX_DLL} DESTINATION ${CMAKE_BINARY_DIR}/examples)
-		file (COPY ${FBX_DLL} DESTINATION ${CMAKE_BINARY_DIR}/test)
-	endif ()
+	# if (APPLE)
+	# 	# Need to copy fbxsdk
+	# 	list(GET FBX_LIBRARY 0 FBX_DLL)
+	# 	file (COPY ${FBX_DLL} DESTINATION ${CMAKE_BINARY_DIR}/examples)
+	# 	file (COPY ${FBX_DLL} DESTINATION ${CMAKE_BINARY_DIR}/test)
+	# endif ()
 endif ()
 
 if (WIN32)
@@ -182,33 +198,48 @@ else ()
 		-ldl)
 endif ()
 
+# function(copy_dlls targetName dlls)
+# 	add_custom_command(TARGET ${targetName} POST_BUILD
+# 	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dlls} $<TARGET_FILE_DIR:${targetName}>
+# 	COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${targetName}>/Resources
+# 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Graphics/Shaders $<TARGET_FILE_DIR:${targetName}>/Shaders
+# 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/Resources/Inconsolata-Regular.ttf $<TARGET_FILE_DIR:${targetName}>/Resources
+# 	COMMENT "Post-build processing for ${targetName}" VERBATIM)
+# endfunction()
+
+list(GET FBX_LIBRARY 0 FBX_DLL)
+
 function(target_link_with_gintonic targetName)
 
 	target_link_libraries(${targetName} gintonic)
 
-	add_custom_command(TARGET ${targetName} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E make_directory
-		"$<TARGET_FILE_DIR:${targetName}>/Shaders")
+	# add_custom_command(TARGET ${targetName} POST_BUILD
+	# 	COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${targetName}>/Resources
+	# 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/Resources/Inconsolata-Regular.ttf $<TARGET_FILE_DIR:${targetName}>/Resources
+	# 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Graphics/Shaders $<TARGET_FILE_DIR:${targetName}>/Shaders
+	# 	COMMENT "Performing post-build copying stuff around for ${targetName}" VERBATIM)
 
-	add_custom_command(TARGET ${targetName} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E make_directory
-		"$<TARGET_FILE_DIR:${targetName}>/Resources")
+	# add_custom_command(TARGET ${targetName} POST_BUILD
+	# 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+	# 	${shader_source_files} "$<TARGET_FILE_DIR:${targetName}>/Shaders")
 
-	add_custom_command(TARGET ${targetName} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${shader_source_files} "$<TARGET_FILE_DIR:${targetName}>/Shaders")
+	# if (APPLE)
+	# 	list(GET FBX_LIBRARY 0 FBX_DLL)
+	# 	add_custom_command(TARGET ${targetName} POST_BUILD
+	# 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+	# 		${FBX_DLL} $<TARGET_FILE_DIR:${targetName}>)
+	# endif ()
 
-	if (WIN32)
+	# if (WIN32)
 
-		add_custom_command(TARGET ${targetName} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			${DLLS} $<TARGET_FILE_DIR:${targetName}>)
+	# 	add_custom_command(TARGET ${targetName} POST_BUILD
+	# 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+	# 		${DLLS} $<TARGET_FILE_DIR:${targetName}>)
 
-	endif ()
+	# endif ()
 
-	add_custom_command(TARGET ${targetName} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		"${CMAKE_SOURCE_DIR}/Resources/Inconsolata-Regular.ttf" "$<TARGET_FILE_DIR:${targetName}>/Resources")
+	# add_custom_command(TARGET ${targetName} POST_BUILD
+	# 	)
 
 endfunction(target_link_with_gintonic)
 
@@ -218,16 +249,3 @@ endfunction(target_link_with_gintonic)
 add_subdirectory (Tools)
 add_subdirectory (Examples)
 add_subdirectory (UnitTest)
-
-enable_testing()
-
-add_test(NAME materials COMMAND materials)
-add_test(NAME SQT COMMAND SQT)
-add_test(NAME box2f COMMAND box2f)
-add_test(NAME vec2f COMMAND vec2f)
-add_test(NAME vec3f COMMAND vec3f)
-add_test(NAME vec4f COMMAND vec4f)
-add_test(NAME quatf COMMAND quatf)
-add_test(NAME mat2f COMMAND mat2f)
-add_test(NAME mat3f COMMAND mat3f)
-add_test(NAME mat4f COMMAND mat4f)

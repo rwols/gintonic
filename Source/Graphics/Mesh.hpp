@@ -376,7 +376,6 @@ private:
 	bool mHasTangentsAndBitangents;
 	GLsizei mNumIndices;
 	box3f mLocalBoundingBox;
-	MeshType m_type;
 };
 
 } // namespace gintonic

@@ -1,30 +1,30 @@
 cmake_minimum_required(VERSION 2.8)
 
-set(executables BasicShapes
-	DirectionalLight
-	FbxViewer
-	HelloWorldText
-	OrthographicProjection
-	PointLights
-	Shadows
-	SpotLights
-	TexturedCube)
-
 include_directories(${CMAKE_SOURCE_DIR}/Source)
+file(GLOB source_files ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
-function(add_resource targetName resourceName)
-	add_custom_command(TARGET ${targetName} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		"${CMAKE_CURRENT_SOURCE_DIR}/${resourceName}" "$<TARGET_FILE_DIR:${targetName}>/Resources")
-endfunction(add_resource)
-
-foreach (exe ${executables})
-	add_executable(${exe} ${exe}.cpp Application.cpp)
-	target_link_with_gintonic(${exe})
+foreach (source_file ${source_files})
+	get_filename_component(exe ${source_file} NAME_WE)
+	add_executable(${exe} Application.cpp ${exe}.cpp)
+	target_link_libraries(${exe} gintonic)
+	list(APPEND executables ${exe})
 endforeach ()
 
-add_resource(PointLights DaVinci.jpg)
-add_resource(PointLights RuralBrickWall.jpg)
-add_resource(PointLights bricks.jpg)
-add_resource(PointLights bricks_SPEC.png)
-add_resource(PointLights bricks_NRM.png)
+list(GET executables 0 exe)
+
+get_filename_component(targetname ${CMAKE_CURRENT_LIST_DIR} NAME_WE)
+
+add_custom_target(${targetname} ALL
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FBX_DLL} $<TARGET_FILE_DIR:${exe}>
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Source/Graphics/Shaders $<TARGET_FILE_DIR:${exe}>/Shaders	
+	COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/Resources/Inconsolata-Regular.ttf $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different DaVinci.jpg        $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different RuralBrickWall.jpg $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different bricks.jpg         $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different bricks_SPEC.png    $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different bricks_NRM.png     $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different DaVinci.jpg        $<TARGET_FILE_DIR:${exe}>/Resources
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+	DEPENDS ${executables}
+	COMMENT "Performing post-build processing for ${targetname}" VERBATIM)

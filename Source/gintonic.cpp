@@ -16,7 +16,8 @@ void initializeEverything(const char* window_title, std::shared_ptr<Entity> came
 		boost::filesystem::current_path(get_executable_path() / "..");
 	#endif
 
-	Renderer::init(window_title, std::move(camera), true, 800, 640);
+	Renderer::initialize(window_title, std::move(camera), true, 800, 640);
+	
 	std::atexit(release);
 
 	boost::filesystem::current_path(lOldPath);

@@ -1,5 +1,5 @@
 /**
- * @file lib/opengl/utilities.hpp
+ * @file Graphics/OpenGL/utilities.hpp
  * @brief Defines various OpenGL utilities (functions and macros).
  * @author Raoul Wols
  */
