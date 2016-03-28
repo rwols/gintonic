@@ -47,7 +47,7 @@ void SpotLight::shine(const Entity& e) const noexcept
 
 	SQT lSphereTransform;
 
-	lSphereTransform.scale = cutoffPoint();
+	lSphereTransform.scale = getCutoffRadius();
 	lSphereTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 	lSphereTransform.translation = (e.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
 
@@ -99,7 +99,7 @@ void SpotLight::shine(const Entity& e) const noexcept
 
 	// Is the camera inside or outside the sphere?
 	const auto lDist = gintonic::distance(Renderer::getCameraPosition(), lSphereTransform.translation);
-	const auto lCutoffWithEpsilon = cutoffPoint() + EPSILON * cutoffPoint();
+	const auto lCutoffWithEpsilon = getCutoffRadius() + EPSILON * getCutoffRadius();
 	if (lDist < lCutoffWithEpsilon)
 	{
 		// Inside
@@ -149,7 +149,7 @@ std::ostream& SpotLight::prettyPrint(std::ostream& os) const noexcept
 {
 	return os << "{ (SpotLight) intensity: " << this->mIntensity
 		<< ", attenuation: " << getAttenuation()
-		<< ", cutoffPoint: " << cutoffPoint() << " }";
+		<< ", cutoffPoint: " << getCutoffRadius() << " }";
 }
 
 

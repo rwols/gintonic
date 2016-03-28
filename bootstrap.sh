@@ -16,12 +16,15 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
 	SDL2='libsdl2-dev'
 	CMAKE='cmake'
 	FREETYPE='libfreetype6-dev'
+	# Get the number of CPU threads available for building.
+	NUM_THREADS=`grep -c ^processor /proc/cpuinfo`
 elif [[ "$OSTYPE" == "darwin"* ]]; then
 	echo "We're on a Mac."
 	PACKAGE_MANAGER='brew'
 	which $PACKAGE_MANAGER
-	if [ $? -neq $SUCCESS ]; then
+	if [ $? -ne $SUCCESS ]; then
 		# Install homebrew
+		echo "Installing homebrew..."
 		curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install
 	fi
 	CLANG=''
@@ -29,6 +32,8 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
 	SDL2='sdl2'
 	CMAKE='cmake'
 	FREETYPE='freetype'
+	# Get the number of CPU threads available for building.
+	NUM_THREADS=`sysctl -n hw.ncpu`
 elif [[ "$OSTYPE" == "cygwin" ]]; then
 	echo "We're on Cygwin."
 	exit $OS_DETECTION_FAILED
@@ -54,9 +59,6 @@ fi
 
 # Change the build directory to build the project somewhere else.
 : ${BUILD_DIRECTORY:='build'}
-
-# Get the number of CPU threads available for building.
-NUM_THREADS=`grep -c ^processor /proc/cpuinfo`
 
 # Tell the user what the script is going to do.
 echo $'\nThis script will install:'
@@ -92,28 +94,26 @@ if ! [[ $REPLY =~ ^[Yy]$ ]] ; then exit $USER_ABORT ; fi
 # Create a temporary directory
 # The "correct" way :-)
 CURRENTDIR=`pwd`
-TEMPDIR=`mktemp -d` && cd $TEMPDIR
+TEMPDIR=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'` && cd $TEMPDIR
 
 # Install clang-3.6, CMake, Boost, SDL2, Freetype
 $PACKAGE_MANAGER update
 $PACKAGE_MANAGER install $CLANG $CMAKE $BOOST $SDL2 $FREETYPE
-if [ $? -eq $SUCCESS ]; then
-	continue
-else
+if [ $? -ne $SUCCESS ] ; then
 	exit $PACKAGE_MANAGER_FAILED
 fi
 
 # Install FBX SDK
-FBX_INSTALL="fbx${FBX_VERSION}_fbxsdk_linux"
-FBX_TAR="${FBX_INSTALL}.tar.gz"
-FBX_DOWNLOAD_FOLDER='http://images.autodesk.com/adsk/files'
-wget -O $FBX_TAR $FBX_DOWNLOAD_FOLDER/$FBX_TAR
-tar -xf $FBX_TAR
-sudo ./$FBX_INSTALL $FBX_INSTALL_PREFIX
-if [ $? -eq $SUCCESS ]; then
-	continue
-else
-	exit $FBX_INSTALLATION_FAILED
+# FBX_INSTALL="fbx${FBX_VERSION}_fbxsdk_linux"
+# FBX_TAR="${FBX_INSTALL}.tar.gz"
+# FBX_DOWNLOAD_FOLDER='http://images.autodesk.com/adsk/files'
+# wget -O $FBX_TAR $FBX_DOWNLOAD_FOLDER/$FBX_TAR
+# tar -xf $FBX_TAR
+# sudo ./$FBX_INSTALL $FBX_INSTALL_PREFIX
+# if [ $? -eq $SUCCESS ]; then
+# 	continue
+# else
+# 	exit $FBX_INSTALLATION_FAILED
 fi
 
 # Go back to our source directory.

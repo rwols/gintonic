@@ -114,6 +114,17 @@ public:
 	virtual void setCosineHalfAngle(const float cosineHalfAngle) = 0;
 
 	/**
+	 * @brief Get the distance at which the light is so dim that
+	 * lighting the pixel becomes pointless. This value is only meaningful
+	 * for a PointLight and a SpotLight.
+	 * @return The cutoff radius.
+	 */
+	inline virtual float getCutoffRadius() const noexcept
+	{
+		return 0.0f;
+	}
+
+	/**
 	 * @brief Initialize the shadow buffer.
 	 * @param lightEntity The light entity that is attached
 	 * to this light.
@@ -128,23 +139,17 @@ public:
 	/**
 	 * @brief Polymorphic stream output operator.
 	 */
-	friend std::ostream& operator << (
-		std::ostream&, 
-		const std::unique_ptr<Light>&);
+	friend std::ostream& operator << (std::ostream&, const std::unique_ptr<Light>&);
 
 	/**
 	 * @brief Polymorphic stream output operator.
 	 */
-	friend std::ostream& operator << (
-		std::ostream&, 
-		const std::shared_ptr<Light>&);
+	friend std::ostream& operator << (std::ostream&, const std::shared_ptr<Light>&);
 
 	/**
 	 * @brief Polymorphic stream output operator.
 	 */
-	friend std::ostream& operator << (
-		std::ostream&, 
-		const Light&);
+	friend std::ostream& operator << (std::ostream&, const Light&);
 
 	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
@@ -166,8 +171,7 @@ private:
 	/**
 	 * @brief Print the light to an outstream for debug purposes.
 	 */
-	virtual std::ostream& prettyPrint(std::ostream&) const 
-		noexcept;
+	virtual std::ostream& prettyPrint(std::ostream&) const noexcept;
 
 	//!@cond
 	// We need to give boost::serialization access to this class.

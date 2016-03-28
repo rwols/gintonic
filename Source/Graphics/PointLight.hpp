@@ -63,15 +63,10 @@ public:
 	 */
 	virtual void setAttenuation(const vec4f& a);
 	
-	/**
-	 * @brief Get the cutoff radius.
-	 *
-	 * @details The cutoff radius is the value where the light intensity of
-	 * the point light is so diminished that pixels do not get any brighter.
-	 * 
-	 * @return The cutoff radius.
-	 */
-	float cutoffPoint() const noexcept;
+	inline virtual float getCutoffRadius() const noexcept
+	{
+		return mCutoffRadius;
+	}
 
 	inline virtual float getCosineHalfAngle() const noexcept
 	{
@@ -116,7 +111,7 @@ private:
 
 	vec4f mAttenuation;
 
-	float mCutoffPoint;
+	float mCutoffRadius;
 
 	void calculateCutoffRadius() noexcept;
 

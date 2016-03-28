@@ -21,6 +21,8 @@ add_custom_target(${targetname} ALL
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/Resources/Inconsolata-Regular.ttf $<TARGET_FILE_DIR:${exe}>/Resources
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different DaVinci.jpg        $<TARGET_FILE_DIR:${exe}>/Resources
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different RuralBrickWall.jpg $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different RuralBrickWall_SPEC.png $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different RuralBrickWall_NRM.png $<TARGET_FILE_DIR:${exe}>/Resources
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different bricks.jpg         $<TARGET_FILE_DIR:${exe}>/Resources
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different bricks_SPEC.png    $<TARGET_FILE_DIR:${exe}>/Resources
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different bricks_NRM.png     $<TARGET_FILE_DIR:${exe}>/Resources

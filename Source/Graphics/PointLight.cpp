@@ -44,18 +44,13 @@ vec4f PointLight::getAttenuation() const noexcept
 	return mAttenuation;
 }
 
-float PointLight::cutoffPoint() const noexcept
-{
-	return mCutoffPoint;
-}
-
 void PointLight::shine(const Entity& e) const noexcept
 {
 	// The transformation data is delivered in WORLD coordinates.
 
 	SQT lSphereTransform;
 
-	lSphereTransform.scale = mCutoffPoint;
+	lSphereTransform.scale = mCutoffRadius;
 	lSphereTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 	lSphereTransform.translation = (e.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
 
@@ -80,7 +75,7 @@ void PointLight::shine(const Entity& e) const noexcept
 	const auto lDist = gintonic::distance(Renderer::getCameraPosition(), lSphereTransform.translation);
 
 	// EPSILON is defined at the top of the file.
-	const auto lCutoffWithEpsilon = cutoffPoint() + EPSILON * cutoffPoint();
+	const auto lCutoffWithEpsilon = mCutoffRadius + EPSILON * mCutoffRadius;
 
 	if (lDist < lCutoffWithEpsilon)
 	{
@@ -158,7 +153,7 @@ void PointLight::calculateCutoffRadius() noexcept
 		// Solving the equation
 		// 1/256 = c / att.x for d is impossible when att.y == 0.0f
 		// We just set the cutoff point to zero.
-		mCutoffPoint = att.y <= 0.0f ? 0.0f : (256.0f * c - att.x) / att.y;
+		mCutoffRadius = att.y <= 0.0f ? 0.0f : (256.0f * c - att.x) / att.y;
 	}
 	else
 	{
@@ -168,14 +163,14 @@ void PointLight::calculateCutoffRadius() noexcept
 		// If the discriminant is less than zero,
 		// we just set the cutoff point to zero.
 		// Else we use the quadratic formula.
-		mCutoffPoint = discr < 0.0f ? 0.0f : (-att.y + std::sqrt(discr)) / (2.0f * att.z);
+		mCutoffRadius = discr < 0.0f ? 0.0f : (-att.y + std::sqrt(discr)) / (2.0f * att.z);
 	}
 
 	const auto lFarplane = Renderer::getCameraEntity()->camera->farPlane();
-	if (lFarplane / 2.0f < mCutoffPoint) mCutoffPoint = lFarplane / 2.0f;
+	if (lFarplane / 2.0f < mCutoffRadius) mCutoffRadius = lFarplane / 2.0f;
 
 	// #ifdef DEBUG_POINT_LIGHTS
-	// PRINT_VAR(mCutoffPoint);
+	// PRINT_VAR(mCutoffRadius);
 	// #endif
 
 	#undef in
@@ -191,7 +186,7 @@ std::ostream& PointLight::prettyPrint(std::ostream& os) const noexcept
 {
 	return os << "{ (PointLight) intensity: " << mIntensity
 		<< ", attenuation: " << mAttenuation
-		<< ", cutoffPoint: " << mCutoffPoint << " }";
+		<< ", cutoffPoint: " << mCutoffRadius << " }";
 }
 
 } // namespace gintonic

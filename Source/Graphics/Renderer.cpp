@@ -579,7 +579,9 @@ void Renderer::update() noexcept
 	{
 		assert(sDebugShadowBufferEntity->shadowBuffer);
 
+		glCullFace(GL_FRONT);
 		renderShadows();
+		glCullFace(GL_BACK);
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDisable(GL_DEPTH_TEST);
@@ -597,7 +599,10 @@ void Renderer::update() noexcept
 	else // <--- This is the "default" path.
 	{
 		renderGeometry();
+		
+		glCullFace(GL_FRONT);
 		renderShadows();
+		glCullFace(GL_BACK);
 
 		sGeometryBuffer->prepareLightingPhase();
 		glViewport(0, 0, sWidth, sHeight);

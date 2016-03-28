@@ -165,7 +165,6 @@ public:
 
 	/**
 	 * @brief Debug stream output.
-	 * 
 	 * @param os The output stream.
 	 * @param m The material.
 	 */

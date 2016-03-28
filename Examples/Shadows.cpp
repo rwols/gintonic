@@ -4,6 +4,9 @@
 
 #define F_PI static_cast<float>(M_PI)
 
+#define SPOTLIGHT_HALF_ANGLE_START_VALUE 0.7f
+#define ANGLE_CHANGE_SPEED 0.1f
+
 class ShadowsApplication : public Application
 {
 public:
@@ -25,7 +28,7 @@ public:
 
 		auto lFloor = std::make_shared<Entity>();
 		lFloor->material = lMaterial;
-		lFloor->mesh = Renderer::getUnitQuad();
+		lFloor->mesh = Renderer::getUnitCube();
 		lFloor->castShadow = true;
 		lFloor->setRotation(quatf::axis_angle(vec3f(1, 0, 0), -F_PI * 0.5f));
 
@@ -35,7 +38,7 @@ public:
 			{
 				auto lClone = lFloor->cloneRecursive();
 				lClone->name = "Floor tile (" + std::to_string(i) + "," + std::to_string(j) + ")";
-				lClone->setTranslation(vec3f(2 * i, 0, 2 * j));
+				lClone->setTranslation(vec3f(2 * i, -1, 2 * j));
 				mRootEntity->addChild(lClone);
 			}
 		}
@@ -75,9 +78,8 @@ public:
 		lSpotLightChild->material->diffuseColor = vec4f(1.0f, 0.0f, 0.0f, 0.0f);
 		lSpotLightChild->material->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 		lSpotLightChild->mesh = Renderer::getUnitSphere();
-		// mSpotLight->addChild(lSpotLightChild);
+		mSpotLight->addChild(lSpotLightChild);
 		
-
 		mDefaultCamera = Renderer::getCameraEntity();
 		mDefaultCamera->camera->setAngles(vec2f(-0.5f, -0.1f));
 		mDefaultCamera->setTranslation(vec3f(-3.0f, 1.0f, 4.0f));
@@ -124,7 +126,10 @@ private:
 	);
 
 	std::shared_ptr<gintonic::Entity> mDefaultCamera;
+
 	bool mSwitch = false;
+
+	float mSpotlightAngle = SPOTLIGHT_HALF_ANGLE_START_VALUE;
 
 	virtual void onRenderUpdate() final
 	{
@@ -136,6 +141,28 @@ private:
 			// Renderer::setCameraEntity(mSwitch ? mSpotLight : mDefaultCamera);
 			Renderer::setEntityDebugShadowBuffer(mSwitch ? mSpotLight : nullptr);
 		}
+		if (Renderer::key(SDL_SCANCODE_LEFT))
+		{
+			mSpotlightAngle -= mDeltaTime * ANGLE_CHANGE_SPEED;
+			mSpotlightAngle = std::max(0.0f, mSpotlightAngle);
+			mSpotLight->light->setCosineHalfAngle(mSpotlightAngle);
+
+		}
+		if (Renderer::key(SDL_SCANCODE_RIGHT))
+		{
+			mSpotlightAngle += mDeltaTime * ANGLE_CHANGE_SPEED;
+			mSpotlightAngle = std::min(1.0f, mSpotlightAngle);
+			mSpotLight->light->setCosineHalfAngle(mSpotlightAngle);
+		}
+
+		mDirectionalLight->setRotation
+		(
+			quatf::axis_angle
+			(
+				vec3f(1.0f, 0.0f, 0.0f),
+				- F_PI * 0.5f + std::sin(mElapsedTime * 0.4f) * 0.5f
+			)
+		);
 		mSpotLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, 0.0f));
 		// mDirectionalLight->setRotation(quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), -M_PI / 2.0f + std::sin(mElapsedTime)));
 		mSpotLight->setRotation(

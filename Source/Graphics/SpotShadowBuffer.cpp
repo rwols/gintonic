@@ -21,8 +21,8 @@ SpotShadowBuffer::SpotShadowBuffer()
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
-		SHADOW_QUALITY * Renderer::width(), SHADOW_QUALITY * Renderer::height(), 0, 
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 
+		SHADOW_QUALITY, SHADOW_QUALITY, 0, 
 		GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, nullptr);
 	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mTexture, 0);
 	glReadBuffer(GL_NONE);
@@ -34,13 +34,18 @@ void SpotShadowBuffer::collect(
 	Entity& lightEntity, 
 	const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) noexcept
 {
-	mProjectionMatrix.set_perspective(3.0f, 1.0f, 0.1f, 8.0f);
-	// mProjectionMatrix = Renderer::getCameraEntity()->camera->projectionMatrix();
+	mProjectionMatrix.set_perspective
+	(
+		2.0f * std::acos(1.0f - lightEntity.light->getCosineHalfAngle()), // Field of view
+		1.0f,                                                      // Aspect ratio
+		0.1f,                                                      // Near plane
+		lightEntity.light->getCutoffRadius()                       // Far plane
+	);
 	const auto lProjectionViewMatrix = mProjectionMatrix * lightEntity.getViewMatrix();
 	mat4f lProjectionViewModelMatrix;
 
 	mFramebuffer.bind(GL_DRAW_FRAMEBUFFER);
-	glViewport(0, 0, SHADOW_QUALITY * Renderer::width(), SHADOW_QUALITY * Renderer::height());
+	glViewport(0, 0, SHADOW_QUALITY, SHADOW_QUALITY);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	Renderer::cerr() << "mProjectionMatrix:\n" << mProjectionMatrix << "\n\n";

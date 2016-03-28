@@ -24,8 +24,8 @@ DirectionalShadowBuffer::DirectionalShadowBuffer()
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
-		SHADOW_QUALITY * Renderer::width(), SHADOW_QUALITY * Renderer::height(), 0, 
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 
+		SHADOW_QUALITY, SHADOW_QUALITY, 0, 
 		GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, nullptr);
 	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mTexture, 0);
 	glReadBuffer(GL_NONE);
@@ -63,7 +63,7 @@ void DirectionalShadowBuffer::collect(
 	const auto lProjectionViewMatrix = mProjectionMatrix * lightEntity.getViewMatrix();
 
 	mFramebuffer.bind(GL_DRAW_FRAMEBUFFER);
-	glViewport(0, 0, SHADOW_QUALITY * Renderer::width(), SHADOW_QUALITY * Renderer::height());
+	glViewport(0, 0, SHADOW_QUALITY, SHADOW_QUALITY);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	for (const auto lGeometryEntity : shadowCastingGeometryEntities)

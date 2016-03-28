@@ -32,36 +32,64 @@ public:
 	
 	/**
 	 * @brief Shine the light using the global transformation of the given
-	 * Entity.
-	 *
-	 * @details In the case of an ambient light, no transformation information
+	 * Entity. In the case of an ambient light, no transformation information
 	 * is used at all. Every surface is lit evenly in the whole scene.
-	 *
-	 * @param e The Entity to use. Note that the global transformation is
+	 * @param entity The Entity to use. Note that the global transformation is
 	 * used.
 	 */
-	virtual void shine(const Entity& e) const noexcept;
+	virtual void shine(const Entity& entity) const noexcept;
 
+	/**
+	 * @brief Get the attenuation value. This method
+	 * always returns the vector `[0,0,0,0]` in the case of an AmbientLight.
+	 * @return The vector `[0,0,0,0]`
+	 */
 	inline virtual vec4f getAttenuation() const noexcept
 	{
 		return vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
-	inline virtual void setAttenuation(const vec4f&)
+	/**
+	 * @brief Set the attenuation value. This method is a no-op in the
+	 * case of an AmbientLight.
+	 * @param [in] attenuation The new attenuation value. This method
+	 * does nothing with the parameter.
+	 */
+	inline virtual void setAttenuation(const vec4f& attenuation)
 	{
 		/* do nothing */
 	}
 
+	/**
+	 * @brief Get the cosine of the half angle. This method always
+	 * returns `0` in the case of an AmbientLight.
+	 * @return The cosine of the half angle. Always `0` in the
+	 * case of an AmbientLight.
+	 */
 	inline virtual float getCosineHalfAngle() const noexcept
 	{
 		return 0.0f;
 	}
 
-	inline virtual void setCosineHalfAngle(const float angle)
+	/**
+	 * @brief Set the cosine of the half angle. This must be a
+	 * value in the closed interval `[0,1]`. This is a no-op in the
+	 * case of an AmbientLight.
+	 * @param [in] cosineHalfAngle The cosine of the half angle. This
+	 * method does nothing with the parameter.
+	 */
+	inline virtual void setCosineHalfAngle(const float cosineHalfAngle)
 	{
 		/* do nothing */
 	}
 
+	/**
+	 * @brief Initialize the ShadowBuffer for the given Entity.
+	 * An AmbientLight does nothing at all and this method is a no-op.
+	 * @param lightEntity A mutable reference to the Entity that will
+	 * get a non-trivial ShadowBuffer. An AmbientLight does nothing
+	 * at all and this method is a no-op.
+	 */
 	virtual void initializeShadowBuffer(Entity& lightEntity) const
 	{
 		/* Empty on purpose. */
@@ -72,21 +100,14 @@ public:
 	 */
 	friend std::ostream& operator << (std::ostream&, const AmbientLight&);
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 
-	// Reimplement this method to support output streams.
-	virtual std::ostream& prettyPrint(std::ostream&) const 
-		noexcept;
+	virtual std::ostream& prettyPrint(std::ostream&) const noexcept;
 
-	//!@cond
-	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
-	//!@endcond
-
+	
 	template <class Archive> 
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{

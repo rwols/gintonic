@@ -52,7 +52,7 @@ vec3 getDirection(in vec3 source, in vec3 target)
 	return target - source;
 }
 
-float calculateShadowFactor(in vec3 viewSpacePosition)
+float calculateShadowFactor(in vec3 viewSpacePosition, float cosineTheta)
 {
 	if (lightCastShadow == 0) return 1.0f;
 	// Transform the position from VM-space all the way to PLM-space
@@ -62,6 +62,11 @@ float calculateShadowFactor(in vec3 viewSpacePosition)
 	// Turn the range [-1,1] into the range [0,1]
 	lClipLightSpacePosition *= 0.5f;
 	lClipLightSpacePosition += 0.5f;
+
+	float lBias = 0.005f * tan(acos(cosineTheta));
+	lBias = clamp(lBias, 0.0f, 0.05f);
+
+	lClipLightSpacePosition.z -= lBias;
 
 	// Compare Z-values
 	return texture(lightShadowDepthTexture, lClipLightSpacePosition.xyz);
@@ -85,13 +90,17 @@ void main()
 
 	if (lDistanceFromLightToVertex <= 0.0f) discard;
 
-	float lShadowFactor = calculateShadowFactor(lViewSpaceVertexPosition);
-	vec3 lDirectionFromEyeToLight = -lightDirection;
-
 	// Normalize this direction.
+	
 	lDirectionFromLightToVertex /= lDistanceFromLightToVertex;
+	
+	vec3 lDirectionFromEyeToLight = -lightDirection;
+	
+	float lCosineTheta = max(dot(lDirectionFromEyeToLight, lViewSpaceVertexNormal), 0.0f);
 
-	float lDiffuseFactor = lDiffuseColor.a * max(dot(lDirectionFromEyeToLight, lViewSpaceVertexNormal), 0.0f);
+	float lShadowFactor = calculateShadowFactor(lViewSpaceVertexPosition, lCosineTheta);
+	
+	float lDiffuseFactor = lDiffuseColor.a * lCosineTheta;
 
 	// Determine the spot light effect.
 	float lCosineHalfAngle = max(dot(lDirectionFromLightToVertex, lightDirection), 0.0f);
@@ -131,7 +140,7 @@ void main()
 	}
 	else if (debugFlag == 3)
 	{
-		finalColor = vec3(calculateShadowFactor(lDirectionFromLightToVertex));
+		finalColor = vec3(calculateShadowFactor(lDirectionFromLightToVertex, lCosineTheta));
 		finalColor += vec3(lightCosineHalfAngle);
 	}
 	else if (debugFlag == 4)

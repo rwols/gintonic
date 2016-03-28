@@ -14,19 +14,18 @@ public:
 	{
 		using namespace gintonic;
 
-		auto lMaterial = std::make_shared<Material>();
-		lMaterial->name = "Bricks";
-		lMaterial->diffuseColor = vec4f(0.8f, 0.8f, 0.8f, 0.9f);
-		lMaterial->specularColor = vec4f(0.2f, 0.2f, 0.2f, 20.0f);
-		lMaterial->diffuseTexture = std::make_shared<Texture2D>("../../Examples/bricks.jpg");
-		lMaterial->specularTexture = std::make_shared<Texture2D>("../../Examples/bricks_SPEC.png");
-		lMaterial->normalTexture = std::make_shared<Texture2D>("../../Examples/bricks_NRM.png");
-
 		mCubeEntity = std::make_shared<Entity>("Cube");
-		mCubeEntity->material = lMaterial;
+		mCubeEntity->material = std::make_shared<Material>();
+		mCubeEntity->material->name = "RuralBrickWall";
+		mCubeEntity->material->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
+		mCubeEntity->material->specularColor = vec4f(1.0f, 1.0f, 1.0f, 20.0f);
+		mCubeEntity->material->diffuseTexture = std::make_shared<Texture2D>("Resources/RuralBrickWall.jpg");
+		mCubeEntity->material->specularTexture = std::make_shared<Texture2D>("Resources/RuralBrickWall_SPEC.png");
+		mCubeEntity->material->normalTexture = std::make_shared<Texture2D>("Resources/RuralBrickWall_NRM.png");
 		mCubeEntity->mesh = Renderer::getUnitCubeWithTangents();
 
-		Renderer::getCameraEntity()->setTranslation(vec3f(0.0f, 0.0f, 3.0f));
+		Renderer::getCameraEntity()->setTranslation(vec3f(2.0f, 1.0f, 4.0f));
+		Renderer::getCameraEntity()->camera->addMouse(vec2f(0.2f, -0.20f));
 
 		auto lLight = std::shared_ptr<Light>(new DirectionalLight());
 		lLight->name = "DirectionalLight";
@@ -48,6 +47,7 @@ public:
 		mRootEntity->addChild(lLightEntity);
 		mRootEntity->addChild(Renderer::createGizmo());
 
+		Renderer::disableCursor();
 		Renderer::setFreeformCursor(true);
 		Renderer::show();
 	}
