@@ -29,6 +29,24 @@ BOOST_CHECK_CLOSE(left.data[3][1], right.data[3][1], tolerance);\
 BOOST_CHECK_CLOSE(left.data[3][2], right.data[3][2], tolerance);\
 BOOST_CHECK_CLOSE(left.data[3][3], right.data[3][3], tolerance);
 
+#define GINTONIC_CHECK_MATRIX_SMALL(val, tolerance) \
+BOOST_CHECK_SMALL(val.data[0][0], tolerance);\
+BOOST_CHECK_SMALL(val.data[0][1], tolerance);\
+BOOST_CHECK_SMALL(val.data[0][2], tolerance);\
+BOOST_CHECK_SMALL(val.data[0][3], tolerance);\
+BOOST_CHECK_SMALL(val.data[1][0], tolerance);\
+BOOST_CHECK_SMALL(val.data[1][1], tolerance);\
+BOOST_CHECK_SMALL(val.data[1][2], tolerance);\
+BOOST_CHECK_SMALL(val.data[1][3], tolerance);\
+BOOST_CHECK_SMALL(val.data[2][0], tolerance);\
+BOOST_CHECK_SMALL(val.data[2][1], tolerance);\
+BOOST_CHECK_SMALL(val.data[2][2], tolerance);\
+BOOST_CHECK_SMALL(val.data[2][3], tolerance);\
+BOOST_CHECK_SMALL(val.data[3][0], tolerance);\
+BOOST_CHECK_SMALL(val.data[3][1], tolerance);\
+BOOST_CHECK_SMALL(val.data[3][2], tolerance);\
+BOOST_CHECK_SMALL(val.data[3][3], tolerance);
+
 #define GINTONIC_CHECK_VECTOR3_CLOSE(left, right, tolerance)\
 BOOST_CHECK_CLOSE(left.x, right.x, tolerance);\
 BOOST_CHECK_CLOSE(left.y, right.y, tolerance);\
@@ -281,8 +299,8 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 {
 	const float width = 1440.0f;
 	const float height = 900.0f;
-	const float fieldofview = deg2rad(60.0f);
-	const float aspectratio = width / height; // typical resolution
+	// const float fieldofview = deg2rad(60.0f);
+	// const float aspectratio = width / height; // typical resolution
 	const float nearplane = 1.0;
 	const float farplane = 1000.0f;
 
@@ -303,7 +321,7 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 	std::srand((int)std::clock());
 
 	const int lMaxOffset = 10000;
-	const float lInverseOfMaxOffset = 1.0f / static_cast<float>(lMaxOffset);
+	// const float lInverseOfMaxOffset = 1.0f / static_cast<float>(lMaxOffset);
 
 	auto createRandomVector3 = [&] ()
 	{
@@ -313,7 +331,7 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 		return vec3f(x, y, z);
 	};
 
-	for (int i = 0; i < 1000000; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		lLightEntity->setLocalTransform
 		(
@@ -353,7 +371,7 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 		lCameraEntity->camera->setNearPlane(lNearPlane);
 		lCameraEntity->camera->setFarPlane(lFarPlane);
 
-		const auto lProjection     = lCameraEntity->camera->projectionMatrix();
+		// const auto lProjection     = lCameraEntity->camera->projectionMatrix();
 		const auto lCameraView     = lCameraEntity->getViewMatrix();
 		const auto lLightView      = lLightEntity->getViewMatrix();
 		const auto lLightInverseView = lLightEntity->globalTransform();
@@ -368,22 +386,27 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 
 		mat4f lShouldBeAlmostIdentity;
 		mat4f lActualIndentity(1.0f);
+		mat4f lShouldBeAlmostZero;
 
 		lShouldBeAlmostIdentity    = lCameraView * lCameraInverseView;
-		GINTONIC_CHECK_MATRICES_CLOSE(lShouldBeAlmostIdentity, lActualIndentity, 0.1f);
+		lShouldBeAlmostZero        = lShouldBeAlmostIdentity - lActualIndentity;
+		GINTONIC_CHECK_MATRIX_SMALL(lShouldBeAlmostZero, 0.1f);
 		lShouldBeAlmostIdentity    = lCameraInverseView * lCameraView;
-		GINTONIC_CHECK_MATRICES_CLOSE(lShouldBeAlmostIdentity, lActualIndentity, 0.1f);
+		lShouldBeAlmostZero        = lShouldBeAlmostIdentity - lActualIndentity;
+		GINTONIC_CHECK_MATRIX_SMALL(lShouldBeAlmostZero, 0.1f);
 		lShouldBeAlmostIdentity    = lLightView * lLightInverseView;
-		GINTONIC_CHECK_MATRICES_CLOSE(lShouldBeAlmostIdentity, lActualIndentity, 0.1f);
+		lShouldBeAlmostZero        = lShouldBeAlmostIdentity - lActualIndentity;
+		GINTONIC_CHECK_MATRIX_SMALL(lShouldBeAlmostZero, 0.1f);
 		lShouldBeAlmostIdentity    = lLightInverseView * lLightView;
-		GINTONIC_CHECK_MATRICES_CLOSE(lShouldBeAlmostIdentity, lActualIndentity, 0.1f);
+		lShouldBeAlmostZero        = lShouldBeAlmostIdentity - lActualIndentity;
+		GINTONIC_CHECK_MATRIX_SMALL(lShouldBeAlmostZero, 0.1f);
 
 		const vec4f lPoint         = vec4f(createRandomVector3(), 1.0f);
 
 		const auto lShadowMatrix   = lLightProjection * lLightView * lCameraInverseView;
 
 		auto lViewPoint            =                    lCameraView * lModel * lPoint;
-		auto lViewClipSpacePoint   = lProjection      * lCameraView * lModel * lPoint;
+		// auto lViewClipSpacePoint   = lProjection      * lCameraView * lModel * lPoint;
 		auto lLightClipPoint       = lLightProjection * lLightView  * lModel * lPoint;
 		auto lFromViewToLightPoint = lShadowMatrix                           * lViewPoint;
 
@@ -394,5 +417,36 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 		const auto lShouldBeTiny   = lLightClipPoint - lFromViewToLightPoint;
 
 		GINTONIC_CHECK_VECTOR4_SMALL(lShouldBeTiny, 0.1f);
+	}
+}
+
+BOOST_AUTO_TEST_CASE ( decomposition )
+{
+	for (int i = 0; i < 10; ++i)
+	{
+		quatf lRotation(rand(), rand(), rand(), rand());
+
+		PRINT_VAR(lRotation);
+
+		lRotation.normalize();
+
+		PRINT_VAR(lRotation);
+
+		// vec3f lScale(rand(), rand(), rand());
+		vec3f lScale(1.0f, 1.0f, 1.0f);
+		lScale.normalize();
+
+		vec3f lTranslation(rand(), rand(), rand());
+
+		quatf lRecoveredRotation;
+		vec3f lRecoveredScale, lRecoveredTranslation;
+
+		mat4f lAffineMatrix(SQT(lScale, lRotation, lTranslation));
+
+		lAffineMatrix.decompose(lRecoveredScale, lRecoveredRotation, lRecoveredTranslation);
+
+		GINTONIC_CHECK_VECTOR3_CLOSE(lRecoveredScale, lScale, 0.1f);
+		GINTONIC_CHECK_VECTOR4_CLOSE(lRecoveredRotation, lRotation, 0.1f);
+		GINTONIC_CHECK_VECTOR3_CLOSE(lRecoveredTranslation, lTranslation, 0.1f);
 	}
 }

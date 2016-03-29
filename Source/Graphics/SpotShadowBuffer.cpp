@@ -37,9 +37,9 @@ void SpotShadowBuffer::collect(
 	mProjectionMatrix.set_perspective
 	(
 		2.0f * std::acos(1.0f - lightEntity.light->getCosineHalfAngle()), // Field of view
-		1.0f,                                                      // Aspect ratio
-		0.1f,                                                      // Near plane
-		lightEntity.light->getCutoffRadius()                       // Far plane
+		1.0f,                                                             // Aspect ratio
+		0.1f,                                                             // Near plane
+		lightEntity.light->getCutoffRadius()                              // Far plane
 	);
 	const auto lProjectionViewMatrix = mProjectionMatrix * lightEntity.getViewMatrix();
 	mat4f lProjectionViewModelMatrix;
@@ -48,8 +48,6 @@ void SpotShadowBuffer::collect(
 	glViewport(0, 0, SHADOW_QUALITY, SHADOW_QUALITY);
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	Renderer::cerr() << "mProjectionMatrix:\n" << mProjectionMatrix << "\n\n";
-	
 	for (const auto lGeometryEntity : shadowCastingGeometryEntities)
 	{
 		lProjectionViewModelMatrix = lProjectionViewMatrix * lGeometryEntity->globalTransform();

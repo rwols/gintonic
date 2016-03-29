@@ -105,6 +105,34 @@ public:
 		return *this;
 	}
 
+
+	inline quatf operator / (const quatf& q) const noexcept
+	{
+		return *this * q.inverse();
+	}
+
+	inline quatf operator / (const float s) const noexcept
+	{
+		return _mm_mul_ps(data, _mm_set1_ps(1.0f / s));
+	}
+
+	inline friend quatf operator / (const float s, const quatf& q) noexcept
+	{
+		return _mm_mul_ps(q.data, _mm_set1_ps(1.0f / s));
+	}
+
+	inline quatf& operator /= (const quatf& q) noexcept
+	{
+		return *this = (*this * q.inverse());
+	}
+
+	inline quatf& operator /= (const float s) noexcept
+	{
+		data = _mm_mul_ps(data, _mm_set1_ps(1.0f / s));
+		return *this;
+	}
+
+
 	/**
 	 * @brief Get the conjugate of this quaternion.
 	 * @details If the quaternion is given by \f$q = w + xi + yj + zk\f$, then
@@ -118,6 +146,19 @@ public:
 	inline quatf conjugate() const noexcept
 	{
 		return quatf(w, -x, -y, -z);
+	}
+
+	inline quatf& invert() noexcept
+	{
+		x = -x;
+		y = -y;
+		z = -z;
+		return operator /= (length2());
+	}
+
+	inline quatf inverse() const noexcept
+	{
+		return conjugate() / length2();
 	}
 
 	/**
@@ -187,7 +228,7 @@ public:
 	 */
 	inline quatf& normalize() noexcept
 	{
-		return operator*=(length2());
+		return operator/=(length());
 	}
 
 	/// Equality comparison operator.

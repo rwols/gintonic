@@ -9,6 +9,18 @@
 #include <vector>
 #include <algorithm>
 
+#define GINTONIC_CHECK_VECTOR4_CLOSE(left, right, tolerance)\
+BOOST_CHECK_CLOSE(left.x, right.x, tolerance);\
+BOOST_CHECK_CLOSE(left.y, right.y, tolerance);\
+BOOST_CHECK_CLOSE(left.z, right.z, tolerance);\
+BOOST_CHECK_CLOSE(left.w, right.w, tolerance);
+
+#define GINTONIC_CHECK_VECTOR4_SMALL(val, tolerance)\
+BOOST_CHECK_SMALL(val.x, tolerance);\
+BOOST_CHECK_SMALL(val.y, tolerance);\
+BOOST_CHECK_SMALL(val.z, tolerance);\
+BOOST_CHECK_SMALL(val.w, tolerance);
+
 using namespace gintonic;
 
 BOOST_AUTO_TEST_CASE( constructor_test )
@@ -41,6 +53,46 @@ BOOST_AUTO_TEST_CASE ( operators_test )
 	BOOST_CHECK_CLOSE(dir.x, 0.0f, 0.001f); // ... as is demonstrated here
 	BOOST_CHECK_CLOSE(dir.y, 1.0f, 0.001f);
 	BOOST_CHECK_CLOSE(dir.z, 0.0f, 0.001f);
+}
+
+BOOST_AUTO_TEST_CASE ( inverses_and_conjugates )
+{
+	for (int i = 0; i < 100000; ++i)
+	{
+		quatf lRotation(rand(), rand(), rand(), rand());
+		quatf lCopy0 = lRotation;
+		
+		const float lLengthSquared = lRotation.length2();
+		const float lLength = lRotation.length();
+		lCopy0.normalize();
+
+		quatf lCopy1 = lRotation;
+		lCopy1.x /= lLength;
+		lCopy1.y /= lLength;
+		lCopy1.z /= lLength;
+		lCopy1.w /= lLength;
+
+		const float lShouldBeOne0 = lCopy0.length();
+		const float lShouldBeOne1 = lCopy1.length();
+
+		BOOST_CHECK_CLOSE(lShouldBeOne0, 1.0f, 0.01f);
+		BOOST_CHECK_CLOSE(lShouldBeOne1, 1.0f, 0.01f);
+
+		GINTONIC_CHECK_VECTOR4_CLOSE(lCopy0, lCopy1, 0.01f);
+
+		lCopy0 = lRotation;
+		lCopy0.invert();
+		lCopy1 = lRotation;
+		lCopy1.x = -lCopy1.x;
+		lCopy1.y = -lCopy1.y;
+		lCopy1.z = -lCopy1.z;
+		lCopy1.x /= lLengthSquared;
+		lCopy1.y /= lLengthSquared;
+		lCopy1.z /= lLengthSquared;
+		lCopy1.w /= lLengthSquared;
+
+		GINTONIC_CHECK_VECTOR4_CLOSE(lCopy0, lCopy1, 0.01f);
+	}
 }
 
 BOOST_AUTO_TEST_CASE ( various_functions_test )

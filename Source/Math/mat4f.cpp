@@ -414,7 +414,7 @@ void mat4f::decompose(vec3f& scale, quatf& rotation, vec3f& translation) const
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
 	const float trace = tmp.m00 + tmp.m11 + tmp.m22;
 	if (trace > 0)
-	{ 
+	{
 		const float S = std::sqrt(trace + 1.0f) * 2.0f; // S=4*qw 
 		rotation.w = 0.25f * S;
 		rotation.x = (tmp.m21 - tmp.m12) / S;
@@ -422,7 +422,7 @@ void mat4f::decompose(vec3f& scale, quatf& rotation, vec3f& translation) const
 		rotation.z = (tmp.m10 - tmp.m01) / S; 
 	}
 	else if ((tmp.m00 > tmp.m11) && (tmp.m00 > tmp.m22))
-	{ 
+	{
 		const float S = std::sqrt(1.0f + tmp.m00 - tmp.m11 - tmp.m22) * 2.0f; // S=4*rotation.x 
 		rotation.w = (tmp.m21 - tmp.m12) / S;
 		rotation.x = 0.25f * S;
@@ -430,7 +430,7 @@ void mat4f::decompose(vec3f& scale, quatf& rotation, vec3f& translation) const
 		rotation.z = (tmp.m02 + tmp.m20) / S; 
 	}
 	else if (tmp.m11 > tmp.m22)
-	{ 
+	{
 		const float S = std::sqrt(1.0f + tmp.m11 - tmp.m00 - tmp.m22) * 2.0f; // S=4*rotation.y
 		rotation.w = (tmp.m02 - tmp.m20) / S;
 		rotation.x = (tmp.m01 + tmp.m10) / S; 
@@ -438,7 +438,7 @@ void mat4f::decompose(vec3f& scale, quatf& rotation, vec3f& translation) const
 		rotation.z = (tmp.m12 + tmp.m21) / S; 
 	}
 	else
-	{ 
+	{
 		const float S = std::sqrt(1.0f + tmp.m22 - tmp.m00 - tmp.m11) * 2.0f; // S=4*rotation.z
 		rotation.w = (tmp.m10 - tmp.m01) / S;
 		rotation.x = (tmp.m02 + tmp.m20) / S;
