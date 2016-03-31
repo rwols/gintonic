@@ -15,27 +15,27 @@ constexpr GLenum sTextureInternal[GeometryBuffer::kCount] =
 	GL_RGBA,             // kSpecular
 	GL_RGBA16F,          // kNormal
 	GL_RGB,              // kPostProcessing
-	GL_DEPTH_COMPONENT // kDepth
+	GL_DEPTH_COMPONENT   // kDepth
 };
 
 constexpr GLenum sTextureFormat[GeometryBuffer::kCount] = 
 {
-	GL_RGBA,         // kPosition
-	GL_RGBA,         // kDiffuse
-	GL_RGBA,         // kSpecular
-	GL_RGBA,         // kNormal
-	GL_RGB,          // kPostProcessing
+	GL_RGBA,           // kPosition
+	GL_RGBA,           // kDiffuse
+	GL_RGBA,           // kSpecular
+	GL_RGBA,           // kNormal
+	GL_RGB,            // kPostProcessing
 	GL_DEPTH_COMPONENT // kDepth
 };
 
 constexpr GLenum sTextureType[GeometryBuffer::kCount] =
 {
-	GL_FLOAT,                         // kPosition
-	GL_UNSIGNED_BYTE,                 // kDiffuse
-	GL_UNSIGNED_BYTE,                 // kSpecular
-	GL_FLOAT,                         // kNormal
-	GL_UNSIGNED_BYTE,                 // kPostProcessing
-	GL_FLOAT // kDepth
+	GL_FLOAT,         // kPosition
+	GL_UNSIGNED_BYTE, // kDiffuse
+	GL_UNSIGNED_BYTE, // kSpecular
+	GL_FLOAT,         // kNormal
+	GL_UNSIGNED_BYTE, // kPostProcessing
+	GL_FLOAT          // kDepth
 };
 
 constexpr GLenum sAttachment[GeometryBuffer::kCount] =
@@ -45,7 +45,7 @@ constexpr GLenum sAttachment[GeometryBuffer::kCount] =
 	GL_COLOR_ATTACHMENT0 + GeometryBuffer::kSpecular,       // kSpecular
 	GL_COLOR_ATTACHMENT0 + GeometryBuffer::kNormal,         // kNormal
 	GL_COLOR_ATTACHMENT0 + GeometryBuffer::kPostProcessing, // kPostProcessing
-	GL_DEPTH_ATTACHMENT                             // kDepth
+	GL_DEPTH_ATTACHMENT                                     // kDepth
 };
 
 constexpr GLenum sDrawBuffers[GeometryBuffer::kPostProcessing] = 

@@ -1,5 +1,5 @@
 /**
- * @file mesh.hpp
+ * @file Mesh.hpp
  * @brief Defines the mesh base class component.
  * @author Raoul Wols
  */
@@ -20,6 +20,12 @@
 #include "OpenGL/Vector.hpp"
 
 #include <vector>
+#include <boost/serialization/base_object.hpp>
+
+#define GT_MESH_BUFFER_POS_XYZ_UV_X 0 // Buffer for the positions and uv.x
+#define GT_MESH_BUFFER_NOR_XYZ_UV_Y 1 // Buffer for the normals and uv.y
+#define GT_MESH_BUFFER_TAN_XYZ_HAND 2 // Buffer for the tangents and handedness
+#define GT_MESH_BUFFER_INDICES 3      // Buffer for the indices
 
 namespace gintonic {
 
@@ -348,7 +354,7 @@ public:
 	 */
 	inline bool hasTangentsAndBitangents() const noexcept
 	{
-		return mHasTangentsAndBitangents;
+		return !mTangent_XYZ_hand.empty();
 	}
 
 	/**
@@ -357,25 +363,102 @@ public:
 	 */
 	inline GLsizei numIndices() const noexcept
 	{
-		return mNumIndices;
+		return static_cast<GLsizei>(mIndices.size());
 	}
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 
-	void setupInstancedRenderingMatrices() noexcept;
-	void computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh::vec4f>& position_XYZ_uv_X);
+	box3f mLocalBoundingBox;
+	std::vector<GLuint> mIndices;
+	std::vector<Mesh::vec4f> mPosition_XYZ_uv_X;
+	std::vector<Mesh::vec4f> mNormal_XYZ_uv_Y;
+	std::vector<Mesh::vec4f> mTangent_XYZ_hand;
 
 	OpenGL::VertexArrayObject mVertexArrayObject;
 	OpenGL::BufferObjectArray<4> mBuffer;
 	OpenGL::VectorArray<GL_ARRAY_BUFFER, mat4f, 2> mMatrixBuffer;
 	OpenGL::Vector<GL_ARRAY_BUFFER, mat3f> mNormalMatrixBuffer;
-	bool mHasTangentsAndBitangents;
-	GLsizei mNumIndices;
-	box3f mLocalBoundingBox;
+	// bool mHasTangentsAndBitangents;
+	// GLsizei mNumIndices;
+	
+
+	void setupInstancedRenderingMatrices() noexcept;
+	void computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh::vec4f>& position_XYZ_uv_X);
+	
+	void uploadData();
+
+	friend boost::serialization::access;
+
+	template <class Archive>
+	void save(Archive& archive, const unsigned int /*version*/) const
+	{
+		archive & mLocalBoundingBox;
+		archive & mIndices;
+		archive & mPosition_XYZ_uv_X;
+		archive & mNormal_XYZ_uv_Y;
+		archive & mTangent_XYZ_hand;
+
+		// GLint lUsage;
+
+		// archive & boost::serialization::base_object<Object<Mesh, std::string>>(*this);
+		// archive & mLocalBoundingBox;
+		// archive & mNumIndices;
+		// archive & mHasTangentsAndBitangents;
+		// const auto lData = mBuffer.retrieveDataAs<GLuint>(GT_MESH_BUFFER_INDICES, lUsage);
+		// assert(lUsage == GL_STATIC_DRAW);
+		// archive & lData;
+		// auto lMoreData = mBuffer.retrieveDataAs<Mesh::vec4f>(GT_MESH_BUFFER_POS_XYZ_UV_X, lUsage);
+		// assert(lUsage == GL_STATIC_DRAW);
+		// archive & lMoreData;
+		// lMoreData = mBuffer.retrieveDataAs<Mesh::vec4f>(GT_MESH_BUFFER_NOR_XYZ_UV_Y, lUsage);
+		// assert(lUsage == GL_STATIC_DRAW);
+		// archive & lMoreData;
+		// if (mHasTangentsAndBitangents)
+		// {
+		// 	lMoreData = mBuffer.retrieveDataAs<Mesh::vec4f>(GT_MESH_BUFFER_TAN_XYZ_HAND, lUsage);
+		// 	assert(lUsage == GL_STATIC_DRAW);
+		// 	archive & lMoreData;
+		// }
+	}
+
+	template <class Archive>
+	void load(Archive& archive, const unsigned int /*version*/)
+	{
+		archive & mLocalBoundingBox;
+		archive & mIndices;
+		archive & mPosition_XYZ_uv_X;
+		archive & mNormal_XYZ_uv_Y;
+		archive & mTangent_XYZ_hand;
+		uploadData();
+
+		// std::vector<GLuint> lIndices;
+		// std::vector<Mesh::vec4f> lPosition_XYZ_uv_X;
+		// std::vector<Mesh::vec4f> lNormal_XYZ_uv_Y;
+		// std::vector<Mesh::vec4f> lTangent_XYZ_handedness;
+
+		// archive & boost::serialization::base_object<Object<Mesh, std::string>>(*this);
+		// archive & mLocalBoundingBox;
+		// archive & mNumIndices;
+		// archive & mHasTangentsAndBitangents;
+		// archive & lIndices;
+		// archive & lPosition_XYZ_uv_X;
+		// archive & lNormal_XYZ_uv_Y;
+		// if (mHasTangentsAndBitangents)
+		// {
+		// 	archive & lTangent_XYZ_handedness;
+		// 	setFromSerialized(lIndices, lPosition_XYZ_uv_X, lNormal_XYZ_uv_Y, lTangent_XYZ_handedness);
+		// }
+		// else
+		// {
+		// 	setFromSerialized(lIndices, lPosition_XYZ_uv_X, lNormal_XYZ_uv_Y);
+		// }
+	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
 } // namespace gintonic
+
+BOOST_CLASS_TRACKING(gintonic::Mesh, boost::serialization::track_always);

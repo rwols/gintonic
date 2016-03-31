@@ -3,42 +3,42 @@
 namespace gintonic {
 
 box2f::box2f()
-: min_corner(0.0f, 0.0f)
-, max_corner(0.0f, 0.0f)
+: minCorner(0.0f, 0.0f)
+, maxCorner(0.0f, 0.0f)
 {
 	/* Empty on purpose. */
 }
 
-box2f::box2f(const vec2f& min_corner, const vec2f& max_corner)
-: min_corner(min_corner)
-, max_corner(max_corner)
+box2f::box2f(const vec2f& minCorner, const vec2f& maxCorner)
+: minCorner(minCorner)
+, maxCorner(maxCorner)
 {
 	/* Empty on purpose. */
 }
 
 bool box2f::contains(const vec2f& point) const noexcept
 {
-	return min_corner <= point && point <= max_corner;
+	return minCorner <= point && point <= maxCorner;
 }
 
 bool box2f::contains(const box2f& other) const noexcept
 {
-	return min_corner <= other.min_corner && other.max_corner <= max_corner;
+	return minCorner <= other.minCorner && other.maxCorner <= maxCorner;
 }
 
 bool intersects(const box2f& a, const box2f& b) noexcept
 {
-	return a.contains(b.min_corner) || a.contains(b.max_corner)
-		|| b.contains(a.min_corner) || b.contains(a.max_corner);
+	return a.contains(b.minCorner) || a.contains(b.maxCorner)
+		|| b.contains(a.minCorner) || b.contains(a.maxCorner);
 }
 
 std::ostream& operator << (std::ostream& os, const box2f& b)
 {
-	return os << b.min_corner << ' ' << b.max_corner;
+	return os << b.minCorner << ' ' << b.maxCorner;
 }
 std::istream& operator >> (std::istream& is, box2f& b)
 {
-	is >> b.min_corner >> b.max_corner;
+	is >> b.minCorner >> b.maxCorner;
 	return is;
 }
 

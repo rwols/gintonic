@@ -16,7 +16,8 @@
  
 #include <list>
 #include <boost/serialization/access.hpp>
-#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/base_object.hpp>
 
 namespace gintonic {
 
@@ -170,100 +171,111 @@ public:
 	 */
 	friend std::ostream& operator << (std::ostream& os, const Material& m);
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 
 	friend class boost::serialization::access;
-	
-	template <class Archive> 
-	void save(Archive& ar, const unsigned /*version*/) const
-	{
-		// Serialize the base class.
-		ar & boost::serialization::base_object<Object<Material, std::string>>(*this);
-
-		// Serialize the diffuse color and the specular color.
-		ar & BOOST_SERIALIZATION_NVP(diffuseColor);
-		ar & BOOST_SERIALIZATION_NVP(specularColor);
-
-		// Determine what textures we carry.
-		bool lHasDiffuse = diffuseTexture != nullptr;
-		bool lHasSpecular = specularTexture != nullptr;
-		bool lHasNormal = normalTexture != nullptr;
-
-		// Serialize what textures we carry.
-		ar & boost::serialization::make_nvp("hasDiffuseTexture", lHasDiffuse);
-		ar & boost::serialization::make_nvp("hasSpecularTexture", lHasSpecular);
-		ar & boost::serialization::make_nvp("hasNormalTexture", lHasNormal);
-
-		if (lHasDiffuse)
-		{
-			// We carry a diffuse texture, serialize its filename.
-			ar & boost::serialization::make_nvp("diffuseTexture", diffuseTexture->name);
-		}
-		if (lHasSpecular)
-		{
-			// We carry a specular texture, serialize its filename.
-			ar & boost::serialization::make_nvp("specularTexture", specularTexture->name);
-		}
-		if (lHasNormal)
-		{
-			// We carry a normal texture, serialize its filename.
-			ar & boost::serialization::make_nvp("normalTexture", normalTexture->name);
-		}
-	}
 
 	template <class Archive>
-	void load(Archive& ar, const unsigned /*version*/)
+	void serialize(Archive& archive, const unsigned int /*version*/)
 	{
-		// Deserialize the base class.
-		ar & boost::serialization::base_object<Object<Material, std::string>>(*this);
-
-		// Deserialize the diffuse color and specular color.
-		ar & diffuseColor;
-		ar & specularColor;
-
-		bool lHasDiffuse;
-		bool lHasSpecular;
-		bool lHasNormal;
-		boost::filesystem::path lFilename;
-
-		// Determine what textures we carry.
-		ar & boost::serialization::make_nvp("hasDiffuseTexture", lHasDiffuse);
-		ar & boost::serialization::make_nvp("hasSpecularTexture", lHasSpecular);
-		ar & boost::serialization::make_nvp("hasNormalTexture", lHasNormal);
-
-		if (lHasDiffuse)
-		{
-			// Deserialize the filename.
-			ar & boost::serialization::make_nvp("diffuseTexture", lFilename);
-			
-			// Load the texture.
-			diffuseTexture = std::make_shared<Texture2D>(lFilename);
-		}
-
-		if (lHasSpecular)
-		{
-			// Deserialize the filename.
-			ar & boost::serialization::make_nvp("specularTexture", lFilename);
-
-			// Load the texture.
-			specularTexture = std::make_shared<Texture2D>(lFilename);
-		}
-
-		if (lHasNormal)
-		{
-			// Deserialize the filename.
-			ar & boost::serialization::make_nvp("normalTexture", lFilename);
-			
-			// Load the texture.
-			normalTexture = std::make_shared<Texture2D>(lFilename);
-		}
+		archive & boost::serialization::base_object<Object<Material, std::string>>(*this);
+		archive & diffuseColor;
+		archive & specularColor;
+		archive & diffuseTexture;
+		archive & specularTexture;
+		archive & normalTexture;
 	}
+	
+	// template <class Archive> 
+	// void save(Archive& ar, const unsigned /*version*/) const
+	// {
+	// 	// Serialize the base class.
+	// 	ar & boost::serialization::base_object<Object<Material, std::string>>(*this);
 
-	BOOST_SERIALIZATION_SPLIT_MEMBER();
+	// 	// Serialize the diffuse color and the specular color.
+	// 	ar & BOOST_SERIALIZATION_NVP(diffuseColor);
+	// 	ar & BOOST_SERIALIZATION_NVP(specularColor);
+
+	// 	// Determine what textures we carry.
+	// 	bool lHasDiffuse = diffuseTexture != nullptr;
+	// 	bool lHasSpecular = specularTexture != nullptr;
+	// 	bool lHasNormal = normalTexture != nullptr;
+
+	// 	// Serialize what textures we carry.
+	// 	ar & boost::serialization::make_nvp("hasDiffuseTexture", lHasDiffuse);
+	// 	ar & boost::serialization::make_nvp("hasSpecularTexture", lHasSpecular);
+	// 	ar & boost::serialization::make_nvp("hasNormalTexture", lHasNormal);
+
+	// 	if (lHasDiffuse)
+	// 	{
+	// 		// We carry a diffuse texture, serialize its filename.
+	// 		ar & boost::serialization::make_nvp("diffuseTexture", diffuseTexture->name);
+	// 	}
+	// 	if (lHasSpecular)
+	// 	{
+	// 		// We carry a specular texture, serialize its filename.
+	// 		ar & boost::serialization::make_nvp("specularTexture", specularTexture->name);
+	// 	}
+	// 	if (lHasNormal)
+	// 	{
+	// 		// We carry a normal texture, serialize its filename.
+	// 		ar & boost::serialization::make_nvp("normalTexture", normalTexture->name);
+	// 	}
+	// }
+
+	// template <class Archive>
+	// void load(Archive& ar, const unsigned /*version*/)
+	// {
+	// 	// Deserialize the base class.
+	// 	ar & boost::serialization::base_object<Object<Material, std::string>>(*this);
+
+	// 	// Deserialize the diffuse color and specular color.
+	// 	ar & diffuseColor;
+	// 	ar & specularColor;
+
+	// 	bool lHasDiffuse;
+	// 	bool lHasSpecular;
+	// 	bool lHasNormal;
+	// 	boost::filesystem::path lFilename;
+
+	// 	// Determine what textures we carry.
+	// 	ar & boost::serialization::make_nvp("hasDiffuseTexture", lHasDiffuse);
+	// 	ar & boost::serialization::make_nvp("hasSpecularTexture", lHasSpecular);
+	// 	ar & boost::serialization::make_nvp("hasNormalTexture", lHasNormal);
+
+	// 	if (lHasDiffuse)
+	// 	{
+	// 		// Deserialize the filename.
+	// 		ar & boost::serialization::make_nvp("diffuseTexture", lFilename);
+			
+	// 		// Load the texture.
+	// 		diffuseTexture = std::make_shared<Texture2D>(lFilename);
+	// 	}
+
+	// 	if (lHasSpecular)
+	// 	{
+	// 		// Deserialize the filename.
+	// 		ar & boost::serialization::make_nvp("specularTexture", lFilename);
+
+	// 		// Load the texture.
+	// 		specularTexture = std::make_shared<Texture2D>(lFilename);
+	// 	}
+
+	// 	if (lHasNormal)
+	// 	{
+	// 		// Deserialize the filename.
+	// 		ar & boost::serialization::make_nvp("normalTexture", lFilename);
+			
+	// 		// Load the texture.
+	// 		normalTexture = std::make_shared<Texture2D>(lFilename);
+	// 	}
+	// }
+
+	// BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
 } // namespace gintonic
+
+BOOST_CLASS_TRACKING(gintonic::Material, boost::serialization::track_always);

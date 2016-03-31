@@ -269,9 +269,7 @@ public:
 	 */
 	void notify(Entity* e);
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 

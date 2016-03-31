@@ -95,8 +95,12 @@ void main()
 	lDirectionFromLightToVertex /= lDistanceFromLightToVertex;
 	
 	vec3 lDirectionFromEyeToLight = -lightDirection;
+
+	float lCosineTheta = dot(lDirectionFromEyeToLight, lViewSpaceVertexNormal);
+
+	if (lCosineTheta < 0.0f) discard;
 	
-	float lCosineTheta = max(dot(lDirectionFromEyeToLight, lViewSpaceVertexNormal), 0.0f);
+	// float lCosineTheta = max(dot(lDirectionFromEyeToLight, lViewSpaceVertexNormal), 0.0f);
 
 	float lShadowFactor = calculateShadowFactor(lViewSpaceVertexPosition, lCosineTheta);
 	

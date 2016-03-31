@@ -1,5 +1,5 @@
 /**
- * @file camera.hpp
+ * @file Camera.hpp
  * @brief Defines a camera component.
  * @author Raoul Wols
  */
@@ -102,9 +102,7 @@ public:
 		mAngles = angles;
 	}
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 

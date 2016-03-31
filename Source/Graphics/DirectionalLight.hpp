@@ -50,9 +50,7 @@ public:
 	/// Stream output support for a directional light.
 	friend std::ostream& operator << (std::ostream&, const DirectionalLight&);
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 
@@ -60,10 +58,7 @@ private:
 	virtual std::ostream& prettyPrint(std::ostream&) const 
 		noexcept;
 
-	//!@cond
-	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
-	//!@endcond
 
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)

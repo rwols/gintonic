@@ -54,6 +54,7 @@ void Texture2D::bind(const GLint textureUnit) const noexcept
 void Texture2D::loadFromFile(boost::filesystem::path filename)
 {
 	this->name = std::move(filename);
+	std::cerr << "Loading file: " << this->name << '\n';
 	GLenum lFormat;
 	int lWidth;
 	int lHeight;
@@ -70,12 +71,7 @@ void Texture2D::loadFromFile(boost::filesystem::path filename)
 		&stbi_image_free);
 	#endif
 	
-	if (!data)
-	{
-		exception lException(this->name.string());
-		lException.append(" is invalid.");
-		throw lException;
-	}
+	if (!data) throw NoImageDataException();
 
 	switch (lComp)
 	{
@@ -83,12 +79,7 @@ void Texture2D::loadFromFile(boost::filesystem::path filename)
 		case STBI_grey_alpha: lFormat = GL_RG;   break;
 		case STBI_rgb:        lFormat = GL_RGB;  break;
 		case STBI_rgb_alpha:  lFormat = GL_RGBA; break;
-		default:
-		{
-			exception lException(this->name.string());
-			lException.append(" has an unknown image format.");
-			throw lException;
-		}
+		default: throw UnknownImageFormatException();
 	}
 	
 	glBindTexture(GL_TEXTURE_2D, mTextureObject);

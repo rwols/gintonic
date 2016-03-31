@@ -57,7 +57,8 @@ BOOST_AUTO_TEST_CASE ( operators_test )
 
 BOOST_AUTO_TEST_CASE ( inverses_and_conjugates )
 {
-	for (int i = 0; i < 100000; ++i)
+	std::srand((int)std::clock());
+	for (int i = 0; i < 1000000; ++i)
 	{
 		quatf lRotation(rand(), rand(), rand(), rand());
 		quatf lCopy0 = lRotation;

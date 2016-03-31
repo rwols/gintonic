@@ -13,6 +13,10 @@
 
 #include "OpenGL/TextureObject.hpp"
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/base_object.hpp>
+
 namespace FBX
 {
 	class FbxTexture; // Forward declaration.
@@ -28,9 +32,32 @@ class Texture2D : public Object<Texture2D, boost::filesystem::path>
 public:
 
 	/**
+	 * @brief Can be thrown during construction of a Texture2D.
+	 */
+	class NoImageDataException : public std::exception
+	{
+	public:
+		NoImageDataException() noexcept = default;
+		virtual ~NoImageDataException() noexcept = default;
+		virtual const char* what() const noexcept { return "NoImageDataException"; }
+	};
+
+	/**
+	 * @brief Can be thrown during construction of a Texture2D.
+	 */
+	class UnknownImageFormatException : public std::exception
+	{
+	public:
+		UnknownImageFormatException() noexcept = default;
+		virtual ~UnknownImageFormatException() noexcept = default;
+		virtual const char* what() const noexcept { return "UnknownImageFormatException"; }
+	};
+
+	/**
 	 * @brief Construct from an FbxTexture.
 	 * @param pFbxTexture Pointer to an FbxTexture.
-	 * @exception gintonic::exception
+	 * @throws NoImageDataException if the image contains no data.
+	 * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
 	 */
 	Texture2D(
 		const FBX::FbxTexture* pFbxTexture);
@@ -38,21 +65,24 @@ public:
 	/**
 	 * @brief Construct from a filepath.
 	 * @param pathToImageFile Path to an image.
-	 * @exception gintonic::exception
+	 * @throws NoImageDataException if the image contains no data.
+	 * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
 	 */
 	Texture2D(const char* pathToImageFile);
 
 	/**
 	 * @brief Construct from a filepath.
 	 * @param pathToImageFile Path to an image.
-	 * @exception gintonic::exception
+	 * @throws NoImageDataException if the image contains no data.
+	 * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
 	 */
 	Texture2D(const std::string& pathToImageFile);
 
 	/**
 	 * @brief Construct from a filepath.
 	 * @param pathToImageFile Path to an image.
-	 * @exception gintonic::exception
+	 * @throws NoImageDataException if the image contains no data.
+	 * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
 	 */
 	Texture2D(boost::filesystem::path pathToImageFile);
 
@@ -69,10 +99,30 @@ public:
 
 private:
 
+	Texture2D() = default;
+
 	OpenGL::TextureObject mTextureObject;
 
 	void loadFromFile(boost::filesystem::path);
 
+	friend class boost::serialization::access;
+
+	template <class Archive>
+	void save(Archive& archive, const unsigned int /*version*/) const
+	{
+		archive & boost::serialization::base_object<Object<Texture2D, boost::filesystem::path>>(*this);
+	}
+
+	template <class Archive>
+	void load(Archive& archive, const unsigned int /*version*/)
+	{
+		archive & boost::serialization::base_object<Object<Texture2D, boost::filesystem::path>>(*this);
+		loadFromFile(name);
+	}
+
+	BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
 } // namespace gintonic
+
+BOOST_CLASS_TRACKING(gintonic::Texture2D, boost::serialization::track_always);

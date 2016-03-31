@@ -14,6 +14,7 @@
 #include <iostream>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>
+#include <boost/serialization/tracking.hpp>
 
 #include <fbxsdk/core/fbxobject.h>
 #include <fbxsdk/scene/shading/fbxsurfacematerial.h>
@@ -37,6 +38,14 @@ template
 class Object : public std::enable_shared_from_this<Derived>
 {
 public:
+
+	class NoNameException : public std::exception
+	{
+	public:
+		NoNameException() noexcept = default;
+		virtual ~NoNameException() noexcept = default;
+		virtual const char* what() const noexcept { return "NoNameException"; }
+	};
 
 	/// The name of this Object.
 	NameType name;
@@ -219,9 +228,11 @@ private:
 	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
 		ar & name;
+		if (name.empty()) throw NoNameException();
 	}
 };
 
-
-
 } // namespace gintonic
+
+// template <class Derived, class NameType>
+// BOOST_CLASS_TRACKING(gintonic::Object<Derived, NameType>, boost::serialization::track_always);

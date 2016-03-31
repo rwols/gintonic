@@ -18,10 +18,10 @@ struct box2f
 {
 
 	/// The minimum corner of the axis-aligned bounding box.
-	vec2f min_corner;
+	vec2f minCorner;
 
 	/// The maximum corner of the axis-aligned bounding box.
-	vec2f max_corner;
+	vec2f maxCorner;
 
 	/// Default constructor initalizes a point at the origin.
 	box2f();
@@ -29,10 +29,10 @@ struct box2f
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param min_corner The minimum corner.
-	 * @param max_corner The maximum corner.
+	 * @param minCorner The minimum corner.
+	 * @param maxCorner The maximum corner.
 	 */
-	box2f(const vec2f& min_corner, const vec2f& max_corner);
+	box2f(const vec2f& minCorner, const vec2f& maxCorner);
 
 	/**
 	 * @brief Check wether this bounding box contains a point.
@@ -52,9 +52,16 @@ struct box2f
 	 */
 	bool contains(const box2f& other) const noexcept;
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
+
+private:
+
+	friend boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive& archive, const unsigned int /*version */)
+	{
+		archive & minCorner & maxCorner;
+	}
 };
 
 /**

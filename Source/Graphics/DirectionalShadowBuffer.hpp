@@ -31,14 +31,15 @@ public:
 
 	virtual const mat4f& projectionMatrix() const noexcept;
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 	
 private:
+	
 	OpenGL::Framebuffer mFramebuffer;
 	OpenGL::TextureObject mTexture;
 	mat4f mProjectionMatrix;
+
+	void updateProjectionMatrix(const Entity& lightEntity) noexcept;
 };
 
 } // namespace gintonic

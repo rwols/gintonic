@@ -3,42 +3,54 @@
 namespace gintonic {
 
 box3f::box3f()
-: min_corner(0.0f, 0.0f, 0.0f)
-, max_corner(0.0f, 0.0f, 0.0f)
+: minCorner(0.0f, 0.0f, 0.0f)
+, maxCorner(0.0f, 0.0f, 0.0f)
 {
 	/* Empty on purpose. */
 }
 
-box3f::box3f(const vec3f& min_corner, const vec3f& max_corner)
-: min_corner(min_corner)
-, max_corner(max_corner)
+box3f::box3f(const vec3f& minCorner, const vec3f& maxCorner)
+: minCorner(minCorner)
+, maxCorner(maxCorner)
 {
 	/* Empty on purpose. */
 }
 
 bool box3f::contains(const vec3f& point) const noexcept
 {
-	return min_corner <= point && point <= max_corner;
+	return minCorner <= point && point <= maxCorner;
 }
 
 bool box3f::contains(const box3f& other) const noexcept
 {
-	return min_corner <= other.min_corner && other.max_corner <= max_corner;
+	return minCorner <= other.minCorner && other.maxCorner <= maxCorner;
+}
+
+void box3f::addPoint(const vec3f& point) noexcept
+{
+	minCorner.data = _mm_min_ps(minCorner.data, point.data);
+	maxCorner.data = _mm_max_ps(maxCorner.data, point.data);
+}
+
+void box3f::addPoint(const vec4f& point) noexcept
+{
+	minCorner.data = _mm_min_ps(minCorner.data, point.data);
+	maxCorner.data = _mm_max_ps(maxCorner.data, point.data);
 }
 
 bool intersects(const box3f& a, const box3f& b) noexcept
 {
-	return a.contains(b.min_corner) || a.contains(b.max_corner)
-		|| b.contains(a.min_corner) || b.contains(a.max_corner);
+	return a.contains(b.minCorner) || a.contains(b.maxCorner)
+		|| b.contains(a.minCorner) || b.contains(a.maxCorner);
 }
 
 std::ostream& operator << (std::ostream& os, const box3f& b)
 {
-	return os << b.min_corner << ' ' << b.max_corner;
+	return os << b.minCorner << ' ' << b.maxCorner;
 }
 std::istream& operator >> (std::istream& is, box3f& b)
 {
-	is >> b.min_corner >> b.max_corner;
+	is >> b.minCorner >> b.maxCorner;
 	return is;
 }
 

@@ -1,5 +1,17 @@
 #include "Application.hpp"
 #include <iomanip>
+#include <fstream>
+#include "../Source/Foundation/portable_oarchive.hpp"
+#include "../Source/Foundation/portable_iarchive.hpp"
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/weak_ptr.hpp>
+
+using OutputArchiveType = eos::portable_oarchive;
+using InputArchiveType = eos::portable_iarchive;
 
 #define APPNAME "FbxViewer"
 #define LIGHT_INTENSITY_START_VALUE 1.0f
@@ -44,6 +56,8 @@ private:
 
 	virtual bool onVisit(std::shared_ptr<gintonic::Entity> entity)
 	{
+		
+
 		mStream << std::setw(mTabWidth * this->currentDepth()) << std::setfill(' ') << "";
 		mStream << entity->name << " [ ";
 		if (entity->light)
@@ -59,18 +73,18 @@ private:
 			++numMeshes;
 			const auto lBBox = entity->mesh->getLocalBoundingBox();
 			auto lBBoxArea = 
-				(lBBox.max_corner.x - lBBox.min_corner.x) * 
-				(lBBox.max_corner.y - lBBox.min_corner.y) * 
-				(lBBox.max_corner.z - lBBox.min_corner.z);
+				(lBBox.maxCorner.x - lBBox.minCorner.x) * 
+				(lBBox.maxCorner.y - lBBox.minCorner.y) * 
+				(lBBox.maxCorner.z - lBBox.minCorner.z);
 
 			// Take the cube root. Crude approximation of a single side length.
 			lBBoxArea = std::pow(lBBoxArea, 1.0f / 3.0f);
 
 			niceMoveSpeed += lBBoxArea;
 
-			if (lBBox.max_corner.z > cameraOffsetZ)
+			if (lBBox.maxCorner.z > cameraOffsetZ)
 			{
-				cameraOffsetZ = lBBox.max_corner.z;
+				cameraOffsetZ = lBBox.maxCorner.z;
 			}
 		}
 		if (entity->material)
@@ -116,22 +130,42 @@ public:
 	: Application(APPNAME, argc, argv)
 	{
 		using namespace gintonic;
-		if (argc <= 1)
+		if (argc <= 2)
 		{
-			throw exception("Supply an FBX filename!");
+			throw exception("Supply an FBX filename! Note: The first argument is wether we go fullscreen, the second argument is the FBX filename. This example also checks if there's already something in the cache with the same filename.");
 		}
-		const boost::filesystem::path lFilename(argv[1]);
+		const boost::filesystem::path lFilename(argv[2]);
 		if (!boost::filesystem::is_regular_file(lFilename))
 		{
 			exception lException(lFilename.string());
 			lException.append(" is not a regular file!");
 			throw lException;
 		}
-		const auto lFilenameAsString = lFilename.string();
+		
+		const auto lCachedFile = "Resources" / boost::filesystem::path(lFilename.stem().string() + ".entity");
 
-		gintonic::FbxImporter lImporter;
-		mModel = lImporter.loadFromFile(lFilenameAsString.c_str());
-		mModel->name = lFilename.stem().string();
+		std::cout << "Checking if " << lCachedFile << " is present...\n";
+		if (boost::filesystem::is_regular_file(lCachedFile))
+		{
+			std::cout << "Found cache: " << lCachedFile << '\n';
+			const auto lFilenameAsString = lCachedFile.string();
+			std::ifstream lInput(lFilenameAsString);
+			InputArchiveType lInputArchive(lInput);
+			lInputArchive >> mModel;
+		}
+		else
+		{
+			std::cout << "Loading file: " << lFilename << '\n';
+			const auto lFilenameAsString = lFilename.string();
+			gintonic::FbxImporter lImporter;
+			mModel = lImporter.loadFromFile(lFilenameAsString.c_str());
+			mModel->name = lFilename.stem().string();
+			// Serialize the model for caching
+			std::ofstream lOutput("Resources/" + mModel->name + ".entity");
+			OutputArchiveType lOutputArchive(lOutput);
+			lOutputArchive << mModel;
+		}
+
 		mModel->addChild(Renderer::createGizmo());
 		mRootEntity->addChild(mModel);
 		

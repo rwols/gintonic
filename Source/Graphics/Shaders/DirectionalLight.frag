@@ -30,7 +30,7 @@ vec2 calculateScreenPosition()
 	return vec2(gl_FragCoord.x / viewportSize.x, gl_FragCoord.y / viewportSize.y);
 }
 
-float calculateShadowFactor(in vec3 viewSpacePosition)
+float calculateShadowFactor(in vec3 viewSpacePosition, float cosineTheta)
 {
 	if (lightCastShadow == 0) return 1.0f;
 
@@ -41,6 +41,11 @@ float calculateShadowFactor(in vec3 viewSpacePosition)
 	// Turn the range [-1,1] into the range [0,1]
 	lClipLightSpacePosition *= 0.5f;
 	lClipLightSpacePosition += 0.5f;
+
+	float lBias = 0.005f * tan(acos(cosineTheta));
+	lBias = clamp(lBias, 0.0f, 0.05f);
+
+	lClipLightSpacePosition.z -= lBias;
 
 	// Compare Z-values
 	float lResult = texture(lightShadowDepthTexture, lClipLightSpacePosition.xyz);
@@ -55,10 +60,11 @@ void main()
 	vec4 lDiffuseColor            = texture(geometryBufferDiffuseTexture,  lScreenUV);
 	vec4 lSpecularColor           = texture(geometryBufferSpecularTexture, lScreenUV);
 	vec3 lViewSpaceVertexNormal   = texture(geometryBufferNormalTexture,   lScreenUV).xyz;
-	float lShadowFactor           = calculateShadowFactor(lViewSpaceVertexPosition);
 	vec3 lDirectionFromEyeToLight = normalize(-lightDirection);
-	
-	float lDiffuseFactor = lDiffuseColor.a * max(dot(lDirectionFromEyeToLight, lViewSpaceVertexNormal), 0.0f);
+	float lCosineTheta = max(dot(lDirectionFromEyeToLight, lViewSpaceVertexNormal), 0.0f);
+	float lShadowFactor           = calculateShadowFactor(lViewSpaceVertexPosition, lCosineTheta);
+
+	float lDiffuseFactor = lDiffuseColor.a * lCosineTheta;
 
 	vec3 E = normalize(-lViewSpaceVertexPosition);
  	

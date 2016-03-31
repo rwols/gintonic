@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_mat4f_hpp
-#define gintonic_mat4f_hpp
+#pragma once
 
 #include "../Foundation/utilities.hpp"
 #include <boost/serialization/access.hpp>
@@ -23,6 +22,7 @@ union vec4f;  // Forward declaration.
 union quatf;  // Forward declaration.
 union mat3f;  // Forward declaration.
 struct SQT;   // Forward declaration.
+struct box3f; // Forward declaration.
 class Entity; // Forward declaration.
 
 #ifdef __clang__
@@ -125,6 +125,12 @@ public:
 
 	/// Build an affine matrix using the global transform of the Entity.
 	mat4f(const Entity&);
+
+	/**
+	 * @brief Build an affine matrix from a box3f.
+	 * @param box Some box3f.
+	 */
+	mat4f(const box3f& box);
 
 	/// Build an affine matrix with all entries.
 	mat4f(const float m00, const float m01, const float m02, const float m03,
@@ -288,9 +294,7 @@ public:
 	/// Get the upper-left three by three submatrix.
 	mat3f upper_left_33() const;
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 
@@ -329,4 +333,7 @@ inline std::istream& operator >> (std::istream& is, mat4f& m)
 
 } // namespace gintonic
 
-#endif
+// This macro is needed for boost::serialization because boost::serialization
+// does not automatically assume unions are serializable.
+BOOST_CLASS_IMPLEMENTATION(gintonic::mat4f, 
+	boost::serialization::object_serializable);

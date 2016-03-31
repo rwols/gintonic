@@ -131,6 +131,37 @@ mat4f::mat4f(const Entity& e) : mat4f(e.globalTransform())
 	/* Empty on purpose. */
 }
 
+mat4f::mat4f(const box3f& box)
+{
+	const float lLeft = box.minCorner.x;
+	const float lRight = box.maxCorner.x;
+	const float lTop = box.maxCorner.y;
+	const float lBottom = box.minCorner.y;
+	const float lNearPlane = box.minCorner.z;
+	const float lFarPlane = box.maxCorner.z;
+	const float lRightMinusLeft = lRight - lLeft;
+	const float lTopMinusBottom = lTop - lBottom;
+	const float lFarMinusNear = lFarPlane - lNearPlane;
+
+	const auto lDiff = box.maxCorner - box.minCorner;
+	const auto lSum  = box.maxCorner + box.minCorner;
+	data[3] = (lSum / lDiff).data;
+	m33 = 1.0f;
+
+	data[0] = _mm_set1_ps(0.0f);
+	data[1] = _mm_set1_ps(0.0f);
+	data[2] = _mm_set1_ps(0.0f);
+	data[3] = _mm_set1_ps(0.0f);
+
+	m00 = 0.5f * lRightMinusLeft;
+	m11 = 0.5f * lTopMinusBottom;
+	m22 = 0.5f * lFarMinusNear;
+	m03 = (lRight + lLeft) / lRightMinusLeft;
+	m13 = (lTop + lBottom) / lTopMinusBottom;
+	m23 = (lFarPlane + lNearPlane) / lFarMinusNear;
+	m33 = 1.0f;
+}
+
 mat4f::mat4f(const mat3f& rotation_part)
 {
 	data[0] = _mm_set_ps(rotation_part.data[0], rotation_part.data[1], rotation_part.data[2], 0.0f);

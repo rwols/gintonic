@@ -4,7 +4,7 @@
 
 #define F_PI static_cast<float>(M_PI)
 
-#define SPOTLIGHT_HALF_ANGLE_START_VALUE 0.7f
+#define SPOTLIGHT_HALF_ANGLE_START_VALUE 0.2f
 #define ANGLE_CHANGE_SPEED 0.1f
 
 class ShadowsApplication : public Application
@@ -51,24 +51,26 @@ public:
 		mSphere->castShadow = true;
 		mRootEntity->addChild(mSphere);
 
-		auto lLight = std::shared_ptr<Light>(new DirectionalLight());
-		lLight->setIntensity(vec4f(1.0f, 1.0f, 1.0f, 0.1f));
-		lLight->name = "DirectionalLight";
-		mDirectionalLight->light = lLight;
+		mDirectionalLight->light = std::shared_ptr<Light>
+		(
+			new DirectionalLight
+			(
+				vec4f(1.0f, 1.0f, 1.0f, 0.1f) // Intensity
+			)
+		);
+		mDirectionalLight->light->name = "DirectionalLight";
 		mDirectionalLight->castShadow = true;
 		
-
-		auto lAnotherLight = std::shared_ptr<Light>
+		mSpotLight->light = std::shared_ptr<Light>
 		(
 			new SpotLight
 			(
-				vec4f(1.0f, 0.0f, 0.0f, 10.0f), 
-				vec4f(0.0f, 0.5f, 0.5f, 4.0f), 
-				0.2f
+				vec4f(1.0f, 0.0f, 0.0f, 10.0f),  // Intensity
+				vec4f(0.1f, 0.4f, 0.5f, 4.0f),   // Attenuation
+				SPOTLIGHT_HALF_ANGLE_START_VALUE // Angle
 			)
 		);
-		lAnotherLight->name = "SpotLight";
-		mSpotLight->light = lAnotherLight;
+		mSpotLight->light->name = "SpotLight";
 		mSpotLight->camera = Renderer::getCameraEntity()->camera;
 		mSpotLight->castShadow = true;
 
@@ -84,7 +86,7 @@ public:
 		mDefaultCamera->camera->setAngles(vec2f(-0.5f, -0.1f));
 		mDefaultCamera->setTranslation(vec3f(-3.0f, 1.0f, 4.0f));
 		
-		// mRootEntity->addChild(mDirectionalLight);
+		mRootEntity->addChild(mDirectionalLight);
 		mRootEntity->addChild(mSpotLight);
 		
 		Renderer::setFreeformCursor(true);
@@ -136,10 +138,11 @@ private:
 		using namespace gintonic;
 		if (Renderer::keyTogglePress(SDL_SCANCODE_L))
 		{
-			mCameraRespondsToKeyboard = mCameraRespondsToMouse = mSwitch;
+			// mCameraRespondsToKeyboard = mCameraRespondsToMouse = mSwitch;
 			mSwitch = !mSwitch;
 			// Renderer::setCameraEntity(mSwitch ? mSpotLight : mDefaultCamera);
-			Renderer::setEntityDebugShadowBuffer(mSwitch ? mSpotLight : nullptr);
+			// Renderer::setEntityDebugShadowBuffer(mSwitch ? mSpotLight : nullptr);
+			Renderer::setEntityDebugShadowBuffer(mSwitch ? mDirectionalLight : nullptr);
 		}
 		if (Renderer::key(SDL_SCANCODE_LEFT))
 		{

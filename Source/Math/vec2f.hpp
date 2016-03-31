@@ -33,7 +33,9 @@ namespace gintonic {
  * an SSE class on the program stack. It is **not done automatically** by the
  * compiler when you instantiate such a class **on the heap**. For this
  * reason, you **must** declare the macro
- * `GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();`
+ * `
+
+	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();`
  * inside the definition of your class. This will take care of all memory
  * boundary problems. If you don't do this, your program will sporadically
  * crash every once in a while because just by chance objects *are* allocated
@@ -329,9 +331,7 @@ public:
 	/// Convert a vec2f to an FbxVector2 with a static_cast.
 	operator FBX::FbxVector2() const noexcept;
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 

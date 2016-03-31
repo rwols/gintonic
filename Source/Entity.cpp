@@ -150,8 +150,8 @@ box3f Entity::globalBoundingBox() const noexcept
 	if (mesh)
 	{
 		const auto& lBBox = mesh->getLocalBoundingBox();
-		lGlobalBoundingBox.min_corner += lBBox.min_corner;
-		lGlobalBoundingBox.max_corner += lBBox.max_corner;
+		lGlobalBoundingBox.minCorner += lBBox.minCorner;
+		lGlobalBoundingBox.maxCorner += lBBox.maxCorner;
 	}
 	return lGlobalBoundingBox;
 }
@@ -201,8 +201,8 @@ void Entity::updateGlobalInfo() noexcept
 // {
 // 	mGlobalTransform = matrixStack.top();
 // 	const vec3f t(mGlobalTransform.data[3]);
-// 	mGlobalBoundingBox.min_corner = t + mLocalBoundingBox.min_corner;
-// 	mGlobalBoundingBox.max_corner = t + mLocalBoundingBox.max_corner;
+// 	mGlobalBoundingBox.minCorner = t + mLocalBoundingBox.minCorner;
+// 	mGlobalBoundingBox.maxCorner = t + mLocalBoundingBox.maxCorner;
 // 	if (mOctree) mOctree->notify(this);
 // }
 

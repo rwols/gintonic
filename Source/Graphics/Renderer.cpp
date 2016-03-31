@@ -304,6 +304,7 @@ void Renderer::initialize(
 	sDefaultCamera->setNearPlane(1.0f);
 	sDefaultCamera->setFarPlane(50.0f);
 	sDefaultCamera->setProjectionType(Camera::kPerspective);
+	if (!cameraEntity) cameraEntity = std::make_shared<Entity>("DefaultCamera");
 	setCameraEntity(std::move(cameraEntity));
 
 	//

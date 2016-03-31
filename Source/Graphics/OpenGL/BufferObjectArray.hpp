@@ -25,13 +25,13 @@ public:
 	/// Default constructor.
 	inline BufferObjectArray()
 	{
-		glGenBuffers(Size, m_handles);
+		glGenBuffers(Size, mHandles);
 	}
 
 	/// Destructor.
 	inline ~BufferObjectArray() noexcept
 	{
-		glDeleteBuffers(Size, m_handles);
+		glDeleteBuffers(Size, mHandles);
 	}
 
 	/// You cannot copy buffer object arrays.
@@ -55,27 +55,51 @@ public:
 	inline GLuint operator[](const GLuint index) const 
 		noexcept
 	{
-		return m_handles[index]; 
+		return mHandles[index]; 
+	}
+
+	/**
+	 * @brief Retrieve the data contained in this BufferObject.
+	 * @tparam Type The type of data to fetch.
+	 * @tparam Allocator The allocator for the std::vector.
+	 * @param [in] index The index of the buffer.
+	 * @param [out] usage The usage type.
+	 * @return The data contained in this BufferObject.
+	 */
+	template
+	<
+		class Type,
+		class Allocator = std::allocator<Type>
+	>
+	std::vector<Type, Allocator> retrieveDataAs(const std::size_t index, GLint& usage) const
+	{
+		GLint lSize;
+		glBindBuffer(GL_COPY_READ_BUFFER, mHandles[index]);
+		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &lSize);
+		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_USAGE, &usage);
+		std::vector<Type, Allocator> lResult(lSize);
+		glGetBufferSubData(GL_COPY_READ_BUFFER, 0, lSize, (GLvoid*)lResult.data());
+		return lResult;
 	}
 
 private:
 
-	GLuint m_handles[Size];
+	GLuint mHandles[Size];
 };
 
 template <GLuint Size>
 BufferObjectArray<Size>::BufferObjectArray(BufferObjectArray<Size>&& other)
 {
-	std::memcpy(m_handles, other.m_handles, sizeof(GLuint) * Size);
-	std::memset(other.m_handles, 0, sizeof(GLuint) * Size);
+	std::memcpy(mHandles, other.mHandles, sizeof(GLuint) * Size);
+	std::memset(other.mHandles, 0, sizeof(GLuint) * Size);
 }
 
 template <GLuint Size>
 BufferObjectArray<Size>& BufferObjectArray<Size>::operator = (BufferObjectArray<Size>&& other)
 {
 	if (this == &other) return *this;
-	std::memcpy(m_handles, other.m_handles, sizeof(GLuint) * Size);
-	std::memset(other.m_handles, 0, sizeof(GLuint) * Size);
+	std::memcpy(mHandles, other.mHandles, sizeof(GLuint) * Size);
+	std::memset(other.mHandles, 0, sizeof(GLuint) * Size);
 	return *this;
 }
 

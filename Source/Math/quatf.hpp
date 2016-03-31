@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_quatf_hpp
-#define gintonic_quatf_hpp
+#pragma once
 
 #include "../Foundation/utilities.hpp"
 #include <boost/serialization/access.hpp>
@@ -305,16 +304,11 @@ public:
 	 */
 	static quatf mouse(const vec2f& angles);
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 
-	//!@cond
-	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
-	//!@endcond
 
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)
@@ -345,4 +339,7 @@ inline std::istream& operator>>(std::istream& is, quatf& q)
 
 } // namespace gintonic
 
-#endif
+// This macro is needed for boost::serialization because boost::serialization
+// does not automatically assume unions are serializable.
+BOOST_CLASS_IMPLEMENTATION(gintonic::quatf, 
+	boost::serialization::object_serializable);

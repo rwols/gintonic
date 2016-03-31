@@ -241,16 +241,11 @@ struct SQT
 		return rotation.apply_to(direction);
 	}
 
-	//! @cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//! @endcond
 
 private:
 
-	//!@cond
-	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
-	//!@endcond
 
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)

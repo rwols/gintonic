@@ -36,7 +36,9 @@ union quatf; // Forward declaration.
  * an SSE class on the program stack. It is **not done automatically** by the
  * compiler when you instantiate such a class **on the heap**. For this
  * reason, you **must** declare the macro
- * `GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();`
+ * `
+
+	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();`
  * inside the definition of your class. This will take care of all memory
  * boundary problems. If you don't do this, your program will sporadically
  * crash every once in a while because just by chance objects *are* allocated
@@ -53,14 +55,10 @@ union quatf; // Forward declaration.
  */
 union vec3f
 {
-private:
-	__m128 data;
-	friend union vec4f;
-	friend union quatf;
-	friend union mat3f;
-	friend union mat4f;
-	friend struct SQT;
 public:
+
+	/// The raw SSE type.
+	__m128 data;
 
 	struct
 	{
@@ -302,6 +300,22 @@ public:
 	friend vec3f operator * (const float lhs, const vec3f& rhs) 
 		noexcept;
 
+	/// Pointwise division by another vector.
+	inline vec3f operator / (const vec3f& v) const noexcept
+	{
+		vec3f lResult(_mm_div_ps(data, v.data));
+		lResult.dummy = 0.0f;
+		return lResult;
+	}
+
+	/// Pointwise divide-and-assign operator.
+	inline vec3f operator /= (const vec3f& v) noexcept
+	{
+		data = _mm_div_ps(data, v.data);
+		dummy = 0.0f;
+		return *this;
+	}
+
 	/// Division by scalar operator.
 	inline vec3f operator / (float s) const noexcept
 	{
@@ -380,9 +394,7 @@ public:
 	/// Convert a vec3f to an FbxVector4 with a static_cast.
 	operator FBX::FbxVector4() const noexcept;
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 

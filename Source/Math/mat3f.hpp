@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_mat3f_hpp
-#define gintonic_mat3f_hpp
+#pragma once
 
 #include "../Foundation/utilities.hpp"
 #include <boost/serialization/access.hpp>
@@ -120,9 +119,7 @@ public:
 	/// Tranpose this matrix.
 	mat3f& transpose() noexcept;
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 };
 
 #ifdef __clang__
@@ -131,4 +128,7 @@ public:
 
 } // namespace gintonic
 
-#endif
+// This macro is needed for boost::serialization because boost::serialization
+// does not automatically assume unions are serializable.
+BOOST_CLASS_IMPLEMENTATION(gintonic::mat3f, 
+	boost::serialization::object_serializable);

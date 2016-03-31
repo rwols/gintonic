@@ -20,9 +20,7 @@ public:
 
 	inline virtual const mat4f& projectionMatrix() const noexcept { return mProjectionMatrix; }
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 	OpenGL::Framebuffer mFramebuffer;

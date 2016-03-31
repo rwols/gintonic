@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_mat2f_hpp
-#define gintonic_mat2f_hpp
+#pragma once
 
 #include "../Foundation/utilities.hpp"
 #include <boost/serialization/access.hpp>
@@ -190,4 +189,7 @@ inline std::istream& operator >> (std::istream& is, mat2f& m)
 
 } // namespace gintonic
 
-#endif
+// This macro is needed for boost::serialization because boost::serialization
+// does not automatically assume unions are serializable.
+BOOST_CLASS_IMPLEMENTATION(gintonic::mat2f, 
+	boost::serialization::object_serializable);

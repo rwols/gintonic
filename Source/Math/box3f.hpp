@@ -4,10 +4,10 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_box3f_hpp
-#define gintonic_box3f_hpp
+#pragma once
 
 #include "vec3f.hpp"
+#include "vec4f.hpp"
 
 namespace gintonic {
 
@@ -18,10 +18,10 @@ struct box3f
 {
 
 	/// The minimum corner of the axis-aligned bounding box.
-	vec3f min_corner;
+	vec3f minCorner;
 
 	/// The maximum corner of the axis-aligned bounding box.
-	vec3f max_corner;
+	vec3f maxCorner;
 
 	/// Default constructor initalizes a point at the origin.
 	box3f();
@@ -29,33 +29,62 @@ struct box3f
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param min_corner The minimum corner.
-	 * @param max_corner The maximum corner.
+	 * @param minCorner The minimum corner.
+	 * @param maxCorner The maximum corner.
 	 */
-	box3f(const vec3f& min_corner, const vec3f& max_corner);
+	box3f(const vec3f& minCorner, const vec3f& maxCorner);
 
 
 	/**
 	 * @brief Check wether this bounding box contains a point.
-	 * 
 	 * @param point Some point.
 	 * @return True if the point is inside the bounding box, false otherwise.
 	 * If the point is on the edge, then this is considered inside.
+	 * @sa addPoint
 	 */
 	bool contains(const vec3f& point) const noexcept;
 
 	/**
 	 * @brief Check wether this bounding box contains another bounding box.
-	 * 
 	 * @param other Some bounding box.
 	 * @return True if other is completely inside the bounding box, false
 	 * otherwise. If one of the edges touch, then this is considered inside.
+	 * @sa addPoint
 	 */
 	bool contains(const box3f& other) const noexcept;
 
-	//!@cond
+	/**
+	 * @brief Add a point to this box3f. The box3f enlarges itself such that
+	 * it contains the added point. Note that there is no such thing as an
+	 * array containing the added points; the only thing this method does is
+	 * enlarge the box3f if necessary. After this method, box3f::contains
+	 * returns true for the supplied point.
+	 * @param point A point.
+	 * @sa contains
+	 */
+	void addPoint(const vec3f& point) noexcept;
+
+	/**
+	 * @brief Add a point to this box3f. The box3f enlarges itself such that
+	 * it contains the added point. Note that there is no such thing as an
+	 * array containing the added points; the only thing this method does is
+	 * enlarge the box3f if necessary. After this method, box3f::contains
+	 * returns true for the supplied point.
+	 * @param point A point.
+	 * @sa contains
+	 */
+	void addPoint(const vec4f& point) noexcept;
+
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
+
+private:
+	
+	friend boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive& archive, const unsigned int /*version */)
+	{
+		archive & minCorner & maxCorner;
+	}
 };
 
 /**
@@ -87,5 +116,3 @@ std::ostream& operator << (std::ostream& os, const box3f& b);
 std::istream& operator >> (std::istream& is, box3f& b);
 
 } // namespace gintonic
-
-#endif

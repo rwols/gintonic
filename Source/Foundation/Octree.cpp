@@ -13,8 +13,8 @@ Octree::Octree(const box3f& bounds)
 		= mChild[6] = mChild[7] = nullptr;
 }
 
-Octree::Octree(const vec3f& min_corner, const vec3f& max_corner)
-: mBounds(min_corner, max_corner)
+Octree::Octree(const vec3f& minCorner, const vec3f& maxCorner)
+: mBounds(minCorner, maxCorner)
 {
 	mChild[0] = mChild[1] = mChild[2] 
 		= mChild[3] = mChild[4] = mChild[5] 
@@ -302,8 +302,8 @@ Octree::Octree(Octree* parent, const vec3f& min, const vec3f& max)
 
 void Octree::subdivide()
 {
-	auto min = mBounds.min_corner;
-	auto max = mBounds.max_corner;
+	auto min = mBounds.minCorner;
+	auto max = mBounds.maxCorner;
 	const auto half = (max - min) / 2.0f;
 	if (half.x <= this->subdivisionThreshold 
 		|| half.y <= this->subdivisionThreshold 

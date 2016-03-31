@@ -133,13 +133,33 @@ public:
 	{
 		std::swap(mHandle, other.mHandle);
 	}
+
+	/**
+	 * @brief Retrieve the data contained in this BufferObject.
+	 * @tparam Type The type of data to fetch.
+	 * @tparam Allocator The allocator for the std::vector.
+	 * @param [out] usage The usage type.
+	 * @return The data contained in this BufferObject.
+	 */
+	template
+	<
+		class Type,
+		class Allocator = std::allocator<Type>
+	>
+	std::vector<Type, Allocator> retrieveDataAs(GLint& usage) const
+	{
+		GLint lSize;
+		glBindBuffer(GL_COPY_READ_BUFFER, mHandle);
+		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_SIZE, &lSize);
+		glGetBufferParameteriv(GL_COPY_READ_BUFFER, GL_BUFFER_USAGE, &usage);
+		std::vector<Type, Allocator> lResult(lSize);
+		glGetBufferSubData(GL_COPY_READ_BUFFER, 0, lSize, (GLvoid*)lResult.data());
+		return lResult;
+	}
 	
 private:
 
-	//!@cond
-	// We need to give boost::serialization access to this class.
 	friend boost::serialization::access;
-	//!@endcond
 
 	template <class Archive> void save(Archive& ar, 
 		const unsigned /*version*/) const

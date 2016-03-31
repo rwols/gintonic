@@ -18,6 +18,8 @@
 
 #include <list>
 #include <boost/signals2.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
 
 namespace gintonic {
 
@@ -712,9 +714,28 @@ public:
 
 	//@}
 
-	//! @cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//! @endcond
+
+private:
+
+	friend boost::serialization::access;
+
+	template <class Archive>
+	void serialize(Archive& archive, const unsigned int /*version*/)
+	{
+		archive & boost::serialization::base_object<Object<Entity, std::string>>(*this);
+		archive & mLocalTransform;
+		archive & mGlobalTransform;
+		archive & mParent;
+		archive & castShadow;
+		archive & material;
+		archive & mesh;
+		archive & light;
+		archive & camera;
+		archive & mChildren;
+	}
 };
 
 } // namespace gintonic
+
+BOOST_CLASS_TRACKING(gintonic::Entity, boost::serialization::track_always);

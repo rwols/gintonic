@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_vec4f_hpp
-#define gintonic_vec4f_hpp
+#pragma once
 
 #include "../Foundation/utilities.hpp"
 #include <boost/serialization/access.hpp>
@@ -352,9 +351,7 @@ public:
 	/// Convert a vec4f to an FbxVector4 with a static_cast.
 	operator FBX::FbxVector4() const noexcept;
 
-	//!@cond
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
-	//!@endcond
 
 private:
 
@@ -476,11 +473,7 @@ inline bool almost_equal(const vec4f& u, const vec4f& v,
 
 } // namespace gintonic
 
-//!@cond
 // This macro is needed for boost::serialization because boost::serialization
 // does not automatically assume unions are serializable.
 BOOST_CLASS_IMPLEMENTATION(gintonic::vec4f, 
 	boost::serialization::object_serializable);
-//!@endcond
-
-#endif

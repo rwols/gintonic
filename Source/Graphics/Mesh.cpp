@@ -31,7 +31,7 @@ namespace // anonymous namespace
 {
 
 template <class LayerElement, class VectorType> 
-bool get_element(
+bool getLayerElement(
 	const LayerElement* e, 
 	const int polyvertex,
 	const int vertexid,
@@ -196,8 +196,8 @@ void Mesh::vec4f::enable_attribute(const GLuint index) noexcept
 Mesh::Mesh()
 : mMatrixBuffer(GL_DYNAMIC_DRAW)
 , mNormalMatrixBuffer(GL_DYNAMIC_DRAW)
-, mHasTangentsAndBitangents(false)
-, mNumIndices(0)
+// , mHasTangentsAndBitangents(false)
+// , mNumIndices(0)
 {
 	setupInstancedRenderingMatrices();
 }
@@ -256,10 +256,12 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 		throw e;
 	}
 
-	std::vector<GLuint> lIndexArray;
-	std::vector<Mesh::vec4f> lSlot0Array;
-	std::vector<Mesh::vec4f> lSlot1Array;
-	std::vector<Mesh::vec4f> lSlot2Array;
+	// std::vector<GLuint> mIndices;
+	// std::vector<Mesh::vec4f> lSlot0Array;
+	// std::vector<Mesh::vec4f> lSlot1Array;
+	// std::vector<Mesh::vec4f> lSlot2Array;
+
+	bool lHasTangents;
 
 	gintonic::Mesh::vec4f lSlot0Entry;
 	gintonic::Mesh::vec4f lSlot1Entry;
@@ -316,7 +318,7 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 
 			lFbxPosition = pFbxMesh->GetControlPointAt(polyvertex);
 
-			if (!get_element(lFbxNormalArray, polyvertex, vertexid, lFbxNormal))
+			if (!getLayerElement(lFbxNormalArray, polyvertex, vertexid, lFbxNormal))
 			{
 				N = 0.0f;
 			}
@@ -324,21 +326,21 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 			{
 				N = gintonic::vec3f(lFbxNormal).normalize();
 			}
-			if (!get_element(lFbxTexCoordArray, polyvertex, vertexid, lFbxTexCoord))
+			if (!getLayerElement(lFbxTexCoordArray, polyvertex, vertexid, lFbxTexCoord))
 			{
 				lFbxTexCoord[0] = lFbxTexCoord[1] = 0.0f;
 			}
-			if (!get_element(lFbxTangentArray, polyvertex, vertexid, lFbxTangent))
+			if (!getLayerElement(lFbxTangentArray, polyvertex, vertexid, lFbxTangent))
 			{
 				T = 0.0f;
-				mHasTangentsAndBitangents = false;
+				lHasTangents = false;
 			}
 			else
 			{
 				T = gintonic::vec3f(lFbxTangent).normalize();
-				mHasTangentsAndBitangents = true;
+				lHasTangents = true;
 			}
-			if (!get_element(lFbxBitangentArray, polyvertex, vertexid, lFbxBitangent))
+			if (!getLayerElement(lFbxBitangentArray, polyvertex, vertexid, lFbxBitangent))
 			{
 				B = 0.0f;
 			}
@@ -365,17 +367,17 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 				static_cast<GLfloat>(lFbxTexCoord[1])
 			};
 
-			if (mHasTangentsAndBitangents) lSlot2Entry = {T.x, T.y, T.z, handedness};
+			if (lHasTangents) lSlot2Entry = {T.x, T.y, T.z, handedness};
 
 			bool lFoundDuplicate = false;
 			GLuint lIndex;
-			for (lIndex = 0; lIndex < lSlot0Array.size(); ++lIndex)
+			for (lIndex = 0; lIndex < mPosition_XYZ_uv_X.size(); ++lIndex)
 			{
-				if (lSlot0Array[lIndex] == lSlot0Entry && lSlot1Array[lIndex] == lSlot1Entry)
+				if (mPosition_XYZ_uv_X[lIndex] == lSlot0Entry && mNormal_XYZ_uv_Y[lIndex] == lSlot1Entry)
 				{
-					if (mHasTangentsAndBitangents)
+					if (lHasTangents)
 					{
-						if (lSlot2Array[lIndex] == lSlot2Entry)
+						if (mTangent_XYZ_hand[lIndex] == lSlot2Entry)
 						{
 							lFoundDuplicate = true;
 							break;
@@ -390,28 +392,22 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 			}
 			if (!lFoundDuplicate)
 			{
-				lSlot0Array.push_back(lSlot0Entry);
-				lSlot1Array.emplace_back(lSlot1Entry);
-				if (mHasTangentsAndBitangents) lSlot2Array.push_back(lSlot2Entry);
+				mPosition_XYZ_uv_X.push_back(lSlot0Entry);
+				mNormal_XYZ_uv_Y.emplace_back(lSlot1Entry);
+				if (lHasTangents) mTangent_XYZ_hand.push_back(lSlot2Entry);
 			}
-			lIndexArray.push_back(lIndex);
+			mIndices.push_back(lIndex);
 			++vertexid;
 		}
 	}
 
-	std::cerr << "\tNumber of vertices: " << lSlot0Array.size() << '\n';
-	std::cerr << "\tNumber of indices: " << lIndexArray.size()
-		<< " (saved " << static_cast<float>(lSlot0Array.size()) 
-		/ static_cast<float>(lIndexArray.size()) << ")\n";
+	std::cerr << "\tNumber of vertices: " << mPosition_XYZ_uv_X.size() << '\n';
+	std::cerr << "\tNumber of indices: " << mIndices.size()
+		<< " (saved " << static_cast<float>(mPosition_XYZ_uv_X.size()) 
+		/ static_cast<float>(mIndices.size()) << ")\n";
 
-	if (mHasTangentsAndBitangents)
-	{
-		set(lIndexArray, lSlot0Array, lSlot1Array, lSlot2Array);
-	}
-	else
-	{
-		set(lIndexArray, lSlot0Array, lSlot1Array);
-	}
+	computeLocalBoundingBoxFromPositionInformation(mPosition_XYZ_uv_X);
+	uploadData();
 }
 
 void Mesh::set(
@@ -419,26 +415,33 @@ void Mesh::set(
 	const std::vector<Mesh::vec4f>& position_XYZ_uv_X, 
 	const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y)
 {
-	constexpr GLenum lUsageHint = GL_STATIC_DRAW;
+	// constexpr GLenum lUsageHint = GL_STATIC_DRAW;
 
-	// Enable the Vertex Array Object.
-	glBindVertexArray(mVertexArrayObject);
+	// // Enable the Vertex Array Object.
+	// glBindVertexArray(mVertexArrayObject);
 
-	// Upload the (packed) vertex data in separate buffers to the GPU.
-	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
-	gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
-	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
-	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
-	gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
-	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
+	// // Upload the (packed) vertex data in separate buffers to the GPU.
+	// glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
+	// gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
+	// Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
+	// glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
+	// gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
+	// Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
 
-	// Upload the indices for the arrays to the GPU and remember the count.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
-	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, lUsageHint);
+	// // Upload the indices for the arrays to the GPU and remember the count.
+	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
+	// gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, lUsageHint);
 
-	mHasTangentsAndBitangents = false;
-	mNumIndices = static_cast<GLsizei>(indices.size());
-	computeLocalBoundingBoxFromPositionInformation(position_XYZ_uv_X);
+	// mHasTangentsAndBitangents = false;
+	// mNumIndices = static_cast<GLsizei>(indices.size());
+	// computeLocalBoundingBoxFromPositionInformation(position_XYZ_uv_X);
+
+	mIndices = indices;
+	mPosition_XYZ_uv_X = position_XYZ_uv_X;
+	mNormal_XYZ_uv_Y = normal_XYZ_uv_Y;
+	mTangent_XYZ_hand.clear();
+	computeLocalBoundingBoxFromPositionInformation(mPosition_XYZ_uv_X);
+	uploadData();
 }
 
 void Mesh::set(
@@ -447,29 +450,36 @@ void Mesh::set(
 	const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y,
 	const std::vector<Mesh::vec4f>& tangent_XYZ_handedness)
 {
-	constexpr GLenum lUsageHint = GL_STATIC_DRAW;
+	// constexpr GLenum lUsageHint = GL_STATIC_DRAW;
 
-	// Enable the Vertex Array Object.
-	glBindVertexArray(mVertexArrayObject);
+	// // Enable the Vertex Array Object.
+	// glBindVertexArray(mVertexArrayObject);
 
-	// Upload the (packed) vertex data in separate buffers to the GPU.
-	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
-	gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
-	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
-	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
-	gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
-	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
-	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_TAN_XYZ_HAND]);
-	gtBufferData(GL_ARRAY_BUFFER, tangent_XYZ_handedness, lUsageHint);
-	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_2);
+	// // Upload the (packed) vertex data in separate buffers to the GPU.
+	// glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
+	// gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
+	// Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
+	// glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
+	// gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
+	// Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
+	// glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_TAN_XYZ_HAND]);
+	// gtBufferData(GL_ARRAY_BUFFER, tangent_XYZ_handedness, lUsageHint);
+	// Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_2);
 
-	// Upload the indices for the arrays to the GPU and remember the count.
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
-	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, lUsageHint);
+	// // Upload the indices for the arrays to the GPU and remember the count.
+	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
+	// gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, lUsageHint);
 
-	mHasTangentsAndBitangents = true;
-	mNumIndices = static_cast<GLsizei>(indices.size());
-	computeLocalBoundingBoxFromPositionInformation(position_XYZ_uv_X);
+	// mHasTangentsAndBitangents = true;
+	// mNumIndices = static_cast<GLsizei>(indices.size());
+
+
+	mIndices = indices;
+	mPosition_XYZ_uv_X = position_XYZ_uv_X;
+	mNormal_XYZ_uv_Y = normal_XYZ_uv_Y;
+	mTangent_XYZ_hand = tangent_XYZ_handedness;
+	computeLocalBoundingBoxFromPositionInformation(mPosition_XYZ_uv_X);
+	uploadData();
 }
 
 void Mesh::set(const boost::filesystem::path& nativeMeshFile)
@@ -480,7 +490,7 @@ void Mesh::set(const boost::filesystem::path& nativeMeshFile)
 void Mesh::draw() const noexcept
 {
 	glBindVertexArray(mVertexArrayObject);
-	glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, nullptr);
+	glDrawElements(GL_TRIANGLES, numIndices(), GL_UNSIGNED_INT, nullptr);
 }
 
 void Mesh::draw(
@@ -501,7 +511,7 @@ void Mesh::draw(
 
 	glDrawElementsInstanced(
 		GL_TRIANGLES, 
-		mNumIndices,
+		numIndices(),
 		GL_UNSIGNED_INT,
 		nullptr, 
 		mMatrixBuffer.size(0)
@@ -545,23 +555,88 @@ void Mesh::setupInstancedRenderingMatrices() noexcept
 
 void Mesh::computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh::vec4f>& position_XYZ_uv_X)
 {
-	// Reset to zero.
-	mLocalBoundingBox.min_corner = 0.0f;
-	mLocalBoundingBox.max_corner = 0.0f;
+	// Reset the bounding box.
+	mLocalBoundingBox.minCorner = std::numeric_limits<float>::max();
+	mLocalBoundingBox.maxCorner = std::numeric_limits<float>::min();
 
 	for (const auto v : position_XYZ_uv_X)
 	{
-		if (v.x < mLocalBoundingBox.min_corner.x) mLocalBoundingBox.min_corner.x = v.x;
-		if (v.y < mLocalBoundingBox.min_corner.y) mLocalBoundingBox.min_corner.y = v.y;
-		if (v.z < mLocalBoundingBox.min_corner.z) mLocalBoundingBox.min_corner.z = v.z;
-		if (v.x > mLocalBoundingBox.max_corner.x) mLocalBoundingBox.max_corner.x = v.x;
-		if (v.y > mLocalBoundingBox.max_corner.y) mLocalBoundingBox.max_corner.y = v.y;
-		if (v.z > mLocalBoundingBox.max_corner.z) mLocalBoundingBox.max_corner.z = v.z;
-
 		gintonic::vec3f lPosition(v.x, v.y, v.z);
-
+		mLocalBoundingBox.addPoint(lPosition);
 		assert(mLocalBoundingBox.contains(lPosition));
 	}
 }
+
+void Mesh::uploadData()
+{
+	constexpr GLenum lUsageHint = GL_STATIC_DRAW;
+	glBindVertexArray(mVertexArrayObject);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
+	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices, lUsageHint);
+	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
+	gtBufferData(GL_ARRAY_BUFFER, mPosition_XYZ_uv_X, lUsageHint);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
+	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
+	gtBufferData(GL_ARRAY_BUFFER, mNormal_XYZ_uv_Y, lUsageHint);
+	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
+	if (hasTangentsAndBitangents())
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_TAN_XYZ_HAND]);
+		gtBufferData(GL_ARRAY_BUFFER, mTangent_XYZ_hand, lUsageHint);
+		Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_2);
+	}
+}
+
+// void Mesh::setFromSerialized(
+// 	const std::vector<GLuint>& indices,
+// 	const std::vector<Mesh::vec4f>& position_XYZ_uv_X,
+// 	const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y)
+// {
+// 	// Don't set the count, the bounding box and wether we have tangents.
+// 	constexpr GLenum lUsageHint = GL_STATIC_DRAW;
+
+// 	// Enable the Vertex Array Object.
+// 	glBindVertexArray(mVertexArrayObject);
+
+// 	// Upload the (packed) vertex data in separate buffers to the GPU.
+// 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
+// 	gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
+// 	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
+// 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
+// 	gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
+// 	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
+
+// 	// Upload the indices for the arrays to the GPU and remember the count.
+// 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
+// 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, lUsageHint);
+// }
+
+// void Mesh::setFromSerialized(
+// 	const std::vector<GLuint>& indices,
+// 	const std::vector<Mesh::vec4f>& position_XYZ_uv_X,
+// 	const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y,
+// 	const std::vector<Mesh::vec4f>& tangent_XYZ_handedness)
+// {
+// 	// Don't set the count, the bounding box and wether we have tangents.
+// 	constexpr GLenum lUsageHint = GL_STATIC_DRAW;
+
+// 	// Enable the Vertex Array Object.
+// 	glBindVertexArray(mVertexArrayObject);
+
+// 	// Upload the (packed) vertex data in separate buffers to the GPU.
+// 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
+// 	gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
+// 	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
+// 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
+// 	gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
+// 	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
+// 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_TAN_XYZ_HAND]);
+// 	gtBufferData(GL_ARRAY_BUFFER, tangent_XYZ_handedness, lUsageHint);
+// 	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_2);
+
+// 	// Upload the indices for the arrays to the GPU and remember the count.
+// 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
+// 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, lUsageHint);
+// }
 
 } // namespace gintonic
