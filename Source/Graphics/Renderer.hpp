@@ -573,6 +573,24 @@ public:
 		return sMouseDelta;
 	}
 
+	/**
+	 * @brief Get the previous frame's mouse wheel.
+	 * @return The previous frame's mouse wheel.
+	 */
+	inline static const vec2f& mouseWheel() noexcept
+	{
+		return sMouseWheel;
+	}
+
+	/**
+	 * @brief Get the previous frame's finger motion.
+	 * @return The previous frame's finger motion.
+	 */
+	inline static const vec4f& fingerMotion() noexcept
+	{
+		return sFingerMotion;
+	}
+
 	///@}
 
 	/**
@@ -775,7 +793,13 @@ public:
 	static boost::signals2::signal<void(double, double)> onMouseScroll;
 
 	/// Event that fires when the mouse has moved.
-	static boost::signals2::signal<void(double, double)> onMouseMove;
+	static boost::signals2::signal<void(const vec2f&)> onMouseMove;
+
+	/// Event that fires when the mouse wheel has been used.
+	static boost::signals2::signal<void(const vec2f&)> onMouseWheel;
+
+	/// Even that fires when a finger motion event has occured.
+	static boost::signals2::signal<void(const vec4f&)> onFingerMotion;
 
 	/// Event that fires when a key is pressed.
 	static boost::signals2::signal<void(int, int, int, int)> onKeyPress;
@@ -872,6 +896,8 @@ private:
 	static duration_type sElapsedTime;
 	static boost::circular_buffer<duration_type> s_circle_buffer;
 	static vec2f sMouseDelta;
+	static vec2f sMouseWheel;
+	static vec4f sFingerMotion;
 
 	static bool s_matrix_P_dirty;
 	static bool s_matrix_VM_dirty;

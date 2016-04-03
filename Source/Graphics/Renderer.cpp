@@ -126,7 +126,9 @@ Renderer::duration_type Renderer::sDeltaTime = Renderer::duration_type();
 Renderer::duration_type Renderer::sPrevElapsedTime = Renderer::duration_type();
 Renderer::duration_type Renderer::sElapsedTime = Renderer::duration_type();
 boost::circular_buffer<Renderer::duration_type> Renderer::s_circle_buffer = boost::circular_buffer<Renderer::duration_type>();
-vec2f Renderer::sMouseDelta = vec2f(0,0);
+vec2f Renderer::sMouseDelta = vec2f(0.0f, 0.0f);
+vec2f Renderer::sMouseWheel = vec2f(0.0f, 0.0f);
+vec4f Renderer::sFingerMotion = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 
 Uint8* sKeyPrevState = nullptr;
 const Uint8* sKeyState = nullptr;
@@ -160,7 +162,9 @@ std::shared_ptr<Mesh> Renderer::sUnitCylinderPUN    = nullptr;
 
 boost::signals2::signal<void(wchar_t)> Renderer::onCharTyped;
 boost::signals2::signal<void(double, double)> Renderer::onMouseScroll;
-boost::signals2::signal<void(double, double)> Renderer::onMouseMove;
+boost::signals2::signal<void(const vec2f&)> Renderer::onMouseMove;
+boost::signals2::signal<void(const vec2f&)> Renderer::onMouseWheel;
+boost::signals2::signal<void(const vec4f&)> Renderer::onFingerMotion;
 boost::signals2::signal<void(int, int, int, int)> Renderer::onKeyPress;
 boost::signals2::signal<void(int, int, int)> Renderer::onMousePressed;
 boost::signals2::signal<void(int, int)> Renderer::onWindowResize;
@@ -273,7 +277,7 @@ void Renderer::initialize(
 	
 	if (lWasAlreadyInitialized == false) std::atexit(Renderer::release);
 	
-	vsync(true);
+	vsync(false);
 	glClearColor(0.03f, 0.03f, 0.03f, 0.0f);
 	
 	sStartTime = clock_type::now();
@@ -785,9 +789,11 @@ void Renderer::processEvents() noexcept
 	sDeltaTime = sElapsedTime - sPrevElapsedTime;
 
 	std::memcpy(sKeyPrevState, sKeyState, sizeof(Uint8) * sKeyStateCount);
-	sKeyState = SDL_GetKeyboardState(nullptr);
+	sKeyState = SDL_GetKeyboardState(nullptr); // Maybe unnecessary
 
 	sMouseDelta = 0.0f;
+	sMouseWheel = 0.0f;
+	sFingerMotion = 0.0f;
 	while (SDL_PollEvent(&sEvent))
 	{
 		switch (sEvent.type)
@@ -807,13 +813,19 @@ void Renderer::processEvents() noexcept
 					break;
 			}
 			break;
-		case SDL_KEYDOWN:
-			break;
-		case SDL_KEYUP:
-			break;
 		case SDL_MOUSEMOTION:
 			sMouseDelta.x += (float)sEvent.motion.xrel;
 			sMouseDelta.y += (float)sEvent.motion.yrel;
+			break;
+		case SDL_MOUSEWHEEL:
+			sMouseWheel.x += (float)sEvent.wheel.x;
+			sMouseWheel.y += (float)sEvent.wheel.y;
+			break;
+		case SDL_FINGERMOTION:
+			sFingerMotion.x += sEvent.tfinger.x;
+			sFingerMotion.y += sEvent.tfinger.y;
+			sFingerMotion.z += sEvent.tfinger.dx;
+			sFingerMotion.w += sEvent.tfinger.dy;
 			break;
 		case SDL_QUIT:
 			close();
@@ -824,7 +836,15 @@ void Renderer::processEvents() noexcept
 	}
 	if (sMouseDelta.x != 0.0f || sMouseDelta.y != 0.0f)
 	{
-		onMouseMove(sMouseDelta.x, sMouseDelta.y);
+		onMouseMove(sMouseDelta);
+	}
+	if (sMouseWheel.x != 0.0f || sMouseWheel.y != 0.0f)
+	{
+		onMouseWheel(sMouseWheel);
+	}
+	if (sFingerMotion.x != 0.0f || sFingerMotion.y != 0.0f || sFingerMotion.z != 0.0f || sFingerMotion.w != 0.0f)
+	{
+		onFingerMotion(sFingerMotion);
 	}
 
 	// Update the WORLD->VIEW matrix.
