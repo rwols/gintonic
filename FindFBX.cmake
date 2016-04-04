@@ -122,14 +122,14 @@ endif ()
 set(FBX_LIBRARY optimized ${FBX_LIBRARY} debug ${FBX_LIBRARY_DEBUG} CACHE STRING "Fbx Library location.")
 
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-    set (FBX_DLL ${FBX_LIBRARY_DEBUG})
+    set (FBX_DLL "${FBX_LIBRARY_DEBUG}")
 else ()
-    set (FBX_DLL ${FBX_LIBRARY})
+    set (FBX_DLL "${FBX_LIBRARY}")
 endif()
 
-if (WIN32)
-    string(REPLACE ".lib" ".dll" FBX_DLL ${FBX_DLL})
-endif ()
+string(REPLACE "\\" "\\\\" FBX_DLL "${FBX_DLL}")
+string(REPLACE ".lib" ".dll" FBX_DLL "${FBX_DLL}")
+# message(FATAL_ERROR ${FBX_DLL})
 
 include(FindPackageHandleStandardArgs)
 

@@ -268,7 +268,16 @@ public:
 	/// Subtraction operator.
 	inline vec3f operator - (const vec3f& v) const noexcept
 	{
+		#ifdef BOOST_MSVC
+
+		const auto copy = v.data;
+		return _mm_sub_ps(data, copy);
+
+		#else 
+
 		return _mm_sub_ps(data, v.data);
+
+		#endif
 	}
 
 	/// Subtraction operator that first builds a vec3f.

@@ -1,13 +1,33 @@
 cmake_minimum_required(VERSION 2.8)
 
-set(executables
-	DriverInfo
-	FbxConverter
-	LuaTest)
-
 include_directories(${CMAKE_SOURCE_DIR}/Source)
 
 foreach (exe ${executables})
 	add_executable(${exe} ${exe}.cpp)
 	target_link_with_gintonic(${exe})
 endforeach ()
+
+file(GLOB source_files ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+
+foreach (source_file ${source_files})
+	get_filename_component(exe ${source_file} NAME_WE)
+	add_executable(${exe} ${exe}.cpp)
+	target_link_libraries(${exe} gintonic)
+	list(APPEND executables ${exe})
+endforeach ()
+
+# Need at least one executable in this directory.
+list(GET executables 0 exe)
+
+get_filename_component(targetname ${CMAKE_CURRENT_LIST_DIR} NAME_WE)
+
+add_custom_target(${targetname} ALL
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_SYSTEM_DLL} $<TARGET_FILE_DIR:${exe}>
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_FILESYSTEM_DLL} $<TARGET_FILE_DIR:${exe}> 
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_SERIALIZATION_DLL} $<TARGET_FILE_DIR:${exe}> 
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_PROGRAM_OPTIONS_DLL} $<TARGET_FILE_DIR:${exe}>
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_UNIT_TEST_FRAMEWORK_DLL} $<TARGET_FILE_DIR:${exe}> 
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FBX_DLL} $<TARGET_FILE_DIR:${exe}>
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SDL2_DLL} $<TARGET_FILE_DIR:${exe}>
+	DEPENDS ${executables}
+	COMMENT "Performing post-build processing for ${targetname}")

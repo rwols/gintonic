@@ -98,7 +98,7 @@ public:
 	public:
 
 		//@!cond
-		NoDisplaysException() noexcept = default;
+		inline NoDisplaysException() noexcept {};
 		virtual ~NoDisplaysException() noexcept = default;
 		//@!endcond
 
@@ -161,7 +161,7 @@ public:
 	public:
 
 		//@!cond
-		FunctionLoadException() noexcept = default;
+		inline FunctionLoadException() noexcept {};
 		virtual ~FunctionLoadException() noexcept = default;
 		//@!endcond
 

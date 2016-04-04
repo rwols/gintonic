@@ -37,7 +37,7 @@ public:
 	class NoImageDataException : public std::exception
 	{
 	public:
-		NoImageDataException() noexcept = default;
+		inline NoImageDataException() noexcept {};
 		virtual ~NoImageDataException() noexcept = default;
 		virtual const char* what() const noexcept { return "NoImageDataException"; }
 	};
@@ -48,7 +48,7 @@ public:
 	class UnknownImageFormatException : public std::exception
 	{
 	public:
-		UnknownImageFormatException() noexcept = default;
+		inline UnknownImageFormatException() noexcept {};
 		virtual ~UnknownImageFormatException() noexcept = default;
 		virtual const char* what() const noexcept { return "UnknownImageFormatException"; }
 	};

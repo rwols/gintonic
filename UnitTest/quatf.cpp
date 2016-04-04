@@ -8,6 +8,7 @@
 #include <chrono>
 #include <vector>
 #include <algorithm>
+#include <ctime>
 
 #define GINTONIC_CHECK_VECTOR4_CLOSE(left, right, tolerance)\
 BOOST_CHECK_CLOSE(left.x, right.x, tolerance);\

@@ -48,6 +48,12 @@ else ()
 	set (BOOST_UNIT_TEST_FRAMEWORK_DLL ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY_RELEASE})
 endif ()
 
+string(REPLACE ".lib" ".dll" BOOST_SYSTEM_DLL ${BOOST_SYSTEM_DLL})
+string(REPLACE ".lib" ".dll" BOOST_FILESYSTEM_DLL ${BOOST_FILESYSTEM_DLL})
+string(REPLACE ".lib" ".dll" BOOST_SERIALIZATION_DLL ${BOOST_SERIALIZATION_DLL})
+string(REPLACE ".lib" ".dll" BOOST_PROGRAM_OPTIONS_DLL ${BOOST_PROGRAM_OPTIONS_DLL})
+string(REPLACE ".lib" ".dll" BOOST_UNIT_TEST_FRAMEWORK_DLL ${BOOST_UNIT_TEST_FRAMEWORK_DLL})
+
 find_package(OpenGL REQUIRED)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
@@ -115,56 +121,6 @@ include_directories(
 	)
 
 if (WIN32)
-	set(next_item_has_optimized_tag OFF)
-	set(next_item_has_debug_tag OFF)
-	foreach (list_item IN LISTS Boost_LIBRARIES)
-		if (list_item STREQUAL "optimized")
-			set(next_item_has_optimized_tag ON)
-			set(next_item_has_debug_tag OFF)
-		elseif (list_item STREQUAL "debug")
-			set(next_item_has_debug_tag ON)
-			set(next_item_has_optimized_tag OFF)
-		elseif (next_item_has_debug_tag)
-			string(REPLACE ".lib" ".dll" list_item ${list_item})
-			list(APPEND Boost_DEBUG_DLLS ${list_item})
-			set(next_item_has_optimized_tag OFF)
-			set(next_item_has_debug_tag OFF)
-		elseif (next_item_has_optimized_tag)
-			string(REPLACE ".lib" ".dll" list_item ${list_item})
-			list(APPEND Boost_DLLS ${list_item})
-			set(next_item_has_optimized_tag OFF)
-			set(next_item_has_debug_tag OFF)
-		endif ()
-	endforeach()
-	list(GET SDL2_LIBRARY 1 SDL2_DLL)
-	string(REPLACE ".lib" ".dll" SDL2_DLL ${SDL2_DLL})
-	# string(REPLACE ".lib" ".dll" FBX_DLL ${FBX_LIBRARY})
-
-	set (DEBUG_DLLS ${Boost_DEBUG_DLLS} ${SDL2_DLL} ${FBX_DLL})
-	set (RELEASE_DLLS ${Boost_DLLS} ${SDL2_DLL} ${FBX_DLL})
-
-	if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-		set (DLLS ${DEBUG_DLLS})
-	elseif (${CMAKE_BUILD_TYPE} STREQUAL Release)
-		set (DLLS ${RELEASE_DLLS})
-	else ()
-		message(FATAL_ERROR "${CMAKE_BUILD_TYPE} is an unknown build type for me.")
-	endif ()
-
-else ()
-	include_directories(
-		${JPEG_INCLUDE_DIR}
-		${PNG_INCLUDE_DIRS})
-
-	# if (APPLE)
-	# 	# Need to copy fbxsdk
-	# 	list(GET FBX_LIBRARY 0 FBX_DLL)
-	# 	file (COPY ${FBX_DLL} DESTINATION ${CMAKE_BINARY_DIR}/examples)
-	# 	file (COPY ${FBX_DLL} DESTINATION ${CMAKE_BINARY_DIR}/test)
-	# endif ()
-endif ()
-
-if (WIN32)
 	target_link_libraries(
 		gintonic 
 		${Boost_LIBRARIES} 
@@ -198,53 +154,11 @@ else ()
 		-ldl)
 endif ()
 
-# function(copy_dlls targetName dlls)
-# 	add_custom_command(TARGET ${targetName} POST_BUILD
-# 	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dlls} $<TARGET_FILE_DIR:${targetName}>
-# 	COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${targetName}>/Resources
-# 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Graphics/Shaders $<TARGET_FILE_DIR:${targetName}>/Shaders
-# 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/Resources/Inconsolata-Regular.ttf $<TARGET_FILE_DIR:${targetName}>/Resources
-# 	COMMENT "Post-build processing for ${targetName}" VERBATIM)
-# endfunction()
-
-list(GET FBX_LIBRARY 0 FBX_DLL)
-
 function(target_link_with_gintonic targetName)
 
 	target_link_libraries(${targetName} gintonic)
 
-	# add_custom_command(TARGET ${targetName} POST_BUILD
-	# 	COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${targetName}>/Resources
-	# 	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/Resources/Inconsolata-Regular.ttf $<TARGET_FILE_DIR:${targetName}>/Resources
-	# 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Graphics/Shaders $<TARGET_FILE_DIR:${targetName}>/Shaders
-	# 	COMMENT "Performing post-build copying stuff around for ${targetName}" VERBATIM)
-
-	# add_custom_command(TARGET ${targetName} POST_BUILD
-	# 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	# 	${shader_source_files} "$<TARGET_FILE_DIR:${targetName}>/Shaders")
-
-	# if (APPLE)
-	# 	list(GET FBX_LIBRARY 0 FBX_DLL)
-	# 	add_custom_command(TARGET ${targetName} POST_BUILD
-	# 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	# 		${FBX_DLL} $<TARGET_FILE_DIR:${targetName}>)
-	# endif ()
-
-	# if (WIN32)
-
-	# 	add_custom_command(TARGET ${targetName} POST_BUILD
-	# 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	# 		${DLLS} $<TARGET_FILE_DIR:${targetName}>)
-
-	# endif ()
-
-	# add_custom_command(TARGET ${targetName} POST_BUILD
-	# 	)
-
 endfunction(target_link_with_gintonic)
-
-# mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
-# mark_as_advanced(CMAKE_INSTALL_PREFIX)
 
 add_subdirectory (Tools)
 add_subdirectory (Examples)

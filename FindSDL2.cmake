@@ -3,6 +3,7 @@
 # SDL2_LIBRARY, the name of the library to link against
 # SDL2_FOUND, if false, do not try to link to SDL2
 # SDL2_INCLUDE_DIR, where to find SDL.h
+# SDL2_DLL, where to find the dynamic library
 #
 # This module responds to the the flag:
 # SDL2_BUILDING_LIBRARY
@@ -253,7 +254,11 @@ INCLUDE(FindPackageHandleStandardArgs)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL2 REQUIRED_VARS SDL2_LIBRARY SDL2_INCLUDE_DIR)
 
+list(GET SDL2_LIBRARY 1 SDL2_DLL)
+string(REPLACE ".lib" ".dll" SDL2_DLL ${SDL2_DLL})
+
 mark_as_advanced(SDL2_FOUND)
 mark_as_advanced(SDL2MAIN_LIBRARY)
 mark_as_advanced(SDL2_INCLUDE_DIR)
 mark_as_advanced(SDL2_LIBRARY)
+mark_as_advanced(SDL2_DLL)

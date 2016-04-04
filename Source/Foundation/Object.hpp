@@ -42,7 +42,7 @@ public:
 	class NoNameException : public std::exception
 	{
 	public:
-		NoNameException() noexcept = default;
+		inline NoNameException() noexcept {};
 		virtual ~NoNameException() noexcept = default;
 		virtual const char* what() const noexcept { return "NoNameException"; }
 	};

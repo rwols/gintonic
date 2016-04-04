@@ -209,6 +209,44 @@ vec4f mat4f::operator * (const vec4f& v) const
 
 mat4f mat4f::operator * (const mat4f& other) const
 {
+	#ifdef BOOST_MSVC
+
+	mat4f r;
+	__m128 m0, m1, m2, m3, other0, other1, other2, other3;
+
+	other0 = other.data[0];
+	other1 = other.data[1];
+	other2 = other.data[2];
+	other3 = other.data[3];
+	
+	m0 = _mm_mul_ps(data[0], _mm_replicate_x_ps(other0));
+	m1 = _mm_mul_ps(data[1], _mm_replicate_y_ps(other0));
+	m2 = _mm_mul_ps(data[2], _mm_replicate_z_ps(other0));
+	m3 = _mm_mul_ps(data[3], _mm_replicate_w_ps(other0));
+	r.data[0] = _mm_add_ps(_mm_add_ps(m0, m1), _mm_add_ps(m2, m3));
+
+	m0 = _mm_mul_ps(data[0], _mm_replicate_x_ps(other1));
+	m1 = _mm_mul_ps(data[1], _mm_replicate_y_ps(other1));
+	m2 = _mm_mul_ps(data[2], _mm_replicate_z_ps(other1));
+	m3 = _mm_mul_ps(data[3], _mm_replicate_w_ps(other1));
+	r.data[1] = _mm_add_ps(_mm_add_ps(m0, m1), _mm_add_ps(m2, m3));
+
+	m0 = _mm_mul_ps(data[0], _mm_replicate_x_ps(other2));
+	m1 = _mm_mul_ps(data[1], _mm_replicate_y_ps(other2));
+	m2 = _mm_mul_ps(data[2], _mm_replicate_z_ps(other2));
+	m3 = _mm_mul_ps(data[3], _mm_replicate_w_ps(other2));
+	r.data[2] = _mm_add_ps(_mm_add_ps(m0, m1), _mm_add_ps(m2, m3));
+
+	m0 = _mm_mul_ps(data[0], _mm_replicate_x_ps(other3));
+	m1 = _mm_mul_ps(data[1], _mm_replicate_y_ps(other3));
+	m2 = _mm_mul_ps(data[2], _mm_replicate_z_ps(other3));
+	m3 = _mm_mul_ps(data[3], _mm_replicate_w_ps(other3));
+	r.data[3] = _mm_add_ps(_mm_add_ps(m0, m1), _mm_add_ps(m2, m3));
+
+	return r;
+
+	#else
+
 	mat4f r;
 	__m128 m0, m1, m2, m3;
 
@@ -237,6 +275,8 @@ mat4f mat4f::operator * (const mat4f& other) const
 	r.data[3] = _mm_add_ps(_mm_add_ps(m0, m1), _mm_add_ps(m2, m3));
 
 	return r;
+
+	#endif
 }
 
 mat4f::mat4f(const vec3f& axis, const float rotation_angle)
