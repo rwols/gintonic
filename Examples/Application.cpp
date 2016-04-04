@@ -76,7 +76,10 @@ void Application::processCameraInput()
 	}
 	if (mCameraRespondsToMouse)
 	{
-		const auto lMouseDelta = -deg2rad(Renderer::mouseDelta()) / 10.0f;
+		vec2f lMouseDelta(0.0f, 0.0f);
+		vec4f lFingerMotion = Renderer::fingerMotion();
+		// lMouseDelta += -deg2rad(Renderer::mouseDelta()) / 10.0f;
+		lMouseDelta += -vec2f(lFingerMotion.z, lFingerMotion.w) * 4.0f;
 		lCameraEntity->camera->addMouse(lMouseDelta);
 		lCameraEntity->setRotation(quatf::mouse(lCameraEntity->camera->angles()));
 	}
