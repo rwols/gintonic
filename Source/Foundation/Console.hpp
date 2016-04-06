@@ -23,43 +23,32 @@ public:
 		inline const char* what() const noexcept { return "LuaStatePointerIsNullException"; }
 	};
 
-	Console(lua_State* luaState) : mLuaState(luaState, &lua_close)
-	{
-		if (!luaState) throw LuaStatePointerIsNullException();
-	}
+	Console();
 
-	Console() : mLuaState(lua_open(), &lua_close)
-	{
-		luaL_openlibs(mLuaState);
-	}
+	Console(lua_State* luaState);
 
-	
+	// std::string activeString;
+	std::size_t cursorPosition = 0;
 
-	bool append(std::string newLine)
-	{
-		const auto error = luaL_loadbuffer(mLuaState, newLine.c_str(), newLine.length(), "line")
-		mBuffer.emplace_back(std::move(newLine));
-		if (error)
-		{
-			mLastError = lua_tostring(mLuaState, -1);
-			lua_pop(mLuaState, 1);  /* pop error message from the stack */
-			return false;
-		}
-		else
-		{
-			error = lua_pcall(mLuaState, 0, 0, 0);
-			if (error)
-			{
-				mLastError = lua_tostring(mLuaState, -1);
-				lua_pop(mLuaState, 1); /* pop error message from the stack */
-				return false;
-			}
-			else
-			{
-				return true;
-			}
-		}
-	}
+	bool insertCharAtCursorPosition(const char c);
+
+	bool removeCharAtCursorPosition();
+
+	bool removeCharBeforeCursorPosition();
+
+	bool appendChar(const char c);
+
+	bool removeCharAtEnd();
+
+	bool appendChunk(const std::string& chunk);
+
+	bool appendChunk(const char* start, const std::size_t length);
+
+	bool appendChunk(const char* begin, const char* end);
+
+	bool appendChunk(const char* chunk);
+
+	bool compileActiveString();
 
 	typedef std::vector<std::string>::iterator iterator;
 	typedef std::vector<std::string>::const_iterator const_iterator;
@@ -72,13 +61,18 @@ public:
 	inline const_iterator cend() const noexcept { return mBuffer.cend(); }
 	inline std::string& operator [] (const std::size_t index) noexcept
 	{
-		return mBuffer[i];
+		return mBuffer[index];
 	}
 	inline const std::string& operator [] (const std::size_t index) const noexcept
 	{
-		return mBuffer[i];
+		return mBuffer[index];
 	}
 	inline std::size_t size() const noexcept { return mBuffer.size(); }
+
+	inline const std::string& getActiveString() const noexcept
+	{
+		return mActiveString;
+	}
 
 	lua_State* getLuaState() noexcept { return mLuaState.get(); }
 	const lua_State* getLuaState() const noexcept { return mLuaState.get(); }
@@ -87,6 +81,10 @@ private:
 	std::unique_ptr<lua_State, decltype(&lua_close)> mLuaState;
 	std::vector<std::string> mBuffer;
 	std::string mLastError;
+	std::string mActiveString;
+
+	static int printCallback(lua_State*);
+	void subscribeToRendererEvents();
 };
 
 } // namespace gintonic

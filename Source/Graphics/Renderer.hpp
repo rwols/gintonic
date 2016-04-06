@@ -71,11 +71,9 @@ public:
 	{
 	public:
 
-		//!@cond
 		inline InitException(const char* errorMessage) noexcept
 		: mErrorMessage(errorMessage) {}
 		virtual ~InitException() noexcept = default;
-		//!@endcond
 
 		/**
 		 * @brief Contains a descriptive text of what went wrong.
@@ -97,10 +95,8 @@ public:
 	{
 	public:
 
-		//@!cond
 		inline NoDisplaysException() noexcept {};
 		virtual ~NoDisplaysException() noexcept = default;
-		//@!endcond
 
 		/**
 		 * @brief Returns the literal string "No displays".
@@ -128,9 +124,6 @@ public:
 		inline NoContextAvailableException(const int major, const int minor) noexcept
 		: versionMajor(major), versionMinor(minor) {}
 
-		/**
-		 * @brief Default destructor.
-		 */
 		virtual ~NoContextAvailableException() noexcept = default;
 
 		/**
@@ -160,10 +153,8 @@ public:
 	{
 	public:
 
-		//@!cond
 		inline FunctionLoadException() noexcept {};
 		virtual ~FunctionLoadException() noexcept = default;
-		//@!endcond
 
 		/**
 		 * @brief Returns the literal string "Failed to load OpenGL functions".
@@ -209,6 +200,7 @@ public:
 	 * @throws FunctionLoadException when the process of loading the OpenGL
 	 * funcion pointers failed.
 	 * @throws OpenGL::Framebuffer::Exception when the GeometryBuffer failed to initialize.
+	 * @throws Font::InitException when the debug font is not present.
 	 */
 	static void initialize(
 		const char* windowTitle, 
@@ -603,8 +595,35 @@ public:
 	///@{
 
 	/**
+	 * @brief Start reading keyboard events as text input. Use this if you want,
+	 * for example, [shift]+[a] to be registered
+	 * as 'A' instead of the two scancodes 'shift' and 'a'.
+	 * @sa endTextInput
+	 */
+	static void beginTextInput() noexcept;
+
+	/**
+	 * @brief Stop reading keyboard events as text input.
+	 * @sa beginTextInput
+	 */
+	static void endTextInput() noexcept;
+
+	/**
+	 * @brief Set the root of the GUI elements to draw. You can pass a null pointer
+	 * so that no GUI is drawn. The Renderer does not take ownership of the GUI::Base,
+	 * so be sure to handle ownership yourself.
+	 * @param root The new root of the GUI to draw.
+	 */
+	static void setGUIRoot(GUI::Base* root) noexcept;
+
+	/**
+	 * @brief Get the root GUI::Base.
+	 * @return The root GUI::Base.
+	 */
+	static GUI::Base* getGUIRoot() noexcept;
+
+	/**
 	 * @brief Enable or disable wireframe mode.
-	 * 
 	 * @param yesOrNo True if you want to render geometry in wireframe mode,
 	 * false if you want geometry to be rendered normally.
 	 */
@@ -736,46 +755,6 @@ public:
 		GBUFFER_TEX_NORMAL
 	};
 
-	/**
-	 * @brief Start the geometry pass.
-	 */
-	// static void begin_geometry_pass();
-
-	/**
-	 * @brief Start a stencil pass.
-	 */
-	// static void begin_stencil_pass();
-
-	/**
-	 * @brief Start the light pass.
-	 */
-	// static void begin_light_pass();
-	
-	/**
-	 * @brief Set the read buffer.
-	 * @param type The read buffer.
-	 */
-	// static void set_read_buffer(const enum GBUFFER type);
-
-	/**
-	 * @brief This will split the screen up into four parts that show
-	 * the raw geometry buffers.
-	 */
-	// static void blit_drawbuffers_to_screen();
-
-	/**
-	 * @brief This will split the screen up itno four parts that show the
-	 * raw geometry buffers.
-	 * @param f A FontStream to denote the names of the geometry buffers.
-	 */
-	// static void blit_drawbuffers_to_screen(FontStream& f);
-
-	/**
-	 * @brief Do an ambient light pass. This should be called after the call
-	 * to Renderer::begin_light_pass.
-	 */
-	// static void ambient_light_pass() noexcept;
-
 	///@}
 
 	/**
@@ -802,7 +781,10 @@ public:
 	static boost::signals2::signal<void(const vec4f&)> onFingerMotion;
 
 	/// Event that fires when a key is pressed.
-	static boost::signals2::signal<void(int, int, int, int)> onKeyPress;
+	static boost::signals2::signal<void(int, int, int)> onKeyPress;
+
+	/// Event that fires when a key is released.
+	static boost::signals2::signal<void(int, int, int)> onKeyRelease;
 
 	/// Event that fires when a mouse button is pressed.
 	static boost::signals2::signal<void(int, int, int)> onMousePressed;
@@ -815,6 +797,14 @@ public:
 
 	/// Event that fires when the mouse has left the window.
 	static boost::signals2::signal<void(void)> onMouseLeave;
+
+	/// Event that fires when text is inputted via the keyboard.
+	/// This event only fires when the Renderer is in text input mode.
+	static boost::signals2::signal<void(char[32])> onTextInput;
+
+	/// Event that fires when text is inputted via the keyboard.
+	/// This event only fires when the Renderer is in text input mode.
+	static boost::signals2::signal<void(char[32], int, int)> onTextEdit;
 
 	/// Event that fires when the Renderer is about to close.
 	static boost::signals2::signal<void(void)> onAboutToClose;
@@ -834,6 +824,8 @@ public:
 	{
 		return sUnitQuadPUN;
 	}
+
+	static void drawPackedUnitQuad() noexcept;
 
 	inline static std::shared_ptr<Mesh> getUnitCube() noexcept
 	{
@@ -928,6 +920,7 @@ private:
 	static void renderShadows() noexcept;
 	static void renderLights() noexcept;
 	static void finalizeRendering() noexcept;
+	static void renderGUI() noexcept;
 	static void processEvents() noexcept;
 
 };

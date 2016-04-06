@@ -33,10 +33,7 @@ Font::Font(boost::filesystem::path filename, const unsigned int pointsize)
 	#endif
 	if (FT_New_Face(lFreetypeLib, lFilename, 0, &lFace))
 	{
-		exception lException("The font ");
-		lException.append(lFilename);
-		lException.append(" could not be opened.");
-		throw lException;
+		throw InitException();
 	}
 	const auto lGlyph = lFace->glyph;
 	FT_Set_Pixel_Sizes(lFace, 0, mPointSize);
@@ -73,15 +70,15 @@ Font::Font(boost::filesystem::path filename, const unsigned int pointsize)
 	FT_Done_FreeType(lFreetypeLib);	
 }
 
-void Font::draw(const char* text, const std::size_t length, const vec2f& in_position, const vec2f& scale) const noexcept
+vec2f Font::draw(const char* text, const std::size_t length, const vec2f& in_position, const vec2f& scale, const float maxHorizontalOffset) const noexcept
 {
 	using vert = OpenGL::vertex_text2d;
 
 	GLsizei n = 0;
-	vec2f position(in_position);
+	vec2f lPosition(in_position);
 	const auto aw = static_cast<GLfloat>(mAtlasWidth);
 	const auto ah = static_cast<GLfloat>(mAtlasHeight);
-	const auto lOriginalXPosition = position.x;
+	const auto lOriginalXPosition = lPosition.x;
 	std::size_t i, j;
 	GLfloat x2, y2, w, h;
 	std::vector<vert> lCoords(6 * length);
@@ -90,21 +87,27 @@ void Font::draw(const char* text, const std::size_t length, const vec2f& in_posi
 	{
 		if (text[j] == '\n')
 		{
-			position.x = lOriginalXPosition;
-			position.y -= static_cast<GLfloat>(mPointSize * scale.y);
+			lPosition.x = lOriginalXPosition;
+			lPosition.y -= static_cast<GLfloat>(mPointSize * scale.y);
 			continue;
 		}
 
 		i = static_cast<std::size_t>(text[j]);
 
-		x2 = position.x + mChar[i-32].bl * scale.x;
-		y2 = position.y + mChar[i-32].bt * scale.y;
+		if (maxHorizontalOffset * scale.x <= (lPosition.x + 2.0f * mChar[i-32].bl * scale.x))
+		{
+			lPosition.x = lOriginalXPosition;
+			lPosition.y -= static_cast<GLfloat>(mPointSize * scale.y);
+		}
+
+		x2 = lPosition.x + mChar[i-32].bl * scale.x;
+		y2 = lPosition.y + mChar[i-32].bt * scale.y;
 
 		w  =  mChar[i-32].bw * scale.x;
 		h  =  mChar[i-32].bh * scale.y;
 
-		position.x += mChar[i-32].ax * scale.x;
-		position.y += mChar[i-32].ay * scale.y;
+		lPosition.x += mChar[i-32].ax * scale.x;
+		lPosition.y += mChar[i-32].ay * scale.y;
 
 		if (!w || !h) continue;
 		
@@ -122,6 +125,10 @@ void Font::draw(const char* text, const std::size_t length, const vec2f& in_posi
 	glBindBuffer(GL_ARRAY_BUFFER, mBufferObject);
 	gtBufferData(GL_ARRAY_BUFFER, lCoords, GL_DYNAMIC_DRAW);
 	glDrawArrays(GL_TRIANGLES, 0, n);
+
+	return lPosition;
+
+	// return lPosition.y - static_cast<GLfloat>(mPointSize * scale.y);
 }
 
 void Font::draw(const std::string& text, const vec2f& position, const vec2f& scale) const noexcept

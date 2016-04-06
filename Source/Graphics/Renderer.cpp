@@ -1,5 +1,7 @@
 #include "Renderer.hpp"
 
+#include "GUI/Base.hpp"
+
 #include "../Foundation/exception.hpp"
 #include "../Math/vec4f.hpp"
 #include "../Math/MatrixPipeline.hpp"
@@ -21,6 +23,8 @@
 	#include <Objbase.h> // for CoInitializeEx
 #endif
 
+#define FONT_FILE_LOCATION "Resources/Inconsolata-Regular.ttf"
+
 #define HAS_DIFFUSE_TEXTURE 1
 #define HAS_SPECULAR_TEXTURE 2
 #define HAS_NORMAL_TEXTURE 4
@@ -34,6 +38,8 @@
 namespace gintonic {
 
 // Anybody want to make the Renderer a proper singleton class?
+
+GUI::Base* sGUIRoot = nullptr;
 
 GeometryBuffer* sGeometryBuffer = nullptr;
 
@@ -159,17 +165,22 @@ std::shared_ptr<Mesh> Renderer::sFlippedUnitCubePUN = nullptr;
 std::shared_ptr<Mesh> Renderer::sUnitSpherePUN      = nullptr;
 std::shared_ptr<Mesh> Renderer::sUnitConePUN        = nullptr;
 std::shared_ptr<Mesh> Renderer::sUnitCylinderPUN    = nullptr;
+GLuint sPackedQuadVAO = 0;
+GLuint sPackedQuadVBO = 0;
 
 boost::signals2::signal<void(wchar_t)> Renderer::onCharTyped;
 boost::signals2::signal<void(double, double)> Renderer::onMouseScroll;
 boost::signals2::signal<void(const vec2f&)> Renderer::onMouseMove;
 boost::signals2::signal<void(const vec2f&)> Renderer::onMouseWheel;
 boost::signals2::signal<void(const vec4f&)> Renderer::onFingerMotion;
-boost::signals2::signal<void(int, int, int, int)> Renderer::onKeyPress;
+boost::signals2::signal<void(int, int, int)> Renderer::onKeyPress;
+boost::signals2::signal<void(int, int, int)> Renderer::onKeyRelease;
 boost::signals2::signal<void(int, int, int)> Renderer::onMousePressed;
 boost::signals2::signal<void(int, int)> Renderer::onWindowResize;
 boost::signals2::signal<void(void)> Renderer::onMouseEnter;
 boost::signals2::signal<void(void)> Renderer::onMouseLeave;
+boost::signals2::signal<void(char[32])> Renderer::onTextInput;
+boost::signals2::signal<void(char[32], int, int)> Renderer::onTextEdit;
 boost::signals2::signal<void(void)> Renderer::onAboutToClose;
 
 FontStream& Renderer::cerr() { return *sDebugErrorStream; }
@@ -327,7 +338,9 @@ void Renderer::initialize(
 	// Determine the point size. We take 1/80 of the width
 	// const unsigned int lPointSize = static_cast<unsigned int>((float)sWidth / 80.0f);
 	const unsigned int lPointSize = 24;
-	sDebugFont = std::make_shared<Font>("Resources/Inconsolata-Regular.ttf", lPointSize);
+
+	// This may throw a Font::InitException when the font is not present.
+	sDebugFont = std::make_shared<Font>(FONT_FILE_LOCATION, lPointSize);
 	sDebugErrorStream = new FontStream();
 	sDebugLogStream = new FontStream();
 
@@ -395,7 +408,7 @@ void Renderer::resize(const int width, const int height)
 		exception lException(name());
 		lException.append(": GeometryBuffer failed to resize: ");
 		lException.append(framebufferException.what());
-		throw lException;
+		throw ;
 	}
 	
 	//
@@ -456,9 +469,29 @@ void Renderer::vsync(const bool b)
 	SDL_GL_SetSwapInterval(b? 1 : 0);
 }
 
+void Renderer::beginTextInput() noexcept
+{
+	SDL_StartTextInput();
+}
+
+void Renderer::endTextInput() noexcept
+{
+	SDL_StopTextInput();
+}
+
 void Renderer::setWireframeMode(const bool yesOrNo) noexcept
 {
 	sRenderInWireframeMode = yesOrNo;
+}
+
+void Renderer::setGUIRoot(GUI::Base* root) noexcept
+{
+	sGUIRoot = root;
+}
+
+GUI::Base* Renderer::getGUIRoot() noexcept
+{
+	return sGUIRoot;
 }
 
 void Renderer::setViewGeometryBuffers(const bool yesOrNo) noexcept
@@ -526,6 +559,14 @@ bool Renderer::mouseButton(const int buttoncode) noexcept
 
 void Renderer::release()
 {
+	if (sPackedQuadVBO)
+	{
+		glDeleteBuffers(1, &sPackedQuadVBO);
+	}
+	if (sPackedQuadVAO)
+	{
+		glDeleteVertexArrays(1, &sPackedQuadVAO);
+	}
 	if (sGeometryBuffer)
 	{
 		delete sGeometryBuffer;
@@ -621,6 +662,14 @@ void Renderer::update() noexcept
 		
 		sGeometryBuffer->finalize(sWidth, sHeight);
 	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+	glDisable(GL_CULL_FACE); // for the text
+	renderGUI();
 
 	finalizeRendering();
 }
@@ -750,6 +799,16 @@ void Renderer::renderLights() noexcept
 	}
 }
 
+void Renderer::renderGUI() noexcept
+{
+	if (sGUIRoot)
+	{
+		const auto& lProgram = GUIShaderProgram::get();
+		lProgram.activate();
+		sGUIRoot->draw();
+	}
+}
+
 void Renderer::finalizeRendering() noexcept
 {
 	sShadowCastingLightEntities.clear();
@@ -760,9 +819,6 @@ void Renderer::finalizeRendering() noexcept
 
 	#ifdef ENABLE_DEBUG_TRACE
 
-	glDisable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	const auto& lTextProgram = FlatTextShaderProgram::get();
 	lTextProgram.activate();
 	lTextProgram.setColor(vec3f(1.0f, 0.0f, 0.0f));
@@ -814,9 +870,19 @@ void Renderer::processEvents() noexcept
 			}
 			break;
 		case SDL_MOUSEMOTION:
+		{
+			int lMouseXPosition;
+			int lMouseYPosition;
+			vec2f lMousePosition;
+			SDL_GetMouseState(&lMouseXPosition, &lMouseYPosition);
+			// Make the position relative
+			lMousePosition.x = 2.0f * ((float)lMouseXPosition / sWidth) - 1.0f;
+			lMousePosition.y = 2.0f * (1.0f - ((float)lMouseYPosition / sHeight)) - 1.0f;
+			onMouseMove(lMousePosition);
 			sMouseDelta.x += (float)sEvent.motion.xrel;
 			sMouseDelta.y += (float)sEvent.motion.yrel;
 			break;
+		}
 		case SDL_MOUSEWHEEL:
 			sMouseWheel.x += (float)sEvent.wheel.x;
 			sMouseWheel.y += (float)sEvent.wheel.y;
@@ -827,6 +893,28 @@ void Renderer::processEvents() noexcept
 			sFingerMotion.z += sEvent.tfinger.dx;
 			sFingerMotion.w += sEvent.tfinger.dy;
 			break;
+		case SDL_KEYDOWN:
+			onKeyPress(sEvent.key.keysym.scancode, sEvent.key.keysym.sym, sEvent.key.keysym.mod);
+			break;
+		case SDL_KEYUP:
+			onKeyRelease(sEvent.key.keysym.scancode, sEvent.key.keysym.sym, sEvent.key.keysym.mod);
+			break;
+		case SDL_TEXTINPUT:
+			/* Add new text onto the end of our text */
+			// strcat(text, sEvent.text.text);
+			onTextInput(sEvent.text.text);
+			break;
+		case SDL_TEXTEDITING:
+			/*
+			Update the composition text.
+			Update the cursor position.
+			Update the selection length (if any).
+			*/
+			// composition = sEvent.edit.text;
+			// cursor = sEvent.edit.start;
+			// selection_len = sEvent.edit.length;
+			onTextEdit(sEvent.edit.text, sEvent.edit.start, sEvent.edit.length);
+			break;
 		case SDL_QUIT:
 			close();
 			break;
@@ -834,14 +922,7 @@ void Renderer::processEvents() noexcept
 			break;
 		}
 	}
-	if (sMouseDelta.x != 0.0f || sMouseDelta.y != 0.0f)
-	{
-		onMouseMove(sMouseDelta);
-	}
-	if (sMouseWheel.x != 0.0f || sMouseWheel.y != 0.0f)
-	{
-		onMouseWheel(sMouseWheel);
-	}
+
 	if (sFingerMotion.x != 0.0f || sFingerMotion.y != 0.0f || sFingerMotion.z != 0.0f || sFingerMotion.w != 0.0f)
 	{
 		onFingerMotion(sFingerMotion);
@@ -1055,6 +1136,7 @@ void Renderer::init_shaders()
 	INIT_SHADER(PointLightShaderProgram);
 	INIT_SHADER(SpotLightShaderProgram);
 	INIT_SHADER(FlatTextShaderProgram);
+	INIT_SHADER(GUIShaderProgram);
 }
 
 
@@ -1176,8 +1258,33 @@ struct SphereRightFace : public SphereFace
 	}
 };
 
+void Renderer::drawPackedUnitQuad() noexcept
+{
+	glBindVertexArray(sPackedQuadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, sPackedQuadVBO);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+}
+
 void Renderer::initializeBasicShapes()
 {
+	/* Set up the packed unit quad */
+
+	glGenVertexArrays(1, &sPackedQuadVAO);
+	glGenBuffers(1, &sPackedQuadVBO);
+	glBindVertexArray(sPackedQuadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, sPackedQuadVBO);
+	std::array<float, 16> lPackedQuadArray{{-1.0f,-1.0f,0.0f,1.0f,  1.0f,-1.0f,1.0f,1.0f,  1.0f,1.0f,1.0f,0.0f, -1.0f,1.0f,0.0f,0.0f}};
+	glBufferData
+	(
+		GL_ARRAY_BUFFER, // target
+		4 * 4 * sizeof(float), // size
+		(const GLvoid*)lPackedQuadArray.data(), // data
+		GL_STATIC_DRAW // usage
+	);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
+	
+
 	/* Set up the unit quad */
 
 	sUnitQuadPUN.reset(new Mesh());

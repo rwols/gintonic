@@ -63,7 +63,7 @@ FbxImporter::~FbxImporter() noexcept
 	mManager->Destroy();
 }
 
-std::shared_ptr<Entity> FbxImporter::loadFromFile(const char* filename)
+std::shared_ptr<Entity> FbxImporter::loadFromFile(const char* filename, bool setRootEntityNameAsFilename)
 {
 	// Import the scene.
 	const auto lStatus = mImporter->Initialize(filename, -1, mManager->GetIOSettings());
@@ -83,7 +83,12 @@ std::shared_ptr<Entity> FbxImporter::loadFromFile(const char* filename)
 	lConverter.Triangulate(mScene, true);
 
 	ResultStructure lResult;
-	return traverse(mScene->GetRootNode(), lResult);
+	auto lRootEntity = traverse(mScene->GetRootNode(), lResult);
+	if (setRootEntityNameAsFilename)
+	{
+		lRootEntity->name = boost::filesystem::path(filename).stem().string();
+	}
+	return lRootEntity;
 }
 
 std::shared_ptr<Entity> FbxImporter::traverse(FbxNode* pNode, ResultStructure& result)

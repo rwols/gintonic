@@ -15,7 +15,7 @@ public:
 
 	~FbxImporter() noexcept;
 
-	std::shared_ptr<Entity> loadFromFile(const char* filename);
+	std::shared_ptr<Entity> loadFromFile(const char* filename, bool setRootEntityNameAsFilename = true);
 
 private:
 

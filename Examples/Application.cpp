@@ -78,8 +78,17 @@ void Application::processCameraInput()
 	{
 		vec2f lMouseDelta(0.0f, 0.0f);
 		vec4f lFingerMotion = Renderer::fingerMotion();
-		// lMouseDelta += -deg2rad(Renderer::mouseDelta()) / 10.0f;
+		
+		#ifdef APPLE
+
 		lMouseDelta += -vec2f(lFingerMotion.z, lFingerMotion.w) * 4.0f;
+
+		#else
+
+		lMouseDelta += -deg2rad(Renderer::mouseDelta()) / 10.0f;
+
+		#endif
+		
 		lCameraEntity->camera->addMouse(lMouseDelta);
 		lCameraEntity->setRotation(quatf::mouse(lCameraEntity->camera->angles()));
 	}

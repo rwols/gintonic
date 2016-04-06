@@ -80,6 +80,13 @@ GT_DEFINE_UNIFORM(GLint,        diffuseTexture,                DiffuseTexture);
 GT_DEFINE_UNIFORM(const vec3f&, color,                         Color);
 GT_DEFINE_UNIFORM(GLint,        glyphTexture,                  GlyphTexture);
 
+GT_DEFINE_UNIFORM(const vec4f&, color4,                        Color4);
+GT_DEFINE_UNIFORM(const vec2f&, position,                      Position);
+GT_DEFINE_UNIFORM(const vec2f&, scale,                         Scale);
+GT_DEFINE_UNIFORM(GLint,        withoutColorAlpha,             WithoutColorAlpha);
+GT_DEFINE_UNIFORM(GLint,        hasGUITexture,                 HasGUITexture);
+GT_DEFINE_UNIFORM(GLint,        GUITexture,                    GUITexture);
+
 } // namespace Uniform
 
 /**
@@ -293,6 +300,20 @@ class FlatTextShaderProgram
 public:
 	FlatTextShaderProgram();
 	virtual ~FlatTextShaderProgram() noexcept = default;
+};
+
+class GUIShaderProgram
+: public ShaderProgramBase<GUIShaderProgram>
+, public Uniform::position
+, public Uniform::scale
+, public Uniform::color4
+, public Uniform::hasGUITexture
+, public Uniform::GUITexture
+, public Uniform::withoutColorAlpha
+{
+public:
+	GUIShaderProgram();
+	virtual ~GUIShaderProgram() noexcept = default;
 };
 
 } // namespace gintonic

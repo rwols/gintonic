@@ -56,4 +56,10 @@ FlatTextShaderProgram::FlatTextShaderProgram()
 	/* Empty on purpose. */
 }
 
+GUIShaderProgram::GUIShaderProgram()
+: OpenGL::ShaderProgram("Shaders/GUI.vert", "Shaders/GUI.frag")
+{
+	/* Empty on purpose. */
+}
+
 } // namespace gintonic

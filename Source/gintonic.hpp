@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "Foundation/Console.hpp"
 #include "Foundation/scancodes.hpp"
 #include "Foundation/exception.hpp"
 #include "Foundation/Octree.hpp"
@@ -21,7 +22,7 @@
 #include "Graphics/SpotLight.hpp"
 #include "Graphics/Mesh.hpp"
 #include "Graphics/skybox.hpp"
- 
+
 #include "Entity.hpp"
 #include "EntityVisitor.hpp"
 #include "Camera.hpp"

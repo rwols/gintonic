@@ -141,11 +141,18 @@ public:
 			lException.append(" is not a regular file!");
 			throw lException;
 		}
-		
+
 		const auto lCachedFile = "Resources" / boost::filesystem::path(lFilename.stem().string() + ".entity");
 
-		std::cout << "Checking if " << lCachedFile << " is present...\n";
-		if (boost::filesystem::is_regular_file(lCachedFile))
+		if (lFilename.extension() == ".entity")
+		{
+			std::cout << "Loading native file: " << lFilename << '\n';
+			const auto lFilenameAsString = lFilename.string();
+			std::ifstream lInput(lFilenameAsString);
+			InputArchiveType lInputArchive(lInput);
+			lInputArchive >> mModel;
+		}
+		else if (boost::filesystem::is_regular_file(lCachedFile))
 		{
 			std::cout << "Found cache: " << lCachedFile << '\n';
 			const auto lFilenameAsString = lCachedFile.string();
@@ -166,8 +173,8 @@ public:
 			lOutputArchive << mModel;
 		}
 
-		mModel->addChild(Renderer::createGizmo());
 		mRootEntity->addChild(mModel);
+		mRootEntity->addChild(Renderer::createGizmo());
 		
 		EntityProcessor lEntityProcessor(
 			mRootEntity, 
@@ -176,10 +183,11 @@ public:
 			// mLightIntensity, 
 			mLights);
 
+		std::cout << "\n\tHere's an overview of the scene:\n\n";
 		lEntityProcessor.execute();
 		if (lEntityProcessor.containsLight == false)
 		{
-			std::cout << "Scene contains no lights! Adding a directional light...\n";
+			std::cout << "\nScene contains no lights! Adding a directional light...\n";
 			// Put a directional light in the scene
 			// so that we see something interesting.
 			// The directional light shines downwards.
@@ -207,8 +215,7 @@ public:
 		}
 		mMoveSpeed = lEntityProcessor.niceMoveSpeed;
 		Renderer::getCameraEntity()->setTranslationZ(lEntityProcessor.cameraOffsetZ + 4.0f);
-		mRootEntity->addChild(Renderer::createGizmo());
-
+		
 		Renderer::setFreeformCursor(true);
 		Renderer::show();
 	}
