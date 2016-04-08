@@ -1,13 +1,18 @@
 #include "Mesh.hpp"
 
+#include "../Foundation/tuple.hpp"
 #include "../Foundation/exception.hpp"
 
 #include <fbxsdk.h>
 
+#include <map>
+
 #define GT_MESH_BUFFER_POS_XYZ_UV_X 0     // Buffer for the positions and uv.x
 #define GT_MESH_BUFFER_NOR_XYZ_UV_Y 1     // Buffer for the normals and uv.y
 #define GT_MESH_BUFFER_TAN_XYZ_HAND 2     // Buffer for the tangents and handedness
-#define GT_MESH_BUFFER_INDICES 3          // Buffer for the indices
+#define GT_MESH_BUFFER_POSITIONS    3     // Buffer for the position vectors (needed for adjacency)
+#define GT_MESH_BUFFER_INDICES      4     // Buffer for the indices
+#define GT_MESH_BUFFER_INDICES_ADJ  5     // Buffer for the indices with adjacency information
 
 #define GT_VERTEX_LAYOUT_SLOT_0 0         //  pos.X  pos.Y  pos.Z   uv.X
 #define GT_VERTEX_LAYOUT_SLOT_1 1         //  nor.X  nor.Y  nor.Z   uv.Y
@@ -29,6 +34,111 @@
 
 namespace // anonymous namespace
 {
+
+struct Edge
+{
+	GLuint first;
+	GLuint second;
+
+	Edge() = delete;
+
+	Edge(const GLuint positionIndexOne, const GLuint positionIndexTwo)
+	{
+		if (positionIndexOne < positionIndexTwo)
+		{
+			first = positionIndexOne;
+			second = positionIndexTwo;
+		}
+		else if (positionIndexOne > positionIndexTwo)
+		{
+			first = positionIndexTwo;
+			second = positionIndexOne;
+		}
+		else throw std::logic_error("Position indices are the same!");
+	}
+
+	bool operator < (const Edge& other) const noexcept
+	{
+		return std::tie(first, second) < std::tie(other.first, other.second);
+	}
+};
+
+struct Triangle
+{
+	GLuint indices[3];
+
+	GLuint getOppositeIndex(const Edge& edge) const
+	{
+		for (GLuint i = 0; i < 3; ++i)
+		{
+			const auto lIndex = indices[i];
+			if (lIndex != edge.first && lIndex != edge.second)
+			{
+				return lIndex;
+			}
+		}
+		throw std::logic_error("Triangle has no opposite position index!");
+	}
+
+	inline GLuint& operator[](const std::size_t index) noexcept
+	{
+		return indices[index];
+	}
+
+	inline const GLuint& operator[](const std::size_t index) const noexcept
+	{
+		return indices[index];
+	}
+
+	bool operator < (const Triangle& other) const noexcept
+	{
+		return std::tie(indices[0], indices[1], indices[2]) 
+			< std::tie(other[0], other[1], other[2]);
+	}
+};
+
+std::ostream& operator << (std::ostream& os, const Triangle& triangle)
+{
+	return os << '[' << triangle[0] 
+		<< ", " << triangle[1] 
+		<< ", " << triangle[2] << ']';
+}
+
+std::ostream& operator << (std::ostream& os, const Edge& edge)
+{
+	return os << '[' << edge.first << " -> " << edge.second << ']';
+}
+
+struct NeighborPair
+{
+	const Triangle* first = nullptr;
+	const Triangle* second = nullptr;
+
+	void addNeighbor(const Triangle* triangle)
+	{
+		if (!first) first = triangle;
+		else if (!second) second = triangle;
+		else throw std::logic_error("Both neighbors already set");
+	}
+
+	const Triangle* getOther(const Triangle* me) const
+	{
+		if (first == me) return second;
+		else if (second == me) return first;
+		else throw std::logic_error("getOther failed");
+	}
+};
+
+std::ostream& operator << (std::ostream& os, const NeighborPair& neighborPair)
+{
+	os << '(';
+	if (neighborPair.first) os << *(neighborPair.first);
+	else os << "nullptr";
+	os << ", ";
+	if (neighborPair.second) os << *(neighborPair.second);
+	else os << "nullptr";
+	return os << ')';
+}
 
 template <class LayerElement, class VectorType> 
 bool getLayerElement(
@@ -121,7 +231,7 @@ bool Mesh::vec2f::operator!=(const Mesh::vec2f& other) const noexcept
 	return !operator==(other);
 }
 
-void Mesh::vec2f::enable_attribute(const GLuint index) noexcept
+void Mesh::vec2f::enableAttribute(const GLuint index) noexcept
 {
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, sizeof(Mesh::vec2f), nullptr);
@@ -153,7 +263,12 @@ bool Mesh::vec3f::operator!=(const Mesh::vec3f& other) const noexcept
 	return !operator==(other);
 }
 
-void Mesh::vec3f::enable_attribute(const GLuint index) noexcept
+bool Mesh::vec3f::operator<(const Mesh::vec3f& other) const noexcept
+{
+	return std::tie(x, y, z) < std::tie(other.x, other.y, other.z);
+}
+
+void Mesh::vec3f::enableAttribute(const GLuint index) noexcept
 {
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, sizeof(Mesh::vec3f), nullptr);
@@ -187,7 +302,12 @@ bool Mesh::vec4f::operator!=(const Mesh::vec4f& other) const noexcept
 	return !operator==(other);
 }
 
-void Mesh::vec4f::enable_attribute(const GLuint index) noexcept
+bool Mesh::vec4f::operator<(const Mesh::vec4f& other) const noexcept
+{
+	return std::tie(x, y, z, w) < std::tie(other.x, other.y, other.z, other.w);
+}
+
+void Mesh::vec4f::enableAttribute(const GLuint index) noexcept
 {
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, sizeof(Mesh::vec4f), nullptr);
@@ -256,11 +376,6 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 		throw e;
 	}
 
-	// std::vector<GLuint> mIndices;
-	// std::vector<Mesh::vec4f> lSlot0Array;
-	// std::vector<Mesh::vec4f> lSlot1Array;
-	// std::vector<Mesh::vec4f> lSlot2Array;
-
 	bool lHasTangents;
 
 	gintonic::Mesh::vec4f lSlot0Entry;
@@ -305,10 +420,20 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 		lFbxBitangentArray = pFbxMesh->GetElementBinormal(0);
 	}
 
+	std::map<Edge, NeighborPair> lEdgeToNeighborMap;
+	std::map<Mesh::vec3f, GLuint> lPositionToIndexMap;
+	std::set<Triangle> lTriangles;
+	std::set<Edge> lEdges;
+
+	// Reset the bounding box.
+	mLocalBoundingBox.minCorner = std::numeric_limits<float>::max();
+	mLocalBoundingBox.maxCorner = std::numeric_limits<float>::min();
+
 	// For each triangle ...
 	polygoncount = pFbxMesh->GetPolygonCount();
 	for (i = 0; i < polygoncount; ++i)
 	{
+		Triangle lTriangle;
 		polygonsize = pFbxMesh->GetPolygonSize(i);
 		assert(polygonsize == 3);
 		// For each vertex in the current triangle ...
@@ -369,8 +494,28 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 
 			if (lHasTangents) lSlot2Entry = {T.x, T.y, T.z, handedness};
 
-			bool lFoundDuplicate = false;
+			const Mesh::vec3f lPosition(lFbxPosition[0], lFbxPosition[1], lFbxPosition[2]);
+			const gintonic::vec3f lPositionAsGTVec(lFbxPosition[0], lFbxPosition[1], lFbxPosition[2]);
+
+			// Add the position to the mesh's local bounding box.
+			mLocalBoundingBox.addPoint(lPositionAsGTVec);
+			assert(mLocalBoundingBox.contains(lPositionAsGTVec));
+
 			GLuint lIndex;
+			auto lPosIter = lPositionToIndexMap.find(lPosition); // O(log n) complexity
+			if (lPosIter == lPositionToIndexMap.end())
+			{
+				lIndex = static_cast<GLuint>(lPositionToIndexMap.size());
+				lPositionToIndexMap.insert({lPosition, lIndex});
+			}
+			else
+			{
+				lIndex = lPosIter->second;
+			}
+
+			lTriangle.indices[j] = lIndex;
+
+			bool lFoundDuplicate = false;
 			for (lIndex = 0; lIndex < mPosition_XYZ_uv_X.size(); ++lIndex)
 			{
 				if (mPosition_XYZ_uv_X[lIndex] == lSlot0Entry && mNormal_XYZ_uv_Y[lIndex] == lSlot1Entry)
@@ -393,20 +538,80 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 			if (!lFoundDuplicate)
 			{
 				mPosition_XYZ_uv_X.push_back(lSlot0Entry);
-				mNormal_XYZ_uv_Y.emplace_back(lSlot1Entry);
+				mNormal_XYZ_uv_Y.push_back(lSlot1Entry);
 				if (lHasTangents) mTangent_XYZ_hand.push_back(lSlot2Entry);
 			}
 			mIndices.push_back(lIndex);
+
 			++vertexid;
 		}
+
+		std::cerr << "Adding triangle " << lTriangle << '\n';
+
+		const Edge e1(lTriangle[0], lTriangle[1]);
+		const Edge e2(lTriangle[1], lTriangle[2]);
+		const Edge e3(lTriangle[2], lTriangle[0]);
+		auto lInsertionResult = lTriangles.emplace(lTriangle).first;
+		lEdgeToNeighborMap[e1].addNeighbor(&(*lInsertionResult));
+		lEdgeToNeighborMap[e2].addNeighbor(&(*lInsertionResult));
+		lEdgeToNeighborMap[e3].addNeighbor(&(*lInsertionResult));
 	}
+
+	for (const auto& lKeyValue : lEdgeToNeighborMap)
+	{
+		std::cout << lKeyValue.first << " => " << lKeyValue.second << '\n';
+	}
+
+	mIndicesAdjacent.clear();
+
+	bool lMeshHasBoundary = false;
+	for (const auto& lTriangle : lTriangles)
+	{
+		if (lMeshHasBoundary) break;
+		for (GLuint j = 0; j < 3; ++j)
+		{
+			const Edge lEdge(lTriangle[j], lTriangle[(j + 1) % 3]);
+			assert(lEdgeToNeighborMap.find(lEdge) != lEdgeToNeighborMap.end());
+			const auto lNeighbor = lEdgeToNeighborMap[lEdge];
+			const auto* lOtherTriangle = lNeighbor.getOther(&lTriangle);
+			if (!lOtherTriangle)
+			{
+				lMeshHasBoundary = true;
+				break;
+			}
+			mIndicesAdjacent.push_back(lTriangle[j]);
+			mIndicesAdjacent.push_back(lOtherTriangle->getOppositeIndex(lEdge));
+		}
+	}
+
+	mPositions.clear();
+
+	if (lMeshHasBoundary)
+	{
+		mIndicesAdjacent.clear();
+		std::cerr << "\tWARNING: Mesh has holes and/or boundaries.\n"
+			<< "\tSilhouette detection algorithm will not work.\n";
+	}
+	else
+	{
+		for (const auto& lKeyValue : lPositionToIndexMap)
+		{
+			mPositions.push_back(lKeyValue.first);
+		}
+	}
+
+	// Finally, make the positions a proper array
+
 
 	std::cerr << "\tNumber of vertices: " << mPosition_XYZ_uv_X.size() << '\n';
 	std::cerr << "\tNumber of indices: " << mIndices.size()
 		<< " (saved " << static_cast<float>(mPosition_XYZ_uv_X.size()) 
 		/ static_cast<float>(mIndices.size()) << ")\n";
+	std::cerr << "\tNumber of points: " << mPositions.size() << '\n';
+	std::cerr << "\tNumber of adjacency indices: " << mIndicesAdjacent.size()
+		<< " (saved " << static_cast<float>(mPositions.size()) 
+		/ static_cast<float>(mIndicesAdjacent.size()) << ")\n";
 
-	computeLocalBoundingBoxFromPositionInformation(mPosition_XYZ_uv_X);
 	uploadData();
 }
 
@@ -415,27 +620,6 @@ void Mesh::set(
 	const std::vector<Mesh::vec4f>& position_XYZ_uv_X, 
 	const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y)
 {
-	// constexpr GLenum lUsageHint = GL_STATIC_DRAW;
-
-	// // Enable the Vertex Array Object.
-	// glBindVertexArray(mVertexArrayObject);
-
-	// // Upload the (packed) vertex data in separate buffers to the GPU.
-	// glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
-	// gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
-	// Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
-	// glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
-	// gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
-	// Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
-
-	// // Upload the indices for the arrays to the GPU and remember the count.
-	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
-	// gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, lUsageHint);
-
-	// mHasTangentsAndBitangents = false;
-	// mNumIndices = static_cast<GLsizei>(indices.size());
-	// computeLocalBoundingBoxFromPositionInformation(position_XYZ_uv_X);
-
 	mIndices = indices;
 	mPosition_XYZ_uv_X = position_XYZ_uv_X;
 	mNormal_XYZ_uv_Y = normal_XYZ_uv_Y;
@@ -450,30 +634,6 @@ void Mesh::set(
 	const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y,
 	const std::vector<Mesh::vec4f>& tangent_XYZ_handedness)
 {
-	// constexpr GLenum lUsageHint = GL_STATIC_DRAW;
-
-	// // Enable the Vertex Array Object.
-	// glBindVertexArray(mVertexArrayObject);
-
-	// // Upload the (packed) vertex data in separate buffers to the GPU.
-	// glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
-	// gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
-	// Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
-	// glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
-	// gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
-	// Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
-	// glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_TAN_XYZ_HAND]);
-	// gtBufferData(GL_ARRAY_BUFFER, tangent_XYZ_handedness, lUsageHint);
-	// Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_2);
-
-	// // Upload the indices for the arrays to the GPU and remember the count.
-	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
-	// gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, lUsageHint);
-
-	// mHasTangentsAndBitangents = true;
-	// mNumIndices = static_cast<GLsizei>(indices.size());
-
-
 	mIndices = indices;
 	mPosition_XYZ_uv_X = position_XYZ_uv_X;
 	mNormal_XYZ_uv_Y = normal_XYZ_uv_Y;
@@ -491,6 +651,12 @@ void Mesh::draw() const noexcept
 {
 	glBindVertexArray(mVertexArrayObject);
 	glDrawElements(GL_TRIANGLES, numIndices(), GL_UNSIGNED_INT, nullptr);
+}
+
+void Mesh::drawAdjacent() const noexcept
+{
+	glBindVertexArray(mVertexArrayObjectAdjacencies);
+	glDrawElements(GL_TRIANGLES_ADJACENCY, numIndicesAdjacent(), GL_UNSIGNED_INT, nullptr);
 }
 
 void Mesh::draw(
@@ -561,9 +727,26 @@ void Mesh::computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh
 
 	for (const auto v : position_XYZ_uv_X)
 	{
-		gintonic::vec3f lPosition(v.x, v.y, v.z);
+		const gintonic::vec3f lPosition(v.x, v.y, v.z);
 		mLocalBoundingBox.addPoint(lPosition);
 		assert(mLocalBoundingBox.contains(lPosition));
+	}
+}
+
+void Mesh::computeAdjacencyFromPositionInformation()
+{
+	mIndicesAdjacent.clear();
+	mPositions.clear();
+	std::set<Mesh::vec3f> lUniquePositions;
+	for (const auto& lVec4 : mPosition_XYZ_uv_X)
+	{
+		const Mesh::vec3f lVec3(lVec4.x, lVec4.x, lVec4.y);
+		lUniquePositions.insert(lVec3);
+	}
+	std::copy(lUniquePositions.begin(), lUniquePositions.end(), std::back_inserter(mPositions));
+	for (const auto& lPosition : mPositions)
+	{
+		std::cout << lPosition << '\n';
 	}
 }
 
@@ -575,16 +758,22 @@ void Mesh::uploadData()
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices, lUsageHint);
 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
 	gtBufferData(GL_ARRAY_BUFFER, mPosition_XYZ_uv_X, lUsageHint);
-	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
+	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_0);
 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
 	gtBufferData(GL_ARRAY_BUFFER, mNormal_XYZ_uv_Y, lUsageHint);
-	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
+	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_1);
 	if (hasTangentsAndBitangents())
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_TAN_XYZ_HAND]);
 		gtBufferData(GL_ARRAY_BUFFER, mTangent_XYZ_hand, lUsageHint);
-		Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_2);
+		Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_2);
 	}
+	glBindVertexArray(mVertexArrayObjectAdjacencies);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES_ADJ]);
+	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndicesAdjacent, lUsageHint);
+	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POSITIONS]);
+	gtBufferData(GL_ARRAY_BUFFER, mPositions, lUsageHint);
+	Mesh::vec3f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_0);
 }
 
 // void Mesh::setFromSerialized(
@@ -601,10 +790,10 @@ void Mesh::uploadData()
 // 	// Upload the (packed) vertex data in separate buffers to the GPU.
 // 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
 // 	gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
-// 	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
+// 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_0);
 // 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
 // 	gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
-// 	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
+// 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_1);
 
 // 	// Upload the indices for the arrays to the GPU and remember the count.
 // 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
@@ -626,13 +815,13 @@ void Mesh::uploadData()
 // 	// Upload the (packed) vertex data in separate buffers to the GPU.
 // 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
 // 	gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
-// 	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_0);
+// 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_0);
 // 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
 // 	gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
-// 	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_1);
+// 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_1);
 // 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_TAN_XYZ_HAND]);
 // 	gtBufferData(GL_ARRAY_BUFFER, tangent_XYZ_handedness, lUsageHint);
-// 	Mesh::vec4f::enable_attribute(GT_VERTEX_LAYOUT_SLOT_2);
+// 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_2);
 
 // 	// Upload the indices for the arrays to the GPU and remember the count.
 // 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);

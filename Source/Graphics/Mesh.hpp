@@ -22,10 +22,29 @@
 #include <vector>
 #include <boost/serialization/base_object.hpp>
 
-#define GT_MESH_BUFFER_POS_XYZ_UV_X 0 // Buffer for the positions and uv.x
-#define GT_MESH_BUFFER_NOR_XYZ_UV_Y 1 // Buffer for the normals and uv.y
-#define GT_MESH_BUFFER_TAN_XYZ_HAND 2 // Buffer for the tangents and handedness
-#define GT_MESH_BUFFER_INDICES 3      // Buffer for the indices
+#define GT_MESH_BUFFER_POS_XYZ_UV_X 0     // Buffer for the positions and uv.x
+#define GT_MESH_BUFFER_NOR_XYZ_UV_Y 1     // Buffer for the normals and uv.y
+#define GT_MESH_BUFFER_TAN_XYZ_HAND 2     // Buffer for the tangents and handedness
+#define GT_MESH_BUFFER_POSITIONS    3     // Buffer for the position vectors (needed for adjacency)
+#define GT_MESH_BUFFER_INDICES      4     // Buffer for the indices
+#define GT_MESH_BUFFER_INDICES_ADJ  5     // Buffer for the indices with adjacency information
+
+#define GT_VERTEX_LAYOUT_SLOT_0 0         //  pos.X  pos.Y  pos.Z   uv.X
+#define GT_VERTEX_LAYOUT_SLOT_1 1         //  nor.X  nor.Y  nor.Z   uv.Y
+#define GT_VERTEX_LAYOUT_SLOT_2 2         //  tan.X  tan.Y  tan.Z   hand
+#define GT_VERTEX_LAYOUT_SLOT_3_4_5_6 3   // PVM.00 PVM.01 PVM.02 PVM.03 <--- instanced rendering
+                                          // PVM.10 PVM.11 PVM.12 PVM.13 <--- instanced rendering
+                                          // PVM.20 PVM.21 PVM.22 PVM.23 <--- instanced rendering
+                                          // PVM.30 PVM.31 PVM.32 PVM.33 <--- instanced rendering
+#define GT_VERTEX_LAYOUT_SLOT_7_8_9_10 7  //  VM.00  VM.01  VM.02  VM.03 <--- instanced rendering
+                                          //  VM.10  VM.11  VM.12  VM.13 <--- instanced rendering
+                                          //  VM.20  VM.21  VM.22  VM.23 <--- instanced rendering
+                                          //  VM.30  VM.31  VM.32  VM.33 <--- instanced rendering
+#define GT_VERTEX_LAYOUT_SLOT_11_12_13 11 //   N.00   N.01   N.02 unused <--- instanced rendering
+                                          //   N.10   N.11   N.12 unused <--- instanced rendering
+                                          //   N.20   N.21   N.22 unused <--- instanced rendering
+#define GT_VERTEX_LAYOUT_SLOT_14 14       //   free   free   free   free
+#define GT_VERTEX_LAYOUT_SLOT_15 15       //   free   free   free   free
 
 namespace gintonic {
 
@@ -87,7 +106,7 @@ public:
 		 * 
 		 * @param index The index.
 		 */
-		static void enable_attribute(const GLuint index) noexcept;
+		static void enableAttribute(const GLuint index) noexcept;
 	};
 
 	/**
@@ -126,6 +145,9 @@ public:
 		/// Inequality comparison operator.
 		bool operator != (const vec3f&) const noexcept;
 
+		/// You can put these in a map.
+		bool operator < (const vec3f&) const noexcept;
+
 		/**
 		 * @brief Enables this vector type in the current OpenGL array buffer.
 		 * @details When an OpenGL array buffer is bound, normally you would
@@ -135,7 +157,13 @@ public:
 		 * 
 		 * @param index The index.
 		 */
-		static void enable_attribute(const GLuint index) noexcept;
+		static void enableAttribute(const GLuint index) noexcept;
+
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int /*version*/)
+		{
+			ar & x & y & z;
+		}
 	};
 
 	/**
@@ -171,6 +199,9 @@ public:
 		/// Inequality comparison operator.
 		bool operator != (const vec4f&) const noexcept;
 
+		/// You can put these in a map.
+		bool operator < (const vec4f&) const noexcept;
+
 		/**
 		 * @brief Enables this vector type in the current OpenGL array buffer.
 		 * @details When an OpenGL array buffer is bound, normally you would
@@ -180,15 +211,13 @@ public:
 		 * 
 		 * @param index The index.
 		 */
-		static void enable_attribute(const GLuint index) noexcept;
+		static void enableAttribute(const GLuint index) noexcept;
 
-		//!@cond
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int /*version*/)
 		{
 			ar & x & y & z & w;
 		}
-		//!@endcond
 	};
 
 	/// Get the local bounding box.
@@ -329,9 +358,19 @@ public:
 		const boost::filesystem::path&  nativeMeshFile);
 
 	/**
-	 * @brief Draw the mesh. Uses GL_TRIANGLES as draw mode.
+	 * @brief Draw the mesh. Uses `GL_TRIANGLES` as draw mode.
 	 */
 	void draw() const noexcept;
+
+	/**
+	 * @brief Draw the mesh using the adjacency array. Uses
+	 * `GL_TRIANGLES_ADJACENCY` as draw mode. Use this for silhouette
+	 * detection algorithms. Only position information is streamed
+	 * to the vertex shader, so a single vec3 with position information.
+	 * You probably want to use a geometry shader to operate on the
+	 * adjacency information.
+	 */
+	void drawAdjacent() const noexcept;
 
 	/**
 	 * @brief Draw the mesh instanced.
@@ -366,26 +405,37 @@ public:
 		return static_cast<GLsizei>(mIndices.size());
 	}
 
+	inline GLsizei numIndicesAdjacent() const noexcept
+	{
+		return static_cast<GLsizei>(mIndicesAdjacent.size());
+	}
+
+	inline bool hasAdjacency() const noexcept
+	{
+		return numIndicesAdjacent() != 0;
+	}
+
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
 private:
 
 	box3f mLocalBoundingBox;
 	std::vector<GLuint> mIndices;
+	std::vector<GLuint> mIndicesAdjacent;
+	std::vector<Mesh::vec3f> mPositions;
 	std::vector<Mesh::vec4f> mPosition_XYZ_uv_X;
 	std::vector<Mesh::vec4f> mNormal_XYZ_uv_Y;
 	std::vector<Mesh::vec4f> mTangent_XYZ_hand;
 
 	OpenGL::VertexArrayObject mVertexArrayObject;
-	OpenGL::BufferObjectArray<4> mBuffer;
+	OpenGL::VertexArrayObject mVertexArrayObjectAdjacencies;
+	OpenGL::BufferObjectArray<6> mBuffer;
 	OpenGL::VectorArray<GL_ARRAY_BUFFER, mat4f, 2> mMatrixBuffer;
 	OpenGL::Vector<GL_ARRAY_BUFFER, mat3f> mNormalMatrixBuffer;
-	// bool mHasTangentsAndBitangents;
-	// GLsizei mNumIndices;
-	
 
 	void setupInstancedRenderingMatrices() noexcept;
 	void computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh::vec4f>& position_XYZ_uv_X);
+	void computeAdjacencyFromPositionInformation();
 	
 	void uploadData();
 
@@ -396,31 +446,11 @@ private:
 	{
 		archive & mLocalBoundingBox;
 		archive & mIndices;
+		archive & mIndicesAdjacent;
 		archive & mPosition_XYZ_uv_X;
 		archive & mNormal_XYZ_uv_Y;
 		archive & mTangent_XYZ_hand;
-
-		// GLint lUsage;
-
-		// archive & boost::serialization::base_object<Object<Mesh, std::string>>(*this);
-		// archive & mLocalBoundingBox;
-		// archive & mNumIndices;
-		// archive & mHasTangentsAndBitangents;
-		// const auto lData = mBuffer.retrieveDataAs<GLuint>(GT_MESH_BUFFER_INDICES, lUsage);
-		// assert(lUsage == GL_STATIC_DRAW);
-		// archive & lData;
-		// auto lMoreData = mBuffer.retrieveDataAs<Mesh::vec4f>(GT_MESH_BUFFER_POS_XYZ_UV_X, lUsage);
-		// assert(lUsage == GL_STATIC_DRAW);
-		// archive & lMoreData;
-		// lMoreData = mBuffer.retrieveDataAs<Mesh::vec4f>(GT_MESH_BUFFER_NOR_XYZ_UV_Y, lUsage);
-		// assert(lUsage == GL_STATIC_DRAW);
-		// archive & lMoreData;
-		// if (mHasTangentsAndBitangents)
-		// {
-		// 	lMoreData = mBuffer.retrieveDataAs<Mesh::vec4f>(GT_MESH_BUFFER_TAN_XYZ_HAND, lUsage);
-		// 	assert(lUsage == GL_STATIC_DRAW);
-		// 	archive & lMoreData;
-		// }
+		archive & mPositions;
 	}
 
 	template <class Archive>
@@ -428,36 +458,26 @@ private:
 	{
 		archive & mLocalBoundingBox;
 		archive & mIndices;
+		archive & mIndicesAdjacent;
 		archive & mPosition_XYZ_uv_X;
 		archive & mNormal_XYZ_uv_Y;
 		archive & mTangent_XYZ_hand;
+		archive & mPositions;
 		uploadData();
-
-		// std::vector<GLuint> lIndices;
-		// std::vector<Mesh::vec4f> lPosition_XYZ_uv_X;
-		// std::vector<Mesh::vec4f> lNormal_XYZ_uv_Y;
-		// std::vector<Mesh::vec4f> lTangent_XYZ_handedness;
-
-		// archive & boost::serialization::base_object<Object<Mesh, std::string>>(*this);
-		// archive & mLocalBoundingBox;
-		// archive & mNumIndices;
-		// archive & mHasTangentsAndBitangents;
-		// archive & lIndices;
-		// archive & lPosition_XYZ_uv_X;
-		// archive & lNormal_XYZ_uv_Y;
-		// if (mHasTangentsAndBitangents)
-		// {
-		// 	archive & lTangent_XYZ_handedness;
-		// 	setFromSerialized(lIndices, lPosition_XYZ_uv_X, lNormal_XYZ_uv_Y, lTangent_XYZ_handedness);
-		// }
-		// else
-		// {
-		// 	setFromSerialized(lIndices, lPosition_XYZ_uv_X, lNormal_XYZ_uv_Y);
-		// }
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
+
+inline std::ostream& operator << (std::ostream& os, const Mesh::vec3f& v)
+{
+	return os << '[' << v.x << ", " << v.y << ", " << v.z << ", " << ']';
+}
+
+inline std::ostream& operator << (std::ostream& os, const Mesh::vec4f& v)
+{
+	return os << '[' << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ']';
+}
 
 } // namespace gintonic
 

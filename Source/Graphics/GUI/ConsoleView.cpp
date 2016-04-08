@@ -31,7 +31,8 @@ void ConsoleView::drawImplementation() const noexcept
 
 	const vec2f lScale(2.0f / static_cast<GLfloat>(Renderer::width()), 2.0f / static_cast<GLfloat>(Renderer::height()));
 	      auto  lStartPos = vec2f(box.minCorner.x, box.maxCorner.y - font->getPointSize() * lScale.y);
-	const auto  lMaxHorizontalOffset = (box.maxCorner.x - box.minCorner.x) * font->getPointSize() * lScale.x;
+	
+	const auto  lMaxHorizontalOffset = (box.maxCorner.x - box.minCorner.x);
 
 	for (const auto& lLine : *console)
 	{
@@ -40,27 +41,22 @@ void ConsoleView::drawImplementation() const noexcept
 		lStartPos.y -= font->getPointSize() * lScale.y;
 	}
 
+	const auto lOriginalStartPos = lStartPos;
+
+	// Draw the "input thingy"
+	lStartPos = font->draw("> ", 2, lStartPos, lScale, lMaxHorizontalOffset);
+
 	// Draw the active string
-	/*lStartPos =*/ font->draw(console->getActiveString().c_str(), console->getActiveString().length(), lStartPos, lScale, lMaxHorizontalOffset);
+	font->draw(console->getActiveString().c_str(), console->getActiveString().length(), lStartPos, lScale, lMaxHorizontalOffset);
 
 	// Draw the cursor
 	timer.update(Renderer::deltaTime());
 	if (mDrawCursor)
 	{
-		// if (lMaxHorizontalOffset * scale.x <= (lPosition.x + 2.0f * mChar[i-32].bl * scale.x))
-		// {
-		// 	lPosition.x = lOriginalXPosition;
-		// 	lPosition.y -= static_cast<GLfloat>(mPointSize * scale.y);
-		// }
-		float lCursor = static_cast<float>(console->cursorPosition) * font->getPointSize() * lScale.x * 0.5f;
-		while (lMaxHorizontalOffset < lCursor)
-		{
-			lCursor -= lMaxHorizontalOffset;
-			lStartPos.y -= font->getPointSize() * lScale.y;
-		}
-		lStartPos.x = box.minCorner.x + lCursor;
-
-		font->draw("_", 1, lStartPos, lScale, lMaxHorizontalOffset);
+		// The +2 is because we also draw the "input thingy"
+		std::string lFakeString(console->cursorPosition + 2, ' ');
+		lFakeString.append(1, '_');
+		font->draw(lFakeString.c_str(), lFakeString.length(), lOriginalStartPos, lScale, lMaxHorizontalOffset);
 	}
 
 }

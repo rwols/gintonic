@@ -17,7 +17,7 @@
 
 // Comment or uncomment this to see the bounding spheres
 // Only works in a debug build
-#define DEBUG_POINT_LIGHTS
+// #define DEBUG_POINT_LIGHTS
 
 namespace gintonic {
 
@@ -69,31 +69,32 @@ void PointLight::shine(const Entity& e) const noexcept
 	lPointShader.setLightIntensity(this->mIntensity);
 	lPointShader.setLightPosition(lLightPos);
 	lPointShader.setLightAttenuation(mAttenuation);
-	lPointShader.setMatrixPVM(Renderer::matrix_PVM());
+	// lPointShader.setMatrixPVM(Renderer::matrix_PVM());
+	lPointShader.setMatrixPVM(mat4f(1.0f));
 
-	// Is the camera inside or outside the sphere?
-	const auto lDist = gintonic::distance(Renderer::getCameraPosition(), lSphereTransform.translation);
+	// // Is the camera inside or outside the sphere?
+	// const auto lDist = gintonic::distance(Renderer::getCameraPosition(), lSphereTransform.translation);
 
-	// EPSILON is defined at the top of the file.
-	const auto lCutoffWithEpsilon = mCutoffRadius + EPSILON * mCutoffRadius;
+	// // EPSILON is defined at the top of the file.
+	// const auto lCutoffWithEpsilon = mCutoffRadius + EPSILON * mCutoffRadius;
 
-	if (lDist < lCutoffWithEpsilon)
-	{
-		// Inside
-		#ifdef DEBUG_POINT_LIGHTS
-		lPointShader.setDebugFlag(1);
-		#endif
-		glCullFace(GL_FRONT);
-	}
-	else
-	{
-		// Outside
-		#ifdef DEBUG_POINT_LIGHTS
-		lPointShader.setDebugFlag(2);
-		#endif
-		glCullFace(GL_BACK);
-	}
-	#undef EPSILON
+	// if (lDist < lCutoffWithEpsilon)
+	// {
+	// 	// Inside
+	// 	#ifdef DEBUG_POINT_LIGHTS
+	// 	lPointShader.setDebugFlag(1);
+	// 	#endif
+	// 	glCullFace(GL_FRONT);
+	// }
+	// else
+	// {
+	// 	// Outside
+	// 	#ifdef DEBUG_POINT_LIGHTS
+	// 	lPointShader.setDebugFlag(2);
+	// 	#endif
+	// 	glCullFace(GL_BACK);
+	// }
+	// #undef EPSILON
 
 	#ifdef DEBUG_POINT_LIGHTS
 
@@ -108,7 +109,8 @@ void PointLight::shine(const Entity& e) const noexcept
 
 	#endif
 	
-	Renderer::getUnitSphere()->draw();
+	// Renderer::getUnitSphere()->draw();
+	Renderer::getUnitQuad()->draw();
 }
 
 void PointLight::initializeShadowBuffer(Entity& lightEntity) const
