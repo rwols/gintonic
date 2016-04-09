@@ -152,5 +152,4 @@ std::ostream& SpotLight::prettyPrint(std::ostream& os) const noexcept
 		<< ", cutoffPoint: " << getCutoffRadius() << " }";
 }
 
-
 } // namespace gintonic

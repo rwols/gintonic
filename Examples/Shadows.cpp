@@ -81,13 +81,32 @@ public:
 		lSpotLightChild->material->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 		lSpotLightChild->mesh = Renderer::getUnitSphere();
 		mSpotLight->addChild(lSpotLightChild);
+
+		mPointLight->light = std::shared_ptr<Light>
+		(
+			new PointLight
+			(
+				vec4f(0.0f, 1.0f, 0.0f, 10.0f),  // Intensity
+				vec4f(0.1f, 0.4f, 0.5f, 4.0f)    // Attenuation
+			)
+		);
+		mPointLight->light->name = "PointLight";
+		mPointLight->castShadow = true;
+		auto lPointLightChild = std::make_shared<Entity>();
+		lPointLightChild->castShadow = false;
+		lPointLightChild->material = std::make_shared<Material>();
+		lPointLightChild->material->diffuseColor = vec4f(0.0f, 1.0f, 0.0f, 0.0f);
+		lPointLightChild->material->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
+		lPointLightChild->mesh = Renderer::getUnitSphere();
+		mPointLight->addChild(lPointLightChild);
 		
 		mDefaultCamera = Renderer::getCameraEntity();
 		mDefaultCamera->camera->setAngles(vec2f(-0.5f, -0.1f));
 		mDefaultCamera->setTranslation(vec3f(-3.0f, 1.0f, 4.0f));
 		
-		mRootEntity->addChild(mDirectionalLight);
-		mRootEntity->addChild(mSpotLight);
+		// mRootEntity->addChild(mDirectionalLight);
+		// mRootEntity->addChild(mSpotLight);
+		mRootEntity->addChild(mPointLight);
 		
 		Renderer::setFreeformCursor(true);
 		Renderer::show();
@@ -127,6 +146,21 @@ private:
 		)
 	);
 
+	std::shared_ptr<gintonic::Entity> mPointLight = std::make_shared<gintonic::Entity>
+	(
+		"PointLight",
+		gintonic::SQT
+		(
+			gintonic::vec3f(0.1f, 0.1f, 0.1f),
+			gintonic::quatf::axis_angle
+			(
+				gintonic::vec3f(1.0f, 1.0f, 1.0f),
+				- F_PI * 0.5f
+			),
+			gintonic::vec3f(2.0f, 6.0f, -2.0f)
+		)
+	);
+
 	std::shared_ptr<gintonic::Entity> mDefaultCamera;
 
 	bool mSwitch = false;
@@ -158,22 +192,23 @@ private:
 			mSpotLight->light->setCosineHalfAngle(mSpotlightAngle);
 		}
 
-		mDirectionalLight->setRotation
-		(
-			quatf::axis_angle
-			(
-				vec3f(1.0f, 0.0f, 0.0f),
-				- F_PI * 0.5f + std::sin(mElapsedTime * 0.4f) * 0.5f
-			)
-		);
-		mSpotLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, 0.0f));
+		// mDirectionalLight->setRotation
+		// (
+		// 	quatf::axis_angle
+		// 	(
+		// 		vec3f(1.0f, 0.0f, 0.0f),
+		// 		- F_PI * 0.5f + std::sin(mElapsedTime * 0.4f) * 0.5f
+		// 	)
+		// );
+		mSpotLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, -2.0f));
 		// mDirectionalLight->setRotation(quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), -M_PI / 2.0f + std::sin(mElapsedTime)));
+		mSpotLight->setTranslation(vec3f(-4.0f * std::sin(mElapsedTime), 6.0f, 2.0f));
 		mSpotLight->setRotation(
 			quatf::look_at(
 				mSpotLight->localTransform().translation, 
 				mSphere->localTransform().translation, 
 				vec3f(0.0f, 1.0f, 0.0f)));
-		// Renderer::cerr() << mDirectionalLight->name << '\n';
+		// mPointLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, -2.0f));
 	}
 
 };

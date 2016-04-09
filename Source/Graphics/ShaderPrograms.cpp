@@ -62,4 +62,10 @@ GUIShaderProgram::GUIShaderProgram()
 	/* Empty on purpose. */
 }
 
+SilhouetteShaderProgram::SilhouetteShaderProgram()
+: OpenGL::ShaderProgram("Shaders/Silhouette.vert", "Shaders/Silhouette.geom", "Shaders/Silhouette.frag")
+{
+	/* Empty on purpose. */
+}
+
 } // namespace gintonic

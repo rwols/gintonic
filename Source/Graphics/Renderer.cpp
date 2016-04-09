@@ -625,9 +625,7 @@ void Renderer::update() noexcept
 	{
 		assert(sDebugShadowBufferEntity->shadowBuffer);
 
-		glCullFace(GL_FRONT);
 		renderShadows();
-		glCullFace(GL_BACK);
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDisable(GL_DEPTH_TEST);
@@ -646,9 +644,7 @@ void Renderer::update() noexcept
 	{
 		renderGeometry();
 		
-		glCullFace(GL_FRONT);
 		renderShadows();
-		glCullFace(GL_BACK);
 
 		sGeometryBuffer->prepareLightingPhase();
 		glViewport(0, 0, sWidth, sHeight);
@@ -771,8 +767,8 @@ void Renderer::renderGeometry() noexcept
 
 void Renderer::renderShadows() noexcept
 {
-	ShadowShaderProgram::get().activate();
-	ShadowShaderProgram::get().setInstancedRendering(0);
+	// ShadowShaderProgram::get().activate();
+	// ShadowShaderProgram::get().setInstancedRendering(0);
 	for (auto lEntity : sShadowCastingLightEntities)
 	{
 		lEntity->shadowBuffer->collect(*lEntity, sShadowCastingGeometryEntities);
@@ -1137,6 +1133,7 @@ void Renderer::init_shaders()
 	INIT_SHADER(SpotLightShaderProgram);
 	INIT_SHADER(FlatTextShaderProgram);
 	INIT_SHADER(GUIShaderProgram);
+	INIT_SHADER(SilhouetteShaderProgram);
 }
 
 
@@ -1626,7 +1623,7 @@ void Renderer::initializeBasicShapes()
 
 	GLuint lCounter(0);
 	GLfloat s, t;
-	GLsizei lSubdivisions = 8;
+	GLsizei lSubdivisions = 10	;
 	GLfloat lSubdivs = static_cast<GLfloat>(lSubdivisions);
 	gintonic::vec3f lPosition;
 	gintonic::vec2f lTexCoord;
@@ -1680,57 +1677,48 @@ void Renderer::initializeBasicShapes()
 
 	/* Set up the unit cone */
 
-	lSubdivisions *= 6; // HACKY!
-	// lSubdivisions = 4;
+	lSubdivisions *= 4; // HACKY!
 	const GLfloat lAngle = 2.0f * static_cast<float>(M_PI) / static_cast<float>(lSubdivisions);
 	GLfloat lSin, lCos, lNextSin(0.0f), lNextCos(1.0f);
 
 	lPosition_XYZ_TexCoord_X.clear();
 	lNormal_XYZ_TexCoord_Y.clear();
 	lIndices.clear();
-	for (GLsizei lDiv = 0; lDiv < lSubdivisions; ++lDiv)
+	lPosition_XYZ_TexCoord_X.emplace_back(0.0f, 0.0f, 0.0f, 0.5f);
+	lNormal_XYZ_TexCoord_Y.emplace_back(0.0f, 0.0f, 1.0f, 0.5f);
+	lCounter = 1;
+	for (GLsizei lDiv = 0; lDiv < lSubdivisions; ++lDiv) // base
 	{
 		lCos = lNextCos;
 		lSin = lNextSin;
-		lNextCos = std::cos(static_cast<float>(lDiv + 1) * lAngle);
-		lNextSin = std::sin(static_cast<float>(lDiv + 1) * lAngle);
-
-		lPosition_XYZ_TexCoord_X.emplace_back(    0.0f,     0.0f, 0.0f,                            0.5f);
-		lPosition_XYZ_TexCoord_X.emplace_back(    lCos,     lSin, 0.0f,            (1.0f + lCos) * 0.5f);
-		lPosition_XYZ_TexCoord_X.emplace_back(lNextCos, lNextSin, 0.0f,        (1.0f + lNextCos) * 0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,     0.0f, 1.0f,                            0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,     0.0f, 1.0f,     1.0f - (1.0f + lSin) * 0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,     0.0f, 1.0f, 1.0f - (1.0f + lNextSin) * 0.5f);
-
-		lIndices.push_back(3 * lDiv + 0);
-		lIndices.push_back(3 * lDiv + 1);
-		lIndices.push_back(3 * lDiv + 2);
-	}
-
-	lNextSin = 0.0f;
-	lNextCos = 1.0f;
-	for (GLsizei lDiv = 0; lDiv < lSubdivisions; ++lDiv)
-	{
-		lCos = lNextCos;
-		lSin = lNextSin;
-		lNextCos = std::cos(static_cast<float>(lDiv + 1) * lAngle);
-		lNextSin = std::sin(static_cast<float>(lDiv + 1) * lAngle);
+		lNextCos = (lDiv == lSubdivisions - 1) ? 1.0f : std::cos(static_cast<float>(lDiv + 1) * lAngle);
+		lNextSin = (lDiv == lSubdivisions - 1) ? 0.0f : std::sin(static_cast<float>(lDiv + 1) * lAngle);
 
 		const gintonic::vec3f P0(    0.0f,      0.0f, -1.0f);
 		const gintonic::vec3f P1(    lCos,      lSin,  0.0f);
 		const gintonic::vec3f P2(lNextCos,  lNextSin,  0.0f);
 		const auto N = cross(P2 - P0, P1 - P0).normalize();
 
-		lPosition_XYZ_TexCoord_X.emplace_back(    0.0f,      0.0f, -1.0f,                     0.5f);
-		lPosition_XYZ_TexCoord_X.emplace_back(    lCos,     -lSin,  0.0f,     (1.0f + lCos) * 0.5f);
-		lPosition_XYZ_TexCoord_X.emplace_back(lNextCos, -lNextSin,  0.0f, (1.0f + lNextCos) * 0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(       N.x,      N.y,    N.z,                     0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(       N.x,      N.y,    N.z,     (1.0f + lSin) * 0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(       N.x,      N.y,    N.z, (1.0f + lNextSin) * 0.5f);
+		lPosition_XYZ_TexCoord_X.emplace_back(    lCos,     lSin, 0.0f,            (1.0f + lCos) * 0.5f);
+		lPosition_XYZ_TexCoord_X.emplace_back(lNextCos, lNextSin, 0.0f,        (1.0f + lNextCos) * 0.5f);
+		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,     0.0f, 1.0f,     1.0f - (1.0f + lSin) * 0.5f);
+		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,     0.0f, 1.0f, 1.0f - (1.0f + lNextSin) * 0.5f);
 
-		lIndices.push_back(3 * lSubdivisions + 3 * lDiv + 0);
-		lIndices.push_back(3 * lSubdivisions + 3 * lDiv + 1);
-		lIndices.push_back(3 * lSubdivisions + 3 * lDiv + 2);
+		lPosition_XYZ_TexCoord_X.emplace_back(    0.0f,      0.0f, -1.0f,                     0.5f);
+		lPosition_XYZ_TexCoord_X.emplace_back(lNextCos,  lNextSin,  0.0f, (1.0f + lNextCos) * 0.5f);
+		lPosition_XYZ_TexCoord_X.emplace_back(    lCos,      lSin,  0.0f,     (1.0f + lCos) * 0.5f);
+		lNormal_XYZ_TexCoord_Y.emplace_back(       N.x,      N.y,    N.z,                     0.5f);
+		lNormal_XYZ_TexCoord_Y.emplace_back(       N.x,      N.y,    N.z, (1.0f + lNextSin) * 0.5f);
+		lNormal_XYZ_TexCoord_Y.emplace_back(       N.x,      N.y,    N.z,     (1.0f + lSin) * 0.5f);
+		
+
+		lIndices.push_back(0);
+		lIndices.push_back(lCounter);
+		lIndices.push_back(lCounter + 1);
+		lIndices.push_back(lCounter + 2);
+		lIndices.push_back(lCounter + 3);
+		lIndices.push_back(lCounter + 4);
+		lCounter += 5;
 	}
 
 	sUnitConePUN.reset(new Mesh());
@@ -1744,71 +1732,47 @@ void Renderer::initializeBasicShapes()
 	lPosition_XYZ_TexCoord_X.clear();
 	lNormal_XYZ_TexCoord_Y.clear();
 	lIndices.clear();
+	lPosition_XYZ_TexCoord_X.emplace_back(0.0f, 0.0f, 1.0f, 0.5f);
+	lPosition_XYZ_TexCoord_X.emplace_back(0.0f, 0.0f, -1.0f, 0.5f);
+	lNormal_XYZ_TexCoord_Y.emplace_back(0.0f, 0.0f, 1.0f, 0.5f);
+	lNormal_XYZ_TexCoord_Y.emplace_back(0.0f, 0.0f, -1.0f, 0.5f);
+	lCounter = 2;
 	for (GLsizei lDiv = 0; lDiv < lSubdivisions; ++lDiv) // front
 	{
 		lCos = lNextCos;
 		lSin = lNextSin;
-		lNextCos = std::cos(static_cast<float>(lDiv + 1) * lAngle);
-		lNextSin = std::sin(static_cast<float>(lDiv + 1) * lAngle);
+		lNextCos = (lDiv == lSubdivisions - 1) ? 1.0f : std::cos(static_cast<float>(lDiv + 1) * lAngle);
+		lNextSin = (lDiv == lSubdivisions - 1) ? 0.0f : std::sin(static_cast<float>(lDiv + 1) * lAngle);
 
-		lPosition_XYZ_TexCoord_X.emplace_back(    0.0f,     0.0f, 1.0f,                            0.5f);
 		lPosition_XYZ_TexCoord_X.emplace_back(    lCos,     lSin, 1.0f,            (1.0f + lCos) * 0.5f);
 		lPosition_XYZ_TexCoord_X.emplace_back(lNextCos, lNextSin, 1.0f,        (1.0f + lNextCos) * 0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,     0.0f, 1.0f,                            0.5f);
 		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,     0.0f, 1.0f,     1.0f - (1.0f + lSin) * 0.5f);
 		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,     0.0f, 1.0f, 1.0f - (1.0f + lNextSin) * 0.5f);
 
-		lIndices.push_back(3 * lDiv + 0);
-		lIndices.push_back(3 * lDiv + 1);
-		lIndices.push_back(3 * lDiv + 2);
+		lPosition_XYZ_TexCoord_X.emplace_back(    lCos,     lSin, -1.0f,     (1.0f + lCos) * 0.5f);
+		lPosition_XYZ_TexCoord_X.emplace_back(lNextCos, lNextSin, -1.0f, (1.0f + lNextCos) * 0.5f);
+		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,     0.0f, -1.0f,     (1.0f + lSin) * 0.5f);
+		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,     0.0f, -1.0f, (1.0f + lNextSin) * 0.5f);
+
+		lIndices.push_back(0);
+		lIndices.push_back(lCounter + 0);
+		lIndices.push_back(lCounter + 1);
+
+		lIndices.push_back(lCounter + 3);
+		lIndices.push_back(lCounter + 1);
+		lIndices.push_back(lCounter + 0);
+		
+		lIndices.push_back(lCounter + 3);
+		lIndices.push_back(lCounter + 0);
+		lIndices.push_back(lCounter + 2);
+		
+		lIndices.push_back(1);
+		lIndices.push_back(lCounter + 3);
+		lIndices.push_back(lCounter + 2);
+
+		lCounter += 4;
 	}
-	lNextSin = 0.0f;
-	lNextCos = 1.0f;
-	for (GLsizei lDiv = 0; lDiv < lSubdivisions; ++lDiv) // back
-	{
-		lCos = lNextCos;
-		lSin = lNextSin;
-		lNextCos = std::cos(static_cast<float>(lDiv + 1) * lAngle);
-		lNextSin = std::sin(static_cast<float>(lDiv + 1) * lAngle);
-
-		lPosition_XYZ_TexCoord_X.emplace_back(    0.0f,      0.0f, -1.0f,                     0.5f);
-		lPosition_XYZ_TexCoord_X.emplace_back(    lCos,     -lSin, -1.0f,     (1.0f + lCos) * 0.5f);
-		lPosition_XYZ_TexCoord_X.emplace_back(lNextCos, -lNextSin, -1.0f, (1.0f + lNextCos) * 0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,      0.0f, -1.0f,                     0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,      0.0f, -1.0f,     (1.0f + lSin) * 0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(      0.0f,      0.0f, -1.0f, (1.0f + lNextSin) * 0.5f);
-
-		lIndices.push_back(3 * lSubdivisions + 3 * lDiv + 0);
-		lIndices.push_back(3 * lSubdivisions + 3 * lDiv + 1);
-		lIndices.push_back(3 * lSubdivisions + 3 * lDiv + 2);
-	}
-	lNextSin = 0.0f;
-	lNextCos = 1.0f;
-	for (GLsizei lDiv = 0; lDiv < lSubdivisions; ++lDiv) // hollow tube
-	{
-		lCos = lNextCos;
-		lSin = lNextSin;
-		lNextCos = std::cos(static_cast<float>(lDiv + 1) * lAngle);
-		lNextSin = std::sin(static_cast<float>(lDiv + 1) * lAngle);
-
-		// The UV coordinates are not yet totally correct.
-		lPosition_XYZ_TexCoord_X.emplace_back(    lCos,      lSin,  1.0f,            (1.0f + lCos) * 0.5f);
-		lPosition_XYZ_TexCoord_X.emplace_back(    lCos,      lSin, -1.0f,     1.0f - (1.0f + lCos) * 0.5f);
-		lPosition_XYZ_TexCoord_X.emplace_back(lNextCos,  lNextSin, -1.0f, 1.0f - (1.0f + lNextCos) * 0.5f);
-		lPosition_XYZ_TexCoord_X.emplace_back(lNextCos,  lNextSin,  1.0f,        (1.0f + lNextCos) * 0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(      lCos,      lSin,  0.0f,            (1.0f + lSin) * 0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(      lCos,      lSin,  0.0f,            (1.0f + lSin) * 0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(  lNextCos,  lNextSin,  0.0f,        (1.0f + lNextSin) * 0.5f);
-		lNormal_XYZ_TexCoord_Y.emplace_back(  lNextCos,  lNextSin,  0.0f,        (1.0f + lNextSin) * 0.5f);
-
-		lIndices.push_back(6 * lSubdivisions + 4 * lDiv + 0);
-		lIndices.push_back(6 * lSubdivisions + 4 * lDiv + 1);
-		lIndices.push_back(6 * lSubdivisions + 4 * lDiv + 2);
-		lIndices.push_back(6 * lSubdivisions + 4 * lDiv + 2);
-		lIndices.push_back(6 * lSubdivisions + 4 * lDiv + 3);
-		lIndices.push_back(6 * lSubdivisions + 4 * lDiv + 0);
-	}
-
+	
 	sUnitCylinderPUN.reset(new Mesh());
 	sUnitCylinderPUN->name = "UnitCylinder";
 	sUnitCylinderPUN->set(lIndices, lPosition_XYZ_TexCoord_X, lNormal_XYZ_TexCoord_Y);

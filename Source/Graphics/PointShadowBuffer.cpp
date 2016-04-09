@@ -15,40 +15,37 @@ namespace gintonic {
 
 PointShadowBuffer::PointShadowBuffer()
 {
-	THROW_NOT_IMPLEMENTED_EXCEPTION();
+	/* Empty on purpose. */
 }
 
 void PointShadowBuffer::collect(
 	Entity& lightEntity, 
 	const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) noexcept
 {
-	const auto& lShadowProgram = ShadowShaderProgram::get();
-	mat4f lProjectionMatrix, lViewMatrix, lModelMatrix;
-	for (int i = 0; i < 6; ++i)
+	const vec3f lLightPos = (Renderer::matrix_V() * lightEntity.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
+
+	const auto& lProgram = SilhouetteShaderProgram::get();
+
+	lProgram.activate();
+	lProgram.setColor(vec3f(1.0f, 0.0f, 0.0f));
+	lProgram.setLightPosition(lLightPos);
+
+	glLineWidth(20.0f); // remove me
+	glCullFace(GL_BACK);
+
+	for (const auto lGeometryEntity : shadowCastingGeometryEntities)
 	{
-		mFramebuffer[i].bind(GL_DRAW_FRAMEBUFFER);
-
-		lProjectionMatrix = lightEntity.camera->projectionMatrix();
-
-		lightEntity.postMultiplyRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
-
-		lightEntity.getViewMatrix(lViewMatrix);
-
-		for (const auto lGeometryEntity : shadowCastingGeometryEntities)
-		{
-			lModelMatrix = lGeometryEntity->globalTransform();
-			lShadowProgram.setMatrixPVM(lProjectionMatrix * lViewMatrix * lModelMatrix);
-			lGeometryEntity->mesh->draw();
-		}
+		Renderer::setModelMatrix(lGeometryEntity->globalTransform());
+		lProgram.setMatrixPVM(Renderer::matrix_PVM());
+		lProgram.setMatrixVM(Renderer::matrix_VM());
+		
+		lGeometryEntity->mesh->drawAdjacent();
 	}
 }
 
 void PointShadowBuffer::bindDepthTextures() const noexcept
 {
-	for (int i = 0; i < 6; ++i)
-	{
-		mTexture[i].bind(GL_TEXTURE_2D, i);
-	}
+	/* Empty on purpose. */
 }
 
 } // namespace gintonic

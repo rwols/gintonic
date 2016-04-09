@@ -43,9 +43,12 @@ void DirectionalShadowBuffer::collect(
 	mFramebuffer.bind(GL_DRAW_FRAMEBUFFER);
 	glViewport(0, 0, SHADOW_QUALITY, SHADOW_QUALITY);
 	glClear(GL_DEPTH_BUFFER_BIT);
+	glCullFace(GL_FRONT);
 
 	const auto lProjectionViewMatrix = mProjectionMatrix * lightEntity.getViewMatrix();
 	const auto& lProgram = ShadowShaderProgram::get();
+	lProgram.activate();
+
 	for (const auto lGeometryEntity : shadowCastingGeometryEntities)
 	{
 		lProgram.setMatrixPVM(lProjectionViewMatrix * lGeometryEntity->globalTransform());

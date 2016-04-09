@@ -9,6 +9,12 @@
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/weak_ptr.hpp>
+#include <boost/serialization/export.hpp>
+
+BOOST_CLASS_EXPORT(gintonic::AmbientLight);
+BOOST_CLASS_EXPORT(gintonic::DirectionalLight);
+BOOST_CLASS_EXPORT(gintonic::PointLight);
+BOOST_CLASS_EXPORT(gintonic::SpotLight);
 
 using OutputArchiveType = eos::portable_oarchive;
 using InputArchiveType = eos::portable_iarchive;
@@ -112,9 +118,9 @@ private:
 
 };
 
-std::shared_ptr<gintonic::Entity> gRootEntity;
-std::shared_ptr<gintonic::Entity> gModel;
-float gMoveSpeed = 1.0f;
+// std::shared_ptr<gintonic::Entity> gRootEntity;
+// std::shared_ptr<gintonic::Entity> gModel;
+// float gMoveSpeed = 1.0f;
 
 class FbxViewerApplication : public Application
 {

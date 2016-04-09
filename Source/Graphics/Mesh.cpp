@@ -423,7 +423,6 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 	std::map<Edge, NeighborPair> lEdgeToNeighborMap;
 	std::map<Mesh::vec3f, GLuint> lPositionToIndexMap;
 	std::set<Triangle> lTriangles;
-	std::set<Edge> lEdges;
 
 	// Reset the bounding box.
 	mLocalBoundingBox.minCorner = std::numeric_limits<float>::max();
@@ -494,7 +493,14 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 
 			if (lHasTangents) lSlot2Entry = {T.x, T.y, T.z, handedness};
 
-			const Mesh::vec3f lPosition(lFbxPosition[0], lFbxPosition[1], lFbxPosition[2]);
+			Mesh::vec3f lPosition(lFbxPosition[0], lFbxPosition[1], lFbxPosition[2]);
+
+			// Turn negative zero into positive zero.
+			// We get extremely subtle bugs otherwise :-(
+			if (lPosition.x == -0.0f) lPosition.x = 0.0f;
+			if (lPosition.y == -0.0f) lPosition.y = 0.0f;
+			if (lPosition.z == -0.0f) lPosition.z = 0.0f;
+
 			const gintonic::vec3f lPositionAsGTVec(lFbxPosition[0], lFbxPosition[1], lFbxPosition[2]);
 
 			// Add the position to the mesh's local bounding box.
@@ -594,14 +600,12 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 	}
 	else
 	{
+		// Finally, make the positions a proper array
 		for (const auto& lKeyValue : lPositionToIndexMap)
 		{
 			mPositions.push_back(lKeyValue.first);
 		}
 	}
-
-	// Finally, make the positions a proper array
-
 
 	std::cerr << "\tNumber of vertices: " << mPosition_XYZ_uv_X.size() << '\n';
 	std::cerr << "\tNumber of indices: " << mIndices.size()
@@ -624,6 +628,7 @@ void Mesh::set(
 	mPosition_XYZ_uv_X = position_XYZ_uv_X;
 	mNormal_XYZ_uv_Y = normal_XYZ_uv_Y;
 	mTangent_XYZ_hand.clear();
+	computeAdjacencyFromPositionInformation();
 	computeLocalBoundingBoxFromPositionInformation(mPosition_XYZ_uv_X);
 	uploadData();
 }
@@ -638,6 +643,7 @@ void Mesh::set(
 	mPosition_XYZ_uv_X = position_XYZ_uv_X;
 	mNormal_XYZ_uv_Y = normal_XYZ_uv_Y;
 	mTangent_XYZ_hand = tangent_XYZ_handedness;
+	computeAdjacencyFromPositionInformation();
 	computeLocalBoundingBoxFromPositionInformation(mPosition_XYZ_uv_X);
 	uploadData();
 }
@@ -735,18 +741,110 @@ void Mesh::computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh
 
 void Mesh::computeAdjacencyFromPositionInformation()
 {
-	mIndicesAdjacent.clear();
-	mPositions.clear();
-	std::set<Mesh::vec3f> lUniquePositions;
-	for (const auto& lVec4 : mPosition_XYZ_uv_X)
+	std::map<Edge, NeighborPair> lEdgeToNeighborMap;
+	std::map<Mesh::vec3f, GLuint> lPositionToIndexMap;
+	std::set<Triangle> lTriangles;
+
+	assert(0.0f == -0.0f);
+
+	assert(mIndices.size() % 3 == 0);
+	for (std::size_t i = 0; i < mIndices.size(); i += 3)
 	{
-		const Mesh::vec3f lVec3(lVec4.x, lVec4.x, lVec4.y);
-		lUniquePositions.insert(lVec3);
+		Triangle lTriangle;
+
+		std::cerr << "Triangle: ";
+
+		for (GLuint j = 0; j < 3; ++j)
+		{
+			const Mesh::vec4f lPosition4(mPosition_XYZ_uv_X[mIndices[i + j]]);
+			Mesh::vec3f lPosition(lPosition4.x, lPosition4.y, lPosition4.z);
+
+			// Turn negative zero into positive zero.
+			// We get extremely subtle bugs otherwise :-(
+			if (lPosition.x == -0.0f) lPosition.x = 0.0f;
+			if (lPosition.y == -0.0f) lPosition.y = 0.0f;
+			if (lPosition.z == -0.0f) lPosition.z = 0.0f;
+
+			std::cerr << lPosition << ' ';
+
+			GLuint lIndex;
+			auto lPosIter = lPositionToIndexMap.find(lPosition); // O(log n) complexity
+			if (lPosIter == lPositionToIndexMap.end())
+			{
+				lIndex = static_cast<GLuint>(lPositionToIndexMap.size());
+				lPositionToIndexMap.insert({lPosition, lIndex});
+			}
+			else
+			{
+				lIndex = lPosIter->second;
+			}
+
+			lTriangle[j] = lIndex;
+		}
+
+		std::cerr << " --> " << lTriangle << '\n';
+
+		const Edge e1(lTriangle[0], lTriangle[1]);
+		const Edge e2(lTriangle[1], lTriangle[2]);
+		const Edge e3(lTriangle[2], lTriangle[0]);
+		auto lInsertionResult = lTriangles.emplace(lTriangle).first;
+		lEdgeToNeighborMap[e1].addNeighbor(&(*lInsertionResult));
+		lEdgeToNeighborMap[e2].addNeighbor(&(*lInsertionResult));
+		lEdgeToNeighborMap[e3].addNeighbor(&(*lInsertionResult));
 	}
-	std::copy(lUniquePositions.begin(), lUniquePositions.end(), std::back_inserter(mPositions));
-	for (const auto& lPosition : mPositions)
+
+	for (const auto& lKeyValue : lEdgeToNeighborMap)
 	{
-		std::cout << lPosition << '\n';
+		std::cout << lKeyValue.first << " => " << lKeyValue.second << '\n';
+	}
+
+	mIndicesAdjacent.clear();
+
+	const Triangle* lDegenerateTriangle = nullptr;
+	for (const auto& lTriangle : lTriangles)
+	{
+		if (lDegenerateTriangle)
+		{
+			break;
+		}
+		for (GLuint j = 0; j < 3; ++j)
+		{
+			const Edge lEdge(lTriangle[j], lTriangle[(j + 1) % 3]);
+			if (lEdgeToNeighborMap.find(lEdge) == lEdgeToNeighborMap.end())
+			{
+				throw std::logic_error("Adjacency algorithm failure");
+			}
+			const auto lNeighbor = lEdgeToNeighborMap[lEdge];
+			const auto* lOtherTriangle = lNeighbor.getOther(&lTriangle);
+			if (!lOtherTriangle)
+			{
+				std::cerr << "\tFATAL ERROR: Triangle " << lTriangle << " is degenerate.\n";
+				lDegenerateTriangle = &lTriangle;
+				break;
+			}
+			mIndicesAdjacent.push_back(lTriangle[j]);
+			mIndicesAdjacent.push_back(lOtherTriangle->getOppositeIndex(lEdge));
+		}
+	}
+
+	mPositions.clear();
+
+	if (lDegenerateTriangle)
+	{
+		mIndicesAdjacent.clear();
+		std::cerr << "\tWARNING: Mesh \"" << this->name << "\" has holes and/or boundaries.\n"
+			<< "\tSilhouette detection algorithm will not work.\n";
+	}
+	else
+	{
+		for (const auto& lKeyValue : lPositionToIndexMap)
+		{
+			mPositions.push_back(lKeyValue.first);
+		}
+		std::cerr << "\tNumber of points: " << mPositions.size() << '\n';
+		std::cerr << "\tNumber of adjacency indices: " << mIndicesAdjacent.size()
+			<< " (saved " << static_cast<float>(mPositions.size()) 
+			/ static_cast<float>(mIndicesAdjacent.size()) << ")\n";
 	}
 }
 
@@ -775,57 +873,5 @@ void Mesh::uploadData()
 	gtBufferData(GL_ARRAY_BUFFER, mPositions, lUsageHint);
 	Mesh::vec3f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_0);
 }
-
-// void Mesh::setFromSerialized(
-// 	const std::vector<GLuint>& indices,
-// 	const std::vector<Mesh::vec4f>& position_XYZ_uv_X,
-// 	const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y)
-// {
-// 	// Don't set the count, the bounding box and wether we have tangents.
-// 	constexpr GLenum lUsageHint = GL_STATIC_DRAW;
-
-// 	// Enable the Vertex Array Object.
-// 	glBindVertexArray(mVertexArrayObject);
-
-// 	// Upload the (packed) vertex data in separate buffers to the GPU.
-// 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
-// 	gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
-// 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_0);
-// 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
-// 	gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
-// 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_1);
-
-// 	// Upload the indices for the arrays to the GPU and remember the count.
-// 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
-// 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, lUsageHint);
-// }
-
-// void Mesh::setFromSerialized(
-// 	const std::vector<GLuint>& indices,
-// 	const std::vector<Mesh::vec4f>& position_XYZ_uv_X,
-// 	const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y,
-// 	const std::vector<Mesh::vec4f>& tangent_XYZ_handedness)
-// {
-// 	// Don't set the count, the bounding box and wether we have tangents.
-// 	constexpr GLenum lUsageHint = GL_STATIC_DRAW;
-
-// 	// Enable the Vertex Array Object.
-// 	glBindVertexArray(mVertexArrayObject);
-
-// 	// Upload the (packed) vertex data in separate buffers to the GPU.
-// 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
-// 	gtBufferData(GL_ARRAY_BUFFER, position_XYZ_uv_X, lUsageHint);
-// 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_0);
-// 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
-// 	gtBufferData(GL_ARRAY_BUFFER, normal_XYZ_uv_Y, lUsageHint);
-// 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_1);
-// 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_TAN_XYZ_HAND]);
-// 	gtBufferData(GL_ARRAY_BUFFER, tangent_XYZ_handedness, lUsageHint);
-// 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_2);
-
-// 	// Upload the indices for the arrays to the GPU and remember the count.
-// 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
-// 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, lUsageHint);
-// }
 
 } // namespace gintonic

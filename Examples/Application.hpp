@@ -60,7 +60,7 @@ int main(int argc, char* argv[])                                    \
 			lDerivedApplicationName.renderUpdate();                 \
 		}                                                           \
 	}                                                               \
-	catch (const gintonic::exception& lException)                   \
+	catch (const std::exception& lException)                        \
 	{                                                               \
 		std::cerr << lException.what() << '\n';                     \
 		return EXIT_FAILURE;                                        \

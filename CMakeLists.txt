@@ -67,7 +67,6 @@ endif ()
 find_package(Freetype REQUIRED)
 find_package(FBX REQUIRED)
 find_package(SDL2 REQUIRED)
-
 find_package(Doxygen)
 
 if (NOT DOXYGEN_FOUND)
@@ -77,27 +76,25 @@ else ()
 endif ()
 
 option(WITH_PROFILING "Profile various math functions." OFF)
+
 option(WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
+
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
 	option(ENABLE_DEBUG_TRACE "Enable debug tracing via the renderer." ON)
 else ()
 	option(ENABLE_DEBUG_TRACE "Enable debug tracing via the renderer." OFF)
 endif ()
+
 option(HIDE_CONSOLE "Hide the console on Windows." ON)
+
 option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output to the renderer's error stream." ${ENABLE_DEBUG_TRACE})
 
-configure_file(Source/config.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.hpp)
-add_library(gintonic ${src_files})
 if (WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SCL_SECURE_NO_WARNINGS /DNOMINMAX /D_USE_MATH_DEFINES /DBOOST_ALL_NO_LIB /arch:SSE")
 else ()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -msse3")
 endif ()
-set_target_properties(gintonic PROPERTIES INSTALL_RPATH "")
 
-if (WIN32 AND HIDE_CONSOLE)
-	set_target_properties(gintonic PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
-endif ()
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(ENABLE_DEBUG_TRACE ON CACHE BOOL "Enable debug tracing via the renderer.")	
 endif ()
@@ -120,6 +117,16 @@ include_directories(
 	"Source/lua-5.3.1/src" # For Lua
 	)
 
+configure_file(Source/config.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.hpp)
+
+add_library(gintonic ${src_files})
+
+# set_target_properties(gintonic PROPERTIES INSTALL_RPATH "")
+
+if (WIN32 AND HIDE_CONSOLE)
+	set_target_properties(gintonic PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+endif ()
+
 if (WIN32)
 	target_link_libraries(
 		gintonic 
@@ -138,7 +145,7 @@ elseif (APPLE)
 		${JPEG_LIBRARIES} 
 		${PNG_LIBRARIES} 
 		${FREETYPE_LIBRARIES}
-		${FBX_LIBRARY_DEBUG} 
+		${FBX_LIBRARY} 
 		${CMAKE_THREAD_LIBS_INIT})
 else ()
 	target_link_libraries(
@@ -149,16 +156,10 @@ else ()
 		${JPEG_LIBRARIES} 
 		${PNG_LIBRARIES} 
 		${FREETYPE_LIBRARIES}
-		${FBX_LIBRARY_DEBUG} 
+		${FBX_LIBRARY} 
 		${CMAKE_THREAD_LIBS_INIT}
 		-ldl)
 endif ()
-
-function(target_link_with_gintonic targetName)
-
-	target_link_libraries(${targetName} gintonic)
-
-endfunction(target_link_with_gintonic)
 
 add_subdirectory (Tools)
 add_subdirectory (Examples)

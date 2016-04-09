@@ -255,7 +255,9 @@ INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL2 REQUIRED_VARS SDL2_LIBRARY SDL2_INCLUDE_DIR)
 
 list(GET SDL2_LIBRARY 1 SDL2_DLL)
-string(REPLACE ".lib" ".dll" SDL2_DLL ${SDL2_DLL})
+if (WIN32)
+	string(REPLACE ".lib" ".dll" SDL2_DLL ${SDL2_DLL})
+endif ()
 
 mark_as_advanced(SDL2_FOUND)
 mark_as_advanced(SDL2MAIN_LIBRARY)

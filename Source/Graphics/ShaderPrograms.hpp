@@ -316,4 +316,16 @@ public:
 	virtual ~GUIShaderProgram() noexcept = default;
 };
 
+class SilhouetteShaderProgram
+: public ShaderProgramBase<SilhouetteShaderProgram>
+, public Uniform::matrixPVM
+, public Uniform::matrixVM
+, public Uniform::lightPosition
+, public Uniform::color
+{
+public:
+	SilhouetteShaderProgram();
+	virtual ~SilhouetteShaderProgram() noexcept = default;
+};
+
 } // namespace gintonic

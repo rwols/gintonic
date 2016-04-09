@@ -18,14 +18,12 @@ public:
 
 	virtual void bindDepthTextures() const noexcept;
 
-	inline virtual const mat4f& projectionMatrix() const noexcept { return mProjectionMatrix; }
+	inline virtual const mat4f& projectionMatrix() const noexcept { return mDummyMatrix; }
 
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
 private:
-	OpenGL::Framebuffer mFramebuffer[6];
-	OpenGL::TextureObject mTexture[6];
-	mat4f mProjectionMatrix;
+	mat4f mDummyMatrix = 1.0f;
 };
 
 } // namespace gintonic 

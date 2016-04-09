@@ -79,7 +79,7 @@ void Application::processCameraInput()
 		vec2f lMouseDelta(0.0f, 0.0f);
 		vec4f lFingerMotion = Renderer::fingerMotion();
 		
-		#ifdef APPLE
+		#ifdef __APPLE__
 
 		lMouseDelta += -vec2f(lFingerMotion.z, lFingerMotion.w) * 4.0f;
 

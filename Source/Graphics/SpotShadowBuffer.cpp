@@ -47,11 +47,15 @@ void SpotShadowBuffer::collect(
 	mFramebuffer.bind(GL_DRAW_FRAMEBUFFER);
 	glViewport(0, 0, SHADOW_QUALITY, SHADOW_QUALITY);
 	glClear(GL_DEPTH_BUFFER_BIT);
+	glCullFace(GL_FRONT);
+
+	const auto& lProgram = ShadowShaderProgram::get();
+	lProgram.activate();
 
 	for (const auto lGeometryEntity : shadowCastingGeometryEntities)
 	{
 		lProjectionViewModelMatrix = lProjectionViewMatrix * lGeometryEntity->globalTransform();
-		ShadowShaderProgram::get().setMatrixPVM(lProjectionViewModelMatrix);
+		lProgram.setMatrixPVM(lProjectionViewModelMatrix);
 		lGeometryEntity->mesh->draw();
 	}
 }
