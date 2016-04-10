@@ -46,7 +46,7 @@ public:
 		mSphere = std::make_shared<Entity>();
 		mSphere->name = "Sphere";
 		mSphere->material = lMaterial;
-		mSphere->mesh = Renderer::getUnitSphere();
+		mSphere->mesh = Renderer::getUnitCube();
 		mSphere->setTranslation(vec3f(0.0f, 2.0f, 0.0f));
 		mSphere->castShadow = true;
 		mRootEntity->addChild(mSphere);

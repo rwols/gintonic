@@ -30,7 +30,7 @@ void PointShadowBuffer::collect(
 	lProgram.setColor(vec3f(1.0f, 0.0f, 0.0f));
 	lProgram.setLightPosition(lLightPos);
 
-	glLineWidth(20.0f); // remove me
+	glLineWidth(2.0f); // remove me
 	glCullFace(GL_BACK);
 
 	for (const auto lGeometryEntity : shadowCastingGeometryEntities)
