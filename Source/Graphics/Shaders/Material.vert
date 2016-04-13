@@ -44,9 +44,10 @@ void main()
 
 	if (instancedRendering != 0)
 	{
-		gl_Position = iMatrixPVM * localPosition;
-		viewSpaceVertexPosition = (iMatrixVM * localPosition).xyz;
-		viewSpaceVertexNormal = iMatrixN * localNormal;
+		gl_Position             =  iMatrixPVM * localPosition;
+		viewSpaceVertexPosition = (iMatrixVM  * localPosition).xyz;
+		viewSpaceVertexNormal   =  iMatrixN   * localNormal;
+
 		if (hasTangentsAndBitangents != 0)
 		{
 			vec3 localTangent = vec3(iSlot2.xyz);
@@ -59,9 +60,10 @@ void main()
 	}
 	else
 	{
-		gl_Position = matrixPVM * localPosition;
-		viewSpaceVertexPosition = (matrixVM * localPosition).xyz;
-		viewSpaceVertexNormal = matrixN * localNormal;
+		gl_Position             =  matrixPVM * localPosition;
+		viewSpaceVertexPosition = (matrixVM  * localPosition).xyz;
+		viewSpaceVertexNormal   =  matrixN   * localNormal;
+		
 		if (hasTangentsAndBitangents != 0)
 		{
 			vec3 localTangent = vec3(iSlot2.xyz);

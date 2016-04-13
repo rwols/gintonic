@@ -31,7 +31,7 @@ SpotShadowBuffer::SpotShadowBuffer()
 }
 
 void SpotShadowBuffer::collect(
-	Entity& lightEntity, 
+	const Entity& lightEntity, 
 	const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) noexcept
 {
 	mProjectionMatrix.set_perspective

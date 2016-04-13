@@ -15,7 +15,7 @@ constexpr GLenum sTextureInternal[GeometryBuffer::kCount] =
 	GL_RGBA,             // kSpecular
 	GL_RGBA16F,          // kNormal
 	GL_RGB,              // kPostProcessing
-	GL_DEPTH_COMPONENT   // kDepth
+	GL_DEPTH24_STENCIL8  // kDepth
 };
 
 constexpr GLenum sTextureFormat[GeometryBuffer::kCount] = 
@@ -25,7 +25,7 @@ constexpr GLenum sTextureFormat[GeometryBuffer::kCount] =
 	GL_RGBA,           // kSpecular
 	GL_RGBA,           // kNormal
 	GL_RGB,            // kPostProcessing
-	GL_DEPTH_COMPONENT // kDepth
+	GL_DEPTH_STENCIL   // kDepth
 };
 
 constexpr GLenum sTextureType[GeometryBuffer::kCount] =
@@ -35,7 +35,7 @@ constexpr GLenum sTextureType[GeometryBuffer::kCount] =
 	GL_UNSIGNED_BYTE, // kSpecular
 	GL_FLOAT,         // kNormal
 	GL_UNSIGNED_BYTE, // kPostProcessing
-	GL_FLOAT          // kDepth
+	GL_UNSIGNED_INT_24_8_EXT  // kDepth
 };
 
 constexpr GLenum sAttachment[GeometryBuffer::kCount] =
@@ -45,7 +45,7 @@ constexpr GLenum sAttachment[GeometryBuffer::kCount] =
 	GL_COLOR_ATTACHMENT0 + GeometryBuffer::kSpecular,       // kSpecular
 	GL_COLOR_ATTACHMENT0 + GeometryBuffer::kNormal,         // kNormal
 	GL_COLOR_ATTACHMENT0 + GeometryBuffer::kPostProcessing, // kPostProcessing
-	GL_DEPTH_ATTACHMENT                                     // kDepth
+	GL_DEPTH_STENCIL_ATTACHMENT                             // kDepth
 };
 
 constexpr GLenum sDrawBuffers[GeometryBuffer::kPostProcessing] = 
@@ -54,7 +54,7 @@ constexpr GLenum sDrawBuffers[GeometryBuffer::kPostProcessing] =
 	GL_COLOR_ATTACHMENT0 + GeometryBuffer::kDiffuse, 
 	GL_COLOR_ATTACHMENT0 + GeometryBuffer::kSpecular, 
 	GL_COLOR_ATTACHMENT0 + GeometryBuffer::kNormal
-}; 
+};
 
 GeometryBuffer::GeometryBuffer(const int width, const int height)
 {
@@ -79,7 +79,7 @@ void GeometryBuffer::prepareGeometryPhase() const noexcept
 {
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFramebuffer);
 	glDrawBuffers(kPostProcessing, sDrawBuffers);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void GeometryBuffer::prepareLightingPhase() const noexcept
@@ -93,6 +93,16 @@ void GeometryBuffer::prepareLightingPhase() const noexcept
 void GeometryBuffer::preparePostProcessingPhase() const noexcept
 {
 	mTextures[kPostProcessing].bind(GL_TEXTURE_2D, 0);
+}
+
+void GeometryBuffer::beginStencilPass() const noexcept
+{
+	glDrawBuffer(GL_NONE);
+}
+
+void GeometryBuffer::endStencilPass() const noexcept
+{
+	glDrawBuffer(GL_COLOR_ATTACHMENT0 + kPostProcessing);
 }
 
 void GeometryBuffer::blitDrawbuffersToScreen(const int width, const int height) const noexcept

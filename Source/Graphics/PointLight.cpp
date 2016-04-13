@@ -44,72 +44,89 @@ vec4f PointLight::getAttenuation() const noexcept
 	return mAttenuation;
 }
 
-void PointLight::shine(const Entity& e) const noexcept
+void PointLight::shine(
+	const Entity& lightEntity, 
+	const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) const noexcept
 {
-	// The transformation data is delivered in WORLD coordinates.
+	// const auto& lSilhouetteProgram   = SilhouetteShaderProgram::get();
+	const auto& lShadowVolumeProgram = ShadowVolumeShaderProgram::get();
+	const auto& lPointLightProgram   = PointLightShaderProgram::get();
 
-	SQT lSphereTransform;
+	vec3f lLightPos;
 
-	lSphereTransform.scale = mCutoffRadius;
-	lSphereTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
-	lSphereTransform.translation = (e.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
+	if (lightEntity.castShadow)
+	{
+		// Go to world space.
+		lLightPos = (lightEntity.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
 
-	const vec3f lLightPos = (Renderer::matrix_V() * vec4f(lSphereTransform.translation, 1.0f)).data;
+		Renderer::beginStencilPass();
+		glStencilFunc(GL_ALWAYS, 0, 0xff);
+		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+		glClear(GL_STENCIL_BUFFER_BIT); // Clear the stencil buffer.
+	
+		lShadowVolumeProgram.activate();
 
-	Renderer::setModelMatrix(lSphereTransform);
+		vec3f lLightPosInLocalCoordinates;
+		const auto lMatrixPV = Renderer::getCameraEntity()->camera->projectionMatrix() * Renderer::matrix_V();
+		for (const auto lGeometryEntity : shadowCastingGeometryEntities)
+		{
+			// Go from world space to the local space of the mesh.
+			lLightPosInLocalCoordinates = (lGeometryEntity->getViewMatrix() * vec4f(lLightPos, 1.0f)).data;
+			lShadowVolumeProgram.setLightPosition(lLightPosInLocalCoordinates);
+			lShadowVolumeProgram.setMatrixPVM( lMatrixPV * lGeometryEntity->globalTransform() );
+			lGeometryEntity->mesh->drawAdjacent();
+		}
 
-	const auto& lPointShader = PointLightShaderProgram::get();
+		glStencilFunc(GL_EQUAL, 0x0, 0xff); // Draw only if the corresponding stencil value is zero.
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP); // Prevent update to the stencil buffer.
+		Renderer::endStencilPass();
 
-	lPointShader.activate();
-	lPointShader.setViewportSize(Renderer::viewportSize());
-	lPointShader.setGeometryBufferPositionTexture(Renderer::GBUFFER_POSITION);
-	lPointShader.setGeometryBufferDiffuseTexture(Renderer::GBUFFER_DIFFUSE);
-	lPointShader.setGeometryBufferSpecularTexture(Renderer::GBUFFER_SPECULAR);
-	lPointShader.setGeometryBufferNormalTexture(Renderer::GBUFFER_NORMAL);
-	lPointShader.setLightIntensity(this->mIntensity);
-	lPointShader.setLightPosition(lLightPos);
-	lPointShader.setLightAttenuation(mAttenuation);
-	// lPointShader.setMatrixPVM(Renderer::matrix_PVM());
-	lPointShader.setMatrixPVM(mat4f(1.0f));
+		// lSilhouetteProgram.activate();
+		// lSilhouetteProgram.setColor(vec3f(mIntensity.data));
 
-	// // Is the camera inside or outside the sphere?
-	// const auto lDist = gintonic::distance(Renderer::getCameraPosition(), lSphereTransform.translation);
+		// for (const auto lGeometryEntity : shadowCastingGeometryEntities)
+		// {
+		// 	// Go from world space to the local space of the mesh.
+		// 	lLightPosInLocalCoordinates = (lGeometryEntity->getViewMatrix() * vec4f(lLightPos, 1.0f)).data;
+		// 	lSilhouetteProgram.setLightPosition(lLightPosInLocalCoordinates);
+		// 	lSilhouetteProgram.setMatrixPVM( lMatrixPV * lGeometryEntity->globalTransform() );
+		// 	lGeometryEntity->mesh->drawAdjacent();
+		// }
+		
+		// Move the light from world space to view space.
+		lLightPos = (Renderer::matrix_V() * vec4f(lLightPos, 1.0f)).data;
+	}
+	else
+	{
+		// Move the light directly all the way to view space.
+		lLightPos = (Renderer::matrix_V() * lightEntity.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
+	}
 
-	// // EPSILON is defined at the top of the file.
-	// const auto lCutoffWithEpsilon = mCutoffRadius + EPSILON * mCutoffRadius;
-
-	// if (lDist < lCutoffWithEpsilon)
-	// {
-	// 	// Inside
-	// 	#ifdef DEBUG_POINT_LIGHTS
-	// 	lPointShader.setDebugFlag(1);
-	// 	#endif
-	// 	glCullFace(GL_FRONT);
-	// }
-	// else
-	// {
-	// 	// Outside
-	// 	#ifdef DEBUG_POINT_LIGHTS
-	// 	lPointShader.setDebugFlag(2);
-	// 	#endif
-	// 	glCullFace(GL_BACK);
-	// }
-	// #undef EPSILON
+	lPointLightProgram.activate();
+	lPointLightProgram.setViewportSize(Renderer::viewportSize());
+	lPointLightProgram.setGeometryBufferPositionTexture(Renderer::GBUFFER_POSITION);
+	lPointLightProgram.setGeometryBufferDiffuseTexture(Renderer::GBUFFER_DIFFUSE);
+	lPointLightProgram.setGeometryBufferSpecularTexture(Renderer::GBUFFER_SPECULAR);
+	lPointLightProgram.setGeometryBufferNormalTexture(Renderer::GBUFFER_NORMAL);
+	lPointLightProgram.setLightIntensity(this->mIntensity);
+	lPointLightProgram.setLightPosition(lLightPos);
+	lPointLightProgram.setLightAttenuation(mAttenuation);
+	lPointLightProgram.setMatrixPVM(mat4f(1.0f));
 
 	#ifdef DEBUG_POINT_LIGHTS
 
-	lPointShader.setDebugFlag(0);
+	lPointLightProgram.setDebugFlag(0);
 
 	Renderer::cerr() 
 		<< "Light name:           " << this->name << '\n'
 		<< "lightIntensity:       " << std::fixed << std::setprecision(2) << mIntensity << '\n'
-		<< "lightPosition:        " << lLightPos << '\n'
+		<< "lightPosition:        " << lLightPosition << '\n'
 		<< "lightAttenuation:     " << getAttenuation() << '\n'
-		<< "lightCastShadow:      " << (e.shadowBuffer ? "YES" : "NO") << "\n\n";
+		<< "lightCastShadow:      " << (lightEntity.shadowBuffer ? "YES" : "NO") << "\n\n";
 
 	#endif
 	
-	// Renderer::getUnitSphere()->draw();
 	Renderer::getUnitQuad()->draw();
 }
 

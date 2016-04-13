@@ -741,13 +741,21 @@ void Mesh::computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh
 
 void Mesh::computeAdjacencyFromPositionInformation()
 {
+	struct SimpleEdge
+	{
+		GLuint vertexIndex[2];
+		GLuint triangleIndex[2];
+	};
+
+	std::vector<SimpleEdge> lSimpleEdges;
+
 	std::map<Edge, NeighborPair> lEdgeToNeighborMap;
 	std::map<Mesh::vec3f, GLuint> lPositionToIndexMap;
 	std::set<Triangle> lTriangles;
 
 	assert(0.0f == -0.0f);
-
 	assert(mIndices.size() % 3 == 0);
+
 	for (std::size_t i = 0; i < mIndices.size(); i += 3)
 	{
 		Triangle lTriangle;
@@ -757,22 +765,17 @@ void Mesh::computeAdjacencyFromPositionInformation()
 		for (GLuint j = 0; j < 3; ++j)
 		{
 			const Mesh::vec4f lPosition4(mPosition_XYZ_uv_X[mIndices[i + j]]);
-			Mesh::vec3f lPosition(lPosition4.x, lPosition4.y, lPosition4.z);
-
-			// Turn negative zero into positive zero.
-			// We get extremely subtle bugs otherwise :-(
-			if (lPosition.x == -0.0f) lPosition.x = 0.0f;
-			if (lPosition.y == -0.0f) lPosition.y = 0.0f;
-			if (lPosition.z == -0.0f) lPosition.z = 0.0f;
-
+			const Mesh::vec3f lPosition(lPosition4.x, lPosition4.y, lPosition4.z);
 			std::cerr << lPosition << ' ';
 
 			GLuint lIndex;
-			auto lPosIter = lPositionToIndexMap.find(lPosition); // O(log n) complexity
+
+			const auto lPosIter = lPositionToIndexMap.find(lPosition); // O(log n) complexity
 			if (lPosIter == lPositionToIndexMap.end())
 			{
 				lIndex = static_cast<GLuint>(lPositionToIndexMap.size());
 				lPositionToIndexMap.insert({lPosition, lIndex});
+				mPositions.push_back(lPosition);
 			}
 			else
 			{
@@ -782,7 +785,7 @@ void Mesh::computeAdjacencyFromPositionInformation()
 			lTriangle[j] = lIndex;
 		}
 
-		std::cerr << " --> " << lTriangle << '\n';
+		std::cerr << "--> " << lTriangle << '\n';
 
 		const Edge e1(lTriangle[0], lTriangle[1]);
 		const Edge e2(lTriangle[1], lTriangle[2]);
@@ -795,7 +798,7 @@ void Mesh::computeAdjacencyFromPositionInformation()
 
 	for (const auto& lKeyValue : lEdgeToNeighborMap)
 	{
-		std::cout << lKeyValue.first << " => " << lKeyValue.second << '\n';
+		std::cerr << lKeyValue.first << " => " << lKeyValue.second << '\n';
 	}
 
 	mIndicesAdjacent.clear();
@@ -807,14 +810,16 @@ void Mesh::computeAdjacencyFromPositionInformation()
 		{
 			break;
 		}
+		std::cerr << "Adjacency triangle: [ ";
 		for (GLuint j = 0; j < 3; ++j)
 		{
 			const Edge lEdge(lTriangle[j], lTriangle[(j + 1) % 3]);
-			if (lEdgeToNeighborMap.find(lEdge) == lEdgeToNeighborMap.end())
+			const auto lNeighborFindResult = lEdgeToNeighborMap.find(lEdge);
+			if (lNeighborFindResult == lEdgeToNeighborMap.end())
 			{
 				throw std::logic_error("Adjacency algorithm failure");
 			}
-			const auto lNeighbor = lEdgeToNeighborMap[lEdge];
+			const auto lNeighbor = lNeighborFindResult->second;
 			const auto* lOtherTriangle = lNeighbor.getOther(&lTriangle);
 			if (!lOtherTriangle)
 			{
@@ -824,23 +829,22 @@ void Mesh::computeAdjacencyFromPositionInformation()
 			}
 			mIndicesAdjacent.push_back(lTriangle[j]);
 			mIndicesAdjacent.push_back(lOtherTriangle->getOppositeIndex(lEdge));
+			std::cerr << lTriangle[j] << ' ' << lOtherTriangle->getOppositeIndex(lEdge) << ' ';
 		}
+		std::cerr << "]\n";
 	}
 
-	mPositions.clear();
+	
 
 	if (lDegenerateTriangle)
 	{
+		mPositions.clear();
 		mIndicesAdjacent.clear();
 		std::cerr << "\tWARNING: Mesh \"" << this->name << "\" has holes and/or boundaries.\n"
 			<< "\tSilhouette detection algorithm will not work.\n";
 	}
 	else
 	{
-		for (const auto& lKeyValue : lPositionToIndexMap)
-		{
-			mPositions.push_back(lKeyValue.first);
-		}
 		std::cerr << "\tNumber of points: " << mPositions.size() << '\n';
 		std::cerr << "\tNumber of adjacency indices: " << mIndicesAdjacent.size()
 			<< " (saved " << static_cast<float>(mPositions.size()) 

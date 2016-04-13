@@ -32,18 +32,10 @@ public:
 
 	/// Destructor.
 	virtual ~DirectionalLight() noexcept = default;
-
-	/*
-	 * @brief Shine the light given the Entity's global transformation.
-	 *
-	 * @details In the case of a directional light, only the rotational part
-	 * of the global transformation is used, since a directional light has
-	 * no intrinsic position. A directional light only cares about its own
-	 * direction and the normal vector of the surface to light.
-	 *
-	 * @param e The Entity to use the global transform of.
-	 */
-	virtual void shine(const Entity& e) const noexcept;
+	
+	virtual void shine(
+		const Entity& lightEntity, 
+		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) const noexcept;
 
 	virtual void initializeShadowBuffer(Entity& lightEntity) const;
 

@@ -25,10 +25,12 @@ DirectionalLight::DirectionalLight(const vec4f& intensity)
 	/* Empty on purpose. */
 }
 
-void DirectionalLight::shine(const Entity& e) const noexcept
+void DirectionalLight::shine(
+	const Entity& lightEntity, 
+	const std::vector<std::shared_ptr<Entity>>& /*shadowCastingGeometryEntities*/) const noexcept
 {
 
-	const vec3f lLightDir = vec3f((Renderer::matrix_V() * (e.globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f))).data).normalize();
+	const vec3f lLightDir = vec3f((Renderer::matrix_V() * (lightEntity.globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f))).data).normalize();
 	
 	const auto& lProgram = DirectionalLightShaderProgram::get();
 
@@ -42,10 +44,10 @@ void DirectionalLight::shine(const Entity& e) const noexcept
 	lProgram.setLightIntensity(this->mIntensity);
 	lProgram.setLightDirection(lLightDir);
 
-	if (e.shadowBuffer)
+	if (lightEntity.shadowBuffer)
 	{
-		e.shadowBuffer->bindDepthTextures();
-		const auto lShadowMatrix = e.shadowBuffer->projectionMatrix() * e.getViewMatrix() * Renderer::getCameraEntity()->globalTransform();
+		lightEntity.shadowBuffer->bindDepthTextures();
+		const auto lShadowMatrix = lightEntity.shadowBuffer->projectionMatrix() * lightEntity.getViewMatrix() * Renderer::getCameraEntity()->globalTransform();
 		lProgram.setLightCastShadow(1);
 		lProgram.setLightShadowMatrix(lShadowMatrix);
 	}
@@ -60,7 +62,7 @@ void DirectionalLight::shine(const Entity& e) const noexcept
 		<< "Light name:           " << this->name << '\n'
 		<< "lightIntensity:       " << std::fixed << std::setprecision(2) << mIntensity << '\n'
 		<< "lightDirection:       " << lLightDir << '\n'
-		<< "lightCastShadow:      " << (e.shadowBuffer ? "YES" : "NO") << "\n\n";
+		<< "lightCastShadow:      " << (lightEntity.shadowBuffer ? "YES" : "NO") << "\n\n";
 
 	#endif
 

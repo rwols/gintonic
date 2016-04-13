@@ -72,6 +72,19 @@ public:
 	void preparePostProcessingPhase() const noexcept;
 
 	/**
+	 * @brief Set up the GeometryBuffer for stencil
+	 * pass tests. This assumes you are in the lighting
+	 * phase.
+	 */
+	void beginStencilPass() const noexcept;
+
+	/**
+	 * @brief Restore the state of the GeometryBuffer
+	 * back to the normal lighting phase.
+	 */
+	void endStencilPass() const noexcept;
+
+	/**
 	 * @brief Blit the first four textures to the screen.
 	 * @param [in] width The renderer width.
 	 * @param [in] height The renderer height.

@@ -19,28 +19,33 @@ PointShadowBuffer::PointShadowBuffer()
 }
 
 void PointShadowBuffer::collect(
-	Entity& lightEntity, 
+	const Entity& lightEntity, 
 	const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) noexcept
 {
-	const vec3f lLightPos = (Renderer::matrix_V() * lightEntity.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
+	// const vec3f lLightPos = lightEntity.globalTransform().data[0];
 
-	const auto& lProgram = SilhouetteShaderProgram::get();
+	// // const auto& lProgram = SilhouetteShaderProgram::get();
+	// const auto& lProgram = ShadowVolumeShaderProgram::get();
 
-	lProgram.activate();
-	lProgram.setColor(vec3f(1.0f, 0.0f, 0.0f));
-	lProgram.setLightPosition(lLightPos);
+	// lProgram.activate();
+	// // lProgram.setColor(vec3f(1.0f, 1.0f, 1.0f));
+	// lProgram.setLightPosition(lLightPos); // in WORLD coordinates
 
-	glLineWidth(2.0f); // remove me
-	glCullFace(GL_BACK);
+	// glLineWidth(2.0f); // remove me
+	// glCullFace(GL_BACK);
 
-	for (const auto lGeometryEntity : shadowCastingGeometryEntities)
-	{
-		Renderer::setModelMatrix(lGeometryEntity->globalTransform());
-		lProgram.setMatrixPVM(Renderer::matrix_PVM());
-		lProgram.setMatrixVM(Renderer::matrix_VM());
+	// Renderer::cerr() << "Light position: " << lLightPos << '\n';
+
+	// for (const auto lGeometryEntity : shadowCastingGeometryEntities)
+	// {
+	// 	Renderer::setModelMatrix(lGeometryEntity->globalTransform());
+	// 	lProgram.setMatrixPVM(Renderer::matrix_PVM());
+	// 	// lProgram.setMatrixVM(Renderer::matrix_VM());
+	// 	// lProgram.setMatrixPVM(Renderer::matrix_P() * Renderer::matrix_V() * lGeometryEntity->globalTransform());
+	// 	// lProgram.setMatrixVM(Renderer::matrix_V() * lGeometryEntity->globalTransform());
 		
-		lGeometryEntity->mesh->drawAdjacent();
-	}
+	// 	lGeometryEntity->mesh->drawAdjacent();
+	// }
 }
 
 void PointShadowBuffer::bindDepthTextures() const noexcept

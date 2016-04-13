@@ -11,6 +11,8 @@
 #include "ShaderPrograms.hpp"
 #include "Material.hpp"
 #include "Light.hpp"
+#include "PointLight.hpp"
+#include "SpotLight.hpp"
 
 #include "../Camera.hpp"
 #include "../Entity.hpp"
@@ -22,6 +24,9 @@
 #ifdef BOOST_MSVC
 	#include <Objbase.h> // for CoInitializeEx
 #endif
+
+#define NUM_SUBDIVISIONS 2
+#define LINE_WIDTH 8.0f
 
 #define FONT_FILE_LOCATION "Resources/Inconsolata-Regular.ttf"
 
@@ -46,6 +51,7 @@ GeometryBuffer* sGeometryBuffer = nullptr;
 std::shared_ptr<Camera> sDefaultCamera = std::make_shared<Camera>();
 
 std::vector<std::shared_ptr<Entity>> sShadowCastingLightEntities;
+std::vector<std::shared_ptr<Entity>> sShadowCastingPointLightEntities;
 std::vector<std::shared_ptr<Entity>> sShadowCastingGeometryEntities;
 std::vector<std::shared_ptr<Entity>> sNonShadowCastingLightEntities;
 std::vector<std::shared_ptr<Entity>> sNonShadowCastingGeometryEntities;
@@ -74,12 +80,29 @@ public:
 		{
 			if (entity->light)
 			{
-				sShadowCastingLightEntities.push_back(entity);
-				if (!entity->shadowBuffer)
+				if (dynamic_cast<SpotLight*>(entity->light.get()))
 				{
-					entity->light->initializeShadowBuffer(*entity);
+					sShadowCastingLightEntities.push_back(entity);
+					if (!entity->shadowBuffer)
+					{
+						entity->light->initializeShadowBuffer(*entity);
+					}
+					assert(entity->shadowBuffer);
 				}
-				assert(entity->shadowBuffer);
+				// Point lights need to be treated separately.
+				if (dynamic_cast<PointLight*>(entity->light.get()))
+				{
+					sShadowCastingPointLightEntities.push_back(entity);
+				}
+				else
+				{
+					sShadowCastingLightEntities.push_back(entity);
+					if (!entity->shadowBuffer)
+					{
+						entity->light->initializeShadowBuffer(*entity);
+					}
+					assert(entity->shadowBuffer);
+				}
 			}
 			if (entity->material && entity->mesh)
 			{
@@ -255,6 +278,7 @@ void Renderer::initialize(
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	// SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	sContext = SDL_GL_CreateContext(sWindow);
 	if (!sContext)
@@ -290,6 +314,7 @@ void Renderer::initialize(
 	
 	vsync(false);
 	glClearColor(0.03f, 0.03f, 0.03f, 0.0f);
+	glClearDepth(1.0f);
 	
 	sStartTime = clock_type::now();
 
@@ -348,6 +373,8 @@ void Renderer::initialize(
 	sDebugErrorStream->open(sDebugFont);
 	sDebugLogStream->open(sDebugFont);
 	#endif
+
+	glLineWidth(LINE_WIDTH);
 }
 
 void Renderer::initDummy(const bool construct_shaders)
@@ -428,7 +455,6 @@ void Renderer::setCameraEntity(std::shared_ptr<Entity> cameraEntity)
 	sCameraEntity = std::move(cameraEntity);
 	if (!sCameraEntity->camera)
 	{
-		std::cout << sCameraEntity->name << " had no camera component!\n";
 		sCameraEntity->camera = sDefaultCamera;
 	}
 }
@@ -477,6 +503,16 @@ void Renderer::beginTextInput() noexcept
 void Renderer::endTextInput() noexcept
 {
 	SDL_StopTextInput();
+}
+
+void Renderer::beginStencilPass() noexcept
+{
+	sGeometryBuffer->beginStencilPass();
+}
+
+void Renderer::endStencilPass() noexcept
+{
+	sGeometryBuffer->endStencilPass();
 }
 
 void Renderer::setWireframeMode(const bool yesOrNo) noexcept
@@ -592,10 +628,11 @@ void Renderer::update() noexcept
 
 	sGeometryBuffer->prepareGeometryPhase();
 
-	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
 	glCullFace(GL_BACK);
 	
 	if (sViewGeometryBuffers) // <--- debug path
@@ -649,11 +686,22 @@ void Renderer::update() noexcept
 		sGeometryBuffer->prepareLightingPhase();
 		glViewport(0, 0, sWidth, sHeight);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_ONE, GL_ONE);
-
+		glDisable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_CLAMP);
+		glEnable(GL_STENCIL_TEST);
+		glEnable(GL_DEPTH_CLAMP);
+		glDepthMask(GL_FALSE);
+		renderPointLights();
+		glDepthMask(GL_TRUE);
+		glDisable(GL_DEPTH_CLAMP);
+		glDisable(GL_STENCIL_TEST);
+		glDisable(GL_DEPTH_CLAMP);
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 		renderLights();
 		
 		sGeometryBuffer->finalize(sWidth, sHeight);
@@ -775,6 +823,14 @@ void Renderer::renderShadows() noexcept
 	}
 }
 
+void Renderer::renderPointLights() noexcept
+{
+	for (const auto lEntity : sShadowCastingPointLightEntities)
+	{
+		lEntity->light->shine(*lEntity, sShadowCastingGeometryEntities);
+	}
+}
+
 void Renderer::renderLights() noexcept
 {
 	// Ambient lighting
@@ -787,11 +843,11 @@ void Renderer::renderLights() noexcept
 	
 	for (auto lEntity : sShadowCastingLightEntities)
 	{
-		lEntity->light->shine(*lEntity);
+		lEntity->light->shine(*lEntity, sShadowCastingGeometryEntities);
 	}
 	for (auto lEntity : sNonShadowCastingLightEntities)
 	{
-		lEntity->light->shine(*lEntity);
+		lEntity->light->shine(*lEntity, sShadowCastingGeometryEntities);
 	}
 }
 
@@ -808,6 +864,7 @@ void Renderer::renderGUI() noexcept
 void Renderer::finalizeRendering() noexcept
 {
 	sShadowCastingLightEntities.clear();
+	sShadowCastingPointLightEntities.clear();
 	sShadowCastingGeometryEntities.clear();
 	sNonShadowCastingLightEntities.clear();
 	sNonShadowCastingGeometryEntities.clear();
@@ -1134,6 +1191,7 @@ void Renderer::init_shaders()
 	INIT_SHADER(FlatTextShaderProgram);
 	INIT_SHADER(GUIShaderProgram);
 	INIT_SHADER(SilhouetteShaderProgram);
+	INIT_SHADER(ShadowVolumeShaderProgram);
 }
 
 
@@ -1623,7 +1681,7 @@ void Renderer::initializeBasicShapes()
 
 	GLuint lCounter(0);
 	GLfloat s, t;
-	GLsizei lSubdivisions = 10	;
+	GLsizei lSubdivisions = NUM_SUBDIVISIONS;
 	GLfloat lSubdivs = static_cast<GLfloat>(lSubdivisions);
 	gintonic::vec3f lPosition;
 	gintonic::vec2f lTexCoord;

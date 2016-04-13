@@ -41,7 +41,9 @@ SpotLight::SpotLight(const vec4f& intensity, const vec4f& attenuation, const flo
 	/* Empty on purpose. */
 }
 
-void SpotLight::shine(const Entity& e) const noexcept
+void SpotLight::shine(
+	const Entity& lightEntity, 
+	const std::vector<std::shared_ptr<Entity>>& /*shadowCastingGeometryEntities*/) const noexcept
 {
 	// The transformation data is delivered in WORLD coordinates.
 
@@ -49,10 +51,10 @@ void SpotLight::shine(const Entity& e) const noexcept
 
 	lSphereTransform.scale = getCutoffRadius();
 	lSphereTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
-	lSphereTransform.translation = (e.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
+	lSphereTransform.translation = (lightEntity.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
 
 	const vec3f lLightPos = (Renderer::matrix_V() * vec4f(lSphereTransform.translation, 1.0f)).data;
-	const vec3f lLightDir = vec3f((Renderer::matrix_V() * (e.globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f))).data).normalize();
+	const vec3f lLightDir = vec3f((Renderer::matrix_V() * (lightEntity.globalTransform() * vec4f(0.0f, 0.0f, -1.0f, 0.0f))).data).normalize();
 
 	Renderer::setModelMatrix(lSphereTransform);
 
@@ -72,10 +74,10 @@ void SpotLight::shine(const Entity& e) const noexcept
 	lProgram.setLightCosineHalfAngle(mCosineHalfAngle);
 	lProgram.setMatrixPVM(Renderer::matrix_PVM());
 
-	if (e.shadowBuffer)
+	if (lightEntity.shadowBuffer)
 	{
-		e.shadowBuffer->bindDepthTextures();
-		const auto lShadowMatrix = e.shadowBuffer->projectionMatrix() * e.getViewMatrix() * Renderer::getCameraEntity()->globalTransform();
+		lightEntity.shadowBuffer->bindDepthTextures();
+		const auto lShadowMatrix = lightEntity.shadowBuffer->projectionMatrix() * lightEntity.getViewMatrix() * Renderer::getCameraEntity()->globalTransform();
 		lProgram.setLightCastShadow(1);
 		lProgram.setLightShadowMatrix(lShadowMatrix);
 	}
@@ -93,7 +95,7 @@ void SpotLight::shine(const Entity& e) const noexcept
 		<< "lightDirection:       " << lLightDir << '\n'
 		<< "lightAttenuation:     " << getAttenuation() << '\n'
 		<< "lightCosineHalfAngle: " << mCosineHalfAngle << '\n'
-		<< "lightCastShadow:      " << (e.shadowBuffer ? "YES" : "NO") << "\n\n";
+		<< "lightCastShadow:      " << (lightEntity.shadowBuffer ? "YES" : "NO") << "\n\n";
 
 	#endif
 

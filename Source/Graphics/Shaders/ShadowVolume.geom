@@ -1,12 +1,13 @@
 
 #version 330 core
 
-#define TEST_EPSILON 0.001f
+#define DIR_EPSILON 0.00001f
+#define TEST_EPSILON 0.0f
 
 #define getVertex(index) gl_in[index].gl_Position
 
 layout(triangles_adjacency) in;
-layout(line_strip, max_vertices = 6) out;
+layout(triangle_strip, max_vertices = 18) out;
 
 uniform vec3 lightPosition; // in LOCAL coordinates
 uniform mat4 matrixPVM;
@@ -24,15 +25,52 @@ vec4 normalOfTriangle(in int firstIndex, in int secondIndex, in int thirdIndex)
 	);
 }
 
-void emitLine(int startIndex, int endIndex)
+void emitQuadToInfinity(in vec4 beginVertex, in vec4 endVertex)
 {
-	gl_Position = matrixPVM * getVertex(startIndex);
-	EmitVertex();
+	vec4 lLightPos4 = vec4(lightPosition, 1.0f);
+	vec4 lDirection = beginVertex - lLightPos4;
 
-	gl_Position = matrixPVM * getVertex(endIndex);
+	gl_Position = matrixPVM * beginVertex;
 	EmitVertex();
-
+	gl_Position = matrixPVM * (beginVertex - lLightPos4);
+	EmitVertex();
+	gl_Position = matrixPVM * endVertex;
+	EmitVertex();
+	gl_Position = matrixPVM * (endVertex - lLightPos4);
+	EmitVertex();
 	EndPrimitive();
+}
+
+void emitQuadToInfinity(in int beginIndex, in int endIndex)
+{
+	emitQuadToInfinity(getVertex(beginIndex), getVertex(endIndex));
+}
+
+void emitCaps()
+{
+	vec4 lLightPos4 = vec4(lightPosition, 1.0f);
+	vec4 lDirection = getVertex(0) - lLightPos4;
+
+	// FRONT CAP: Just a tiny bit *away* from the original triangle.
+	gl_Position = matrixPVM * (getVertex(0) + lDirection * DIR_EPSILON);
+	EmitVertex();
+	lDirection = getVertex(2) - lLightPos4;
+	gl_Position = matrixPVM * (getVertex(2) + lDirection * DIR_EPSILON);
+	EmitVertex();
+	lDirection = getVertex(4) - lLightPos4;
+	gl_Position = matrixPVM * (getVertex(4) + lDirection * DIR_EPSILON);
+	EmitVertex();
+	EndPrimitive();
+
+	// BACK CAP: at "infinity".
+	gl_Position = matrixPVM * (getVertex(0) - lLightPos4);
+	EmitVertex();
+	gl_Position = matrixPVM * (getVertex(4) - lLightPos4);
+	EmitVertex();
+	gl_Position = matrixPVM * (getVertex(2) - lLightPos4);
+	EmitVertex();
+	EndPrimitive();
+
 }
 
 void main()
@@ -71,7 +109,7 @@ void main()
 		{
 			// It does not face the light,
 			// so [0, 2] is a silhouette edge.
-			emitLine(0, 2);
+			emitQuadToInfinity(0, 2);
 		}
 
 		lNormal = normalOfTriangle(2, 3, 4);
@@ -83,7 +121,7 @@ void main()
 		{
 			// It does not face the light,
 			// so [2, 4] is a silhouette edge.
-			emitLine(2, 4);
+			emitQuadToInfinity(2, 4);
 		}
 
 		lNormal = normalOfTriangle(4, 5, 0);
@@ -95,7 +133,9 @@ void main()
 		{
 			// It does not face the light,
 			// so [4, 0] is a silhouette edge.
-			emitLine(4, 0);
+			emitQuadToInfinity(4, 0);
 		}
+
+		emitCaps();
 	}
 }

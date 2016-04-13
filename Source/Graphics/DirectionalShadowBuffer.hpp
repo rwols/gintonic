@@ -24,7 +24,7 @@ public:
 	virtual ~DirectionalShadowBuffer() noexcept = default;
 
 	virtual void collect(
-		Entity& lightEntity, 
+		const Entity& lightEntity, 
 		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) noexcept;
 
 	virtual void bindDepthTextures() const noexcept;

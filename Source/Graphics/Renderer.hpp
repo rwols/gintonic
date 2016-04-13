@@ -609,6 +609,19 @@ public:
 	static void endTextInput() noexcept;
 
 	/**
+	 * @brief Set up the GeometryBuffer for stencil
+	 * pass tests. This assumes you are in the lighting
+	 * phase.
+	 */
+	static void beginStencilPass() noexcept;
+
+	/**
+	 * @brief Restore the state of the GeometryBuffer
+	 * back to the normal lighting phase.
+	 */
+	static void endStencilPass() noexcept;
+
+	/**
 	 * @brief Set the root of the GUI elements to draw. You can pass a null pointer
 	 * so that no GUI is drawn. The Renderer does not take ownership of the GUI::Base,
 	 * so be sure to handle ownership yourself.
@@ -918,6 +931,7 @@ private:
 	static void prepareRendering() noexcept;
 	static void renderGeometry() noexcept;
 	static void renderShadows() noexcept;
+	static void renderPointLights() noexcept;
 	static void renderLights() noexcept;
 	static void finalizeRendering() noexcept;
 	static void renderGUI() noexcept;

@@ -35,7 +35,7 @@ DirectionalShadowBuffer::DirectionalShadowBuffer()
 }
 
 void DirectionalShadowBuffer::collect(
-	Entity& lightEntity, 
+	const Entity& lightEntity, 
 	const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) noexcept
 {
 	updateProjectionMatrix(lightEntity);

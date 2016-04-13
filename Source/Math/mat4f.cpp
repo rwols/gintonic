@@ -424,7 +424,13 @@ mat4f& mat4f::set_perspective_infinite(const float fieldofview, const float aspe
 	data[2] = _mm_set1_ps(0.0f);
 	data[3] = _mm_set1_ps(0.0f);
 
-	m00 = std::tan(fieldofview / 2.0f) / aspectratio;
+	const float f = 1.0f / std::tan(fieldofview / 2.0f);
+
+	m00 = f / aspectratio;
+	m11 = f;
+	m22 = -1.0f;
+	m32 = -1.0f;
+	m23 = -2.0f * nearplane;
 
 	return *this;
 }

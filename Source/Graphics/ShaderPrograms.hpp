@@ -43,6 +43,7 @@ public:                                                                         
 GT_DEFINE_UNIFORM(const mat4f&, matrixPVM,                     MatrixPVM);
 GT_DEFINE_UNIFORM(const mat4f&, matrixVM,                      MatrixVM);
 GT_DEFINE_UNIFORM(const mat4f&, matrixPV,                      MatrixPV);
+GT_DEFINE_UNIFORM(const mat4f&, matrixP,                       MatrixP);
 GT_DEFINE_UNIFORM(const mat3f&, matrixN,                       MatrixN);
 
 GT_DEFINE_UNIFORM(GLint,        instancedRendering,            InstancedRendering);
@@ -319,13 +320,22 @@ public:
 class SilhouetteShaderProgram
 : public ShaderProgramBase<SilhouetteShaderProgram>
 , public Uniform::matrixPVM
-, public Uniform::matrixVM
 , public Uniform::lightPosition
 , public Uniform::color
 {
 public:
 	SilhouetteShaderProgram();
 	virtual ~SilhouetteShaderProgram() noexcept = default;
+};
+
+class ShadowVolumeShaderProgram
+: public ShaderProgramBase<ShadowVolumeShaderProgram>
+, public Uniform::matrixPVM
+, public Uniform::lightPosition
+{
+public:
+	ShadowVolumeShaderProgram();
+	virtual ~ShadowVolumeShaderProgram() noexcept = default;
 };
 
 } // namespace gintonic

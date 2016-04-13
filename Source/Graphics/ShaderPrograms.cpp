@@ -68,4 +68,10 @@ SilhouetteShaderProgram::SilhouetteShaderProgram()
 	/* Empty on purpose. */
 }
 
+ShadowVolumeShaderProgram::ShadowVolumeShaderProgram()
+: OpenGL::ShaderProgram("Shaders/ShadowVolume.vert", "Shaders/ShadowVolume.geom", "Shaders/ShadowVolume.frag")
+{
+	/* Empty on purpose. */
+}
+
 } // namespace gintonic

@@ -30,14 +30,9 @@ public:
 	/// Destructor.
 	virtual ~AmbientLight() noexcept = default;
 	
-	/**
-	 * @brief Shine the light using the global transformation of the given
-	 * Entity. In the case of an ambient light, no transformation information
-	 * is used at all. Every surface is lit evenly in the whole scene.
-	 * @param entity The Entity to use. Note that the global transformation is
-	 * used.
-	 */
-	virtual void shine(const Entity& entity) const noexcept;
+	virtual void shine(
+		const Entity& lightEntity, 
+		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) const noexcept;
 
 	/**
 	 * @brief Get the attenuation value. This method

@@ -51,17 +51,9 @@ public:
 
 	virtual float getCosineHalfAngle() const noexcept;
 	
-	/**
-	 * @brief Shine the spot light given the global transformation of the
-	 * Entity.
-	 *
-	 * @details In the case of a spot light, both the rotational part as well
-	 * as the translation part of the global transformation of the Entity is
-	 * used.
-	 *
-	 * @param [in] e The Entity to use for the global transformation matrix.
-	 */
-	virtual void shine(const Entity& e) const noexcept;
+	virtual void shine(
+		const Entity& lightEntity, 
+		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) const noexcept;
 
 	virtual void initializeShadowBuffer(Entity& lightEntity) const;
 

@@ -14,7 +14,9 @@ AmbientLight::AmbientLight(const vec4f& intensity)
 	/* Empty on purpose. */
 }
 
-void AmbientLight::shine(const Entity& e) const noexcept
+void AmbientLight::shine(
+	const Entity& lightEntity, 
+	const std::vector<std::shared_ptr<Entity>>& /*shadowCastingGeometryEntities*/) const noexcept
 {
 	const auto& lProgram = AmbientLightShaderProgram::get();
 	lProgram.activate();

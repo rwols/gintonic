@@ -80,13 +80,9 @@ public:
 
 	virtual void setIntensity(const vec4f& intensity);
 
-	/**
-	 * @brief Shine the point light given the Entity's global transform.
-	 *
-	 * @details In the case of a point light, only the translation part of
-	 * the global transformation matrix of the Entity is used.
-	 */
-	virtual void shine(const Entity&) const noexcept;
+	virtual void shine(
+		const Entity& lightEntity, 
+		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) const noexcept;
 
 	virtual void initializeShadowBuffer(Entity& lightEntity) const;
 

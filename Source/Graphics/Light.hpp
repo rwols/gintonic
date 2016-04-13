@@ -45,11 +45,14 @@ public:
 	
 	/**
 	 * @brief Shine the light using the global transform of the given Entity.
-	 * @details Note that the renderer must be in the light pass stage.
-	 * 
-	 * @param e The Entity to shine from.
+	 * Note that the Renderer must be in the light pass stage.
+	 * @param lightEntity The Entity to shine from.
+	 * @param shadowCastingGeometryEntities an array of
+	 * shadow-casting geometry entities.
 	 */
-	virtual void shine(const Entity& e) const noexcept = 0;
+	virtual void shine(
+		const Entity& lightEntity, 
+		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) const noexcept = 0;
 
 	/**
 	 * @brief Set the brightness.

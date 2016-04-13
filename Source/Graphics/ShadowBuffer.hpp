@@ -26,7 +26,7 @@ public:
 	 * that cast shadows.
 	 */
 	virtual void collect(
-		Entity& lightEntity, 
+		const Entity& lightEntity, 
 		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) noexcept = 0;
 
 	/**

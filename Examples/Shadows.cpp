@@ -18,17 +18,19 @@ public:
 
 		auto lBricksDiffuseTexture = std::make_shared<Texture2D>("Resources/bricks.jpg");
 		auto lBricksSpecularTexture = std::make_shared<Texture2D>("Resources/bricks_SPEC.png");
+		auto lBricksNormalTexture = std::make_shared<Texture2D>("Resources/bricks_NRM.png");
 
 		auto lMaterial = std::make_shared<Material>();
 		lMaterial->name = "Bricks";
-		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
-		lMaterial->specularColor = vec4f(1.0f, 1.0f, 1.0f, 20.0f);
+		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
+		lMaterial->specularColor = vec4f(0.3f, 0.3f, 0.3f, 20.0f);
 		lMaterial->diffuseTexture = lBricksDiffuseTexture;
 		lMaterial->specularTexture = lBricksSpecularTexture;
+		lMaterial->normalTexture = lBricksNormalTexture;
 
 		auto lFloor = std::make_shared<Entity>();
 		lFloor->material = lMaterial;
-		lFloor->mesh = Renderer::getUnitCube();
+		lFloor->mesh = Renderer::getUnitCubeWithTangents();
 		lFloor->castShadow = true;
 		lFloor->setRotation(quatf::axis_angle(vec3f(1, 0, 0), -F_PI * 0.5f));
 
@@ -46,7 +48,7 @@ public:
 		mSphere = std::make_shared<Entity>();
 		mSphere->name = "Sphere";
 		mSphere->material = lMaterial;
-		mSphere->mesh = Renderer::getUnitCube();
+		mSphere->mesh = Renderer::getUnitCubeWithTangents();
 		mSphere->setTranslation(vec3f(0.0f, 2.0f, 0.0f));
 		mSphere->castShadow = true;
 		mRootEntity->addChild(mSphere);
@@ -86,7 +88,7 @@ public:
 		(
 			new PointLight
 			(
-				vec4f(0.0f, 1.0f, 0.0f, 10.0f),  // Intensity
+				vec4f(1.0f, 1.0f, 1.0f, 10.0f),  // Intensity
 				vec4f(0.1f, 0.4f, 0.5f, 4.0f)    // Attenuation
 			)
 		);
@@ -95,7 +97,7 @@ public:
 		auto lPointLightChild = std::make_shared<Entity>();
 		lPointLightChild->castShadow = false;
 		lPointLightChild->material = std::make_shared<Material>();
-		lPointLightChild->material->diffuseColor = vec4f(0.0f, 1.0f, 0.0f, 0.0f);
+		lPointLightChild->material->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.0f);
 		lPointLightChild->material->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 		lPointLightChild->mesh = Renderer::getUnitSphere();
 		mPointLight->addChild(lPointLightChild);
@@ -105,7 +107,7 @@ public:
 		mDefaultCamera->setTranslation(vec3f(-3.0f, 1.0f, 4.0f));
 		
 		// mRootEntity->addChild(mDirectionalLight);
-		// mRootEntity->addChild(mSpotLight);
+		mRootEntity->addChild(mSpotLight);
 		mRootEntity->addChild(mPointLight);
 		
 		Renderer::setFreeformCursor(true);
@@ -200,7 +202,7 @@ private:
 		// 		- F_PI * 0.5f + std::sin(mElapsedTime * 0.4f) * 0.5f
 		// 	)
 		// );
-		mSpotLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, -2.0f));
+		// mSpotLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, -2.0f));
 		// mDirectionalLight->setRotation(quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), -M_PI / 2.0f + std::sin(mElapsedTime)));
 		mSpotLight->setTranslation(vec3f(-4.0f * std::sin(mElapsedTime), 6.0f, 2.0f));
 		mSpotLight->setRotation(
@@ -208,7 +210,8 @@ private:
 				mSpotLight->localTransform().translation, 
 				mSphere->localTransform().translation, 
 				vec3f(0.0f, 1.0f, 0.0f)));
-		// mPointLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, -2.0f));
+		mPointLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, -2.0f));
+		mSphere->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mDeltaTime / 10.0f));
 	}
 
 };
