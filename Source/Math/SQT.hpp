@@ -10,6 +10,8 @@
 #include "quatf.hpp"
 #include "mat4f.hpp"
 
+#include <fbxsdk/scene/geometry/fbxnode.h>
+
 namespace gintonic {
 
 /**
@@ -70,6 +72,12 @@ struct SQT
 	 * @param affineTransformation The affine matrix.
 	 */
 	SQT(const mat4f& affineTransformation);
+
+	/**
+	 * @brief Construct an SQT with the given node's local transform.
+	 * @param pFbxNode Pointer to an FbxNode.
+	 */
+	SQT(const FBXSDK_NAMESPACE::FbxNode* pFbxNode);
 
 	/**
 	 * @brief Add two SQTs together.

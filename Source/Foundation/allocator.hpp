@@ -9,6 +9,7 @@
 #include "simd.hpp"
 
 #include <memory>
+#include <cstddef>
 
 namespace gintonic {
 

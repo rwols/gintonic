@@ -11,10 +11,9 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
-namespace FBX
-{
-	class FbxVector2; // Forward declaration.	
-}
+#include <fbxsdk/fbxsdk_nsbegin.h>
+class FbxVector2; // Forward declaration.
+#include <fbxsdk/fbxsdk_nsend.h>
 
 namespace gintonic {
 
@@ -114,7 +113,7 @@ public:
 	}
 
 	/// Constructor that takes an FbxVector2.
-	vec2f(const FBX::FbxVector2& v) noexcept;
+	vec2f(const FBXSDK_NAMESPACE::FbxVector2& v) noexcept;
 
 	/// Copy assignment operator.
 	inline vec2f& operator = (const vec2f& v) noexcept
@@ -135,7 +134,7 @@ public:
 		noexcept;
 
 	/// Assignment operator that takes an FbxVector2.
-	vec2f& operator=(const FBX::FbxVector2& v) noexcept;
+	vec2f& operator=(const FBXSDK_NAMESPACE::FbxVector2& v) noexcept;
 
 	/// Add-and-assign operator.
 	inline vec2f& operator += (const vec2f& v) noexcept
@@ -329,7 +328,7 @@ public:
 	}
 
 	/// Convert a vec2f to an FbxVector2 with a static_cast.
-	operator FBX::FbxVector2() const noexcept;
+	operator FBXSDK_NAMESPACE::FbxVector2() const noexcept;
 
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 

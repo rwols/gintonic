@@ -139,7 +139,7 @@ public:
 	 * 
 	 * @param fbxmat The FBX material.
 	 */
-	Material(const FBX::FbxSurfaceMaterial* fbxmat);
+	Material(const FBXSDK_NAMESPACE::FbxSurfaceMaterial* fbxmat);
 
 	//@}
 

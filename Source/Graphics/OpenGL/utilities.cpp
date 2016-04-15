@@ -61,5 +61,17 @@ void setUniform(const GLint location,
 	glUniform1iv(location, values.size(), values.data());
 }
 
+void setUniform(const GLint location,
+	const std::vector<mat4f, allocator<mat4f>>& values) noexcept
+{
+	glUniformMatrix4fv(location, values.size(), GL_FALSE, (const GLfloat*)values.data());
+}
+
+void setUniform(const GLint location,
+	const std::vector<mat3f>& values) noexcept
+{
+	glUniformMatrix3fv(location, values.size(), GL_FALSE, (const GLfloat*)values.data());
+}
+
 } // namespace opengl
 } // namespace gintonic

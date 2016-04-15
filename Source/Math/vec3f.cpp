@@ -29,7 +29,7 @@ vec3f::vec3f(const quatf& q) noexcept
 	/* Empty on purpose. */
 }
 
-vec3f::vec3f(const FBX::FbxVector4& v) noexcept
+vec3f::vec3f(const FBXSDK_NAMESPACE::FbxVector4& v) noexcept
 : x(static_cast<float>(v[0]))
 , y(static_cast<float>(v[1]))
 , z(static_cast<float>(v[2]))
@@ -49,7 +49,7 @@ vec3f& vec3f::operator=(std::initializer_list<float> init) noexcept
 	return *this;
 }
 
-vec3f& vec3f::operator=(const FBX::FbxVector4& v) noexcept
+vec3f& vec3f::operator=(const FBXSDK_NAMESPACE::FbxVector4& v) noexcept
 {
 	x = static_cast<float>(v[0]);
 	y = static_cast<float>(v[1]);
@@ -58,9 +58,9 @@ vec3f& vec3f::operator=(const FBX::FbxVector4& v) noexcept
 	return *this;
 }
 
-vec3f::operator FBX::FbxVector4() const noexcept
+vec3f::operator FBXSDK_NAMESPACE::FbxVector4() const noexcept
 {
-	return FBX::FbxVector4(x, y, z, 0.0);
+	return FBXSDK_NAMESPACE::FbxVector4(x, y, z, 0.0);
 }
 
 } // namespace gintonic

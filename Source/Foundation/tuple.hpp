@@ -5,8 +5,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_tuple_hpp
-#define gintonic_tuple_hpp
+#pragma once
 
 #include <tuple>
 #include <utility>
@@ -112,5 +111,3 @@ void serialize(Archive & ar, std::tuple<Args...> & t,
 
 } // namespace serialization
 } // namespace boost
-
-#endif

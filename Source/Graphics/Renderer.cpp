@@ -741,6 +741,14 @@ void Renderer::renderGeometry() noexcept
 	lMaterialShaderProgram.setMaterialNormalTexture(GBUFFER_TEX_NORMAL);
 	lMaterialShaderProgram.setInstancedRendering(0);
 
+	std::vector<mat4f, allocator<mat4f>> matrixBs;
+	std::vector<mat3f> matrixBNs;
+
+	Mesh::Bone::IndexType lNumBones;
+
+	matrixBs.resize(GT_MESH_MAX_BONES);
+	matrixBNs.resize(GT_MESH_MAX_BONES);
+
 	for (auto lEntity : sShadowCastingGeometryEntities)
 	{
 		GLint lMaterialFlag = 0;
@@ -773,6 +781,16 @@ void Renderer::renderGeometry() noexcept
 		lMaterialShaderProgram.setMatrixPVM(matrix_PVM());
 		lMaterialShaderProgram.setMatrixVM(matrix_VM());
 		lMaterialShaderProgram.setMatrixN(matrix_N());
+
+
+		for (lNumBones = 0; lNumBones < lEntity->mesh->bones.size(); ++lNumBones)
+		{
+			matrixBs[lNumBones] = lEntity->mesh->evaluateBoneAtTime(lNumBones, 0.0f);
+			matrixBNs[lNumBones] = matrixBs[lNumBones].upper_left_33().invert().transpose();
+		}
+
+		lMaterialShaderProgram.setMatrixB(matrixBs);
+		lMaterialShaderProgram.setMatrixBN(matrixBNs);
 
 		lEntity->mesh->draw();
 	}
@@ -808,6 +826,15 @@ void Renderer::renderGeometry() noexcept
 		lMaterialShaderProgram.setMatrixPVM(matrix_PVM());
 		lMaterialShaderProgram.setMatrixVM(matrix_VM());
 		lMaterialShaderProgram.setMatrixN(matrix_N());
+
+		for (lNumBones = 0; lNumBones < lEntity->mesh->bones.size(); ++lNumBones)
+		{
+			matrixBs[lNumBones] = lEntity->mesh->evaluateBoneAtTime(lNumBones, 0.0f);
+			matrixBNs[lNumBones] = matrixBs[lNumBones].upper_left_33().invert().transpose();
+		}
+
+		lMaterialShaderProgram.setMatrixB(matrixBs);
+		lMaterialShaderProgram.setMatrixBN(matrixBNs);
 
 		lEntity->mesh->draw();
 	}

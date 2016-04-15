@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ForwardDeclarations.hpp"
+#include "Graphics/Animation.hpp"
 
 #include <memory>
 #include <vector>
@@ -11,9 +12,19 @@ class FbxImporter
 {
 public:
 
-	FbxImporter();
+	FbxImporter(
+		const char* filename, 
+		bool normalizeUnits = true, 
+		bool setAxisSystemToOpenGL = true,
+		bool triangulateAllMeshes = true);
 
 	~FbxImporter() noexcept;
+
+	std::shared_ptr<Entity> loadEntities(
+		bool setRootEntityNameAsFilename = true,
+		bool cleanUpEmptyNodes = true);
+
+	std::vector<AnimStack> loadAnimations();
 
 	std::shared_ptr<Entity> loadFromFile(const char* filename, bool setRootEntityNameAsFilename = true);
 
@@ -30,6 +41,7 @@ private:
 	FBXSDK_NAMESPACE::FbxManager* mManager;
 	FBXSDK_NAMESPACE::FbxScene* mScene = nullptr;
 	FBXSDK_NAMESPACE::FbxImporter* mImporter;
+	std::string mFilename;
 
 	std::shared_ptr<Entity> traverse(FBXSDK_NAMESPACE::FbxNode*, ResultStructure&);
 	std::shared_ptr<Material> processMaterial(FBXSDK_NAMESPACE::FbxNode*, ResultStructure&);

@@ -4,17 +4,15 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_vec3f_hpp
-#define gintonic_vec3f_hpp
+#pragma once
 
 #include "../Foundation/utilities.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
-namespace FBX
-{
-	class FbxVector4; // Forward declaration.	
-}
+#include <fbxsdk/fbxsdk_nsbegin.h>
+class FbxVector4; // Forward declaration.	
+#include <fbxsdk/fbxsdk_nsend.h>
 
 namespace gintonic {
 
@@ -141,10 +139,10 @@ public:
 		noexcept;
 
 	/// Constructor that takes an FbxVector4.
-	vec3f(const FBX::FbxVector4& v) noexcept;
+	vec3f(const FBXSDK_NAMESPACE::FbxVector4& v) noexcept;
 
 	/// Assignment operator that takes an FbxVector4.
-	vec3f& operator=(const FBX::FbxVector4& v) noexcept;
+	vec3f& operator=(const FBXSDK_NAMESPACE::FbxVector4& v) noexcept;
 
 	/// Add-and-assign operator.
 	inline vec3f& operator += (const vec3f& v) noexcept
@@ -401,7 +399,7 @@ public:
 	}
 
 	/// Convert a vec3f to an FbxVector4 with a static_cast.
-	operator FBX::FbxVector4() const noexcept;
+	operator FBXSDK_NAMESPACE::FbxVector4() const noexcept;
 
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
@@ -531,5 +529,3 @@ inline bool almost_equal(const vec3f& u, const vec3f& v,
 BOOST_CLASS_IMPLEMENTATION(gintonic::vec3f, 
 	boost::serialization::object_serializable);
 //!@endcond
-
-#endif

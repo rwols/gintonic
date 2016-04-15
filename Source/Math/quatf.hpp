@@ -10,10 +10,9 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
-namespace FBX
-{
-	class FbxVector4; // Forward declaration.
-};
+#include <fbxsdk/fbxsdk_nsbegin.h>
+class FbxVector4; // Forward declaration.	
+#include <fbxsdk/fbxsdk_nsend.h>
 
 namespace gintonic {
 
@@ -77,10 +76,10 @@ public:
 	quatf(const float realpart, const vec3f& imaginarypart);
 
 	/// Constructor.
-	quatf(const FBX::FbxVector4&);
+	quatf(const FBXSDK_NAMESPACE::FbxVector4&);
 
 	/// Assignment operator.
-	quatf& operator = (const FBX::FbxVector4&);
+	quatf& operator = (const FBXSDK_NAMESPACE::FbxVector4&);
 
 	/// Multiplication operator.
 	quatf operator * (const quatf& other) const noexcept;

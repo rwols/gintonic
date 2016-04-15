@@ -55,6 +55,6 @@ void main()
 	}
 	else
 	{
-		outNormal = viewSpaceVertexNormal;
+		outNormal = normalize(viewSpaceVertexNormal);
 	}
 }

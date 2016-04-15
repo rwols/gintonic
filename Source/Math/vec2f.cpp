@@ -13,7 +13,7 @@ vec2f::vec2f(std::initializer_list<float> init) noexcept
 	y = temp[1];
 }
 
-vec2f::vec2f(const FBX::FbxVector2& v) noexcept
+vec2f::vec2f(const FBXSDK_NAMESPACE::FbxVector2& v) noexcept
 : x(static_cast<float>(v[0]))
 , y(static_cast<float>(v[1]))
 {
@@ -29,16 +29,16 @@ vec2f& vec2f::operator=(std::initializer_list<float> init) noexcept
 	return *this;
 }
 
-vec2f& vec2f::operator=(const FBX::FbxVector2& v) noexcept
+vec2f& vec2f::operator=(const FBXSDK_NAMESPACE::FbxVector2& v) noexcept
 {
 	x = static_cast<float>(v[0]);
 	y = static_cast<float>(v[1]);
 	return *this;
 }
 
-vec2f::operator FBX::FbxVector2() const noexcept
+vec2f::operator FBXSDK_NAMESPACE::FbxVector2() const noexcept
 {
-	return FBX::FbxVector2(x, y);
+	return FBXSDK_NAMESPACE::FbxVector2(x, y);
 }
 
 } // namespace gintonic

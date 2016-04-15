@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef vertices_hpp
-#define vertices_hpp
+#pragma once
 
 #include "../../Math/vec2f.hpp"
 #include "../../Math/vec3f.hpp"
@@ -73,13 +72,13 @@
  */
 #define GT_VERTEX_LAYOUT_FREE_15 15
 
-namespace FBX
-{
-	class FbxMesh; // Forward declaration.
-	class FbxVector4; // Forward declaration.
-	class FbxVector2; // Forward declaration.
-	class FbxColor; // Forward declaration.
-}
+
+#include <fbxsdk/fbxsdk_nsbegin.h>
+class FbxMesh; // Forward declaration.
+class FbxVector4; // Forward declaration.
+class FbxVector2; // Forward declaration.
+class FbxColor; // Forward declaration.
+#include <fbxsdk/fbxsdk_nsend.h>
 
 namespace gintonic {
 namespace OpenGL {
@@ -121,7 +120,7 @@ struct vertex_P
 	 * @param i The index in the direct array.
 	 * @param layer The layer.
 	 */
-	vertex_P(FBX::FbxMesh const*const pMesh, const std::size_t i, 
+	vertex_P(FBXSDK_NAMESPACE::FbxMesh const*const pMesh, const std::size_t i, 
 		const std::size_t layer);
 
 	/**
@@ -153,9 +152,9 @@ struct vertex_P
 	 * @param t The tangent.
 	 * @param b The bitangent.
 	 */
-	vertex_P(const FBX::FbxVector4& p, const FBX::FbxColor& c, 
-		const FBX::FbxVector2& u, const FBX::FbxVector4& n, 
-		const FBX::FbxVector4& t, const FBX::FbxVector4& b);
+	vertex_P(const FBXSDK_NAMESPACE::FbxVector4& p, const FBXSDK_NAMESPACE::FbxColor& c, 
+		const FBXSDK_NAMESPACE::FbxVector2& u, const FBXSDK_NAMESPACE::FbxVector4& n, 
+		const FBXSDK_NAMESPACE::FbxVector4& t, const FBXSDK_NAMESPACE::FbxVector4& b);
 
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
@@ -262,7 +261,7 @@ struct vertex_PC
 	 * @param i The index in the direct array.
 	 * @param layer The layer.
 	 */
-	vertex_PC(FBX::FbxMesh const*const pMesh, const std::size_t i, 
+	vertex_PC(FBXSDK_NAMESPACE::FbxMesh const*const pMesh, const std::size_t i, 
 		const std::size_t layer);
 
 	/**
@@ -294,9 +293,9 @@ struct vertex_PC
 	 * @param t The tangent.
 	 * @param b The bitangent.
 	 */
-	vertex_PC(const FBX::FbxVector4& p, const FBX::FbxColor& c, 
-		const FBX::FbxVector2& u, const FBX::FbxVector4& n, 
-		const FBX::FbxVector4& t, const FBX::FbxVector4& b);
+	vertex_PC(const FBXSDK_NAMESPACE::FbxVector4& p, const FBXSDK_NAMESPACE::FbxColor& c, 
+		const FBXSDK_NAMESPACE::FbxVector2& u, const FBXSDK_NAMESPACE::FbxVector4& n, 
+		const FBXSDK_NAMESPACE::FbxVector4& t, const FBXSDK_NAMESPACE::FbxVector4& b);
 
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
@@ -376,7 +375,7 @@ struct vertex_PU
 	 * @param i The index in the direct array.
 	 * @param layer The layer.
 	 */
-	vertex_PU(FBX::FbxMesh const*const pMesh, const std::size_t i, 
+	vertex_PU(FBXSDK_NAMESPACE::FbxMesh const*const pMesh, const std::size_t i, 
 		const std::size_t layer);
 
 	/**
@@ -408,9 +407,9 @@ struct vertex_PU
 	 * @param t The tangent.
 	 * @param b The bitangent.
 	 */
-	vertex_PU(const FBX::FbxVector4& p, const FBX::FbxColor& c, 
-		const FBX::FbxVector2& u, const FBX::FbxVector4& n, 
-		const FBX::FbxVector4& t, const FBX::FbxVector4& b);
+	vertex_PU(const FBXSDK_NAMESPACE::FbxVector4& p, const FBXSDK_NAMESPACE::FbxColor& c, 
+		const FBXSDK_NAMESPACE::FbxVector2& u, const FBXSDK_NAMESPACE::FbxVector4& n, 
+		const FBXSDK_NAMESPACE::FbxVector4& t, const FBXSDK_NAMESPACE::FbxVector4& b);
 
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
@@ -491,7 +490,7 @@ struct vertex_PN
 	 * @param i The index in the direct array.
 	 * @param layer The layer.
 	 */
-	vertex_PN(FBX::FbxMesh const*const pMesh, const std::size_t i, 
+	vertex_PN(FBXSDK_NAMESPACE::FbxMesh const*const pMesh, const std::size_t i, 
 		const std::size_t layer);
 
 	/**
@@ -523,9 +522,9 @@ struct vertex_PN
 	 * @param t The tangent.
 	 * @param b The bitangent.
 	 */
-	vertex_PN(const FBX::FbxVector4& p, const FBX::FbxColor& c, 
-		const FBX::FbxVector2& u, const FBX::FbxVector4& n, 
-		const FBX::FbxVector4& t, const FBX::FbxVector4& b);
+	vertex_PN(const FBXSDK_NAMESPACE::FbxVector4& p, const FBXSDK_NAMESPACE::FbxColor& c, 
+		const FBXSDK_NAMESPACE::FbxVector2& u, const FBXSDK_NAMESPACE::FbxVector4& n, 
+		const FBXSDK_NAMESPACE::FbxVector4& t, const FBXSDK_NAMESPACE::FbxVector4& b);
 
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
@@ -612,7 +611,7 @@ struct vertex_PCU
 	 * @param i The index in the direct array.
 	 * @param layer The layer.
 	 */
-	vertex_PCU(FBX::FbxMesh const*const pMesh, const std::size_t i, 
+	vertex_PCU(FBXSDK_NAMESPACE::FbxMesh const*const pMesh, const std::size_t i, 
 		const std::size_t layer);
 
 	/**
@@ -644,9 +643,9 @@ struct vertex_PCU
 	 * @param t The tangent.
 	 * @param b The bitangent.
 	 */
-	vertex_PCU(const FBX::FbxVector4& p, const FBX::FbxColor& c, 
-		const FBX::FbxVector2& u, const FBX::FbxVector4& n, 
-		const FBX::FbxVector4& t, const FBX::FbxVector4& b);
+	vertex_PCU(const FBXSDK_NAMESPACE::FbxVector4& p, const FBXSDK_NAMESPACE::FbxColor& c, 
+		const FBXSDK_NAMESPACE::FbxVector2& u, const FBXSDK_NAMESPACE::FbxVector4& n, 
+		const FBXSDK_NAMESPACE::FbxVector4& t, const FBXSDK_NAMESPACE::FbxVector4& b);
 
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
@@ -741,7 +740,7 @@ struct vertex_PCUN
 	 * @param i The index in the direct array.
 	 * @param layer The layer.
 	 */
-	vertex_PCUN(FBX::FbxMesh const*const pMesh, const std::size_t i, 
+	vertex_PCUN(FBXSDK_NAMESPACE::FbxMesh const*const pMesh, const std::size_t i, 
 		const std::size_t layer);
 
 	/**
@@ -773,9 +772,9 @@ struct vertex_PCUN
 	 * @param t The tangent.
 	 * @param b The bitangent.
 	 */
-	vertex_PCUN(const FBX::FbxVector4& p, const FBX::FbxColor& c, 
-		const FBX::FbxVector2& u, const FBX::FbxVector4& n, 
-		const FBX::FbxVector4& t, const FBX::FbxVector4& b);
+	vertex_PCUN(const FBXSDK_NAMESPACE::FbxVector4& p, const FBXSDK_NAMESPACE::FbxColor& c, 
+		const FBXSDK_NAMESPACE::FbxVector2& u, const FBXSDK_NAMESPACE::FbxVector4& n, 
+		const FBXSDK_NAMESPACE::FbxVector4& t, const FBXSDK_NAMESPACE::FbxVector4& b);
 
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
@@ -863,7 +862,7 @@ struct vertex_PUN
 	 * @param i The index in the direct array.
 	 * @param layer The layer.
 	 */
-	vertex_PUN(FBX::FbxMesh const*const pMesh, const std::size_t i, 
+	vertex_PUN(FBXSDK_NAMESPACE::FbxMesh const*const pMesh, const std::size_t i, 
 		const std::size_t layer);
 
 	/**
@@ -895,9 +894,9 @@ struct vertex_PUN
 	 * @param t The tangent.
 	 * @param b The bitangent.
 	 */
-	vertex_PUN(const FBX::FbxVector4& p, const FBX::FbxColor& c, 
-		const FBX::FbxVector2& u, const FBX::FbxVector4& n, 
-		const FBX::FbxVector4& t, const FBX::FbxVector4& b);
+	vertex_PUN(const FBXSDK_NAMESPACE::FbxVector4& p, const FBXSDK_NAMESPACE::FbxColor& c, 
+		const FBXSDK_NAMESPACE::FbxVector2& u, const FBXSDK_NAMESPACE::FbxVector4& n, 
+		const FBXSDK_NAMESPACE::FbxVector4& t, const FBXSDK_NAMESPACE::FbxVector4& b);
 
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
@@ -992,7 +991,7 @@ struct vertex_PCUNTB
 	 * @param i The index in the direct array.
 	 * @param layer The layer.
 	 */
-	vertex_PCUNTB(FBX::FbxMesh const*const pMesh, const std::size_t i, 
+	vertex_PCUNTB(FBXSDK_NAMESPACE::FbxMesh const*const pMesh, const std::size_t i, 
 		const std::size_t layer);
 
 	/**
@@ -1024,9 +1023,9 @@ struct vertex_PCUNTB
 	 * @param t The tangent.
 	 * @param b The bitangent.
 	 */
-	vertex_PCUNTB(const FBX::FbxVector4& p, const FBX::FbxColor& c, 
-		const FBX::FbxVector2& u, const FBX::FbxVector4& n, 
-		const FBX::FbxVector4& t, const FBX::FbxVector4& b);
+	vertex_PCUNTB(const FBXSDK_NAMESPACE::FbxVector4& p, const FBXSDK_NAMESPACE::FbxColor& c, 
+		const FBXSDK_NAMESPACE::FbxVector2& u, const FBXSDK_NAMESPACE::FbxVector4& n, 
+		const FBXSDK_NAMESPACE::FbxVector4& t, const FBXSDK_NAMESPACE::FbxVector4& b);
 
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
@@ -1130,7 +1129,7 @@ struct vertex_PUNTB
 	 * @param i The index in the direct array.
 	 * @param layer The layer.
 	 */
-	vertex_PUNTB(FBX::FbxMesh const*const pMesh, const std::size_t i, 
+	vertex_PUNTB(FBXSDK_NAMESPACE::FbxMesh const*const pMesh, const std::size_t i, 
 		const std::size_t layer);
 
 	/**
@@ -1162,9 +1161,9 @@ struct vertex_PUNTB
 	 * @param t The tangent.
 	 * @param b The bitangent.
 	 */
-	vertex_PUNTB(const FBX::FbxVector4& p, const FBX::FbxColor& c, 
-		const FBX::FbxVector2& u, const FBX::FbxVector4& n, 
-		const FBX::FbxVector4& t, const FBX::FbxVector4& b);
+	vertex_PUNTB(const FBXSDK_NAMESPACE::FbxVector4& p, const FBXSDK_NAMESPACE::FbxColor& c, 
+		const FBXSDK_NAMESPACE::FbxVector2& u, const FBXSDK_NAMESPACE::FbxVector4& n, 
+		const FBXSDK_NAMESPACE::FbxVector4& t, const FBXSDK_NAMESPACE::FbxVector4& b);
 
 	/**
 	 * @brief Enable the vertex attributes in the bound OpenGL array buffer.
@@ -1421,6 +1420,4 @@ public:
 
 #ifdef __clang__
 	#pragma clang diagnostic pop
-#endif
-
 #endif

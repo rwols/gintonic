@@ -6,7 +6,10 @@
 
 #pragma once
 
+#include "../Foundation/allocator.hpp"
+
 #include "OpenGL/ShaderProgram.hpp"
+#include "OpenGL/utilities.hpp"
 
 namespace gintonic {
 
@@ -16,35 +19,65 @@ namespace Uniform {
 
 #define GT_PASTE_TOGETHER(x, y) x ## y
 
-#define GT_DEFINE_UNIFORM(UNIFORM_TYPE, UNIFORM_NAME, UNIFORM_NAME_WITH_FIRST_CAPITAL) \
-/** @brief Class that encapsulates a uniform variable in a shader. */                  \
-class UNIFORM_NAME : virtual public OpenGL::ShaderProgram                              \
-{                                                                                      \
-private:                                                                               \
-	GLuint mLocation;                                                                  \
-protected:                                                                             \
-	UNIFORM_NAME()                                                                     \
-	{                                                                                  \
-		mLocation = getUniformLocation(GT_STRINGIFY(UNIFORM_NAME));                    \
-	}                                                                                  \
-	virtual ~UNIFORM_NAME() noexcept = default;                                        \
-public:                                                                                \
-	/**                                                                                \
-	 * @brief Set the value of the UNIFORM_NAME uniform in the shader program.         \
-	 * @param [in] value The value to set.                                             \
-	 */                                                                                \
-	void GT_PASTE_TOGETHER(set, UNIFORM_NAME_WITH_FIRST_CAPITAL)                       \
-		(UNIFORM_TYPE value) const noexcept                                            \
-	{                                                                                  \
-		setUniform(mLocation, value);                                                  \
-	}                                                                                  \
+#define GT_DEFINE_UNIFORM(UNIFORM_TYPE, UNIFORM_NAME, UNIFORM_NAME_WITH_FIRST_CAPITAL)       \
+/** @brief Class that encapsulates a uniform variable in a shader. */                        \
+class UNIFORM_NAME : virtual public OpenGL::ShaderProgram                                    \
+{                                                                                            \
+private:                                                                                     \
+	GLuint mLocation;                                                                        \
+protected:                                                                                   \
+	UNIFORM_NAME()                                                                           \
+	{                                                                                        \
+		mLocation = getUniformLocation(GT_STRINGIFY(UNIFORM_NAME));                          \
+	}                                                                                        \
+	virtual ~UNIFORM_NAME() noexcept = default;                                              \
+public:                                                                                      \
+	/**                                                                                      \
+	 * @brief Set the value of the UNIFORM_NAME uniform in the shader program.               \
+	 * @param [in] value The value to set.                                                   \
+	 */                                                                                      \
+	void GT_PASTE_TOGETHER(set, UNIFORM_NAME_WITH_FIRST_CAPITAL)                             \
+		(UNIFORM_TYPE value) const noexcept                                                  \
+	{                                                                                        \
+		OpenGL::setUniform(mLocation, value);                                                \
+	}                                                                                        \
 };
+
+// #define GT_DEFINE_UNIFORM_ARRAY(UNIFORM_TYPE, UNIFORM_NAME, UNIFORM_NAME_WITH_FIRST_CAPITAL) \
+// /** @brief Class that encapsulates a uniform variable in a shader. */                        \
+// class UNIFORM_NAME : virtual public OpenGL::ShaderProgram                                    \
+// {                                                                                            \
+// private:                                                                                     \
+// 	GLuint mLocation;                                                                        \
+// protected:                                                                                   \
+// 	UNIFORM_NAME()                                                                           \
+// 	{                                                                                        \
+// 		mLocation = getUniformLocation(GT_STRINGIFY(UNIFORM_NAME));                          \
+// 	}                                                                                        \
+// 	virtual ~UNIFORM_NAME() noexcept = default;                                              \
+// public:                                                                                      \
+// 	/**                                                                                      \
+// 	 * @brief Set the value of the UNIFORM_NAME uniform in the shader program.               \
+// 	 * @param [in] value The value to set.                                                   \
+// 	 */                                                                                      \
+// 	void GT_PASTE_TOGETHER(set, UNIFORM_NAME_WITH_FIRST_CAPITAL)                             \
+// 		(UNIFORM_TYPE value) const noexcept                                                  \
+// 	{                                                                                        \
+// 		setUniform(mLocation, value);                                                        \
+// 	}                                                                                        \
+// };
 
 GT_DEFINE_UNIFORM(const mat4f&, matrixPVM,                     MatrixPVM);
 GT_DEFINE_UNIFORM(const mat4f&, matrixVM,                      MatrixVM);
 GT_DEFINE_UNIFORM(const mat4f&, matrixPV,                      MatrixPV);
 GT_DEFINE_UNIFORM(const mat4f&, matrixP,                       MatrixP);
 GT_DEFINE_UNIFORM(const mat3f&, matrixN,                       MatrixN);
+
+using Matrix4fArray = std::vector<mat4f, allocator<mat4f>>;
+using Matrix3fArray = std::vector<mat3f>;
+
+GT_DEFINE_UNIFORM(const Matrix4fArray&, matrixB, MatrixB);
+GT_DEFINE_UNIFORM(const Matrix3fArray&, matrixBN, MatrixBN);
 
 GT_DEFINE_UNIFORM(GLint,        instancedRendering,            InstancedRendering);
 GT_DEFINE_UNIFORM(GLint,        hasTangentsAndBitangents,      HasTangentsAndBitangents);
@@ -155,6 +188,8 @@ class MaterialShaderProgram
 , public Uniform::matrixPVM
 , public Uniform::matrixVM
 , public Uniform::matrixN
+, public Uniform::matrixB
+, public Uniform::matrixBN
 , public Uniform::instancedRendering
 , public Uniform::hasTangentsAndBitangents
 , public Uniform::materialDiffuseColor
@@ -163,6 +198,7 @@ class MaterialShaderProgram
 , public Uniform::materialSpecularTexture
 , public Uniform::materialNormalTexture
 , public Uniform::materialFlag
+, public Uniform::debugFlag
 {
 public:
 

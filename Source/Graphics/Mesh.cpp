@@ -5,33 +5,6 @@
 
 #include <fbxsdk.h>
 
-#include <map>
-
-#define GT_MESH_BUFFER_POS_XYZ_UV_X 0     // Buffer for the positions and uv.x
-#define GT_MESH_BUFFER_NOR_XYZ_UV_Y 1     // Buffer for the normals and uv.y
-#define GT_MESH_BUFFER_TAN_XYZ_HAND 2     // Buffer for the tangents and handedness
-#define GT_MESH_BUFFER_POSITIONS    3     // Buffer for the position vectors (needed for adjacency)
-#define GT_MESH_BUFFER_INDICES      4     // Buffer for the indices
-#define GT_MESH_BUFFER_INDICES_ADJ  5     // Buffer for the indices with adjacency information
-
-#define GT_VERTEX_LAYOUT_SLOT_0 0         //  pos.X  pos.Y  pos.Z   uv.X
-#define GT_VERTEX_LAYOUT_SLOT_1 1         //  nor.X  nor.Y  nor.Z   uv.Y
-#define GT_VERTEX_LAYOUT_SLOT_2 2         //  tan.X  tan.Y  tan.Z   hand
-#define GT_VERTEX_LAYOUT_SLOT_3_4_5_6 3   // PVM.00 PVM.01 PVM.02 PVM.03 <--- instanced rendering
-                                          // PVM.10 PVM.11 PVM.12 PVM.13 <--- instanced rendering
-                                          // PVM.20 PVM.21 PVM.22 PVM.23 <--- instanced rendering
-                                          // PVM.30 PVM.31 PVM.32 PVM.33 <--- instanced rendering
-#define GT_VERTEX_LAYOUT_SLOT_7_8_9_10 7  //  VM.00  VM.01  VM.02  VM.03 <--- instanced rendering
-                                          //  VM.10  VM.11  VM.12  VM.13 <--- instanced rendering
-                                          //  VM.20  VM.21  VM.22  VM.23 <--- instanced rendering
-                                          //  VM.30  VM.31  VM.32  VM.33 <--- instanced rendering
-#define GT_VERTEX_LAYOUT_SLOT_11_12_13 11 //   N.00   N.01   N.02 unused <--- instanced rendering
-                                          //   N.10   N.11   N.12 unused <--- instanced rendering
-                                          //   N.20   N.21   N.22 unused <--- instanced rendering
-#define GT_VERTEX_LAYOUT_SLOT_14 14       //   free   free   free   free
-#define GT_VERTEX_LAYOUT_SLOT_15 15       //   free   free   free   free
-
-
 namespace // anonymous namespace
 {
 
@@ -114,11 +87,22 @@ struct NeighborPair
 	const Triangle* first = nullptr;
 	const Triangle* second = nullptr;
 
-	void addNeighbor(const Triangle* triangle)
+	bool addNeighbor(const Triangle* triangle)
 	{
-		if (!first) first = triangle;
-		else if (!second) second = triangle;
-		else throw std::logic_error("Both neighbors already set");
+		if (!first)
+		{
+			first = triangle;
+			return true;
+		}
+		else if (!second)
+		{
+			second = triangle;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	const Triangle* getOther(const Triangle* me) const
@@ -138,6 +122,38 @@ std::ostream& operator << (std::ostream& os, const NeighborPair& neighborPair)
 	if (neighborPair.second) os << *(neighborPair.second);
 	else os << "nullptr";
 	return os << ')';
+}
+
+template <class LayerElement, class OutputIter>
+void copyLayerElement(
+	const LayerElement* layer,
+	OutputIter iter)
+{
+	if (!layer) return;
+	const auto& lElements = layer->GetDirectArray();
+	switch (layer->GetReferenceMode())
+	{
+		case FbxGeometryElement::eDirect:
+		{
+			for (int i = 0; i < lElements.GetCount(); ++i)
+			{
+				*iter = lElements[i];
+				++iter;
+			}
+			break;
+		}
+		case FbxGeometryElement::eIndex: // fall through
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			const auto& lIndices = layer->GetIndexArray();
+			for (int i = 0; i < lIndices.GetCount(); ++i)
+			{
+				*iter = lElements[lIndices[i]];
+				++iter;
+			}
+			break;
+		}
+	}
 }
 
 template <class LayerElement, class VectorType> 
@@ -200,6 +216,82 @@ bool getLayerElement(
 		}
 	}
 	return true;
+}
+
+bool makeVertex(
+	const FbxMesh* pFbxMesh,
+	const FbxGeometryElementUV* fbxTexCoordArray,
+	const FbxGeometryElementNormal* fbxNormalArray,
+	const FbxGeometryElementTangent* fbxTangentArray,
+	const FbxGeometryElementBinormal* fbxBitangentArray,
+	const int polyvertex,
+	const int vertexid,
+	gintonic::Mesh::vec4f& slot0Entry,
+	gintonic::Mesh::vec4f& slot1Entry,
+	gintonic::Mesh::vec4f& slot2Entry)
+{
+	gintonic::vec3f N;
+	gintonic::vec3f T;
+	gintonic::vec3f B;
+	bool lHasTangents;
+	float lHandedness;
+	FbxVector4 lFbxPosition;
+	FbxVector2 lFbxTexCoord;
+	FbxVector4 lFbxNormal;
+	FbxVector4 lFbxTangent;
+	FbxVector4 lFbxBitangent;
+	if (!getLayerElement(fbxNormalArray, polyvertex, vertexid, lFbxNormal))
+	{
+		N = 0.0f;
+	}
+	else
+	{
+		N = gintonic::vec3f(lFbxNormal).normalize();
+	}
+	if (!getLayerElement(fbxTexCoordArray, polyvertex, vertexid, lFbxTexCoord))
+	{
+		lFbxTexCoord[0] = lFbxTexCoord[1] = 0.0f;
+	}
+	if (!getLayerElement(fbxTangentArray, polyvertex, vertexid, lFbxTangent))
+	{
+		T = 0.0f;
+		lHasTangents = false;
+	}
+	else
+	{
+		T = gintonic::vec3f(lFbxTangent).normalize();
+		lHasTangents = true;
+	}
+	if (!getLayerElement(fbxBitangentArray, polyvertex, vertexid, lFbxBitangent))
+	{
+		B = 0.0f;
+	}
+	else
+	{
+		B = gintonic::vec3f(lFbxBitangent).normalize();
+	}
+
+	lHandedness = gintonic::distance(cross(N,T), B) < 0.01f ? 1.0f : -1.0f;
+
+	slot0Entry =
+	{
+		static_cast<GLfloat>(lFbxPosition[0]),
+		static_cast<GLfloat>(lFbxPosition[1]),
+		static_cast<GLfloat>(lFbxPosition[2]),
+		static_cast<GLfloat>(lFbxTexCoord[0])
+	};
+
+	slot1Entry =
+	{
+		N.x,
+		N.y,
+		N.z,
+		static_cast<GLfloat>(lFbxTexCoord[1])
+	};
+
+	if (lHasTangents) slot2Entry = {T.x, T.y, T.z, lHandedness};
+
+	return lHasTangents;
 }
 
 } // anonymous namespace
@@ -313,16 +405,53 @@ void Mesh::vec4f::enableAttribute(const GLuint index) noexcept
 	glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, sizeof(Mesh::vec4f), nullptr);
 }
 
+Mesh::vec4i::vec4i(const FbxVector4& v)
+: x(static_cast<GLint>(v[0]))
+, y(static_cast<GLint>(v[1]))
+, z(static_cast<GLint>(v[2]))
+, w(static_cast<GLint>(v[3]))
+{
+	/* Empty on purpose. */
+}
+
+Mesh::vec4i::vec4i(const GLint x, const GLint y, const GLint z, const GLint w)
+: x(x)
+, y(y)
+, z(z)
+, w(w)
+{
+	/* Empty on purpose. */
+}
+
+bool Mesh::vec4i::operator==(const Mesh::vec4i& other) const noexcept
+{
+	return x == other.x && y == other.y && z == other.z && w == other.w;
+}
+
+bool Mesh::vec4i::operator!=(const Mesh::vec4i& other) const noexcept
+{
+	return !operator==(other);
+}
+
+bool Mesh::vec4i::operator<(const Mesh::vec4i& other) const noexcept
+{
+	return std::tie(x, y, z, w) < std::tie(other.x, other.y, other.z, other.w);
+}
+
+void Mesh::vec4i::enableAttribute(const GLuint index) noexcept
+{
+	glEnableVertexAttribArray(index);
+	glVertexAttribIPointer(index, 4, GL_INT, sizeof(Mesh::vec4i), nullptr);
+}
+
 Mesh::Mesh()
 : mMatrixBuffer(GL_DYNAMIC_DRAW)
 , mNormalMatrixBuffer(GL_DYNAMIC_DRAW)
-// , mHasTangentsAndBitangents(false)
-// , mNumIndices(0)
 {
 	setupInstancedRenderingMatrices();
 }
 
-Mesh::Mesh(const FbxMesh* pFbxMesh)
+Mesh::Mesh(FbxMesh* pFbxMesh)
 : mMatrixBuffer(GL_DYNAMIC_DRAW)
 , mNormalMatrixBuffer(GL_DYNAMIC_DRAW)
 {
@@ -361,13 +490,13 @@ Mesh::Mesh(
 	set(indices, position_XYZ_uv_X, normal_XYZ_uv_Y, tangent_XYZ_handedness);
 }
 
-void Mesh::set(const FbxMesh* pFbxMesh)
+void Mesh::set(FbxMesh* pFbxMesh)
 {
 	setNameWithFbx(pFbxMesh);
 
 	std::cerr << "\tFound mesh: " << this->name << '\n';
 
-	int i, j, polyvertex, polygonsize, polygoncount, vertexid = 0;
+	int i, j, lFbxIndex, polygonsize, polygoncount, vertexid = 0;
 
 	if (pFbxMesh->IsTriangleMesh() == false)
 	{
@@ -377,6 +506,7 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 	}
 
 	bool lHasTangents;
+	bool lMoreThan2Neighbors = false;
 
 	gintonic::Mesh::vec4f lSlot0Entry;
 	gintonic::Mesh::vec4f lSlot1Entry;
@@ -388,17 +518,25 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 	FbxVector4 lFbxTangent;
 	FbxVector4 lFbxBitangent;
 
+	std::vector<FbxVector2> lFbxTexCoords;
+	std::vector<FbxVector4> lFbxNormals;
+	std::vector<FbxVector4> lFbxTangents;
+	std::vector<FbxVector4> lFbxBitangents;
+
 	gintonic::vec3f N;
 	gintonic::vec3f T;
 	gintonic::vec3f B;
 
-	GLfloat handedness;
+	GLfloat lHandedness;
 
-	// FBX calls the bitangent vectors binormals... sigh.
-	const FbxGeometryElementUV* lFbxTexCoordArray = nullptr;
-	const FbxGeometryElementNormal* lFbxNormalArray = nullptr;
-	const FbxGeometryElementTangent* lFbxTangentArray = nullptr;
-	const FbxGeometryElementBinormal* lFbxBitangentArray = nullptr;
+	// Reset the bounding box.
+	mLocalBoundingBox.minCorner = std::numeric_limits<float>::max();
+	mLocalBoundingBox.maxCorner = std::numeric_limits<float>::min();
+
+	FbxGeometryElementUV* lFbxTexCoordArray = nullptr;
+	FbxGeometryElementNormal* lFbxNormalArray = nullptr;
+	FbxGeometryElementTangent* lFbxTangentArray = nullptr;
+	FbxGeometryElementBinormal* lFbxBitangentArray = nullptr;
 
 	FbxStringList lUVSetNames;
 	pFbxMesh->GetUVSetNames(lUVSetNames);
@@ -406,10 +544,18 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 	if (lUVSetNames.GetCount()) 
 	{
 		lFbxTexCoordArray = pFbxMesh->GetElementUV(lUVSetNames.GetStringAt(0));
-	}	
+	}
+	if (!pFbxMesh->GenerateNormals())
+	{
+		throw std::runtime_error("could not generate normals.");
+	}
 	if (pFbxMesh->GetElementNormalCount()) 
 	{
 		lFbxNormalArray = pFbxMesh->GetElementNormal(0);
+	}
+	else
+	{
+		throw std::runtime_error("mesh has no normals");
 	}
 	if (pFbxMesh->GetElementTangentCount())
 	{
@@ -422,11 +568,70 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 
 	std::map<Edge, NeighborPair> lEdgeToNeighborMap;
 	std::map<Mesh::vec3f, GLuint> lPositionToIndexMap;
+	std::map<int, GLuint> lFbxIndicesToOwnMap;
 	std::set<Triangle> lTriangles;
 
-	// Reset the bounding box.
-	mLocalBoundingBox.minCorner = std::numeric_limits<float>::max();
-	mLocalBoundingBox.maxCorner = std::numeric_limits<float>::min();
+	// for (int i = 0; i < mIndices.size(); i += 3)
+	// {
+	// 	Triangle lTriangle;
+	// 	for (int j = 0; j < 3; ++j)
+	// 	{
+	// 		const auto lIndex = mIndices[i + j];
+	// 		const auto lTriangleIndex = polyvertex = pFbxMesh->GetPolygonVertex(i, j);
+	// 		lTriangle[j] = lIndex;
+	// 		lHasTangents = makeVertex(
+	// 			pFbxMesh, 
+	// 			lFbxTexCoordArray, 
+	// 			lFbxNormalArray, 
+	// 			lFbxTangentArray, 
+	// 			lFbxBitangentArray, lTriangleIndex, i + j, lSlot0Entry, lSlot1Entry, lSlot2Entry);
+
+	// 		Mesh::vec3f lPosition(lSlot0Entry.x, lSlot0Entry.y, lSlot0Entry.z);
+	// 		const gintonic::vec3f lPositionAsGTVec(lSlot0Entry.x, lSlot0Entry.y, lSlot0Entry.z);
+	// 		// Add the position to the mesh's local bounding box.
+	// 		mLocalBoundingBox.addPoint(lPositionAsGTVec);
+	// 		assert(mLocalBoundingBox.contains(lPositionAsGTVec));
+
+	// 		bool lFoundDuplicate = false;
+	// 		for (std::size_t lDuplicateEntry = 0; lDuplicateEntry < mPosition_XYZ_uv_X.size(); ++lDuplicateEntry)
+	// 		{
+	// 			if (mPosition_XYZ_uv_X[lDuplicateEntry] == lSlot0Entry && mNormal_XYZ_uv_Y[lDuplicateEntry] == lSlot1Entry)
+	// 			{
+	// 				if (lHasTangents)
+	// 				{
+	// 					if (mTangent_XYZ_hand[lDuplicateEntry] == lSlot2Entry)
+	// 					{
+	// 						lFoundDuplicate = true;
+	// 						break;
+	// 					}
+	// 				}
+	// 				else
+	// 				{
+	// 					lFoundDuplicate = true;
+	// 					break;
+	// 				}
+	// 			}
+	// 		}
+	// 		if (!lFoundDuplicate)
+	// 		{
+	// 			mPosition_XYZ_uv_X.push_back(lSlot0Entry);
+	// 			mNormal_XYZ_uv_Y.push_back(lSlot1Entry);
+	// 			if (lHasTangents) mTangent_XYZ_hand.push_back(lSlot2Entry);
+	// 		}
+	// 	}
+	// 	const Edge e1(lTriangle[0], lTriangle[1]);
+	// 	const Edge e2(lTriangle[1], lTriangle[2]);
+	// 	const Edge e3(lTriangle[2], lTriangle[0]);
+	// 	auto lInsertionResult = lTriangles.emplace(lTriangle).first;
+	// 	lEdgeToNeighborMap[e1].addNeighbor(&(*lInsertionResult));
+	// 	lEdgeToNeighborMap[e2].addNeighbor(&(*lInsertionResult));
+	// 	lEdgeToNeighborMap[e3].addNeighbor(&(*lInsertionResult));
+	// }
+
+	mIndices.clear();
+	mPosition_XYZ_uv_X.clear();
+	mNormal_XYZ_uv_Y.clear();
+	mTangent_XYZ_hand.clear();
 
 	// For each triangle ...
 	polygoncount = pFbxMesh->GetPolygonCount();
@@ -438,11 +643,11 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 		// For each vertex in the current triangle ...
 		for (j = 0; j < polygonsize; ++j)
 		{
-			polyvertex = pFbxMesh->GetPolygonVertex(i, j);
+			lFbxIndex = pFbxMesh->GetPolygonVertex(i, j);
 
-			lFbxPosition = pFbxMesh->GetControlPointAt(polyvertex);
+			lFbxPosition = pFbxMesh->GetControlPointAt(lFbxIndex);
 
-			if (!getLayerElement(lFbxNormalArray, polyvertex, vertexid, lFbxNormal))
+			if (!getLayerElement(lFbxNormalArray, lFbxIndex, vertexid, lFbxNormal))
 			{
 				N = 0.0f;
 			}
@@ -450,11 +655,11 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 			{
 				N = gintonic::vec3f(lFbxNormal).normalize();
 			}
-			if (!getLayerElement(lFbxTexCoordArray, polyvertex, vertexid, lFbxTexCoord))
+			if (!getLayerElement(lFbxTexCoordArray, lFbxIndex, vertexid, lFbxTexCoord))
 			{
 				lFbxTexCoord[0] = lFbxTexCoord[1] = 0.0f;
 			}
-			if (!getLayerElement(lFbxTangentArray, polyvertex, vertexid, lFbxTangent))
+			if (!getLayerElement(lFbxTangentArray, lFbxIndex, vertexid, lFbxTangent))
 			{
 				T = 0.0f;
 				lHasTangents = false;
@@ -464,7 +669,7 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 				T = gintonic::vec3f(lFbxTangent).normalize();
 				lHasTangents = true;
 			}
-			if (!getLayerElement(lFbxBitangentArray, polyvertex, vertexid, lFbxBitangent))
+			if (!getLayerElement(lFbxBitangentArray, lFbxIndex, vertexid, lFbxBitangent))
 			{
 				B = 0.0f;
 			}
@@ -473,7 +678,7 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 				B = gintonic::vec3f(lFbxBitangent).normalize();
 			}
 
-			handedness = gintonic::distance(cross(N,T), B) < 0.01f ? 1.0f : -1.0f;
+			lHandedness = gintonic::distance(cross(N,T), B) < 0.01f ? 1.0f : -1.0f;
 
 			lSlot0Entry =
 			{
@@ -491,15 +696,9 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 				static_cast<GLfloat>(lFbxTexCoord[1])
 			};
 
-			if (lHasTangents) lSlot2Entry = {T.x, T.y, T.z, handedness};
+			if (lHasTangents) lSlot2Entry = {T.x, T.y, T.z, lHandedness};
 
 			Mesh::vec3f lPosition(lFbxPosition[0], lFbxPosition[1], lFbxPosition[2]);
-
-			// Turn negative zero into positive zero.
-			// We get extremely subtle bugs otherwise :-(
-			if (lPosition.x == -0.0f) lPosition.x = 0.0f;
-			if (lPosition.y == -0.0f) lPosition.y = 0.0f;
-			if (lPosition.z == -0.0f) lPosition.z = 0.0f;
 
 			const gintonic::vec3f lPositionAsGTVec(lFbxPosition[0], lFbxPosition[1], lFbxPosition[2]);
 
@@ -513,6 +712,7 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 			{
 				lIndex = static_cast<GLuint>(lPositionToIndexMap.size());
 				lPositionToIndexMap.insert({lPosition, lIndex});
+				mPositions.push_back(lPosition);
 			}
 			else
 			{
@@ -549,31 +749,30 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 			}
 			mIndices.push_back(lIndex);
 
+			lFbxIndicesToOwnMap.emplace(lFbxIndex, lIndex);
+
 			++vertexid;
 		}
 
-		std::cerr << "Adding triangle " << lTriangle << '\n';
+		// std::cerr << "Adding triangle " << lTriangle << '\n';
 
 		const Edge e1(lTriangle[0], lTriangle[1]);
 		const Edge e2(lTriangle[1], lTriangle[2]);
 		const Edge e3(lTriangle[2], lTriangle[0]);
 		auto lInsertionResult = lTriangles.emplace(lTriangle).first;
-		lEdgeToNeighborMap[e1].addNeighbor(&(*lInsertionResult));
-		lEdgeToNeighborMap[e2].addNeighbor(&(*lInsertionResult));
-		lEdgeToNeighborMap[e3].addNeighbor(&(*lInsertionResult));
+		if (!lEdgeToNeighborMap[e1].addNeighbor(&(*lInsertionResult))) lMoreThan2Neighbors = true;
+		if (!lEdgeToNeighborMap[e2].addNeighbor(&(*lInsertionResult))) lMoreThan2Neighbors = true;
+		if (!lEdgeToNeighborMap[e3].addNeighbor(&(*lInsertionResult))) lMoreThan2Neighbors = true;
 	}
 
-	for (const auto& lKeyValue : lEdgeToNeighborMap)
-	{
-		std::cout << lKeyValue.first << " => " << lKeyValue.second << '\n';
-	}
+	assert(pFbxMesh->GetPolygonVertexCount() == mIndices.size());
 
 	mIndicesAdjacent.clear();
 
 	bool lMeshHasBoundary = false;
 	for (const auto& lTriangle : lTriangles)
 	{
-		if (lMeshHasBoundary) break;
+		if (lMeshHasBoundary || lMoreThan2Neighbors) break;
 		for (GLuint j = 0; j < 3; ++j)
 		{
 			const Edge lEdge(lTriangle[j], lTriangle[(j + 1) % 3]);
@@ -590,31 +789,34 @@ void Mesh::set(const FbxMesh* pFbxMesh)
 		}
 	}
 
-	mPositions.clear();
+	buildBonesArray(pFbxMesh, lFbxIndicesToOwnMap);
 
-	if (lMeshHasBoundary)
+	if (lMoreThan2Neighbors)
 	{
+		mPositions.clear();
+		mIndicesAdjacent.clear();
+		std::cerr << "\tWARNING: Mesh has an edge with more than two neighbors.\n"
+			<< "\tSilhouette detection algorithm will not work.\n";
+	}
+	else if (lMeshHasBoundary)
+	{
+		mPositions.clear();
 		mIndicesAdjacent.clear();
 		std::cerr << "\tWARNING: Mesh has holes and/or boundaries.\n"
 			<< "\tSilhouette detection algorithm will not work.\n";
 	}
 	else
 	{
-		// Finally, make the positions a proper array
-		for (const auto& lKeyValue : lPositionToIndexMap)
-		{
-			mPositions.push_back(lKeyValue.first);
-		}
+		std::cerr << "\tNumber of points: " << mPositions.size() << '\n';
+		std::cerr << "\tNumber of adjacency indices: " << mIndicesAdjacent.size()
+			<< " (saved " << static_cast<float>(mPositions.size()) 
+			/ static_cast<float>(mIndicesAdjacent.size()) << ")\n";
 	}
-
 	std::cerr << "\tNumber of vertices: " << mPosition_XYZ_uv_X.size() << '\n';
 	std::cerr << "\tNumber of indices: " << mIndices.size()
 		<< " (saved " << static_cast<float>(mPosition_XYZ_uv_X.size()) 
 		/ static_cast<float>(mIndices.size()) << ")\n";
-	std::cerr << "\tNumber of points: " << mPositions.size() << '\n';
-	std::cerr << "\tNumber of adjacency indices: " << mIndicesAdjacent.size()
-		<< " (saved " << static_cast<float>(mPositions.size()) 
-		/ static_cast<float>(mIndicesAdjacent.size()) << ")\n";
+
 
 	uploadData();
 }
@@ -741,14 +943,6 @@ void Mesh::computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh
 
 void Mesh::computeAdjacencyFromPositionInformation()
 {
-	struct SimpleEdge
-	{
-		GLuint vertexIndex[2];
-		GLuint triangleIndex[2];
-	};
-
-	std::vector<SimpleEdge> lSimpleEdges;
-
 	std::map<Edge, NeighborPair> lEdgeToNeighborMap;
 	std::map<Mesh::vec3f, GLuint> lPositionToIndexMap;
 	std::set<Triangle> lTriangles;
@@ -760,13 +954,13 @@ void Mesh::computeAdjacencyFromPositionInformation()
 	{
 		Triangle lTriangle;
 
-		std::cerr << "Triangle: ";
+		// std::cerr << "Triangle: ";
 
 		for (GLuint j = 0; j < 3; ++j)
 		{
 			const Mesh::vec4f lPosition4(mPosition_XYZ_uv_X[mIndices[i + j]]);
 			const Mesh::vec3f lPosition(lPosition4.x, lPosition4.y, lPosition4.z);
-			std::cerr << lPosition << ' ';
+			// std::cerr << lPosition << ' ';
 
 			GLuint lIndex;
 
@@ -785,7 +979,7 @@ void Mesh::computeAdjacencyFromPositionInformation()
 			lTriangle[j] = lIndex;
 		}
 
-		std::cerr << "--> " << lTriangle << '\n';
+		// std::cerr << "--> " << lTriangle << '\n';
 
 		const Edge e1(lTriangle[0], lTriangle[1]);
 		const Edge e2(lTriangle[1], lTriangle[2]);
@@ -794,11 +988,6 @@ void Mesh::computeAdjacencyFromPositionInformation()
 		lEdgeToNeighborMap[e1].addNeighbor(&(*lInsertionResult));
 		lEdgeToNeighborMap[e2].addNeighbor(&(*lInsertionResult));
 		lEdgeToNeighborMap[e3].addNeighbor(&(*lInsertionResult));
-	}
-
-	for (const auto& lKeyValue : lEdgeToNeighborMap)
-	{
-		std::cerr << lKeyValue.first << " => " << lKeyValue.second << '\n';
 	}
 
 	mIndicesAdjacent.clear();
@@ -810,7 +999,7 @@ void Mesh::computeAdjacencyFromPositionInformation()
 		{
 			break;
 		}
-		std::cerr << "Adjacency triangle: [ ";
+		// std::cerr << "Adjacency triangle: [ ";
 		for (GLuint j = 0; j < 3; ++j)
 		{
 			const Edge lEdge(lTriangle[j], lTriangle[(j + 1) % 3]);
@@ -823,32 +1012,153 @@ void Mesh::computeAdjacencyFromPositionInformation()
 			const auto* lOtherTriangle = lNeighbor.getOther(&lTriangle);
 			if (!lOtherTriangle)
 			{
-				std::cerr << "\tFATAL ERROR: Triangle " << lTriangle << " is degenerate.\n";
+				// std::cerr << "\tFATAL ERROR: Triangle " << lTriangle << " is degenerate.\n";
 				lDegenerateTriangle = &lTriangle;
 				break;
 			}
 			mIndicesAdjacent.push_back(lTriangle[j]);
 			mIndicesAdjacent.push_back(lOtherTriangle->getOppositeIndex(lEdge));
-			std::cerr << lTriangle[j] << ' ' << lOtherTriangle->getOppositeIndex(lEdge) << ' ';
+			// std::cerr << lTriangle[j] << ' ' << lOtherTriangle->getOppositeIndex(lEdge) << ' ';
 		}
-		std::cerr << "]\n";
+		// std::cerr << "]\n";
 	}
-
-	
 
 	if (lDegenerateTriangle)
 	{
 		mPositions.clear();
 		mIndicesAdjacent.clear();
-		std::cerr << "\tWARNING: Mesh \"" << this->name << "\" has holes and/or boundaries.\n"
-			<< "\tSilhouette detection algorithm will not work.\n";
+		// std::cerr << "\tWARNING: Mesh \"" << this->name << "\" has holes and/or boundaries.\n"
+		// 	<< "\tSilhouette detection algorithm will not work.\n";
 	}
 	else
 	{
-		std::cerr << "\tNumber of points: " << mPositions.size() << '\n';
-		std::cerr << "\tNumber of adjacency indices: " << mIndicesAdjacent.size()
-			<< " (saved " << static_cast<float>(mPositions.size()) 
-			/ static_cast<float>(mIndicesAdjacent.size()) << ")\n";
+		// std::cerr << "\tNumber of points: " << mPositions.size() << '\n';
+		// std::cerr << "\tNumber of adjacency indices: " << mIndicesAdjacent.size()
+		// 	<< " (saved " << static_cast<float>(mPositions.size()) 
+		// 	/ static_cast<float>(mIndicesAdjacent.size()) << ")\n";
+	}
+}
+
+mat4f Mesh::evaluateBoneAtTime(const std::size_t boneIndex, const float timepoint) const noexcept
+{
+	mat4f lResult(1.0f);
+	evaluateBoneAtTimeRecursive(boneIndex, timepoint, lResult);
+	return lResult;
+}
+
+void Mesh::evaluateBoneAtTimeRecursive(const std::size_t boneIndex, const float timepoint, mat4f& matrix) const noexcept
+{
+	matrix = mat4f(bones[boneIndex].localTransform) * matrix;
+	// matrix *= mat4f(bones[boneIndex].localTransform);
+	if (bones[boneIndex].parent >= 0) evaluateBoneAtTimeRecursive(bones[boneIndex].parent, timepoint, matrix);
+	else return;
+}
+
+void Mesh::buildBonesRecursive(const FbxNode* bone, const int32_t parent, std::map<int32_t, const FbxNode*>& lIndexToBoneMap)
+{
+	const int32_t lThisIndex = static_cast<int32_t>(bones.size());
+	lIndexToBoneMap[lThisIndex] = bone;
+	bones.emplace_back(std::string(bone->GetName()), parent, SQT(bone));
+	for (int i = 0; i < bone->GetChildCount(); ++i)
+	{
+		buildBonesRecursive(bone->GetChild(i), lThisIndex, lIndexToBoneMap);
+	}
+}
+
+void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>& fbxIndicesToOwnMap)
+{
+	std::map<int32_t, const FbxNode*> lIndexToBoneMap;
+	std::map<const FbxNode*, std::vector<std::pair<GLuint, GLfloat>>> lBoneToInfluenceMap;
+
+	bones.clear();
+	mBoneIndices.clear();
+	mBoneWeights.clear();
+	mBoneIndices.resize(mPosition_XYZ_uv_X.size());
+	mBoneWeights.resize(mPosition_XYZ_uv_X.size());
+
+	std::fill(mBoneIndices.begin(), mBoneIndices.end(), Mesh::vec4i(-1, -1, -1, -1));
+	std::fill(mBoneWeights.begin(), mBoneWeights.end(), Mesh::vec4f(0.0f, 0.0f, 0.0f, 0.0f));
+
+	if (pFbxMesh->GetDeformerCount() <= 0)
+	{
+		return;
+	}
+	const auto pFbxSkin = FbxCast<FbxSkin>(pFbxMesh->GetDeformer(0));
+	if (!pFbxSkin)
+	{
+		std::cerr << "\tFound deformer, but it's of the wrong type (not an FbxSkin)\n";
+		return;
+	}
+	const int lBoneCount = pFbxSkin->GetClusterCount();
+	bones.reserve(lBoneCount);
+	std::cerr << "\tMesh has " << lBoneCount << " bones.\n";
+
+	for (int b = 0; b < lBoneCount; ++b)
+	{
+		const auto lCluster = pFbxSkin->GetCluster(b);
+		const auto lLink    = lCluster->GetLink();
+
+		std::vector<std::pair<GLuint, GLfloat>> lBoneInfluence;
+		lBoneInfluence.reserve(lCluster->GetControlPointIndicesCount());
+
+		for (int i = 0; i < lCluster->GetControlPointIndicesCount(); ++i)
+		{
+			const auto lFindResult = fbxIndicesToOwnMap.find(lCluster->GetControlPointIndices()[i]);
+			assert(lFindResult != fbxIndicesToOwnMap.end());
+
+			lBoneInfluence.emplace_back(
+				lFindResult->second, 
+				static_cast<GLfloat>(lCluster->GetControlPointWeights()[i]));
+		}
+
+		lBoneToInfluenceMap.emplace(lLink, lBoneInfluence);
+
+		if (lLink->GetParent() == lLink->GetScene()->GetRootNode() || lLink->GetParent() == pFbxMesh->GetNode())
+		{
+			buildBonesRecursive(lLink, -1, lIndexToBoneMap);
+		}
+	}
+
+	for (Bone::IndexType i = 0; i < bones.size(); ++i)
+	{
+		const auto r1 = lIndexToBoneMap.find(i);
+		assert(r1 != lIndexToBoneMap.end());
+		const auto r2 = lBoneToInfluenceMap.find(r1->second);
+		assert(r2 != lBoneToInfluenceMap.end());
+		const auto& lBoneInfluence = r2->second;
+		// const auto& lBoneInfluence = lBoneToInfluenceMap[lIndexToBoneMap[i]];
+		for (const auto& lPair : lBoneInfluence)
+		{
+			if (mBoneIndices[lPair.first].x == -1)
+			{
+				mBoneIndices[lPair.first].x = i;
+				mBoneWeights[lPair.first].x = lPair.second;
+			}
+			else if (mBoneIndices[lPair.first].y == -1)
+			{
+				mBoneIndices[lPair.first].y = i;
+				mBoneWeights[lPair.first].y = lPair.second;
+			}
+			else if (mBoneIndices[lPair.first].z == -1)
+			{
+				mBoneIndices[lPair.first].z = i;
+				mBoneWeights[lPair.first].z = lPair.second;
+			}
+			else if (mBoneIndices[lPair.first].w == -1)
+			{
+				mBoneIndices[lPair.first].w = i;
+				mBoneWeights[lPair.first].w = lPair.second;
+			}
+			else
+			{
+				std::cerr << "\tWARNING: Vertex " << lPair.first << " is influenced by more than 4 bones:\n";
+				std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].x].name << '\n';
+				std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].y].name << '\n';
+				std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].z].name << '\n';
+				std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].w].name << '\n';
+				std::cerr << "\t\t" << bones[i].name << '\n';
+			}
+		}
 	}
 }
 
@@ -870,6 +1180,13 @@ void Mesh::uploadData()
 		gtBufferData(GL_ARRAY_BUFFER, mTangent_XYZ_hand, lUsageHint);
 		Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_2);
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_BONE_IDS]);
+	gtBufferData(GL_ARRAY_BUFFER, mBoneIndices, lUsageHint);
+	Mesh::vec4i::enableAttribute(GT_VERTEX_LAYOUT_SLOT_14);
+	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_BONE_WEIGHTS]);
+	gtBufferData(GL_ARRAY_BUFFER, mBoneWeights, lUsageHint);
+	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_15);
+
 	glBindVertexArray(mVertexArrayObjectAdjacencies);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES_ADJ]);
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndicesAdjacent, lUsageHint);

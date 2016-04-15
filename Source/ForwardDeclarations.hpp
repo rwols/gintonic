@@ -16,6 +16,7 @@ class FbxNodeAttribute;
 class FbxSurfaceMaterial;
 class FbxLight;
 class FbxCamera;
+class FbxTexture;
 #include <fbxsdk/fbxsdk_nsend.h>
 
 namespace gintonic {

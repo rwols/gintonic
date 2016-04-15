@@ -10,10 +10,9 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
-namespace FBX
-{
-	class FbxVector4; // Forward declaration.	
-}
+#include <fbxsdk/fbxsdk_nsbegin.h>
+class FbxVector4; // Forward declaration.	
+#include <fbxsdk/fbxsdk_nsend.h>
 
 namespace gintonic {
 
@@ -142,10 +141,10 @@ public:
 		noexcept;
 
 	/// Constructor that takes an FbxVector4.
-	vec4f(const FBX::FbxVector4& v) noexcept;
+	vec4f(const FBXSDK_NAMESPACE::FbxVector4& v) noexcept;
 
 	/// Assignment operator that takes an FbxVector4.
-	vec4f& operator=(const FBX::FbxVector4& v) noexcept;
+	vec4f& operator=(const FBXSDK_NAMESPACE::FbxVector4& v) noexcept;
 
 	/// Add-and-assign operator.
 	inline vec4f& operator += (const vec4f& v) noexcept
@@ -349,7 +348,7 @@ public:
 	}
 
 	/// Convert a vec4f to an FbxVector4 with a static_cast.
-	operator FBX::FbxVector4() const noexcept;
+	operator FBXSDK_NAMESPACE::FbxVector4() const noexcept;
 
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 

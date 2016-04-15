@@ -15,11 +15,13 @@
 #include "../Math/box3f.hpp"
 #include "../Math/mat3f.hpp"
 #include "../Math/mat4f.hpp"
+#include "../Math/SQT.hpp"
 
 #include "OpenGL/VertexArrayObject.hpp"
 #include "OpenGL/Vector.hpp"
 
 #include <vector>
+#include <map>
 #include <boost/serialization/base_object.hpp>
 
 #define GT_MESH_BUFFER_POS_XYZ_UV_X 0     // Buffer for the positions and uv.x
@@ -28,6 +30,9 @@
 #define GT_MESH_BUFFER_POSITIONS    3     // Buffer for the position vectors (needed for adjacency)
 #define GT_MESH_BUFFER_INDICES      4     // Buffer for the indices
 #define GT_MESH_BUFFER_INDICES_ADJ  5     // Buffer for the indices with adjacency information
+#define GT_MESH_BUFFER_BONE_IDS     6     // Buffer for the Bone indices
+#define GT_MESH_BUFFER_BONE_WEIGHTS 7     // Buffer for the Bone weights
+#define GT_MESH_BUFFER_SIZE         8
 
 #define GT_VERTEX_LAYOUT_SLOT_0 0         //  pos.X  pos.Y  pos.Z   uv.X
 #define GT_VERTEX_LAYOUT_SLOT_1 1         //  nor.X  nor.Y  nor.Z   uv.Y
@@ -43,8 +48,10 @@
 #define GT_VERTEX_LAYOUT_SLOT_11_12_13 11 //   N.00   N.01   N.02 unused <--- instanced rendering
                                           //   N.10   N.11   N.12 unused <--- instanced rendering
                                           //   N.20   N.21   N.22 unused <--- instanced rendering
-#define GT_VERTEX_LAYOUT_SLOT_14 14       //   free   free   free   free
-#define GT_VERTEX_LAYOUT_SLOT_15 15       //   free   free   free   free
+#define GT_VERTEX_LAYOUT_SLOT_14 14       // boneID.x boneID.y boneID.z boneID.w
+#define GT_VERTEX_LAYOUT_SLOT_15 15       // weight.x weight.y weight.z weight.w
+
+#define GT_MESH_MAX_BONES 64
 
 namespace gintonic {
 
@@ -68,7 +75,6 @@ public:
 		kDynamicMesh,
 		kStandardMesh
 	};
-
 
 	/**
 	 * @brief An additional vector class that doesn't use SSE types.
@@ -220,6 +226,90 @@ public:
 		}
 	};
 
+	/**
+	 * @brief An additional vector class that doesn't use SSE types.
+	 * @details You can use this class to build meshes internally.
+	 */
+	struct vec4i
+	{
+		/// The X-coordinate.
+		GLint x;
+
+		/// The Y-coordinate.
+		GLint y;
+
+		/// The Z-coordinate.
+		GLint z;
+
+		/// The W-coordinate.
+		GLint w;
+
+		/// Constructor.
+		vec4i() = default;
+
+		/// Constructor that takes an FbxVector4.
+		vec4i(const FBXSDK_NAMESPACE::FbxVector4&);
+
+		/// Constructor that takes an X, Y, Z and W value.
+		vec4i(const GLint x, const GLint y, const GLint z, const GLint w);
+
+		/// Equality comparison operator.
+		bool operator == (const vec4i&) const noexcept;
+	
+		/// Inequality comparison operator.
+		bool operator != (const vec4i&) const noexcept;
+
+		/// You can put these in a map.
+		bool operator < (const vec4i&) const noexcept;
+
+		/**
+		 * @brief Enables this vector type in the current OpenGL array buffer.
+		 * @details When an OpenGL array buffer is bound, normally you would
+		 * call glVertexAttribPointer and glEnableAttribute. This static
+		 * method does it for you so that one doesn't have to care about the
+		 * correct arguments.
+		 * 
+		 * @param index The index.
+		 */
+		static void enableAttribute(const GLuint index) noexcept;
+
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int /*version*/)
+		{
+			ar & x & y & z & w;
+		}
+	};
+
+	class Bone
+	{
+	public:
+
+		using NameType      = std::string;
+		using IndexType     = GLint;
+		using TransformType = SQT;
+
+		NameType      name;
+		IndexType     parent;
+		TransformType localTransform;
+
+		Bone() = default;
+
+		Bone(NameType name, const IndexType parent, const TransformType& localTransform)
+		: name(std::move(name)), parent(parent), localTransform(localTransform) {}
+
+		GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+
+		template <class Archive>
+		void serialize(Archive & ar, const unsigned int /*version*/)
+		{
+			ar & name & parent & localTransform;
+		}
+	};
+
+	std::vector<Bone, allocator<Bone>> bones;
+
+	mat4f evaluateBoneAtTime(const std::size_t boneIndex, const float timepoint) const noexcept;
+
 	/// Get the local bounding box.
 	const box3f& getLocalBoundingBox() const noexcept
 	{
@@ -237,7 +327,7 @@ public:
 	 * @param [in] fbxMesh A constant pointer to an FBX mesh.
 	 */
 	Mesh(
-		const FBXSDK_NAMESPACE::FbxMesh*             fbxMesh);
+		FBXSDK_NAMESPACE::FbxMesh*             fbxMesh);
 
 	/**
 	 * @brief Constructs a mesh from manual arrays.
@@ -300,7 +390,7 @@ public:
 	 * @param [in] fbxMesh A constant pointer to an FBX mesh.
 	 */
 	void set(
-		const FBXSDK_NAMESPACE::FbxMesh*             fbxMesh);
+		FBXSDK_NAMESPACE::FbxMesh*             fbxMesh);
 
 	/**
 	 * @brief Change this mesh according to manual arrays.
@@ -420,20 +510,32 @@ public:
 private:
 
 	box3f mLocalBoundingBox;
+
 	std::vector<GLuint> mIndices;
 	std::vector<GLuint> mIndicesAdjacent;
-	std::vector<Mesh::vec3f> mPositions;
+
 	std::vector<Mesh::vec4f> mPosition_XYZ_uv_X;
 	std::vector<Mesh::vec4f> mNormal_XYZ_uv_Y;
 	std::vector<Mesh::vec4f> mTangent_XYZ_hand;
 
+	std::vector<Mesh::vec3f> mPositions;
+
+	std::vector<Mesh::vec4i> mBoneIndices;
+	std::vector<Mesh::vec4f> mBoneWeights;
+
 	OpenGL::VertexArrayObject mVertexArrayObject;
 	OpenGL::VertexArrayObject mVertexArrayObjectAdjacencies;
-	OpenGL::BufferObjectArray<6> mBuffer;
+
+	OpenGL::BufferObjectArray<GT_MESH_BUFFER_SIZE> mBuffer;
+
 	OpenGL::VectorArray<GL_ARRAY_BUFFER, mat4f, 2> mMatrixBuffer;
+
 	OpenGL::Vector<GL_ARRAY_BUFFER, mat3f> mNormalMatrixBuffer;
 
 	void setupInstancedRenderingMatrices() noexcept;
+	void evaluateBoneAtTimeRecursive(const std::size_t boneIndex, const float timepoint, mat4f& matrix) const noexcept;
+	void buildBonesRecursive(const FBXSDK_NAMESPACE::FbxNode*, const int32_t, std::map<int32_t, const FBXSDK_NAMESPACE::FbxNode*>&);
+	void buildBonesArray(const FBXSDK_NAMESPACE::FbxMesh*, const std::map<int, GLuint>&);
 	void computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh::vec4f>& position_XYZ_uv_X);
 	void computeAdjacencyFromPositionInformation();
 	
@@ -445,24 +547,41 @@ private:
 	void save(Archive& archive, const unsigned int /*version*/) const
 	{
 		archive & mLocalBoundingBox;
+
+		archive & bones;
+
 		archive & mIndices;
 		archive & mIndicesAdjacent;
+
 		archive & mPosition_XYZ_uv_X;
 		archive & mNormal_XYZ_uv_Y;
 		archive & mTangent_XYZ_hand;
+
 		archive & mPositions;
+
+		archive & mBoneIndices;
+		archive & mBoneWeights;
 	}
 
 	template <class Archive>
 	void load(Archive& archive, const unsigned int /*version*/)
 	{
 		archive & mLocalBoundingBox;
+
+		archive & bones;
+
 		archive & mIndices;
 		archive & mIndicesAdjacent;
+
 		archive & mPosition_XYZ_uv_X;
 		archive & mNormal_XYZ_uv_Y;
 		archive & mTangent_XYZ_hand;
+
 		archive & mPositions;
+
+		archive & mBoneIndices;
+		archive & mBoneWeights;
+
 		uploadData();
 	}
 
@@ -477,6 +596,16 @@ inline std::ostream& operator << (std::ostream& os, const Mesh::vec3f& v)
 inline std::ostream& operator << (std::ostream& os, const Mesh::vec4f& v)
 {
 	return os << '[' << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ']';
+}
+
+inline std::ostream& operator << (std::ostream& os, const Mesh::vec4i& v)
+{
+	return os << '[' << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ']';
+}
+
+inline std::ostream& operator << (std::ostream& os, const Mesh::Bone& bone)
+{
+	return os << '{' << bone.name << ", " << bone.parent << ", " << bone.localTransform << '}';
 }
 
 } // namespace gintonic

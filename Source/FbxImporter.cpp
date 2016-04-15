@@ -50,22 +50,15 @@ checkForDuplicate(
 
 namespace gintonic {
 
-FbxImporter::FbxImporter()
+FbxImporter::FbxImporter(const char* filename,
+	bool normalizeUnits, 
+	bool setAxisSystemToOpenGL,
+	bool triangulateAllMeshes)
 : mManager(FbxManager::Create())
 , mScene(FbxScene::Create(mManager, ""))
 , mImporter(::FbxImporter::Create(mManager, ""))
+, mFilename(filename)
 {
-
-}
-
-FbxImporter::~FbxImporter() noexcept
-{
-	mManager->Destroy();
-}
-
-std::shared_ptr<Entity> FbxImporter::loadFromFile(const char* filename, bool setRootEntityNameAsFilename)
-{
-	// Import the scene.
 	const auto lStatus = mImporter->Initialize(filename, -1, mManager->GetIOSettings());
 	if (!lStatus)
 	{
@@ -76,19 +69,59 @@ std::shared_ptr<Entity> FbxImporter::loadFromFile(const char* filename, bool set
 	}
 	mImporter->Import(mScene);
 
-	// Convert the scene to the correct axis system and orientation.
-	// Also triangulate everything in the scene in-place, just in case.
-	FbxAxisSystem::OpenGL.ConvertScene(mScene);
-	FbxGeometryConverter lConverter(mManager);
-	lConverter.Triangulate(mScene, true);
+	if (setAxisSystemToOpenGL)
+	{
+		// Convert the scene to the correct axis system and orientation.
+		// Also triangulate everything in the scene in-place, just in case.
+		FbxAxisSystem::OpenGL.ConvertScene(mScene);
+		FbxGeometryConverter lConverter(mManager);
+		lConverter.Triangulate(mScene, true);
+	}
 
+	if (normalizeUnits)
+	{
+		const FbxSystemUnit::ConversionOptions lConversionOptions = 
+		{
+			false, /* mConvertRrsNodes */
+			true,  /* mConvertAllLimits */
+			true,  /* mConvertClusters */
+			true,  /* mConvertLightIntensity */
+			true,  /* mConvertPhotometricLProperties */
+			true   /* mConvertCameraClipPlanes */
+		};
+
+		// Convert the scene to meters using the defined options.
+		FbxSystemUnit::m.ConvertScene(mScene, lConversionOptions);
+	}
+
+
+}
+
+FbxImporter::~FbxImporter() noexcept
+{
+	mManager->Destroy();
+}
+
+std::shared_ptr<Entity> FbxImporter::loadEntities(
+	bool setRootEntityNameAsFilename,
+	bool cleanUpEmptyNodes)
+{
 	ResultStructure lResult;
 	auto lRootEntity = traverse(mScene->GetRootNode(), lResult);
 	if (setRootEntityNameAsFilename)
 	{
-		lRootEntity->name = boost::filesystem::path(filename).stem().string();
+		lRootEntity->name = boost::filesystem::path(mFilename).stem().string();
+	}
+	if (cleanUpEmptyNodes)
+	{
+
 	}
 	return lRootEntity;
+}
+
+std::vector<AnimStack> FbxImporter::loadAnimations()
+{
+	return std::vector<AnimStack>();
 }
 
 std::shared_ptr<Entity> FbxImporter::traverse(FbxNode* pNode, ResultStructure& result)

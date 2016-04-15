@@ -27,8 +27,7 @@
  *  @author Sam Lantinga
  */
 
-#ifndef _SDL_scancode_h
-#define _SDL_scancode_h
+#pragma once
 
 /**
  *  \brief The SDL keyboard scancode representation.
@@ -394,7 +393,5 @@ typedef enum
     SDL_NUM_SCANCODES = 512 /**< not a key, just marks the number of scancodes
                                  for array bounds */
 } SDL_Scancode;
-
-#endif /* _SDL_scancode_h */
 
 /* vi: set ts=4 sw=4 expandtab: */

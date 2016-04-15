@@ -22,7 +22,7 @@ public:
 
 	Camera() = default;
 	Camera(std::string name);
-	Camera(const FBX::FbxCamera*);
+	Camera(const FBXSDK_NAMESPACE::FbxCamera*);
 
 	virtual ~Camera() noexcept = default;
 

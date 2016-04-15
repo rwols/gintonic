@@ -170,9 +170,9 @@ public:
 		{
 			std::cout << "Loading file: " << lFilename << '\n';
 			const auto lFilenameAsString = lFilename.string();
-			gintonic::FbxImporter lImporter;
-			mModel = lImporter.loadFromFile(lFilenameAsString.c_str());
-			mModel->name = lFilename.stem().string();
+			gintonic::FbxImporter lImporter(lFilenameAsString.c_str());
+			mModel = lImporter.loadEntities();
+			// mModel->name = lFilename.stem().string();
 			// Serialize the model for caching
 			std::ofstream lOutput("Resources/" + mModel->name + ".entity");
 			OutputArchiveType lOutputArchive(lOutput);

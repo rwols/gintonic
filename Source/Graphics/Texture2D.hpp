@@ -60,7 +60,7 @@ public:
 	 * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
 	 */
 	Texture2D(
-		const FBX::FbxTexture* pFbxTexture);
+		const FBXSDK_NAMESPACE::FbxTexture* pFbxTexture);
 
 	/**
 	 * @brief Construct from a filepath.

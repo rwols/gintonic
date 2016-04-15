@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_utilities_hpp
-#define gintonic_utilities_hpp
+#pragma once
 
 #include "simd.hpp"
 #include <cmath>
@@ -172,5 +171,3 @@ inline float rad2deg(const float t)
 }
 
 } // namespace gintonic
-
-#endif

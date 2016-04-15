@@ -7,6 +7,25 @@ SQT::SQT(const mat4f& affineMatrix)
 	affineMatrix.decompose(*this);
 }
 
+SQT::SQT(const FBXSDK_NAMESPACE::FbxNode* pFbxNode)
+{
+	auto lValue = pFbxNode->LclScaling.Get();
+	scale.x = static_cast<float>(lValue[0]);
+	scale.y = static_cast<float>(lValue[1]);
+	scale.z = static_cast<float>(lValue[2]);
+
+	lValue = pFbxNode->LclRotation.Get();
+	rotation = quatf::yaw_pitch_roll(
+		static_cast<float>(lValue[0]), 
+		static_cast<float>(lValue[1]), 
+		static_cast<float>(lValue[2]));
+
+	lValue = pFbxNode->LclTranslation.Get();
+	translation.x = static_cast<float>(lValue[0]);
+	translation.y = static_cast<float>(lValue[1]);
+	translation.z = static_cast<float>(lValue[2]);
+}
+
 SQT SQT::operator % (const SQT& other) const noexcept
 {
 	return SQT(

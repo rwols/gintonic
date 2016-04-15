@@ -279,6 +279,12 @@ mat4f mat4f::operator * (const mat4f& other) const
 	#endif
 }
 
+mat4f& mat4f::operator *= (const mat4f& other)
+{
+	*this = *this * other;
+	return *this;
+}
+
 mat4f::mat4f(const vec3f& axis, const float rotation_angle)
 {
 	vec3f v;

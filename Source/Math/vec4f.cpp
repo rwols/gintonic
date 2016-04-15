@@ -35,7 +35,7 @@ vec4f::vec4f(const vec3f& v, const float w) noexcept
 	/* Empty on purpose. */
 }
 
-vec4f::vec4f(const FBX::FbxVector4& v) noexcept
+vec4f::vec4f(const FBXSDK_NAMESPACE::FbxVector4& v) noexcept
 : x(static_cast<float>(v[0]))
 , y(static_cast<float>(v[1]))
 , z(static_cast<float>(v[2]))
@@ -55,7 +55,7 @@ vec4f& vec4f::operator=(std::initializer_list<float> init) noexcept
 	return *this;
 }
 
-vec4f& vec4f::operator=(const FBX::FbxVector4& v) noexcept
+vec4f& vec4f::operator=(const FBXSDK_NAMESPACE::FbxVector4& v) noexcept
 {
 	x = static_cast<float>(v[0]);
 	y = static_cast<float>(v[1]);
@@ -64,9 +64,9 @@ vec4f& vec4f::operator=(const FBX::FbxVector4& v) noexcept
 	return *this;
 }
 
-vec4f::operator FBX::FbxVector4() const noexcept
+vec4f::operator FBXSDK_NAMESPACE::FbxVector4() const noexcept
 {
-	return FBX::FbxVector4(x, y, z, w);
+	return FBXSDK_NAMESPACE::FbxVector4(x, y, z, w);
 }
 
 } // namespace gintonic

@@ -13,7 +13,7 @@ quatf::quatf(const float realpart, const vec3f& imaginarypart)
 	w = realpart;
 }
 
-quatf::quatf(const FBX::FbxVector4& v)
+quatf::quatf(const FBXSDK_NAMESPACE::FbxVector4& v)
 : x(static_cast<float>(v[0]))
 , y(static_cast<float>(v[1]))
 , z(static_cast<float>(v[2]))
@@ -22,7 +22,7 @@ quatf::quatf(const FBX::FbxVector4& v)
 	/* Empty on purpose. */
 }
 
-quatf& quatf::operator = (const FBX::FbxVector4& v)
+quatf& quatf::operator = (const FBXSDK_NAMESPACE::FbxVector4& v)
 {
 	x = static_cast<float>(v[0]);
 	y = static_cast<float>(v[1]);

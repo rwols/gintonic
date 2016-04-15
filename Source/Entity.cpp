@@ -48,27 +48,10 @@ Entity::Entity(std::string name, const SQT& localTransform)
 
 Entity::Entity(const FbxNode* pFbxNode)
 : Object<Entity, std::string>(pFbxNode)
+, mLocalTransform(pFbxNode)
+, mGlobalTransform(mLocalTransform)
 {
-	// auto lGlobalName = boost::filesystem::path(pFbxNode->GetScene()->GetSceneInfo()->Url.Get().Buffer()).stem().string();
-	// setName(std::move(lGlobalName), pFbxNode->GetName());
-
-	auto lValue = pFbxNode->LclScaling.Get();
-	mLocalTransform.scale.x = static_cast<float>(lValue[0]);
-	mLocalTransform.scale.y = static_cast<float>(lValue[1]);
-	mLocalTransform.scale.z = static_cast<float>(lValue[2]);
-
-	lValue = pFbxNode->LclRotation.Get();
-	mLocalTransform.rotation = quatf::yaw_pitch_roll(
-		static_cast<float>(lValue[0]), 
-		static_cast<float>(lValue[1]), 
-		static_cast<float>(lValue[2]));
-
-	lValue = pFbxNode->LclTranslation.Get();
-	mLocalTransform.translation.x = static_cast<float>(lValue[0]);
-	mLocalTransform.translation.y = static_cast<float>(lValue[1]);
-	mLocalTransform.translation.z = static_cast<float>(lValue[2]);
-
-	mGlobalTransform = mLocalTransform;
+	/* Empty on purpose. */
 }
 
 

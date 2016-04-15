@@ -34,9 +34,10 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
-	gintonic::FbxImporter lImporter;
+
 	std::cout << "Loading file " << argv[1] << '\n';
-	const auto lRootEntity = lImporter.loadFromFile(argv[1]);
+	gintonic::FbxImporter lImporter(argv[1]);
+	const auto lRootEntity = lImporter.loadEntities();
 	std::cout << "Imported " << lRootEntity->name << '\n';
 
 	boost::filesystem::path lOutputFilename(argv[2]);

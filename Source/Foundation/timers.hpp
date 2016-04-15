@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_timers_hpp
-#define gintonic_timers_hpp
+#pragma once
 
 #include "../Graphics/Renderer.hpp"
 
@@ -164,5 +163,3 @@ private:
 };
 
 } // namespace gintonic
-
-#endif

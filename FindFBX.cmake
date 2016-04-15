@@ -109,7 +109,7 @@ if (FBX_INCLUDE_DIR AND NOT FBX_FOUND)
     endforeach ()
     else ()
         # BIG HACK!!! IMPROVE THIS
-        set(FBX_NAMESPACE "fbxsdk_2015_1" CACHE STRING "BIG HACK!!!")
+        # set(FBX_NAMESPACE "fbxsdk_2015_1" CACHE STRING "BIG HACK!!!")
     endif ()
 endif ()
 

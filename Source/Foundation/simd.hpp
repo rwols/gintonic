@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_simd_hpp
-#define gintonic_simd_hpp
+#pragma once
 
 #if defined(_MSC_VER)
 	/* Microsoft C/C++-compatible compiler */
@@ -59,5 +58,3 @@
  * in all of its four registers.
  */
 #define _mm_replicate_w_ps(v) _mm_shuffle_ps((v), (v), _MM_SHUFFLE(3,3,3,3))
-
-#endif

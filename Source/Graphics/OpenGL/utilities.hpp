@@ -14,6 +14,8 @@
 #ifdef BOOST_MSVC
 #include <windows.h>
 #endif
+#include "../../Foundation/allocator.hpp"
+#include "../../ForwardDeclarations.hpp"
 #include "glad.hpp"
 #include <vector>
 #include <array>
@@ -254,6 +256,12 @@ void setUniform(const GLint location,
 {
 	glUniform1iv(location, Size, values.data());
 }
+
+void setUniform(const GLint location,
+	const std::vector<mat4f, allocator<mat4f>>& values) noexcept;
+
+void setUniform(const GLint location,
+	const std::vector<mat3f>& values) noexcept;
 
 } // namespace OpenGL
 } // namespace gintonic
