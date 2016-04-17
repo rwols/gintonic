@@ -11,7 +11,8 @@
 #include <boost/serialization/nvp.hpp>
 
 #include <fbxsdk/fbxsdk_nsbegin.h>
-class FbxVector4; // Forward declaration.	
+class FbxVector4;    // Forward declaration.
+class FbxQuaternion; // Forward declaration.
 #include <fbxsdk/fbxsdk_nsend.h>
 
 namespace gintonic {
@@ -78,8 +79,14 @@ public:
 	/// Constructor.
 	quatf(const FBXSDK_NAMESPACE::FbxVector4&);
 
+	/// Constructor
+	quatf(const FBXSDK_NAMESPACE::FbxQuaternion&);
+
 	/// Assignment operator.
 	quatf& operator = (const FBXSDK_NAMESPACE::FbxVector4&);
+
+	/// Assignment operator.
+	quatf& operator = (const FBXSDK_NAMESPACE::FbxQuaternion&);
 
 	/// Multiplication operator.
 	quatf operator * (const quatf& other) const noexcept;

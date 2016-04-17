@@ -4,6 +4,7 @@
 #include "vec4f.hpp"
 #define FBXSDK_NEW_API
 #include <fbxsdk/core/math/fbxvector4.h>
+#include <fbxsdk/core/math/fbxquaternion.h>
 
 namespace gintonic {
 
@@ -22,12 +23,30 @@ quatf::quatf(const FBXSDK_NAMESPACE::FbxVector4& v)
 	/* Empty on purpose. */
 }
 
+quatf::quatf(const FBXSDK_NAMESPACE::FbxQuaternion& q)
+: x(static_cast<float>(q[0]))
+, y(static_cast<float>(q[1]))
+, z(static_cast<float>(q[2]))
+, w(static_cast<float>(q[3]))
+{
+	/* Empty on purpose. */
+}
+
 quatf& quatf::operator = (const FBXSDK_NAMESPACE::FbxVector4& v)
 {
 	x = static_cast<float>(v[0]);
 	y = static_cast<float>(v[1]);
 	z = static_cast<float>(v[2]);
 	w = static_cast<float>(v[3]);
+	return *this;
+}
+
+quatf& quatf::operator = (const FBXSDK_NAMESPACE::FbxQuaternion& q)
+{
+	x = static_cast<float>(q[0]);
+	y = static_cast<float>(q[1]);
+	z = static_cast<float>(q[2]);
+	w = static_cast<float>(q[3]);
 	return *this;
 }
 

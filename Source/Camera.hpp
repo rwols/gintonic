@@ -124,6 +124,21 @@ private:
 
 	vec2f mAngles;
 
+	friend class boost::serialization::access;
+
+	template <class Archive> 
+	void serialize(Archive& archive, const unsigned int /*version*/)
+	{
+		archive & mProjectionMatrixIsDirty 
+			& mProjection 
+			& mFieldOfView 
+			& mWidth 
+			& mHeight 
+			& mNearPlane 
+			& mProjectionMatrix 
+			& mAngles;
+	}
+
 };
 
 } // namespace gintonic

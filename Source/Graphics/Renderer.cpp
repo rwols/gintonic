@@ -26,7 +26,7 @@
 #endif
 
 #define NUM_SUBDIVISIONS 2
-#define LINE_WIDTH 8.0f
+#define PREFERRED_LINE_WIDTH 4
 
 #define FONT_FILE_LOCATION "Resources/Inconsolata-Regular.ttf"
 
@@ -374,7 +374,19 @@ void Renderer::initialize(
 	sDebugLogStream->open(sDebugFont);
 	#endif
 
-	glLineWidth(LINE_WIDTH);
+	//
+	// Check various values.
+	//
+	GLint lMaxVertexAttribs;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &lMaxVertexAttribs);
+	if (lMaxVertexAttribs < 16)
+	{
+		throw std::runtime_error("Context does not support at least 16 vertex attributes.");
+	}
+	GLint lLineWidthDimensions[2];
+	glGetIntegerv(GL_ALIASED_LINE_WIDTH_RANGE, lLineWidthDimensions);
+	lLineWidthDimensions[1] = std::min(PREFERRED_LINE_WIDTH, lLineWidthDimensions[1]);
+	glLineWidth(static_cast<GLfloat>(lLineWidthDimensions[1]));
 }
 
 void Renderer::initDummy(const bool construct_shaders)
@@ -623,9 +635,7 @@ void Renderer::release()
 void Renderer::update() noexcept
 {
 	processEvents();
-
 	prepareRendering();
-
 	sGeometryBuffer->prepareGeometryPhase();
 
 	glEnable(GL_DEPTH_TEST);
@@ -634,7 +644,7 @@ void Renderer::update() noexcept
 	glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LESS);
 	glCullFace(GL_BACK);
-	
+
 	if (sViewGeometryBuffers) // <--- debug path
 	{
 		renderGeometry();

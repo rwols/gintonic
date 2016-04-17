@@ -69,7 +69,7 @@ vec3 fromBoneSpaceToNormalSpace(vec3 v)
 void main()
 {
 	vec4 localPosition;
-	if (debugFlag == 1)
+	if (debugFlag == 0)
 	{
 		localPosition = fromBoneSpaceToLocalSpace(vec4(iSlot0.xyz, 1.0f));
 	}
@@ -78,7 +78,7 @@ void main()
 		localPosition = vec4(iSlot0.xyz, 1.0f);
 	}
 	vec3 localNormal;
-	if (debugFlag == 1)
+	if (debugFlag == 0)
 	{
 		localNormal = fromBoneSpaceToNormalSpace(iSlot1.xyz);
 	}
