@@ -1,4 +1,5 @@
 #include "SQT.hpp"
+#include <fbxsdk.h>
 
 namespace gintonic {
 
@@ -7,7 +8,7 @@ SQT::SQT(const mat4f& affineMatrix)
 	affineMatrix.decompose(*this);
 }
 
-SQT::SQT(const FBXSDK_NAMESPACE::FbxNode* pFbxNode)
+SQT::SQT(const FbxNode* pFbxNode)
 {
 	auto lValue = pFbxNode->LclScaling.Get();
 	scale.x = static_cast<float>(lValue[0]);
@@ -24,6 +25,14 @@ SQT::SQT(const FBXSDK_NAMESPACE::FbxNode* pFbxNode)
 	translation.x = static_cast<float>(lValue[0]);
 	translation.y = static_cast<float>(lValue[1]);
 	translation.z = static_cast<float>(lValue[2]);
+}
+
+SQT::SQT(const FbxAMatrix& affineMatrix)
+: scale(affineMatrix.GetS())
+, rotation(affineMatrix.GetQ())
+, translation(affineMatrix.GetT())
+{
+	/* Empty on purpose .*/
 }
 
 SQT SQT::operator % (const SQT& other) const noexcept

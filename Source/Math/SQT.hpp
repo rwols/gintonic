@@ -10,7 +10,10 @@
 #include "quatf.hpp"
 #include "mat4f.hpp"
 
-#include <fbxsdk/scene/geometry/fbxnode.h>
+#include <fbxsdk/fbxsdk_nsbegin.h>
+class FbxNode;    // Forward declaration.
+class FbxAMatrix; // Forward declaration.
+#include <fbxsdk/fbxsdk_nsend.h>
 
 namespace gintonic {
 
@@ -78,6 +81,11 @@ struct SQT
 	 * @param pFbxNode Pointer to an FbxNode.
 	 */
 	SQT(const FBXSDK_NAMESPACE::FbxNode* pFbxNode);
+
+	/**
+	 * @brief Construct an SQT from an affine matrix.
+	 */
+	SQT(const FBXSDK_NAMESPACE::FbxAMatrix& affineMatrix);
 
 	/**
 	 * @brief Add two SQTs together.

@@ -298,6 +298,10 @@ public:
 		: name(std::move(name)), parent(parent), localTransform(localTransform) {}
 
 		GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+		
+	private:
+
+		friend class boost::serialization::access;
 
 		template <class Archive>
 		void serialize(Archive & ar, const unsigned int /*version*/)
@@ -534,7 +538,14 @@ private:
 
 	void setupInstancedRenderingMatrices() noexcept;
 	void evaluateBoneAtTimeRecursive(const std::size_t boneIndex, const float timepoint, mat4f& matrix) const noexcept;
-	void buildBonesRecursive(const FBXSDK_NAMESPACE::FbxNode*, const int32_t, std::map<int32_t, const FBXSDK_NAMESPACE::FbxNode*>&);
+	
+	void buildBonesRecursive(
+		const FBXSDK_NAMESPACE::FbxNode*, 
+		const Bone::IndexType,
+		std::map<Bone::IndexType, const FBXSDK_NAMESPACE::FbxNode*>&,
+		const std::map<const FBXSDK_NAMESPACE::FbxNode*,
+		const FBXSDK_NAMESPACE::FbxCluster*>&);
+
 	void buildBonesArray(const FBXSDK_NAMESPACE::FbxMesh*, const std::map<int, GLuint>&);
 	void computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh::vec4f>& position_XYZ_uv_X);
 	void computeAdjacencyFromPositionInformation();

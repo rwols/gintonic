@@ -113,16 +113,16 @@ struct NeighborPair
 	}
 };
 
-std::ostream& operator << (std::ostream& os, const NeighborPair& neighborPair)
-{
-	os << '(';
-	if (neighborPair.first) os << *(neighborPair.first);
-	else os << "nullptr";
-	os << ", ";
-	if (neighborPair.second) os << *(neighborPair.second);
-	else os << "nullptr";
-	return os << ')';
-}
+// std::ostream& operator << (std::ostream& os, const NeighborPair& neighborPair)
+// {
+// 	os << '(';
+// 	if (neighborPair.first) os << *(neighborPair.first);
+// 	else os << "nullptr";
+// 	os << ", ";
+// 	if (neighborPair.second) os << *(neighborPair.second);
+// 	else os << "nullptr";
+// 	return os << ')';
+// }
 
 template <class LayerElement, class OutputIter>
 void copyLayerElement(
@@ -158,27 +158,27 @@ void copyLayerElement(
 
 template <class LayerElement, class VectorType> 
 bool getLayerElement(
-	const LayerElement* e, 
-	const int polyvertex,
-	const int vertexid,
+	const LayerElement* layerElement, 
+	const int lPolygonID,
+	const int lVertexID,
 	VectorType& r)
 {
-	if (!e) return false;
-	switch(e->GetMappingMode())
+	if (!layerElement) return false;
+	switch(layerElement->GetMappingMode())
 	{
 		case FbxGeometryElement::eByControlPoint:
 		{
-			switch (e->GetReferenceMode())
+			switch (layerElement->GetReferenceMode())
 			{
 				case FbxGeometryElement::eDirect:
 				{
-					r = e->GetDirectArray().GetAt(polyvertex);
+					r = layerElement->GetDirectArray().GetAt(lPolygonID);
 					break;
 				}
 				case FbxGeometryElement::eIndexToDirect:
 				{
-					auto index2element = e->GetIndexArray().GetAt(polyvertex);
-					r = e->GetDirectArray().GetAt(index2element);
+					const auto lIndex2Element = layerElement->GetIndexArray().GetAt(lPolygonID);
+					r = layerElement->GetDirectArray().GetAt(lIndex2Element);
 					break;
 				}
 				default:
@@ -190,17 +190,17 @@ bool getLayerElement(
 		}
 		case FbxGeometryElement::eByPolygonVertex:
 		{
-			switch(e->GetReferenceMode())
+			switch(layerElement->GetReferenceMode())
 			{
 				case FbxGeometryElement::eDirect:
 				{
-					r = e->GetDirectArray().GetAt(vertexid);
+					r = layerElement->GetDirectArray().GetAt(lVertexID);
 					break;
 				}
 				case FbxGeometryElement::eIndexToDirect:
 				{
-					auto index2element = e->GetIndexArray().GetAt(vertexid);
-					r = e->GetDirectArray().GetAt(index2element);
+					const auto lIndex2Element = layerElement->GetIndexArray().GetAt(lVertexID);
+					r = layerElement->GetDirectArray().GetAt(lIndex2Element);
 					break;
 				}
 				default:
@@ -218,81 +218,82 @@ bool getLayerElement(
 	return true;
 }
 
-bool makeVertex(
-	const FbxMesh* pFbxMesh,
-	const FbxGeometryElementUV* fbxTexCoordArray,
-	const FbxGeometryElementNormal* fbxNormalArray,
-	const FbxGeometryElementTangent* fbxTangentArray,
-	const FbxGeometryElementBinormal* fbxBitangentArray,
-	const int polyvertex,
-	const int vertexid,
-	gintonic::Mesh::vec4f& slot0Entry,
-	gintonic::Mesh::vec4f& slot1Entry,
-	gintonic::Mesh::vec4f& slot2Entry)
-{
-	gintonic::vec3f N;
-	gintonic::vec3f T;
-	gintonic::vec3f B;
-	bool lHasTangents;
-	float lHandedness;
-	FbxVector4 lFbxPosition;
-	FbxVector2 lFbxTexCoord;
-	FbxVector4 lFbxNormal;
-	FbxVector4 lFbxTangent;
-	FbxVector4 lFbxBitangent;
-	if (!getLayerElement(fbxNormalArray, polyvertex, vertexid, lFbxNormal))
-	{
-		N = 0.0f;
-	}
-	else
-	{
-		N = gintonic::vec3f(lFbxNormal).normalize();
-	}
-	if (!getLayerElement(fbxTexCoordArray, polyvertex, vertexid, lFbxTexCoord))
-	{
-		lFbxTexCoord[0] = lFbxTexCoord[1] = 0.0f;
-	}
-	if (!getLayerElement(fbxTangentArray, polyvertex, vertexid, lFbxTangent))
-	{
-		T = 0.0f;
-		lHasTangents = false;
-	}
-	else
-	{
-		T = gintonic::vec3f(lFbxTangent).normalize();
-		lHasTangents = true;
-	}
-	if (!getLayerElement(fbxBitangentArray, polyvertex, vertexid, lFbxBitangent))
-	{
-		B = 0.0f;
-	}
-	else
-	{
-		B = gintonic::vec3f(lFbxBitangent).normalize();
-	}
+// bool makeVertex(
+// 	const FbxMesh* pFbxMesh,
+// 	const FbxGeometryElementUV* fbxTexCoordArray,
+// 	const FbxGeometryElementNormal* fbxNormalArray,
+// 	const FbxGeometryElementTangent* fbxTangentArray,
+// 	const FbxGeometryElementBinormal* fbxBitangentArray,
+// 	const int lPolygonID,
+// 	const int lVertexID,
+// 	gintonic::Mesh::vec4f& slot0Entry,
+// 	gintonic::Mesh::vec4f& slot1Entry,
+// 	gintonic::Mesh::vec4f& slot2Entry)
+// {
+// 	gintonic::vec3f N;
+// 	gintonic::vec3f T;
+// 	gintonic::vec3f B;
+// 	bool lHasTangents;
+// 	float lHandedness;
+// 	FbxVector4 lFbxPosition;
+// 	FbxVector2 lFbxTexCoord;
+// 	FbxVector4 lFbxNormal;
+// 	FbxVector4 lFbxTangent;
+// 	FbxVector4 lFbxBitangent;
+// 	if (!getLayerElement(fbxNormalArray, lPolygonID, lVertexID, lFbxNormal))
+// 	{
+// 		N = 0.0f;
+// 	}
+// 	else
+// 	{
+// 		N = gintonic::vec3f(lFbxNormal).normalize();
+// 	}
+// 	if (!getLayerElement(fbxTexCoordArray, lPolygonID, lVertexID, lFbxTexCoord))
+// 	{
+// 		lFbxTexCoord[0] = lFbxTexCoord[1] = 0.0f;
+// 	}
+// 	if (!getLayerElement(fbxTangentArray, lPolygonID, lVertexID, lFbxTangent))
+// 	{
+// 		T = 0.0f;
+// 		lHasTangents = false;
+// 	}
+// 	else
+// 	{
+// 		T = gintonic::vec3f(lFbxTangent).normalize();
+// 		lHasTangents = true;
+// 	}
+// 	if (!getLayerElement(fbxBitangentArray, lPolygonID, lVertexID, lFbxBitangent))
+// 	{
+// 		B = 0.0f;
+// 	}
+// 	else
+// 	{
+// 		B = gintonic::vec3f(lFbxBitangent).normalize();
+// 	}
 
-	lHandedness = gintonic::distance(cross(N,T), B) < 0.01f ? 1.0f : -1.0f;
+// 	constexpr float lEpsilon = 0.01f;
+// 	lHandedness = gintonic::distance(cross(N,T), B) < lEpsilon ? 1.0f : -1.0f;
 
-	slot0Entry =
-	{
-		static_cast<GLfloat>(lFbxPosition[0]),
-		static_cast<GLfloat>(lFbxPosition[1]),
-		static_cast<GLfloat>(lFbxPosition[2]),
-		static_cast<GLfloat>(lFbxTexCoord[0])
-	};
+// 	slot0Entry =
+// 	{
+// 		static_cast<GLfloat>(lFbxPosition[0]),
+// 		static_cast<GLfloat>(lFbxPosition[1]),
+// 		static_cast<GLfloat>(lFbxPosition[2]),
+// 		static_cast<GLfloat>(lFbxTexCoord[0])
+// 	};
 
-	slot1Entry =
-	{
-		N.x,
-		N.y,
-		N.z,
-		static_cast<GLfloat>(lFbxTexCoord[1])
-	};
+// 	slot1Entry =
+// 	{
+// 		N.x,
+// 		N.y,
+// 		N.z,
+// 		static_cast<GLfloat>(lFbxTexCoord[1])
+// 	};
 
-	if (lHasTangents) slot2Entry = {T.x, T.y, T.z, lHandedness};
+// 	if (lHasTangents) slot2Entry = {T.x, T.y, T.z, lHandedness};
 
-	return lHasTangents;
-}
+// 	return lHasTangents;
+// }
 
 } // anonymous namespace
 
@@ -496,7 +497,7 @@ void Mesh::set(FbxMesh* pFbxMesh)
 
 	std::cerr << "\tFound mesh: " << this->name << '\n';
 
-	int i, j, lFbxIndex, polygonsize, polygoncount, vertexid = 0;
+	int i, j, lFbxIndex, lPolygonSize, lTriangleCount, lVertexID = 0;
 
 	if (pFbxMesh->IsTriangleMesh() == false)
 	{
@@ -533,9 +534,9 @@ void Mesh::set(FbxMesh* pFbxMesh)
 	mLocalBoundingBox.minCorner = std::numeric_limits<float>::max();
 	mLocalBoundingBox.maxCorner = std::numeric_limits<float>::min();
 
-	FbxGeometryElementUV* lFbxTexCoordArray = nullptr;
-	FbxGeometryElementNormal* lFbxNormalArray = nullptr;
-	FbxGeometryElementTangent* lFbxTangentArray = nullptr;
+	FbxGeometryElementUV*       lFbxTexCoordArray  = nullptr;
+	FbxGeometryElementNormal*   lFbxNormalArray    = nullptr;
+	FbxGeometryElementTangent*  lFbxTangentArray   = nullptr;
 	FbxGeometryElementBinormal* lFbxBitangentArray = nullptr;
 
 	FbxStringList lUVSetNames;
@@ -577,7 +578,7 @@ void Mesh::set(FbxMesh* pFbxMesh)
 	// 	for (int j = 0; j < 3; ++j)
 	// 	{
 	// 		const auto lIndex = mIndices[i + j];
-	// 		const auto lTriangleIndex = polyvertex = pFbxMesh->GetPolygonVertex(i, j);
+	// 		const auto lTriangleIndex = lPolygonID = pFbxMesh->GetPolygonVertex(i, j);
 	// 		lTriangle[j] = lIndex;
 	// 		lHasTangents = makeVertex(
 	// 			pFbxMesh, 
@@ -634,20 +635,20 @@ void Mesh::set(FbxMesh* pFbxMesh)
 	mTangent_XYZ_hand.clear();
 
 	// For each triangle ...
-	polygoncount = pFbxMesh->GetPolygonCount();
-	for (i = 0; i < polygoncount; ++i)
+	lTriangleCount = pFbxMesh->GetPolygonCount();
+	for (i = 0; i < lTriangleCount; ++i)
 	{
 		Triangle lTriangle;
-		polygonsize = pFbxMesh->GetPolygonSize(i);
-		assert(polygonsize == 3);
+		lPolygonSize = pFbxMesh->GetPolygonSize(i);
+		assert(lPolygonSize == 3);
 		// For each vertex in the current triangle ...
-		for (j = 0; j < polygonsize; ++j)
+		for (j = 0; j < lPolygonSize; ++j)
 		{
 			lFbxIndex = pFbxMesh->GetPolygonVertex(i, j);
 
 			lFbxPosition = pFbxMesh->GetControlPointAt(lFbxIndex);
 
-			if (!getLayerElement(lFbxNormalArray, lFbxIndex, vertexid, lFbxNormal))
+			if (!getLayerElement(lFbxNormalArray, lFbxIndex, lVertexID, lFbxNormal))
 			{
 				N = 0.0f;
 			}
@@ -655,11 +656,11 @@ void Mesh::set(FbxMesh* pFbxMesh)
 			{
 				N = gintonic::vec3f(lFbxNormal).normalize();
 			}
-			if (!getLayerElement(lFbxTexCoordArray, lFbxIndex, vertexid, lFbxTexCoord))
+			if (!getLayerElement(lFbxTexCoordArray, lFbxIndex, lVertexID, lFbxTexCoord))
 			{
 				lFbxTexCoord[0] = lFbxTexCoord[1] = 0.0f;
 			}
-			if (!getLayerElement(lFbxTangentArray, lFbxIndex, vertexid, lFbxTangent))
+			if (!getLayerElement(lFbxTangentArray, lFbxIndex, lVertexID, lFbxTangent))
 			{
 				T = 0.0f;
 				lHasTangents = false;
@@ -669,7 +670,7 @@ void Mesh::set(FbxMesh* pFbxMesh)
 				T = gintonic::vec3f(lFbxTangent).normalize();
 				lHasTangents = true;
 			}
-			if (!getLayerElement(lFbxBitangentArray, lFbxIndex, vertexid, lFbxBitangent))
+			if (!getLayerElement(lFbxBitangentArray, lFbxIndex, lVertexID, lFbxBitangent))
 			{
 				B = 0.0f;
 			}
@@ -751,7 +752,7 @@ void Mesh::set(FbxMesh* pFbxMesh)
 
 			lFbxIndicesToOwnMap.emplace(lFbxIndex, lIndex);
 
-			++vertexid;
+			++lVertexID;
 		}
 
 		// std::cerr << "Adding triangle " << lTriangle << '\n';
@@ -1054,21 +1055,32 @@ void Mesh::evaluateBoneAtTimeRecursive(const std::size_t boneIndex, const float 
 	else return;
 }
 
-void Mesh::buildBonesRecursive(const FbxNode* bone, const int32_t parent, std::map<int32_t, const FbxNode*>& lIndexToBoneMap)
+void Mesh::buildBonesRecursive(
+	const FbxNode* bone, 
+	const Bone::IndexType parent, 
+	std::map<Bone::IndexType, const FbxNode*>& lIndexToBoneMap,
+	const std::map<const FbxNode*, const FbxCluster*>& lBoneToClusterMap)
 {
-	const int32_t lThisIndex = static_cast<int32_t>(bones.size());
+	const auto lThisIndex = static_cast<Bone::IndexType>(bones.size());
+	const auto lFindResult = lBoneToClusterMap.find(bone);
+	assert(lFindResult != lBoneToClusterMap.end());
+	const auto lCluster = lFindResult->second;
 	lIndexToBoneMap[lThisIndex] = bone;
-	bones.emplace_back(std::string(bone->GetName()), parent, SQT(bone));
+	FbxAMatrix lAffineMatrix;
+	lCluster->GetTransformLinkMatrix(lAffineMatrix);
+	bones.emplace_back(std::string(bone->GetName()), parent, SQT(lAffineMatrix));
 	for (int i = 0; i < bone->GetChildCount(); ++i)
 	{
-		buildBonesRecursive(bone->GetChild(i), lThisIndex, lIndexToBoneMap);
+		buildBonesRecursive(bone->GetChild(i), lThisIndex, lIndexToBoneMap, lBoneToClusterMap);
 	}
 }
 
 void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>& fbxIndicesToOwnMap)
 {
-	std::map<int32_t, const FbxNode*> lIndexToBoneMap;
+	std::map<Bone::IndexType, const FbxNode*> lIndexToBoneMap;
 	std::map<const FbxNode*, std::vector<std::pair<GLuint, GLfloat>>> lBoneToInfluenceMap;
+	std::map<const FbxNode*, const FbxCluster*> lBoneToClusterMap;
+	const FbxNode* lRootBone = nullptr;
 
 	bones.clear();
 	mBoneIndices.clear();
@@ -1106,18 +1118,30 @@ void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>&
 			const auto lFindResult = fbxIndicesToOwnMap.find(lCluster->GetControlPointIndices()[i]);
 			assert(lFindResult != fbxIndicesToOwnMap.end());
 
-			lBoneInfluence.emplace_back(
+			lBoneInfluence.emplace_back
+			(
 				lFindResult->second, 
-				static_cast<GLfloat>(lCluster->GetControlPointWeights()[i]));
+				static_cast<GLfloat>(lCluster->GetControlPointWeights()[i])
+			);
 		}
 
-		lBoneToInfluenceMap.emplace(lLink, lBoneInfluence);
+		lBoneToInfluenceMap.emplace(lLink, std::move(lBoneInfluence));
+		lBoneToClusterMap.emplace(lLink, lCluster);
 
-		if (lLink->GetParent() == lLink->GetScene()->GetRootNode() || lLink->GetParent() == pFbxMesh->GetNode())
+		// Is this the root bone?
+		if (lLink->GetParent() == lLink->GetScene()->GetRootNode() || 
+			lLink->GetParent() == pFbxMesh->GetNode())
 		{
-			buildBonesRecursive(lLink, -1, lIndexToBoneMap);
+			lRootBone = lLink;
 		}
+
 	}
+
+	assert(lRootBone);
+
+	buildBonesRecursive(lRootBone, -1, lIndexToBoneMap, lBoneToClusterMap);
+
+	assert(bones.size() == lBoneCount);
 
 	for (Bone::IndexType i = 0; i < bones.size(); ++i)
 	{
@@ -1164,7 +1188,7 @@ void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>&
 
 void Mesh::uploadData()
 {
-	constexpr GLenum lUsageHint = GL_STATIC_DRAW;
+	constexpr GLenum lUsageHint = GL_STATIC_DRAW;	
 	glBindVertexArray(mVertexArrayObject);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices, lUsageHint);
@@ -1180,12 +1204,15 @@ void Mesh::uploadData()
 		gtBufferData(GL_ARRAY_BUFFER, mTangent_XYZ_hand, lUsageHint);
 		Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_2);
 	}
-	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_BONE_IDS]);
-	gtBufferData(GL_ARRAY_BUFFER, mBoneIndices, lUsageHint);
-	Mesh::vec4i::enableAttribute(GT_VERTEX_LAYOUT_SLOT_14);
-	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_BONE_WEIGHTS]);
-	gtBufferData(GL_ARRAY_BUFFER, mBoneWeights, lUsageHint);
-	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_15);
+	if (!bones.empty())
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_BONE_IDS]);
+		gtBufferData(GL_ARRAY_BUFFER, mBoneIndices, lUsageHint);
+		Mesh::vec4i::enableAttribute(GT_VERTEX_LAYOUT_SLOT_14);
+		glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_BONE_WEIGHTS]);
+		gtBufferData(GL_ARRAY_BUFFER, mBoneWeights, lUsageHint);
+		Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_15);
+	}
 
 	glBindVertexArray(mVertexArrayObjectAdjacencies);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES_ADJ]);

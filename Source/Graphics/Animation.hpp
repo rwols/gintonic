@@ -12,14 +12,13 @@
 
 namespace gintonic {
 
-struct AnimKey
+template <class T> struct AnimationKey
 {
-	float scale;
-	quatf rotation;
-	vec3f translation;
+	T value;
 	float time;
 
-	inline bool operator < (const AnimKey& other) const noexcept
+	template <class S>
+	inline bool operator < (const AnimationKey<S>& other) const noexcept
 	{
 		return time < other.time;
 	}
@@ -27,30 +26,114 @@ struct AnimKey
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 };
 
-struct AnimCurve
+template <class T> struct AnimationCurve
 {
-	std::vector<AnimKey, allocator<AnimKey>> animKeys;
+	std::vector<AnimationKey<T>, allocator<AnimationKey<T>>> AnimationKeys;
 
-	inline void addAnimKey(const AnimKey& key)
+	inline void addAnimationKey(const AnimationKey<T>& key)
 	{
-		animKeys.insert(std::lower_bound(animKeys.begin(), animKeys.end(), key), key);
+		AnimationKeys.insert(std::lower_bound(AnimationKeys.begin(), AnimationKeys.end(), key), key);
 	}
 
-	inline void addAnimKey(AnimKey&& key)
+	inline void addAnimationKey(AnimationKey<T>&& key)
 	{
-		animKeys.insert(std::lower_bound(animKeys.begin(), animKeys.end(), key), std::move(key));
+		AnimationKeys.insert(std::lower_bound(AnimationKeys.begin(), AnimationKeys.end(), key), std::move(key));
 	}
 
-	inline SQT operator()(const float t)
+	T operator()(const float timepoint)
 	{
-		AnimKey dummy;
-		dummy.time = t;
-		auto result = std::lower_bound(animKeys.begin(), animKeys.end(), dummy);
-		result = (result == animKeys.end()) ? std::prev(result) : result;
+		AnimationKey<T> lDummy;
+		lDummy.time = timepoint;
+		const auto lResult = std::lower_bound(AnimationKeys.begin(), AnimationKeys.end(), lDummy);
+		const auto lNext = lResult + 1;
+		if (lNext == AnimationKeys.end())
+		{
 
-		return SQT(result->scale, result->rotation, result->translation);
+		}
+		else
+		{
+
+		}
+		return lDummy.value;
 	}
 };
+
+// template <class Type>
+// struct Property
+// {
+// 	Type value;
+// 	AnimationCurve<Type> curve;
+
+// 	inline Type evaluate(const float timepoint) const noexcept
+// 	{
+// 		return curve(timepoint);
+// 	};
+
+// 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+// 	template <class Archive>
+// 	void serialize(Archive& ar, const unsigned int /*version*/)
+// 	{
+// 		ar & value & curve;
+// 	}
+// };
+
+// class Material
+// {
+// 	std::string name;
+// 	struct ColorChannel
+// 	{
+// 		Property<vec4f> color;
+// 		std::shared_ptr<Texture2D> texture;
+// 		GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+// 		template <class Archive>
+// 		void serialize(Archive& ar, const unsigned int /*version*/)
+// 		{
+// 			ar & color & texture;
+// 		}
+// 	};
+
+// 	ColorChannel diffuse;
+// 	ColorChannel specular;
+// 	ColorChannel emissive;
+// 	ColorChannel normal;
+
+// 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+// 	template <class Archive>
+// 	void serialize(Archive& ar, const unsigned int /*version*/)
+// 	{
+// 		ar & name & diffuse & specular & emissive & normal;
+// 	}
+// };
+
+// struct Light
+// {
+// 	enum Type
+// 	{
+// 		kAmbient = 0,
+// 		kDirectional,
+// 		kPoint,
+// 		kSpot
+// 	};
+
+// 	std::string name;
+	
+// 	Type type;
+
+// 	Property<vec4f> intensity;
+// 	Property<vec4f> intensity;
+// 	Property<vec4f> attenuation;
+// 	Property<vec4f> position;
+// 	Property<vec4f> direction;
+// 	Property<float> cosineHalfAngle;
+
+// 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+
+// 	template <class Archive>
+// 	void serialize(Archive& ar, const unsigned int /*version*/)
+// 	{
+// 		ar & name & type & intensity & attenuation & position & direction & cosineHalfAngle;
+// 	}
+// };
 
 struct AnimCurveNode
 {
