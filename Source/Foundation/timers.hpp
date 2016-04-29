@@ -1,99 +1,85 @@
 /**
  * @file timers.hpp
- * @brief Defines various timer classes.
+ * @brief Defines the base class for a Timer.
  * @author Raoul Wols
  */
 
 #pragma once
 
-#include "../Graphics/Renderer.hpp"
-
 namespace gintonic {
 
 /**
  * @brief Base class for timers.
- * 
- * @details A timer class is a class that fires an event after a certain
- * period of time. This event can either keep firing in intervals or it could
- * stop after the first shot, or some combination.
  */
-class timer
+class Timer
 {
 public:
 
-	/// We inherit the duration type of the renderer's duration type.
-	typedef Renderer::duration_type duration_type;
+	typedef float duration_type;
 	
 	/**
 	 * @brief Constructor.
 	 * 
 	 * @param time_left Specifies the timing interval.
 	 */
-	timer(const duration_type& time_left) noexcept;
+	timer(const duration_type& timeLeft) noexcept;
 
 	/// Destructor.
-	virtual ~timer() noexcept;
-	
-	/**
-	 * @brief Update the timer with the given delta time from the renderer.
-	 * 
-	 * @param delta_time The delta time. You probably want this to always be
-	 * Renderer::deltaTime() unless you have a specific reason not to.
-	 */
-	virtual void update(const duration_type& delta_time) 
-		noexcept = 0;
+	virtual ~timer() noexcept = default;
 
 	/**
 	 * @brief Get the current time left before the event fires.
 	 * @return The time left before the timer event fires.
 	 */
-	inline const duration_type& time_left() const noexcept
+	inline const duration_type& timeLeft() const noexcept
 	{
-		return m_time_left;
+		return mTimeLeft;
 	}
 	
 	/**
 	 * @brief Check wether this timer is expired.
 	 * @return True if the timer is expired, false if not.
 	 */
-	inline bool expired() const noexcept
+	inline bool isExpired() const noexcept
 	{
-		return m_expired;
+		return mExpired;
 	}
 
 	/**
 	 * @brief Explicitly set this timer to be expired.
 	 */
-	inline void set_expired() noexcept { m_expired = true; }
+	inline void setExpired() noexcept
+	{
+		mExpired = true;
+	}
 	
 	/**
 	 * @brief Reset the timer with a new firing timing interval.
-	 * @param time_left The event fire interval.
+	 * @param interval The event fire interval.
 	 */
-	virtual void reset(const duration_type& time_left)
-		noexcept;
+	virtual void reset(const duration_type& interval) noexcept;
 
 	/// The event that fires periodically.
-	boost::signals2::signal<void(timer*)> action;
+	boost::signals2::signal<void(timer*)> onFire;
 
 	/// The event that fires when the timer expires.
-	boost::signals2::signal<void(timer*)> on_expired;
+	boost::signals2::signal<void(timer*)> onExpired;
 
 	/**
 	 * @brief Update all alive timers.
 	 * 
-	 * @param delta_time The delta time. You probably want this to always be
+	 * @param deltaTime The delta time. You probably want this to always be
 	 * Renderer::deltaTime() unless you have a specific reason not to.
 	 */
-	static void update_all(const duration_type& delta_time) 
+	static void updateAll(const duration_type& deltaTime) 
 		noexcept;
 
 	/**
 	 * @brief Add a new timer to the global timer container.
 	 * 
-	 * @param new_timer A pointer to the new timer.
+	 * @param newTimer A pointer to the new timer.
 	 */
-	static void add(timer* new_timer);
+	static void add(Timer* newTimer);
 
 	/**
 	 * @brief Release all timers in the global timer container.
@@ -103,63 +89,74 @@ public:
 	/**
 	 * @brief Initialize the global timer container.
 	 */
-	static void init();
+	static void initialize();
 
 protected:
 
 	/// The duration left (or timing interval).
-	duration_type m_time_left;
+	duration_type mTimeLeft;
 
 	/// Wether the timer is expired.
-	bool m_expired = false;
+	bool mExpired = false;
+
+private:
+
+	/**
+	 * @brief Update the timer with the given delta time from the renderer.
+	 * 
+	 * @param deltaTime The delta time. You probably want this to always be
+	 * Renderer::deltaTime() unless you have a specific reason not to.
+	 */
+	virtual void update(const duration_type& deltaTime) noexcept = 0;
 };
 
 /**
- * @brief One shot timer that only fires once and then expires.
+ * @brief One-shot-timer that only fires once and then expires.
  */
-class one_shot_timer : public timer
+class OneShotTimer : public Timer
 {
 public:
 
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param time_left Specifies the timing interval.
+	 * @param timeLeft Specifies the timing interval.
 	 */
-	one_shot_timer(const duration_type& time_left);
+	OneShotTimer(const duration_type& timeLeft);
 
 	/// Destructor.
-	virtual ~one_shot_timer() noexcept;
+	virtual ~OneShotTimer() noexcept = default;
 
-	virtual void update(const duration_type& dt) 
-		noexcept final;
+private:
+
+	virtual void update(const duration_type& dt) noexcept final;
 };
 
 /**
  * @brief Loop timer that continually fires in intervals.
  */
-class loop_timer : public timer
+class LoopTimer : public Timer
 {
 public:
 
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param time_left Specifies the timing interval.
+	 * @param timeLeft Specifies the timing interval.
 	 */
-	loop_timer(const duration_type& time_left);
+	LoopTimer(const duration_type& timeLeft);
 
 	/// Destructor.
-	virtual ~loop_timer() noexcept;
+	virtual ~LoopTimer() noexcept = default;
 
-	virtual void update(const duration_type& dt) 
-		noexcept final;
-
-	virtual void reset(const duration_type& time_left) 
-		noexcept;
+	virtual void reset(const duration_type& timeLeft) noexcept;
 		
 private:
-	duration_type m_original_duration;
+
+	duration_type moriginal_duration;
+
+	virtual void update(const duration_type& dt) noexcept final;
+
 };
 
 } // namespace gintonic
