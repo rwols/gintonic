@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <boost/signals2.hpp>
+
 namespace gintonic {
 
 /**
@@ -19,17 +21,16 @@ public:
 	
 	/**
 	 * @brief Constructor.
-	 * 
-	 * @param time_left Specifies the timing interval.
+	 * @param timeLeft Specifies the timing interval.
 	 */
-	timer(const duration_type& timeLeft) noexcept;
+	Timer(const duration_type& timeLeft) noexcept;
 
 	/// Destructor.
-	virtual ~timer() noexcept = default;
+	virtual ~Timer() noexcept;
 
 	/**
 	 * @brief Get the current time left before the event fires.
-	 * @return The time left before the timer event fires.
+	 * @return The time left before the Timer event fires.
 	 */
 	inline const duration_type& timeLeft() const noexcept
 	{
@@ -60,14 +61,13 @@ public:
 	virtual void reset(const duration_type& interval) noexcept;
 
 	/// The event that fires periodically.
-	boost::signals2::signal<void(timer*)> onFire;
+	boost::signals2::signal<void(Timer*)> onFire;
 
-	/// The event that fires when the timer expires.
-	boost::signals2::signal<void(timer*)> onExpired;
+	/// The event that fires when the Timer expires.
+	boost::signals2::signal<void(Timer*)> onExpired;
 
 	/**
 	 * @brief Update all alive timers.
-	 * 
 	 * @param deltaTime The delta time. You probably want this to always be
 	 * Renderer::deltaTime() unless you have a specific reason not to.
 	 */
@@ -76,7 +76,6 @@ public:
 
 	/**
 	 * @brief Add a new timer to the global timer container.
-	 * 
 	 * @param newTimer A pointer to the new timer.
 	 */
 	static void add(Timer* newTimer);
@@ -103,7 +102,6 @@ private:
 
 	/**
 	 * @brief Update the timer with the given delta time from the renderer.
-	 * 
 	 * @param deltaTime The delta time. You probably want this to always be
 	 * Renderer::deltaTime() unless you have a specific reason not to.
 	 */
@@ -119,7 +117,6 @@ public:
 
 	/**
 	 * @brief Constructor.
-	 * 
 	 * @param timeLeft Specifies the timing interval.
 	 */
 	OneShotTimer(const duration_type& timeLeft);
@@ -141,7 +138,6 @@ public:
 
 	/**
 	 * @brief Constructor.
-	 * 
 	 * @param timeLeft Specifies the timing interval.
 	 */
 	LoopTimer(const duration_type& timeLeft);
@@ -153,7 +149,7 @@ public:
 		
 private:
 
-	duration_type moriginal_duration;
+	duration_type mOriginalDuration;
 
 	virtual void update(const duration_type& dt) noexcept final;
 

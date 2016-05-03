@@ -9,12 +9,12 @@ std::vector<gintonic::Timer*> sTimers;
 
 namespace gintonic {
 
-timer::timer(const duration_type& interval) noexcept : mTimeLeft(interval) {}
-timer::~timer() noexcept
+Timer::Timer(const duration_type& interval) noexcept : mTimeLeft(interval) {}
+Timer::~Timer() noexcept
 {
 	try
 	{
-		OnExpired(this);
+		onExpired(this);
 	}
 	catch (...)
 	{
@@ -23,13 +23,13 @@ timer::~timer() noexcept
 }
 
 // do NOT call this method in the destructor !!!!!!!!!!!!
-void timer::reset(const duration_type& interval) noexcept
+void Timer::reset(const duration_type& interval) noexcept
 {
 	mTimeLeft = interval;
 	mExpired = false;
 }
 
-void timer::updateAll(const duration_type& deltaTime) noexcept
+void Timer::updateAll(const duration_type& deltaTime) noexcept
 {
 	auto t = sTimers.begin();
 	while (t != sTimers.end())
@@ -53,40 +53,51 @@ void timer::updateAll(const duration_type& deltaTime) noexcept
 	}
 }
 
-	void timer::add(timer* new_timer)
-	{
-		sTimers.push_back(new_timer);
-	}
+void Timer::add(Timer* newTimer)
+{
+	sTimers.push_back(newTimer);
+}
 
-	one_shot_timer::one_shot_timer(const duration_type& interval) : timer(interval) {}
-	one_shot_timer::~one_shot_timer() noexcept {}
-	void one_shot_timer::update(const duration_type& dt) noexcept
-	{
-		if (!mExpired)
-		{
-			mTimeLeft -= dt;
-			if (mTimeLeft <= duration_type::zero())
-			{
-				action(this);
-				mExpired = true;
-			}	
-		}
-	}
+OneShotTimer::OneShotTimer(const duration_type& interval)
+: Timer(interval)
+{
+	/* Empty on purpose. */
+}
 
-	loop_timer::loop_timer(const duration_type& interval) : timer(interval), m_original_duration(interval) {}
-	loop_timer::~loop_timer() noexcept {}
-	void loop_timer::update(const duration_type& dt) noexcept
+void OneShotTimer::update(const duration_type& dt) noexcept
+{
+	if (!mExpired)
 	{
 		mTimeLeft -= dt;
-		if (mTimeLeft <= duration_type::zero())
+		if (mTimeLeft <= 0.0f)
 		{
-			action(this);
-			mTimeLeft = m_original_duration;
-		}
+			onFire(this);
+			mExpired = true;
+		}	
 	}
-	void loop_timer::reset(const duration_type& interval) noexcept
+}
+
+LoopTimer::LoopTimer(const duration_type& interval)
+: Timer(interval)
+, mOriginalDuration(interval)
+{
+	/* Empty on purpose. */
+}
+
+void LoopTimer::update(const duration_type& dt) noexcept
+{
+	mTimeLeft -= dt;
+	if (mTimeLeft <= 0.0f)
 	{
-		mTimeLeft = interval;
-		m_original_duration = mTimeLeft;
+		onFire(this);
+		mTimeLeft = mOriginalDuration;
 	}
+}
+
+void LoopTimer::reset(const duration_type& interval) noexcept
+{
+	mTimeLeft = interval;
+	mOriginalDuration = mTimeLeft;
+}
+
 } // namespace gintonic

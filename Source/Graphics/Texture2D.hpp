@@ -17,10 +17,10 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/base_object.hpp>
 
-namespace FBX
-{
-	class FbxTexture; // Forward declaration.
-}
+// namespace FBX
+// {
+// 	class FbxTexture; // Forward declaration.
+// }
 
 namespace gintonic {
 

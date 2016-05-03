@@ -24,7 +24,7 @@ public:
 
 private:
 	mutable bool mDrawCursor = true;
-	mutable loop_timer timer;
+	// mutable LoopTimer mTimer;
 	virtual void drawImplementation() const noexcept;
 };
 

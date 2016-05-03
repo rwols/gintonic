@@ -9,12 +9,14 @@ namespace gintonic {
 namespace GUI {
 
 ConsoleView::ConsoleView()
-: timer(std::chrono::milliseconds(250))
+// : mTimer(std::chrono::milliseconds(250))
 {
-	timer.action.connect( [this] (const class timer*)
+	auto lTimer = new LoopTimer(0.25f);
+	lTimer->onFire.connect( [this] (const Timer*)
 	{
 		mDrawCursor = !mDrawCursor;
 	});
+	Timer::add(lTimer);
 }
 
 void ConsoleView::drawImplementation() const noexcept
@@ -50,7 +52,7 @@ void ConsoleView::drawImplementation() const noexcept
 	font->draw(console->getActiveString().c_str(), console->getActiveString().length(), lStartPos, lScale, lMaxHorizontalOffset);
 
 	// Draw the cursor
-	timer.update(Renderer::deltaTime());
+	// mTimer.update(Renderer::deltaTime());
 	if (mDrawCursor)
 	{
 		// The +2 is because we also draw the "input thingy"
