@@ -204,7 +204,7 @@ public:
 	 *
 	 * @param e A reference to the Entity that is about to die.
 	 */
-	boost::signals2::signal<void(Entity&)> onDie;
+	boost::signals2::signal<void(std::shared_ptr<Entity>)> onDie;
 
 	/**
 	 * @brief Event that fires when the global transform has changed.

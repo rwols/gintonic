@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_Octree_hpp
-#define gintonic_Octree_hpp
+#pragma once
 
 #include "../Math/box3f.hpp"
 #include "../Entity.hpp"
@@ -20,14 +19,44 @@ class Octree
 {
 private:
 
-	friend class Entity;
+	// friend class Entity;
+
+	struct EntityHolder
+	{
+		std::weak_ptr<Entity>       entity;
+		boost::signals2::connection transformChangeConnection;
+		boost::signals2::connection destructConnection;
+
+		EntityHolder()                                = default;
+		EntityHolder(const EntityHolder&)             = default;
+		EntityHolder(EntityHolder&&)                  = default;
+		EntityHolder& operator= (const EntityHolder&) = default;
+		EntityHolder& operator= (EntityHolder&&)      = default;
+		~EntityHolder() noexcept                      = default;
+
+		template <class A, class B, class C>
+		EntityHolder(A&& a, B&& b, C&& c)
+		: entity(std::forward<A>(a))
+		, transformChangeConnection(std::forward<B>(b))
+		, destructConnection(std::forward<C>(c))
+		{
+			/* Empty on purpose. */
+		}
+	};
 
 	Octree* mParent = nullptr;
+	Octree* mChild[8] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	box3f mBounds;
-	std::list<Entity*> mEntities;
-	Octree* mChild[8];
+	std::list<EntityHolder> mEntities;
 
 public:
+
+	enum class ErasureStatus
+	{
+		entityNotPresent, 
+		EntityRemovedAndOctreeNodeNotRemoved, 
+		EntityRemovedAndOctreeNodeRemoved
+	};
 
 	/**
 	 * @brief Subdivision threshold.
@@ -37,7 +66,7 @@ public:
 	 * After the Octree has reached this point, all objects will just be
 	 * placed in this Octree.
 	 */
-	float subdivisionThreshold = 5.0f;
+	float subdivisionThreshold = 1.0f;
 
 	/**
 	 * @brief Constructor that takes a bounding box.
@@ -232,14 +261,20 @@ public:
 	template <class Func>
 	void foreach(Func f) const;
 
+	template <class Func>
+	void forEachNode(Func f);
+
+	template <class Func>
+	void forEachNode(Func f) const;
+
 	/**
 	 * @brief Insert an Entity into the tree.
 	 * @details This method recurses down into the tree if the Entity can
 	 * fit into a smaller box. It will also recursively create new nodes if
 	 * needed.
-	 * @param e The Entity to insert.
+	 * @param entity The Entity to insert.
 	 */
-	void insert(Entity* e);
+	void insert(std::shared_ptr<Entity> entity);
 
 	/**
 	 * @brief Erase an Entity from the tree.
@@ -247,13 +282,10 @@ public:
 	 * attempt to erase the Entity in this node's Entity list. If no entities
 	 * remain in the node's list and if this is a leaf node, then the node
 	 * will delete itself.
-	 * @param e The Entity to erase.
-	 * @return
-	 * * 0 if the Entity was not present.
-	 * * 1 if succesfully removed, but the node was not removed.
-	 * * 2 if succesfully removed, and the node was also removed.
+	 * @param entity The Entity to erase.
+	 * @return ErasureStatus
 	 */
-	int erase(Entity* e);
+	ErasureStatus erase(std::shared_ptr<Entity> entity);
 
 	// Notify the Octree that an Entity's global bounding box
 	// has changed. This can result in possibly mutating the tree,
@@ -265,19 +297,22 @@ public:
 	 * Entity right now has an event that fires when its global transform has
 	 * changed so the Octree should probably just subscribe to that event and
 	 * do its thing via this route.
-	 * @param e The Entity whose global transform has changed.
+	 * @param entity The Entity whose global transform has changed.
 	 */
-	void notify(Entity* e);
+	void notify(std::shared_ptr<Entity> entity);
 
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
 private:
 
-	Octree(Octree*, const box3f&);
+	Octree(const float subdivisionThreshold, Octree*, const box3f&);
 
-	Octree(Octree* parent, const vec3f& min, const vec3f& max);
+	Octree(const float subdivisionThreshold, Octree* parent, const vec3f& min, const vec3f& max);
 
-	void notifyHelper(Entity*);
+	void backRecursiveInsert(std::shared_ptr<Entity>);
+	ErasureStatus backRecursiveDelete();
+
+	void notifyHelper(std::shared_ptr<Entity>);
 
 	void subdivide();
 };
@@ -321,8 +356,17 @@ Octree::Octree(
 template <class OutputIter> 
 void Octree::getEntities(OutputIter iter)
 {
-	std::copy(mEntities.begin(), mEntities.end(), iter);
-	for (auto* c : mChild) if (c) c->getEntities(iter);
+	for (auto& lHolder : mEntities)
+	{
+		if (auto lEntityPtr = lHolder.entity.lock())
+		{
+			*iter = lEntityPtr;
+			++iter;
+		}
+	}
+	// std::transform(mEntities.begin(), mEntities.end(), iter, [] (std::weak_ptr<Entity> ent) { return ent.lock(); });
+	// std::copy(mEntities.begin(), mEntities.end(), iter);
+	for (auto* lChildNode : mChild) lChildNode->getEntities(iter);
 }
 
 // Get the entities of this Octree and of its children too.
@@ -330,8 +374,16 @@ void Octree::getEntities(OutputIter iter)
 template <class OutputIter> 
 void Octree::getEntities(OutputIter iter) const
 {
-	std::copy(mEntities.begin(), mEntities.end(), iter);
-	for (const auto* c : mChild) if (c) c->getEntities(iter);
+	for (const auto& lHolder : mEntities)
+	{
+		if (const auto lEntityPtr = lHolder.entity.lock())
+		{
+			*iter = lEntityPtr;
+			++iter;
+		}
+	}
+	// std::copy(mEntities.begin(), mEntities.end(), iter);
+	for (const auto* lChildNode : mChild) lChildNode->getEntities(iter);
 }
 
 // Query an area defined by a box3f to obtain all the entities
@@ -344,24 +396,27 @@ void Octree::getEntities(OutputIter iter) const
 template <class OutputIter>
 void Octree::query(const box3f& area, OutputIter iter)
 {
-	for (auto* object : mEntities)
+	for (auto& lHolder : mEntities)
 	{
-		if (intersects(area, object->globalBoundingBox()))
+		if (auto lEntityPtr = lHolder.entity.lock())
 		{
-			++iter;
-			*iter = object;
+			if (intersects(area, lEntityPtr->globalBoundingBox()))
+			{
+				++iter;
+				*iter = lEntityPtr;
+			}
 		}
 	}
-	for (auto* c : mChild)
+	for (auto* lChildNode : mChild)
 	{
 		// Case 0: If there is no child node, continue
-		if (c == nullptr) continue;
+		if (lChildNode == nullptr) continue;
 		// Case 1: search area completely contained by sub-quad
 		// if a node completely contains the query area, go down that
 		// branch and skip the remaining nodes (break this loop)
-		if (c->mBounds.contains(area))
+		if (lChildNode->mBounds.contains(area))
 		{
-			c->query(area, iter);
+			lChildNode->query(area, iter);
 			break;
 		}
 		// Case 2: Sub-quad completely contained by search area 
@@ -369,17 +424,17 @@ void Octree::query(const box3f& area, OutputIter iter)
 		// just add all the contents of that quad and it's children 
 		// to the result set. You need to continue the loop to test 
 		// the other quads
-		else if (area.contains(c->mBounds))
+		else if (area.contains(lChildNode->mBounds))
 		{
-			c->getEntities(iter);
+			lChildNode->getEntities(iter);
 			continue;
 		}
 		// Case 3: search area intersects with sub-quad
 		// traverse into this quad, continue the loop to search other
 		// quads
-		else if (intersects(area, c->mBounds))
+		else if (intersects(area, lChildNode->mBounds))
 		{
-			c->query(area, iter);
+			lChildNode->query(area, iter);
 			continue;
 		}
 	}
@@ -394,42 +449,46 @@ void Octree::query(const box3f& area, OutputIter iter)
 template <class OutputIter>
 void Octree::query(const box3f& area, OutputIter iter) const
 {
-	for (const auto* object : mEntities)
+	for (const auto& lHolder : mEntities)
 	{
-		if (intersects(area, object->globalBoundingBox()))
+		if (const auto lEntityPtr = lHolder.entity.lock())
 		{
-			++iter;
-			*iter = object;
+			if (intersects(area, lEntityPtr->globalBoundingBox()))
+			{
+				++iter;
+				*iter = lEntityPtr;
+			}
 		}
+
 	}
-	for (const auto* c : mChild)
+	for (const auto* lChildNode : mChild)
 	{
-		// Case 0: If there is no child node, continue.
-		if (c == nullptr) continue;
-		// Case 1: search area completely contained by sub-quad.
-		// If a node completely contains the query area, go down that
+		// Case 0: If there is no child node, continue
+		if (lChildNode == nullptr) continue;
+		// Case 1: search area completely contained by sub-quad
+		// if a node completely contains the query area, go down that
 		// branch and skip the remaining nodes (break this loop)
-		if (c->mBounds.contains(area))
+		if (lChildNode->mBounds.contains(area))
 		{
-			c->query(area, iter);
+			lChildNode->query(area, iter);
 			break;
 		}
-		// Case 2: Sub-quad completely contained by search area.
-		// If the query area completely contains a sub-quad,
-		// just add all the contents of that quad and its children 
-		// to the result set. We need to continue the loop to test 
-		// the other quads.
-		else if (area.contains(c->mBounds))
+		// Case 2: Sub-quad completely contained by search area 
+		// if the query area completely contains a sub-quad,
+		// just add all the contents of that quad and it's children 
+		// to the result set. You need to continue the loop to test 
+		// the other quads
+		else if (area.contains(lChildNode->mBounds))
 		{
-			c->getEntities(iter);
+			lChildNode->getEntities(iter);
 			continue;
 		}
-		// Case 3: search area intersects with sub-quad.
-		// Traverse into this quad, continue the loop to search other
-		// quads.
-		else if (intersects(area, c->mBounds))
+		// Case 3: search area intersects with sub-quad
+		// traverse into this quad, continue the loop to search other
+		// quads
+		else if (intersects(area, lChildNode->mBounds))
 		{
-			c->query(area, iter);
+			lChildNode->query(area, iter);
 			continue;
 		}
 	}
@@ -438,17 +497,29 @@ void Octree::query(const box3f& area, OutputIter iter) const
 template <class Func> 
 void Octree::foreach(Func f)
 {
-	for (auto* o : mEntities) f(o);
+	for (auto& o : mEntities) if (auto ptr = o.entity.lock()) f(ptr);
 	for (auto* c : mChild) if (c) c->foreach(f);
 }
 
 template <class Func>
 void Octree::foreach(Func f) const
 {
-	for (const auto* o : mEntities) f(o);
+	for (const auto& o : mEntities) if (const auto ptr = o.entity.lock()) f(ptr);
 	for (const auto* c : mChild) if (c) c->foreach(f);
 }
 
-} // namespace gintonic
+template <class Func>
+void Octree::forEachNode(Func f)
+{
+	f(this);
+	for (auto* lChildNode : mChild) if (lChildNode) lChildNode->forEachNode(f);
+}
 
-#endif
+template <class Func>
+void Octree::forEachNode(Func f) const
+{
+	f(this);
+	for (auto* lChildNode : mChild) if (lChildNode) lChildNode->forEachNode(f);
+}
+
+} // namespace gintonic

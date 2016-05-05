@@ -28,6 +28,7 @@ template <class T, std::size_t Alignment> class allocator;
 class exception;
 class ReadLock;
 class ReadWriteLock;
+class Octree;
 class timer;
 class one_shot_timer;
 class loop_timer;

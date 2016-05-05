@@ -3,6 +3,7 @@
 #include "GUI/Base.hpp"
 
 #include "../Foundation/exception.hpp"
+#include "../Foundation/Octree.hpp"
 #include "../Math/vec4f.hpp"
 #include "../Math/MatrixPipeline.hpp"
 
@@ -179,6 +180,7 @@ mat3f Renderer::s_matrix_N = mat3f(1.0f);
 
 std::shared_ptr<Entity> Renderer::sCameraEntity = std::shared_ptr<Entity>(nullptr);
 std::shared_ptr<Entity> Renderer::sDebugShadowBufferEntity = std::shared_ptr<Entity>(nullptr);
+const Octree* Renderer::sOctreeRoot = nullptr;
 vec3f Renderer::sCameraPosition = vec3f(0.0f, 0.0f, 0.0f);
 
 std::shared_ptr<Mesh> Renderer::sUnitQuadPUN        = nullptr;
@@ -717,6 +719,28 @@ void Renderer::update() noexcept
 		sGeometryBuffer->finalize(sWidth, sHeight);
 	}
 
+	if (sOctreeRoot)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_BLEND);
+		const auto& lProgram = OctreeDebugShaderProgram::get();
+		lProgram.activate();
+		lProgram.setColor(vec3f(1.0f, 0.0f, 0.0f));
+		sOctreeRoot->forEachNode( [&lProgram] (const Octree* node)
+		{
+			SQT lTransform;
+			const auto& lBBox = node->bounds();
+			lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
+			lTransform.translation = 0.5f * (lBBox.minCorner + lBBox.maxCorner); // Center of the box
+			lTransform.scale = 0.5f * (lBBox.minCorner - lBBox.maxCorner);
+			setModelMatrix(lTransform);
+			lProgram.setMatrixPVM(matrix_PVM());
+			sUnitCubePUN->draw();
+		});
+	}
+
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -1229,6 +1253,7 @@ void Renderer::init_shaders()
 	INIT_SHADER(GUIShaderProgram);
 	INIT_SHADER(SilhouetteShaderProgram);
 	INIT_SHADER(ShadowVolumeShaderProgram);
+	INIT_SHADER(OctreeDebugShaderProgram);
 }
 
 

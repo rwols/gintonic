@@ -9,14 +9,12 @@ namespace gintonic {
 namespace GUI {
 
 ConsoleView::ConsoleView()
-// : mTimer(std::chrono::milliseconds(250))
+: mTimer(Timer<float>::Type::kLoop, 0.25f)
 {
-	auto lTimer = new LoopTimer(0.25f);
-	lTimer->onFire.connect( [this] (const Timer*)
+	mTimer.onFire.connect( [this] ()
 	{
 		mDrawCursor = !mDrawCursor;
 	});
-	Timer::add(lTimer);
 }
 
 void ConsoleView::drawImplementation() const noexcept

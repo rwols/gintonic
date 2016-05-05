@@ -687,6 +687,11 @@ public:
 		return sDebugShadowBufferEntity;
 	}
 
+	inline static void debugDrawOctree(const Octree* root) noexcept
+	{
+		sOctreeRoot = root;
+	}
+
 	/**
 	 * @brief Enable or disable virtual synchronization.
 	 * @param b True to enable, false to disable.
@@ -918,6 +923,7 @@ private:
 
 	static std::shared_ptr<Entity> sCameraEntity;
 	static std::shared_ptr<Entity> sDebugShadowBufferEntity;
+	static const Octree* sOctreeRoot;
 	static vec3f sCameraPosition;
 
 	static std::shared_ptr<Mesh> sUnitQuadPUN;

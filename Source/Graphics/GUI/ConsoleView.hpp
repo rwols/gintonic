@@ -3,7 +3,7 @@
 #include "Base.hpp"
 
 #include "../../Foundation/Console.hpp"
-#include "../../Foundation/timers.hpp"
+#include "../../Foundation/Timer.hpp"
 
 #include "../Font.hpp"
 
@@ -24,7 +24,7 @@ public:
 
 private:
 	mutable bool mDrawCursor = true;
-	// mutable LoopTimer mTimer;
+	mutable Timer<float> mTimer;
 	virtual void drawImplementation() const noexcept;
 };
 

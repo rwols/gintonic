@@ -374,4 +374,14 @@ public:
 	virtual ~ShadowVolumeShaderProgram() noexcept = default;
 };
 
+class OctreeDebugShaderProgram
+: public ShaderProgramBase<OctreeDebugShaderProgram>
+, public Uniform::matrixPVM
+, public Uniform::color
+{
+public:
+	OctreeDebugShaderProgram();
+	virtual ~OctreeDebugShaderProgram() noexcept = default;
+};
+
 } // namespace gintonic

@@ -149,10 +149,10 @@ void Entity::updateGlobalInfo() noexcept
 	{
 		mGlobalTransform = mat4f(mLocalTransform);
 	}
-	if (mOctree)
-	{
-		mOctree->notify(this);
-	}
+	// if (mOctree)
+	// {
+	// 	mOctree->notify(this);
+	// }
 	for (auto lChild : mChildren)
 	{
 		lChild->updateGlobalInfo();
@@ -496,14 +496,14 @@ Entity::~Entity() noexcept
 {
 	try
 	{
-		onDie(*this);
+		onDie(shared_from_this());
 	}
 	catch (...)
 	{
 		// Absorb the exceptions
 	}
 	SQT lSQT;
-	if (mOctree) mOctree->erase(this);
+	// if (mOctree) mOctree->erase(this);
 	for (auto lChild : mChildren)
 	{
 		lChild->mParent = std::shared_ptr<Entity>(nullptr);

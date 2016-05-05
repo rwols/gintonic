@@ -74,4 +74,10 @@ ShadowVolumeShaderProgram::ShadowVolumeShaderProgram()
 	/* Empty on purpose. */
 }
 
+OctreeDebugShaderProgram::OctreeDebugShaderProgram()
+: OpenGL::ShaderProgram("Shaders/OctreeDebug.vert", "Shaders/OctreeDebug.frag")
+{
+	/* Empty on purpose. */
+}
+
 } // namespace gintonic
