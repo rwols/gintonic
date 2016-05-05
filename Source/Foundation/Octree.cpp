@@ -181,10 +181,10 @@ void Octree::insert(std::shared_ptr<Entity> entity)
 	auto lTransformChangeConnection = entity->onTransformChange.connect( [this] (std::shared_ptr<Entity> thisEntity)
 	{
 		assert(this == thisEntity->mOctree);
-		auto lStatus = this->erase(thisEntity);
-		assert(lStatus != ErasureStatus::entityNotPresent);
+		auto lUpmostParent = this->erase(thisEntity);
+		assert(lUpmostParent);
 		assert(nullptr == thisEntity->mOctree);
-		this->backRecursiveInsert(thisEntity);
+		lUpmostParent->backRecursiveInsert(thisEntity);
 	});
 
 	DEBUG_PRINT;
@@ -195,8 +195,9 @@ void Octree::insert(std::shared_ptr<Entity> entity)
 	auto lDieConnection = entity->onDie.connect( [this] (std::shared_ptr<Entity> thisEntity)
 	{
 		assert(this == thisEntity->mOctree);
-		auto lStatus = this->erase(thisEntity);
-		assert(lStatus != ErasureStatus::entityNotPresent);
+		auto lUpmostParent = this->erase(thisEntity);
+		assert(lUpmostParent);
+		assert(nullptr == thisEntity->mOctree);
 	});
 
 	DEBUG_PRINT;
@@ -204,10 +205,10 @@ void Octree::insert(std::shared_ptr<Entity> entity)
 	mEntities.emplace_back(std::move(entity), std::move(lTransformChangeConnection), std::move(lDieConnection));
 }
 
-Octree::ErasureStatus Octree::erase(std::shared_ptr<Entity> entity)
+Octree* Octree::erase(std::shared_ptr<Entity> entity)
 {
 	DEBUG_PRINT;
-	if (entity->mOctree != this) return ErasureStatus::entityNotPresent;
+	if (entity->mOctree != this) return nullptr;
 	DEBUG_PRINT;
 	for (auto lIter = mEntities.begin(); lIter != mEntities.end(); ++lIter)
 	{
@@ -239,7 +240,7 @@ Octree::ErasureStatus Octree::erase(std::shared_ptr<Entity> entity)
 	}
 	DEBUG_PRINT;
 	if (mParent) return mParent->backRecursiveDelete();
-	else return ErasureStatus::EntityRemovedAndOctreeNodeNotRemoved;
+	else return this;
 }
 
 void Octree::backRecursiveInsert(std::shared_ptr<Entity> entity)
@@ -259,7 +260,7 @@ void Octree::backRecursiveInsert(std::shared_ptr<Entity> entity)
 	}
 }
 
-Octree::ErasureStatus Octree::backRecursiveDelete()
+Octree* Octree::backRecursiveDelete()
 {
 	DEBUG_PRINT;
 
@@ -282,7 +283,7 @@ Octree::ErasureStatus Octree::backRecursiveDelete()
 	DEBUG_PRINT;
 
 	if (mParent) return mParent->backRecursiveDelete();
-	else return ErasureStatus::EntityRemovedAndOctreeNodeRemoved;
+	else return this; // We're the root node. Don't delete that!
 }
 
 void Octree::notify(std::shared_ptr<Entity> entity)

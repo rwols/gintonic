@@ -731,7 +731,7 @@ void Renderer::update() noexcept
 		sOctreeRoot->forEachNode( [&lProgram] (const Octree* node)
 		{
 			SQT lTransform;
-			const auto& lBBox = node->bounds();
+			const auto lBBox = node->bounds();
 			lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 			lTransform.translation = 0.5f * (lBBox.minCorner + lBBox.maxCorner); // Center of the box
 			lTransform.scale = 0.5f * (lBBox.minCorner - lBBox.maxCorner);

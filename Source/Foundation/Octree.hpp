@@ -281,11 +281,14 @@ public:
 	 * @details This method does not recurse down into the tree. It will only
 	 * attempt to erase the Entity in this node's Entity list. If no entities
 	 * remain in the node's list and if this is a leaf node, then the node
-	 * will delete itself.
+	 * will delete itself. This process continues up the tree.
 	 * @param entity The Entity to erase.
-	 * @return ErasureStatus
+	 * @return The farthest parent who still has non-leaf children, or entities
+	 * inside it, or the root node, or nullptr if the entity was not present in
+	 * this Octree node. Client code should only check for nullptr because that
+	 * signals a logical error.
 	 */
-	ErasureStatus erase(std::shared_ptr<Entity> entity);
+	Octree* erase(std::shared_ptr<Entity> entity);
 
 	// Notify the Octree that an Entity's global bounding box
 	// has changed. This can result in possibly mutating the tree,
@@ -310,7 +313,7 @@ private:
 	Octree(const float subdivisionThreshold, Octree* parent, const vec3f& min, const vec3f& max);
 
 	void backRecursiveInsert(std::shared_ptr<Entity>);
-	ErasureStatus backRecursiveDelete();
+	Octree* backRecursiveDelete();
 
 	void notifyHelper(std::shared_ptr<Entity>);
 

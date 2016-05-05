@@ -234,8 +234,9 @@ public:
 	{
 		#ifdef BOOST_MSVC
 
-		auto copy = v.data;
-		return _mm_add_ps(data, copy);
+		auto m1 = v.data;
+		auto m2 = this->data;
+		return _mm_add_ps(m1, m2);
 
 		#else
 

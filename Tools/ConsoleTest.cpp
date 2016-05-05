@@ -6,7 +6,12 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+#ifdef BOOST_MSVC
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 
 // Global variable.
 gintonic::Console gConsole;
@@ -152,11 +157,13 @@ int main()
 {
 	using namespace gintonic;
 
+	#ifndef BOOST_MSVC
 	struct sigaction sigIntHandler;
 	sigIntHandler.sa_handler = exitHandler;
 	sigemptyset(&sigIntHandler.sa_mask);
 	sigIntHandler.sa_flags = 0;
 	sigaction(SIGINT, &sigIntHandler, nullptr);
+	#endif
 
 	gGameState.start();
 	gGameState.process_event(GoToMainMenu());

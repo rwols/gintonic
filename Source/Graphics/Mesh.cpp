@@ -5,6 +5,8 @@
 
 #include <fbxsdk.h>
 
+#include <set>
+
 namespace // anonymous namespace
 {
 
