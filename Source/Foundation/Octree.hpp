@@ -367,9 +367,7 @@ void Octree::getEntities(OutputIter iter)
 			++iter;
 		}
 	}
-	// std::transform(mEntities.begin(), mEntities.end(), iter, [] (std::weak_ptr<Entity> ent) { return ent.lock(); });
-	// std::copy(mEntities.begin(), mEntities.end(), iter);
-	for (auto* lChildNode : mChild) lChildNode->getEntities(iter);
+	for (auto* lChildNode : mChild) if (lChildNode) lChildNode->getEntities(iter);
 }
 
 // Get the entities of this Octree and of its children too.
@@ -385,8 +383,7 @@ void Octree::getEntities(OutputIter iter) const
 			++iter;
 		}
 	}
-	// std::copy(mEntities.begin(), mEntities.end(), iter);
-	for (const auto* lChildNode : mChild) lChildNode->getEntities(iter);
+	for (const auto* lChildNode : mChild) if (lChildNode) lChildNode->getEntities(iter);
 }
 
 // Query an area defined by a box3f to obtain all the entities
@@ -413,32 +410,80 @@ void Octree::query(const box3f& area, OutputIter iter)
 	for (auto* lChildNode : mChild)
 	{
 		// Case 0: If there is no child node, continue
-		if (lChildNode == nullptr) continue;
+		if (lChildNode == nullptr)
+		{
+			DEBUG_PRINT;
+			continue;
+		}
 		// Case 1: search area completely contained by sub-quad
 		// if a node completely contains the query area, go down that
 		// branch and skip the remaining nodes (break this loop)
+		//
+		// +-----+-----+
+		// | +-+ | skip|
+		// | |s| | skip|
+		// | +-+ | skip|
+		// +-----+-----+
+		// |skip | skip|
+		// |skip | skip|
+		// |skip | skip|
+		// +-----+-----+
+		//
 		if (lChildNode->mBounds.contains(area))
 		{
+			DEBUG_PRINT;
 			lChildNode->query(area, iter);
 			break;
 		}
 		// Case 2: Sub-quad completely contained by search area 
 		// if the query area completely contains a sub-quad,
-		// just add all the contents of that quad and it's children 
+		// just add all the contents of that quad and its children 
 		// to the result set. You need to continue the loop to test 
 		// the other quads
+		//
+		// +---------+
+		// |sssssssss|
+		// |s+-----+-+---+
+		// |s|sssss|s| ? |
+		// |s|sssss|s| ? |
+		// |s|sssss|s| ? |
+		// |s+-----+-+---+
+		// |s|sssss|s| ? |
+		// +-+-----+-+ ? |
+		//   | ??? | ??? |
+		//   +-----+-----+
+		//
 		else if (area.contains(lChildNode->mBounds))
 		{
+			DEBUG_PRINT;
 			lChildNode->getEntities(iter);
-			continue;
 		}
 		// Case 3: search area intersects with sub-quad
 		// traverse into this quad, continue the loop to search other
 		// quads
+		//
+		// +-----+
+		// |sssss|
+		// |s+---+-+-----+
+		// |s|sss| | ??? |
+		// +-+---+ | ??? |
+		//   |     | ??? |
+		//   +-----+-----+
+		//   | ??? | ??? |
+		//   | ??? | ??? |
+		//   | ??? | ??? |
+		//   +-----+-----+
+		//
 		else if (intersects(area, lChildNode->mBounds))
 		{
+			DEBUG_PRINT;
 			lChildNode->query(area, iter);
-			continue;
+		}
+		// Case 4: The search area and sub-quad are disjoint.
+		else
+		{
+			DEBUG_PRINT;
+			// throw std::logic_error(":(");
 		}
 	}
 }

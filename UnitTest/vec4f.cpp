@@ -13,7 +13,7 @@ using namespace gintonic;
 
 BOOST_AUTO_TEST_CASE( constructor_test )
 {
-
+	detail::Vector<4, float> vec;
 }
 
 BOOST_AUTO_TEST_CASE ( operators_test )

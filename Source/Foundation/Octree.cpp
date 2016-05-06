@@ -135,43 +135,42 @@ std::size_t Octree::count() const
 
 void Octree::insert(std::shared_ptr<Entity> entity)
 {
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	assert(mBounds.contains(entity->globalBoundingBox()));
 
-	PRINT_VAR(mBounds);
-	PRINT_VAR(entity->globalBoundingBox());
+	// PRINT_VAR(mBounds);
+	// PRINT_VAR(entity->globalBoundingBox());
 
 	// If we are at a leaf node, subdivide the space into eight octants.
 	if (isLeaf()) subdivide();
 
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 
 	// If the entity's bounds are contained within
 	// one of the mChild's bounds, then insert the entity
 	// in that mChild node.
 	for (auto* lChildNode : mChild)
 	{
-		DEBUG_PRINT;
-		// assert(lChildNode);
+		// DEBUG_PRINT;
 		if (lChildNode && lChildNode->mBounds.contains(entity->globalBoundingBox()))
 		{
-			DEBUG_PRINT;
+			// DEBUG_PRINT;
 			lChildNode->insert(entity);
-			DEBUG_PRINT;
+			// DEBUG_PRINT;
 			return;
 		}
 	}
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 
 	// If we arrive here, then none of the mChild nodes
 	// can contain the entity. So we add it to this node.
 
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 
 	// Give the Entity a reference to this node.
 	entity->mOctree = this;
 
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 
 	// Subscribe to the onTransformChanged event of the Entity.
 	// When the Entity changes its tranformation matrix, we need to
@@ -181,13 +180,15 @@ void Octree::insert(std::shared_ptr<Entity> entity)
 	auto lTransformChangeConnection = entity->onTransformChange.connect( [this] (std::shared_ptr<Entity> thisEntity)
 	{
 		assert(this == thisEntity->mOctree);
+		// PRINT_VAR(this);
 		auto lUpmostParent = this->erase(thisEntity);
+		// PRINT_VAR(lUpmostParent);
 		assert(lUpmostParent);
 		assert(nullptr == thisEntity->mOctree);
 		lUpmostParent->backRecursiveInsert(thisEntity);
 	});
 
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 
 	// Subscribe to the onDie event of the Entity.
 	// When the Entity dies (i.e. destructor is called), we need to
@@ -200,45 +201,38 @@ void Octree::insert(std::shared_ptr<Entity> entity)
 		assert(nullptr == thisEntity->mOctree);
 	});
 
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 
 	mEntities.emplace_back(std::move(entity), std::move(lTransformChangeConnection), std::move(lDieConnection));
 }
 
 Octree* Octree::erase(std::shared_ptr<Entity> entity)
 {
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	if (entity->mOctree != this) return nullptr;
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	for (auto lIter = mEntities.begin(); lIter != mEntities.end(); ++lIter)
 	{
-		DEBUG_PRINT;
-		if (auto lEntityPtr = lIter->entity.lock())
+		// DEBUG_PRINT;
+		if (entity == lIter->entity.lock())
 		{
-			if (entity == lIter->entity.lock())
-			{
-				DEBUG_PRINT;
-				lIter->transformChangeConnection.disconnect();
-				lIter->destructConnection.disconnect();
+			// DEBUG_PRINT;
+			lIter->transformChangeConnection.disconnect();
+			lIter->destructConnection.disconnect();
 
-				DEBUG_PRINT;
-				assert(lIter->transformChangeConnection.connected() == false);
-				assert(lIter->destructConnection.connected() == false);
-				
-				DEBUG_PRINT;
-				mEntities.erase(lIter);
-				entity->mOctree = nullptr;
+			// DEBUG_PRINT;
+			assert(lIter->transformChangeConnection.connected() == false);
+			assert(lIter->destructConnection.connected() == false);
+			
+			// DEBUG_PRINT;
+			mEntities.erase(lIter);
+			entity->mOctree = nullptr;
 
-				DEBUG_PRINT;
-				break; 
-			}
-		}
-		else
-		{
-			assert(false);
+			// DEBUG_PRINT;
+			break; 
 		}
 	}
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	if (mParent) return mParent->backRecursiveDelete();
 	else return this;
 }
@@ -262,7 +256,7 @@ void Octree::backRecursiveInsert(std::shared_ptr<Entity> entity)
 
 Octree* Octree::backRecursiveDelete()
 {
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 
 	int lEraseChildren{0};
 	for (const auto* lChildNode : mChild)
@@ -270,17 +264,17 @@ Octree* Octree::backRecursiveDelete()
 		lEraseChildren += lChildNode->hasNoEntities() ? 1 : 0;
 		lEraseChildren += lChildNode->isLeaf() ? 1 : 0;
 	}
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	if (lEraseChildren == 16)
 	{
-		DEBUG_PRINT;
-		for (const auto* lChildNode : mChild)
+		// DEBUG_PRINT;
+		for (auto*& lChildNode : mChild)
 		{
 			delete lChildNode;
 			lChildNode = nullptr;
 		}
 	}
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 
 	if (mParent) return mParent->backRecursiveDelete();
 	else return this; // We're the root node. Don't delete that!
@@ -382,53 +376,53 @@ Octree::Octree(const float subdivisionThreshold, Octree* parent, const vec3f& mi
 
 void Octree::subdivide()
 {
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	auto min = mBounds.minCorner;
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	auto max = mBounds.maxCorner;
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	const auto half = (max - min) / 2.0f;
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	if (half.x <= this->subdivisionThreshold 
 		|| half.y <= this->subdivisionThreshold 
 		|| half.z <= this->subdivisionThreshold)
 	{
-		DEBUG_PRINT;
+		// DEBUG_PRINT;
 		return;
 	}
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	mChild[0] = new Octree(subdivisionThreshold, this, min, min + half);
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	min.x += half.x;
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	mChild[1] = new Octree(subdivisionThreshold, this, min, min + half);
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	min.y += half.y;
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	mChild[2] = new Octree(subdivisionThreshold, this, min, min + half);
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	min.x -= half.x;
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	mChild[3] = new Octree(subdivisionThreshold, this, min, min + half);
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	min.y -= half.y;
 	// at this point, we are at the original location of min
 	min.z += half.z;
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	mChild[4] = new Octree(subdivisionThreshold, this, min, min + half);
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	min.x += half.x;
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	mChild[5] = new Octree(subdivisionThreshold, this, min, min + half);
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	min.y += half.y;
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	mChild[6] = new Octree(subdivisionThreshold, this, min, min + half);
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	min.x -= half.x;
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 	mChild[7] = new Octree(subdivisionThreshold, this, min, min + half);
-	DEBUG_PRINT;
+	// DEBUG_PRINT;
 }
 
 } // namespace gintonic

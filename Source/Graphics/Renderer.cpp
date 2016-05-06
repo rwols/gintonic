@@ -81,6 +81,10 @@ public:
 		{
 			if (entity->light)
 			{
+				// Catch SpotLight before PointLight. This is needed
+				// because SpotLight inherits from PointLight. Otherwise
+				// every SpotLight would also match the dynamic cast to a PointLight.
+				// That is not what we want.
 				if (dynamic_cast<SpotLight*>(entity->light.get()))
 				{
 					sShadowCastingLightEntities.push_back(entity);
@@ -91,10 +95,12 @@ public:
 					assert(entity->shadowBuffer);
 				}
 				// Point lights need to be treated separately.
-				if (dynamic_cast<PointLight*>(entity->light.get()))
+				else if (dynamic_cast<PointLight*>(entity->light.get()))
 				{
 					sShadowCastingPointLightEntities.push_back(entity);
 				}
+				// Treat all other light types as if they apply the
+				// shadow map algorithm.
 				else
 				{
 					sShadowCastingLightEntities.push_back(entity);
@@ -722,12 +728,12 @@ void Renderer::update() noexcept
 	if (sOctreeRoot)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		// glDisable(GL_DEPTH_TEST);
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_BLEND);
+		glLineWidth(1.0f);
 		const auto& lProgram = OctreeDebugShaderProgram::get();
 		lProgram.activate();
-		lProgram.setColor(vec3f(1.0f, 0.0f, 0.0f));
+		lProgram.setColor(vec3f(0.0f, 0.0f, 1.0f));
 		sOctreeRoot->forEachNode( [&lProgram] (const Octree* node)
 		{
 			SQT lTransform;

@@ -72,7 +72,7 @@ public:
 				SPOTLIGHT_HALF_ANGLE_START_VALUE // Angle
 			)
 		);
-		mSpotLight->light->name = "SpotLight";
+		mSpotLight->light->name = "spotty the spotlight";
 		mSpotLight->camera = Renderer::getCameraEntity()->camera;
 		mSpotLight->castShadow = true;
 
@@ -92,7 +92,8 @@ public:
 				vec4f(0.1f, 0.4f, 0.5f, 4.0f)    // Attenuation
 			)
 		);
-		mPointLight->light->name = "PointLight";
+		mPointLight->light->name = "pointy the point light";
+		mPointLight->camera = Renderer::getCameraEntity()->camera;
 		mPointLight->castShadow = true;
 		auto lPointLightChild = std::make_shared<Entity>();
 		lPointLightChild->castShadow = false;
@@ -109,12 +110,21 @@ public:
 		// mRootEntity->addChild(mDirectionalLight);
 		mRootEntity->addChild(mSpotLight);
 		mRootEntity->addChild(mPointLight);
+
+		mOctreeRoot.subdivisionThreshold = 0.5f;
+
+		mOctreeRoot.insert(mSpotLight);
+		mOctreeRoot.insert(mPointLight);
+
+		Renderer::debugDrawOctree(&mOctreeRoot);
 		
 		Renderer::setFreeformCursor(true);
 		Renderer::show();
 	}
 
 private:
+
+	gintonic::Octree mOctreeRoot{{-100, -100, -100}, {100, 100, 100}};
 
 	std::shared_ptr<gintonic::Entity> mSphere;
 
@@ -135,7 +145,7 @@ private:
 
 	std::shared_ptr<gintonic::Entity> mSpotLight = std::make_shared<gintonic::Entity>
 	(
-		"SpotLight",
+		"spotty",
 		gintonic::SQT
 		(
 			gintonic::vec3f(0.1f, 0.1f, 0.1f),
@@ -150,7 +160,7 @@ private:
 
 	std::shared_ptr<gintonic::Entity> mPointLight = std::make_shared<gintonic::Entity>
 	(
-		"PointLight",
+		"pointy",
 		gintonic::SQT
 		(
 			gintonic::vec3f(0.1f, 0.1f, 0.1f),
@@ -212,6 +222,15 @@ private:
 				vec3f(0.0f, 1.0f, 0.0f)));
 		mPointLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, -2.0f));
 		mSphere->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mDeltaTime / 10.0f));
+
+		std::vector<std::shared_ptr<Entity>> lNearbyEntities;
+		const box3f lQueryBox{{-10, -10, -10}, {10, 10, 10}};
+		mOctreeRoot.query(lQueryBox, std::back_inserter(lNearbyEntities));
+		for (const auto& lNearbyEntity : lNearbyEntities)
+		{
+			Renderer::cerr() << lNearbyEntity->name << " is near! "
+				<< lNearbyEntity->globalBoundingBox() << " is inside " << lQueryBox << '\n';
+		}
 	}
 
 };

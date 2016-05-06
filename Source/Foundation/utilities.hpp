@@ -40,9 +40,7 @@
 /**
  * @brief Convenience macro to define custom operator new / operator delete
  * for your class to get your class aligned on a memory boundary.
- * 
  * @param alignment The memory boundary alignment. Usual values are 16 or 128.
- * @return [description]
  */
 #define GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(alignment)               \
 inline static void* operator new(std::size_t count)                          \
@@ -65,14 +63,6 @@ inline static void* operator new(std::size_t count, void* ptr)               \
 {                                                                            \
 	return ptr;                                                              \
 }                                                                            \
-inline static void operator delete(void* ptr, std::size_t count)             \
-{                                                                            \
-	_mm_free(ptr);                                                           \
-}                                                                            \
-inline static void operator delete[](void* ptr, std::size_t count)           \
-{                                                                            \
-	_mm_free(ptr);                                                           \
-}
 
 /**
  * @brief The memory boundary of an SSE type.
