@@ -16,7 +16,7 @@
 
 // Comment or uncomment this to see the bounding spheres
 // Only works in a debug build
-#define DEBUG_SPOT_LIGHTS
+// #define DEBUG_SPOT_LIGHTS
 
 namespace gintonic {
 

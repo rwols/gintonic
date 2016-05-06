@@ -26,55 +26,6 @@ union vec3f; // Forward declaration.
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
 #endif
 
-namespace detail {
-
-template <std::size_t N, typename FloatType, class ExpressionType> 
-struct VectorExpression
-{
-	using float_type = FloatType;
-	using expression_type = ExpressionType;
-
-	constexpr VectorExpression() = default;
-
-	inline constexpr std::size_t size() const noexcept { return N; }
-
-	inline           float_type& operator[](const std::size_t index)       noexcept { return static_cast<      expression_type&>(*this)[index]; }
-	inline constexpr float_type& operator[](const std::size_t index) const noexcept { return static_cast<const expression_type&>(*this)[index]; }
-
-	inline           operator expression_type&()       noexcept { return static_cast<      expression_type&>(*this); }
-	inline constexpr operator expression_type&() const noexcept { return static_cast<const expression_type&>(*this); }
-
-
-};
-
-template <std::size_t N, typename FloatType>
-class Vector : public VectorExpression<N, FloatType, Vector<N, FloatType>>
-{
-public:
-
-	using float_type = FloatType;
-
-	constexpr Vector() = default;
-
-	template <class ExpressionType>
-	Vector(const VectorExpression<N, FloatType, ExpressionType> expression)
-	{
-		for (std::size_t i = 0; i < N; ++i)
-		{
-			mData[i] = expression[i];
-		}
-	}
-
-	inline           float_type& operator[](const std::size_t index)       noexcept { return mData[index]; }
-	inline constexpr float_type& operator[](const std::size_t index) const noexcept { return mData[index]; }
-
-private:
-
-	std::array<float_type, N> mData;
-};
-
-} // namespace detail
-
 /**
  * @brief Four-dimensional vector class that uses SSE.
  * 

@@ -412,7 +412,7 @@ void Octree::query(const box3f& area, OutputIter iter)
 		// Case 0: If there is no child node, continue
 		if (lChildNode == nullptr)
 		{
-			DEBUG_PRINT;
+			// DEBUG_PRINT;
 			continue;
 		}
 		// Case 1: search area completely contained by sub-quad
@@ -431,7 +431,7 @@ void Octree::query(const box3f& area, OutputIter iter)
 		//
 		if (lChildNode->mBounds.contains(area))
 		{
-			DEBUG_PRINT;
+			// DEBUG_PRINT;
 			lChildNode->query(area, iter);
 			break;
 		}
@@ -455,7 +455,7 @@ void Octree::query(const box3f& area, OutputIter iter)
 		//
 		else if (area.contains(lChildNode->mBounds))
 		{
-			DEBUG_PRINT;
+			// DEBUG_PRINT;
 			lChildNode->getEntities(iter);
 		}
 		// Case 3: search area intersects with sub-quad
@@ -476,13 +476,13 @@ void Octree::query(const box3f& area, OutputIter iter)
 		//
 		else if (intersects(area, lChildNode->mBounds))
 		{
-			DEBUG_PRINT;
+			// DEBUG_PRINT;
 			lChildNode->query(area, iter);
 		}
 		// Case 4: The search area and sub-quad are disjoint.
 		else
 		{
-			DEBUG_PRINT;
+			// DEBUG_PRINT;
 			// throw std::logic_error(":(");
 		}
 	}
