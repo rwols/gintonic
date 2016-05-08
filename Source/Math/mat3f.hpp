@@ -23,7 +23,7 @@ union quatf; // Forward declaration.
 /**
  * @brief Three by three matrix, column major storage.
  */
-union GINTONIC_ALIGNED(16) mat3f
+union alignas(16) mat3f
 {
 public:
 

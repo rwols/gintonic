@@ -22,7 +22,7 @@ union vec2f; // Forward declaration.
 /**
  * @brief Two by two matrix. Column-major storage.
  */
-union mat2f
+union alignas(16) mat2f
 {
 	/// The raw SSE type.
 	__m128 data;

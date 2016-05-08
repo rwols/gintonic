@@ -51,7 +51,7 @@ union quatf; // Forward declaration.
  * case you will have to make sure by hand that objects are allocated on a
  * 16-byte boundary.
  */
-union vec3f
+union alignas(16) vec3f
 {
 public:
 

@@ -33,7 +33,7 @@ class Entity; // Forward declaration.
 /**
  * @brief Four by four matrix. Column major storage.
  */
-union mat4f
+union alignas(16) mat4f
 {
 public:
 

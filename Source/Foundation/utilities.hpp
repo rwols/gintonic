@@ -63,6 +63,14 @@ inline static void* operator new(std::size_t count, void* ptr)               \
 {                                                                            \
 	return ptr;                                                              \
 }                                                                            \
+inline static void operator delete(void* ptr, std::size_t count)             \
+{                                                                            \
+	_mm_free(ptr);                                                           \
+}                                                                            \
+inline static void operator delete[](void* ptr, std::size_t count)           \
+{                                                                            \
+	_mm_free(ptr);                                                           \
+}                                                                            \
 
 /**
  * @brief The memory boundary of an SSE type.

@@ -127,8 +127,9 @@ else ()
     set (FBX_DLL "${FBX_LIBRARY}")
 endif()
 
+string(REPLACE "\\" "\\\\" FBX_DLL "${FBX_DLL}")
+
 if (WIN32)
-    string(REPLACE "\\" "\\\\" FBX_DLL "${FBX_DLL}")
     string(REPLACE ".lib" ".dll" FBX_DLL "${FBX_DLL}")
 endif (WIN32)
 
