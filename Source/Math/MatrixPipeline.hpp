@@ -175,7 +175,7 @@ public:
 	{
 		if (mNormalMatrixIsDirty)
 		{
-			mNormalMatrix = getViewModelMatrix().upper_left_33().invert().transpose();
+			mNormalMatrix = getViewModelMatrix().upperLeft33().invert().transpose();
 			mNormalMatrixIsDirty = false;
 		}
 		return mNormalMatrix;

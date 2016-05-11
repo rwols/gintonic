@@ -7,6 +7,8 @@
 #pragma once
 
 #include "../Foundation/utilities.hpp"
+#include "../Foundation/Profiler.hpp"
+
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
@@ -57,12 +59,16 @@ public:
 	/// Get a value pointer to the raw array.
 	float* value_ptr() noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return &m00;
 	}
 
 	/// Get a const value pointer to the raw array.
 	const float* value_ptr() const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+		
 		return &m00;
 	}
 
@@ -75,7 +81,7 @@ public:
 	, m01(0.0f), m11(diagonal), m21(0.0f)
 	, m02(0.0f), m12(0.0f), m22(diagonal)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor that builds a diagonal matrix.
@@ -84,7 +90,7 @@ public:
 	, m01(0.0f), m11(scaley), m21(0.0f)
 	, m02(0.0f), m12(0.0f), m22(scalez)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor that builds a rotation matrix.
@@ -98,7 +104,7 @@ public:
 	, m01(m01), m11(m11), m21(m21)
 	, m02(m02), m12(m12), m22(m22)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Column constructor.

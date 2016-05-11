@@ -1,5 +1,6 @@
 #pragma once
 #include "gintonic.hpp"
+#include "Foundation/Profiler.hpp"
 
 class Application
 {
@@ -63,7 +64,9 @@ int main(int argc, char* argv[])                                    \
 	catch (const std::exception& lException)                        \
 	{                                                               \
 		std::cerr << lException.what() << '\n';                     \
+		GT_FINALIZE_PROFILING;                                      \
 		return EXIT_FAILURE;                                        \
 	}                                                               \
+	GT_FINALIZE_PROFILING;                                          \
 	return EXIT_SUCCESS;                                            \
 }

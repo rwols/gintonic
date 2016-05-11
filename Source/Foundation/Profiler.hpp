@@ -1,12 +1,11 @@
 /**
- * @file profiler.hpp
+ * @file Profiler.hpp
  * @brief Defines a profiler class and useful macros to use the profiler
  * functionality.
  * @author Raoul Wols
  */
 
-#ifndef profiler_hpp
-#define profiler_hpp
+#pragma once
 
 #include <chrono>
 #include <map>
@@ -20,12 +19,16 @@
 /**
  * @brief The file to save the CPU profiling log to.
  */
-#define PROFILER_CPU_LOG_FILE "cpu_profile.csv"
+#ifndef GT_PROFILING_LOG_FILE
+#define GT_PROFILING_LOG_FILE "ProfilingResults.csv"
+#endif
 
 /**
  * @brief The file to save the memory profiling log to.
  */
-#define PROFILER_MEM_LOG_FILE "mem_profile.csv"
+#ifndef GT_PROFILING_MEM_LOG_FILE
+#define GT_PROFILING_MEM_LOG_FILE "MemProfilingResults.csv"
+#endif
 
 #ifdef WITH_PROFILING
 /**
@@ -34,23 +37,20 @@
  * @param scope_name A string literal that should be equal to the name
  * of the function or method.
  */
-#define PROFILE_FUNCTION \
-::gintonic::detail::profiler __dont_touch_me__(GINTONIC_FUNC_SIGNATURE);
+#define GT_PROFILE_FUNCTION ::gintonic::detail::Profiler __dont_touch_me__(GINTONIC_FUNC_SIGNATURE);
 #else
-#define PROFILE_FUNCTION
+#define GT_PROFILE_FUNCTION
 #endif
 
 #ifdef WITH_PROFILING
-
 /**
  * @brief Put this macro at the end of the program.
  * @details This macro will write the profiling results of all recorded
  * functions and methods to a file.
  */
-#define FINALIZE_PROFILING(filename) \
-::gintonic::detail::profiler::write_log(filename);
+#define GT_FINALIZE_PROFILING ::gintonic::detail::Profiler::writeLogToFile(GT_PROFILING_LOG_FILE);
 #else
-#define FINALIZE_PROFILING(filename)
+#define GT_FINALIZE_PROFILING
 #endif
 
 namespace gintonic {
@@ -66,9 +66,9 @@ namespace detail {
  * filenames (PROFILER_CPU_LOG_FILE and PROFILER_MEM_LOG_FILE). If the macro
  * WITH_PROFILING is not defined (in the config.cmake file), then the macros
  * PROFILE(scope_name) and END_PROFILE will do nothing at all. You should not
- * use the profiler class directly but instead use the macros.
+ * use the Profiler class directly but instead use the macros.
  */
-class profiler
+class Profiler
 {
 
 private:
@@ -80,37 +80,35 @@ private:
 		<
 			std::chrono::high_resolution_clock::duration
 		>
-	> s_log;
+	> sGlobalLogMap;
 
-	const std::string m_scope_name;
+	const std::string mScopeName;
 
-	const std::chrono::high_resolution_clock::time_point m_t1;
+	const std::chrono::high_resolution_clock::time_point mStartTime;
 
 public:
 	
 	/**
 	 * @brief Constructor that takes the name of a scope.
 	 * @tparam T The string type, usually just a const char*.
-	 * @param scope_name The name of the scope.
+	 * @param scopeName The name of the scope.
 	 */
-	template <class T> profiler(T&& scope_name)
-	: m_scope_name(std::forward<T>(scope_name))
-	, m_t1(std::chrono::high_resolution_clock::now())
+	template <class T> Profiler(T&& scopeName)
+	: mScopeName(std::forward<T>(scopeName))
+	, mStartTime(std::chrono::high_resolution_clock::now())
 	{}
 
 	/**
 	 * @brief The destructor saves the timing of the scope to a global map.
 	 */
-	~profiler() noexcept;
+	~Profiler() noexcept;
 
 	/**
 	 * @brief Write the timing results as a CSV file.
-	 * @param log_file The filename to write to.
+	 * @param logFile The filename to write to.
 	 */
-	static void write_log(const char* log_file);
+	static void writeLogToFile(const char* logFile);
 };
 
 } // end of namespace detail
 } // end of namespace gintonic
-
-#endif

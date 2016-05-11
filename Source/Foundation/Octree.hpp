@@ -8,6 +8,9 @@
 
 #include "../Math/box3f.hpp"
 #include "../Entity.hpp"
+
+#include <boost/signals2/signal.hpp>
+
 #include <list>
 
 namespace gintonic {
@@ -226,24 +229,80 @@ public:
 	void getEntities(OutputIter iter) const;
 
 	/**
-	 * @brief Query an area to obtain all the entities in that area.
+	 * @brief Get the entities of this Octree and of its children too.
+	 * @tparam OutputIter The output iterator type.
+	 * @param iter An output iterator.
+	 * @filter A filter to apply to each entity within the search result.
+	 * If the filter returns true, then the entity is added to the result set.
+	 * Otherwise it is discarded.
+	 */
+	template <class OutputIter, class FilterFunc>
+	void getEntities(OutputIter iter, FilterFunc filter);
+
+	/**
+	 * @brief Get the entities of this Octree and of its children too.
+	 * @tparam OutputIter The output iterator type.
+	 * @param iter An output iterator.
+	 * @filter A filter to apply to each entity within the search result.
+	 * If the filter returns true, then the entity is added to the result set.
+	 * Otherwise it is discarded.
+	 */
+	template <class OutputIter, class FilterFunc>
+	void getEntities(OutputIter iter, FilterFunc filter) const;
+
+	/**
+	 * @brief Query a volume to obtain all the entities in that volume.
 	 * @details This method is the raison d'etre for using an Octree. The
 	 * runtime complexity is \f$O(\log N)\f$, where \f$N\f$ is the total
 	 * number of entities in the tree. This is the non-const version, so
 	 * you'll get a container of mutable entities.
+	 * @param volume The volume to fetch all entities from.
+	 * @iter An output iterator to store the results.
 	 */
 	template <class OutputIter>
-	void query(const box3f& area, OutputIter iter);
+	void query(const box3f& volume, OutputIter iter);
 
 	/**
-	 * @brief Query an area to obtain all the entities in that area.
+	 * @brief Query a volume to obtain all the entities in that volume.
 	 * @details This method is the raison d'etre for using an Octree. The
 	 * runtime complexity is \f$O(\log N)\f$, where \f$N\f$ is the total
 	 * number of entities in the tree. This is the const version, so you'll 
 	 * get a container of immutable entities.
+	 * @param volume The volume to fetch all entities from.
+	 * @iter An output iterator to store the results.
 	 */
 	template <class OutputIter>
-	void query(const box3f& area, OutputIter iter) const;
+	void query(const box3f& volume, OutputIter iter) const;
+	
+	/**
+	 * @brief Query a volume to obtain all the entities in that volume.
+	 * @details This method is the raison d'etre for using an Octree. The
+	 * runtime complexity is \f$O(\log N)\f$, where \f$N\f$ is the total
+	 * number of entities in the tree. This is the const version, so you'll 
+	 * get a container of immutable entities.
+	 * @param volume The volume to fetch all entities from.
+	 * @iter An output iterator to store the results.
+	 * @filter A filter to apply to each entity within the search result.
+	 * If the filter returns true, then the entity is added to the result set.
+	 * Otherwise it is discarded.
+	 */
+	template <class OutputIter, class FilterFunc>
+	void query(const box3f& volume, OutputIter iter, FilterFunc filter);
+
+	/**
+	 * @brief Query a volume to obtain all the entities in that volume.
+	 * @details This method is the raison d'etre for using an Octree. The
+	 * runtime complexity is \f$O(\log N)\f$, where \f$N\f$ is the total
+	 * number of entities in the tree. This is the const version, so you'll 
+	 * get a container of immutable entities.
+	 * @param volume The volume to fetch all entities from.
+	 * @iter An output iterator to store the results.
+	 * @filter A filter to apply to each entity within the search result.
+	 * If the filter returns true, then the entity is added to the result set.
+	 * Otherwise it is discarded.
+	 */
+	template <class OutputIter, class FilterFunc>
+	void query(const box3f& volume, OutputIter iter, FilterFunc filter) const;
 
 	/**
 	 * @brief Apply a function to every Entity.
@@ -290,6 +349,18 @@ public:
 	 */
 	Octree* erase(std::shared_ptr<Entity> entity);
 
+	/**
+	 * @brief Returns the root of the octree node.
+	 * @return The root of the octree node.
+	 */
+	Octree* getRoot() noexcept;
+
+	/**
+	 * @brief Returns the root of the octree node.
+	 * @return The root of the octree node.
+	 */
+	const Octree* getRoot() const noexcept;
+
 	// Notify the Octree that an Entity's global bounding box
 	// has changed. This can result in possibly mutating the tree,
 	// even changing the parent.
@@ -302,7 +373,7 @@ public:
 	 * do its thing via this route.
 	 * @param entity The Entity whose global transform has changed.
 	 */
-	void notify(std::shared_ptr<Entity> entity);
+	// void notify(std::shared_ptr<Entity> entity);
 
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
@@ -354,8 +425,6 @@ Octree::Octree(
 	}
 }
 
-// Get the entities of this Octree and of its children too.
-// This method is recursive.
 template <class OutputIter> 
 void Octree::getEntities(OutputIter iter)
 {
@@ -370,8 +439,6 @@ void Octree::getEntities(OutputIter iter)
 	for (auto* lChildNode : mChild) if (lChildNode) lChildNode->getEntities(iter);
 }
 
-// Get the entities of this Octree and of its children too.
-// This method is recursive. This is the const version.
 template <class OutputIter> 
 void Octree::getEntities(OutputIter iter) const
 {
@@ -386,24 +453,55 @@ void Octree::getEntities(OutputIter iter) const
 	for (const auto* lChildNode : mChild) if (lChildNode) lChildNode->getEntities(iter);
 }
 
-// Query an area defined by a box3f to obtain all the entities
-// in this area. This method is the raison d'etre for using
-// a Octree.
-// The runtime complexity is O(log N), where N is the total
-// number of entities.
-// This is the non-const version. You'll get a container
-// of mutable entities.
-template <class OutputIter>
-void Octree::query(const box3f& area, OutputIter iter)
+template <class OutputIter, class FilterFunc> 
+void Octree::getEntities(OutputIter iter, FilterFunc filter)
 {
 	for (auto& lHolder : mEntities)
 	{
 		if (auto lEntityPtr = lHolder.entity.lock())
 		{
-			if (intersects(area, lEntityPtr->globalBoundingBox()))
+			if (filter(lEntityPtr))
 			{
-				++iter;
 				*iter = lEntityPtr;
+				++iter;
+			}
+
+		}
+	}
+	for (auto* lChildNode : mChild) if (lChildNode) lChildNode->getEntities(iter, filter);
+}
+
+template <class OutputIter, class FilterFunc>
+void Octree::getEntities(OutputIter iter, FilterFunc filter) const
+{
+	for (const auto& lHolder : mEntities)
+	{
+		if (std::shared_ptr<const Entity> lEntityPtr = lHolder.entity.lock())
+		{
+			if (filter(lEntityPtr))
+			{
+				*iter = lEntityPtr;
+				++iter;
+			}
+
+		}
+	}
+	for (const auto* lChildNode : mChild) if (lChildNode) lChildNode->getEntities(iter, filter);
+}
+
+
+template <class OutputIter>
+void Octree::query(const box3f& volume, OutputIter iter)
+{
+	// PRINT_VAR(this);
+	for (auto& lHolder : mEntities)
+	{
+		if (auto lEntityPtr = lHolder.entity.lock())
+		{
+			if (intersects(volume, lEntityPtr->globalBoundingBox()))
+			{
+				*iter = std::move(lEntityPtr);
+				++iter;
 			}
 		}
 	}
@@ -412,11 +510,11 @@ void Octree::query(const box3f& area, OutputIter iter)
 		// Case 0: If there is no child node, continue
 		if (lChildNode == nullptr)
 		{
-			// DEBUG_PRINT;
 			continue;
 		}
-		// Case 1: search area completely contained by sub-quad
-		// if a node completely contains the query area, go down that
+
+		// Case 1: search volume completely contained by sub-quad
+		// if a node completely contains the query volume, go down that
 		// branch and skip the remaining nodes (break this loop)
 		//
 		// +-----+-----+
@@ -429,14 +527,13 @@ void Octree::query(const box3f& area, OutputIter iter)
 		// |skip | skip|
 		// +-----+-----+
 		//
-		if (lChildNode->mBounds.contains(area))
+		if (lChildNode->mBounds.contains(volume))
 		{
-			// DEBUG_PRINT;
-			lChildNode->query(area, iter);
+			lChildNode->query(volume, iter);
 			break;
 		}
-		// Case 2: Sub-quad completely contained by search area 
-		// if the query area completely contains a sub-quad,
+		// Case 2: Sub-quad completely contained by search volume 
+		// if the query volume completely contains a sub-quad,
 		// just add all the contents of that quad and its children 
 		// to the result set. You need to continue the loop to test 
 		// the other quads
@@ -453,12 +550,11 @@ void Octree::query(const box3f& area, OutputIter iter)
 		//   | ??? | ??? |
 		//   +-----+-----+
 		//
-		else if (area.contains(lChildNode->mBounds))
+		else if (volume.contains(lChildNode->mBounds))
 		{
-			// DEBUG_PRINT;
 			lChildNode->getEntities(iter);
 		}
-		// Case 3: search area intersects with sub-quad
+		// Case 3: search volume intersects with sub-quad
 		// traverse into this quad, continue the loop to search other
 		// quads
 		//
@@ -474,69 +570,123 @@ void Octree::query(const box3f& area, OutputIter iter)
 		//   | ??? | ??? |
 		//   +-----+-----+
 		//
-		else if (intersects(area, lChildNode->mBounds))
+		else if (intersects(volume, lChildNode->mBounds))
 		{
-			// DEBUG_PRINT;
-			lChildNode->query(area, iter);
+			lChildNode->query(volume, iter);
 		}
-		// Case 4: The search area and sub-quad are disjoint.
-		else
-		{
-			// DEBUG_PRINT;
-			// throw std::logic_error(":(");
-		}
+		// Case 4: The search volume and sub-quad are disjoint.
 	}
 }
 
-// Query an area defined by a box3f to obtain all the entities
-// in this area. This method is the raison d'etre for using
-// a Octree.
-// The runtime complexity is O(log N), where N is the total
-// number of entities.
-// This is the const version.
 template <class OutputIter>
-void Octree::query(const box3f& area, OutputIter iter) const
+void Octree::query(const box3f& volume, OutputIter iter) const
 {
 	for (const auto& lHolder : mEntities)
 	{
-		if (const auto lEntityPtr = lHolder.entity.lock())
+		if (std::shared_ptr<const Entity> lEntityPtr = lHolder.entity.lock())
 		{
-			if (intersects(area, lEntityPtr->globalBoundingBox()))
+			if (intersects(volume, lEntityPtr->globalBoundingBox()))
 			{
+				*iter = std::move(lEntityPtr);
 				++iter;
-				*iter = lEntityPtr;
 			}
 		}
 
 	}
 	for (const auto* lChildNode : mChild)
 	{
-		// Case 0: If there is no child node, continue
 		if (lChildNode == nullptr) continue;
-		// Case 1: search area completely contained by sub-quad
-		// if a node completely contains the query area, go down that
-		// branch and skip the remaining nodes (break this loop)
-		if (lChildNode->mBounds.contains(area))
+		if (lChildNode->mBounds.contains(volume))
 		{
-			lChildNode->query(area, iter);
+			lChildNode->query(volume, iter);
 			break;
 		}
-		// Case 2: Sub-quad completely contained by search area 
-		// if the query area completely contains a sub-quad,
-		// just add all the contents of that quad and it's children 
-		// to the result set. You need to continue the loop to test 
-		// the other quads
-		else if (area.contains(lChildNode->mBounds))
+		else if (volume.contains(lChildNode->mBounds))
 		{
 			lChildNode->getEntities(iter);
 			continue;
 		}
-		// Case 3: search area intersects with sub-quad
-		// traverse into this quad, continue the loop to search other
-		// quads
-		else if (intersects(area, lChildNode->mBounds))
+		else if (intersects(volume, lChildNode->mBounds))
 		{
-			lChildNode->query(area, iter);
+			lChildNode->query(volume, iter);
+			continue;
+		}
+	}
+}
+
+template <class OutputIter, class FilterFunc>
+void Octree::query(const box3f& volume, OutputIter iter, FilterFunc filter)
+{
+	for (auto& lHolder : mEntities)
+	{
+		if (auto lEntityPtr = lHolder.entity.lock())
+		{
+			if (intersects(volume, lEntityPtr->globalBoundingBox()))
+			{
+				if (filter(lEntityPtr))
+				{
+					*iter = std::move(lEntityPtr);
+					++iter;
+				}
+
+			}
+		}
+	}
+	for (auto* lChildNode : mChild)
+	{
+		if (lChildNode == nullptr) continue;
+		if (lChildNode->mBounds.contains(volume))
+		{
+			lChildNode->query(volume, iter, filter);
+			break;
+		}
+		else if (volume.contains(lChildNode->mBounds))
+		{
+			lChildNode->getEntities(iter, filter);
+			continue;
+		}
+		else if (intersects(volume, lChildNode->mBounds))
+		{
+			lChildNode->query(volume, iter, filter);
+			continue;
+		}
+	}
+}
+
+template <class OutputIter, class FilterFunc>
+void Octree::query(const box3f& volume, OutputIter iter, FilterFunc filter) const
+{
+	for (const auto& lHolder : mEntities)
+	{
+		if (std::shared_ptr<const Entity> lEntityPtr = lHolder.entity.lock())
+		{
+			if (intersects(volume, lEntityPtr->globalBoundingBox()))
+			{
+				if (filter(lEntityPtr))
+				{
+					*iter = std::move(lEntityPtr);
+					++iter;
+				}
+
+			}
+		}
+	}
+	for (const auto* lChildNode : mChild)
+	{
+		if (lChildNode == nullptr) continue;
+		if (lChildNode->mBounds.contains(volume))
+		{
+			lChildNode->query(volume, iter, filter);
+			break;
+		}
+		else if (volume.contains(lChildNode->mBounds))
+		{
+			lChildNode->getEntities(iter, filter);
+			continue;
+		}
+		else if (intersects(volume, lChildNode->mBounds))
+		{
+			lChildNode->query(volume, iter, filter);
 			continue;
 		}
 	}

@@ -6,10 +6,14 @@
 #include <fbxsdk/core/math/fbxvector4.h>
 #include <fbxsdk/core/math/fbxquaternion.h>
 
+#include <cassert>
+
 namespace gintonic {
 
 quatf::quatf(const float realpart, const vec3f& imaginarypart)
 {
+	GT_PROFILE_FUNCTION;
+
 	data = imaginarypart.data;
 	w = realpart;
 }
@@ -20,7 +24,7 @@ quatf::quatf(const FBXSDK_NAMESPACE::FbxVector4& v)
 , z(static_cast<float>(v[2]))
 , w(static_cast<float>(v[3]))
 {
-	/* Empty on purpose. */
+	GT_PROFILE_FUNCTION;
 }
 
 quatf::quatf(const FBXSDK_NAMESPACE::FbxQuaternion& q)
@@ -29,11 +33,13 @@ quatf::quatf(const FBXSDK_NAMESPACE::FbxQuaternion& q)
 , z(static_cast<float>(q[2]))
 , w(static_cast<float>(q[3]))
 {
-	/* Empty on purpose. */
+	GT_PROFILE_FUNCTION;
 }
 
 quatf& quatf::operator = (const FBXSDK_NAMESPACE::FbxVector4& v)
 {
+	GT_PROFILE_FUNCTION;
+
 	x = static_cast<float>(v[0]);
 	y = static_cast<float>(v[1]);
 	z = static_cast<float>(v[2]);
@@ -43,6 +49,8 @@ quatf& quatf::operator = (const FBXSDK_NAMESPACE::FbxVector4& v)
 
 quatf& quatf::operator = (const FBXSDK_NAMESPACE::FbxQuaternion& q)
 {
+	GT_PROFILE_FUNCTION;
+
 	x = static_cast<float>(q[0]);
 	y = static_cast<float>(q[1]);
 	z = static_cast<float>(q[2]);
@@ -52,20 +60,58 @@ quatf& quatf::operator = (const FBXSDK_NAMESPACE::FbxQuaternion& q)
 
 vec3f quatf::apply_to(const vec3f& v) const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return (*this) * quatf(0.0f, v) * conjugate();
 	// return vec3f(temp.x, temp.y, temp.z);
 }
 
 vec3f quatf::forward_direction() const noexcept
 {
-	// return apply_to(vec3f(0.0f, 0.0f, -1.0f));
-	// const auto temp = (*this) * quatf(-z, -y, x, -w);
-	// return vec3f(temp.x, temp.y, temp.z);
+	GT_PROFILE_FUNCTION;
+
+	// Given: [ x: y: z: w]
+	// Want:  [-z:-y: x:-w]
+
+	// Solution:
+	// [-z:-y:x:-w] = [0:0:2*x:0] - [z:y:x:w]
+	//              = ([2x:2x:2x:2x] & [0:0:ff:0]) - [z:y:x:w]
+	//              = (([2:2:2:2] * [x:x:x:x]) & [0:0:ff:0]) - [z:y:x:w]
+
+	// auto a = _mm_mul_ps(_mm_set1_ps(2.0f), _mm_00x0_ps(data));
+	// auto b = _mm_shuffle(data, 1,2,3,0);
+	// return *this * quatf(_mm_sub_ps(a,b));
+
+	// auto a = _mm_mul_ps(_mm_set_ps1(2.0f), _mm_replicate_x_ps(data)); // [2:2:2:2] * [x:x:x:x]
+	// {
+	// 	quatf temp(a);
+	// 	std::cout << temp << '\n';
+	// 	assert(temp.x == 2.0f * this->x && temp.y == 2.0f * this->x && temp.z == 2.0f * this->x && temp.w == 2.0f * this->x);
+	// }
+	// // a = _mm_and_ps(_mm_set_ps(0x0, 0x0, 0xffffffff, 0x0), a); // [0:0:2x:0]
+	// // {
+	// // 	quatf temp(a);
+	// // 	std::cout << temp << '\n';
+	// // 	assert(temp.x == 0.0f && temp.z == 2.0f * this->x && temp.y == 0.0f && temp.w == 0.0f);
+	// // }
+	// a = _mm_0x00_ps(a);
+	// a = _mm_set_ps(1, 2, 3, 4);
+	// {
+	// 	quatf temp(a);
+	// 	std::cout << temp << '\n';
+	// 	assert(false);
+	// }
+	// auto b = _mm_shuffle_ps(data, data, 0x1B); // swap
+	// b = _mm_shuffle_ps(b, b, 0x93); // rotate left
+	// return *this * quatf(_mm_sub_ps(a, b));
+
 	return (*this) * quatf(-z, -y, x, -w);
 }
 
 vec3f quatf::right_direction() const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	// return apply_to(vec3f(1.0f, 0.0f, 0.0f));
 	// const auto temp = (*this) * quatf(x, -w, z, -y);
 	// return vec3f(temp.x, temp.y, temp.z);
@@ -74,6 +120,8 @@ vec3f quatf::right_direction() const noexcept
 
 vec3f quatf::up_direction() const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	// return apply_to(vec3f(0.0f, 1.0f, 0.0f));
 	// const auto temp = (*this) * quatf(y, -z, w, x);
 	// return vec3f(temp.x, temp.y, temp.z);
@@ -82,17 +130,23 @@ vec3f quatf::up_direction() const noexcept
 
 vec3f quatf::direction() const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return forward_direction();
 }
 
 quatf& quatf::set_mousedelta(const vec2f& angles) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return *this = mouse(angles);
 		// * axis_agle(vec3f(0.0f, 0.0f, -1.0f), roll);
 }
 
 quatf& quatf::add_mousedelta(const vec2f& mousedelta) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	// const float cx = std::cos(mousedelta.x * 0.5f);
 	// const float sx = std::sin(mousedelta.x * 0.5f);
 	// const float cy = std::cos(mousedelta.y * 0.5f);
@@ -113,6 +167,8 @@ quatf& quatf::add_mousedelta(const vec2f& mousedelta) noexcept
 
 quatf quatf::axis_angle(const vec3f& rotation_axis, const float rotation_angle)
 {
+	GT_PROFILE_FUNCTION;
+
 	const auto s = std::sin(rotation_angle * 0.5f);
 	const auto c = std::cos(rotation_angle * 0.5f);
 	return quatf(c, s * rotation_axis);
@@ -120,6 +176,8 @@ quatf quatf::axis_angle(const vec3f& rotation_axis, const float rotation_angle)
 
 float quatf::length2() const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	#ifdef BOOST_MSVC
 	
 	auto a = data;
@@ -139,8 +197,33 @@ float quatf::length2() const noexcept
 	#endif
 }
 
+#define GT_QUATERNION_MULTIPLY_VERSION 0
+
 quatf quatf::operator * (const quatf& other) const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
+	#if GT_QUATERNION_MULTIPLY_VERSION == 1
+
+    auto a1123      = _mm_shuffle_ps(data,       data,       0xE5);
+    auto a2231      = _mm_shuffle_ps(data,       data,       0x7A);
+    auto b1000      = _mm_shuffle_ps(other.data, other.data, 0x01);
+    auto b2312      = _mm_shuffle_ps(other.data, other.data, 0x9E);
+    auto t1         = _mm_mul_ps(a1123, b1000);
+    auto t2         = _mm_mul_ps(a2231, b2312);
+    auto t12        = _mm_add_ps(t1, t2);
+    const auto mask = _mm_set_epi32(0,0,0,0x80000000);
+    auto t12m       = _mm_xor_ps(t12, _mm_castsi128_ps(mask)); // flip sign bits
+    auto a3312      = _mm_shuffle_ps(data,       data,       0x9F);
+    auto b3231      = _mm_shuffle_ps(other.data, other.data, 0x7B);
+    auto a0000      = _mm_shuffle_ps(data,       data,       0x00);
+    auto t3         = _mm_mul_ps(a3312, b3231);
+    auto t0         = _mm_mul_ps(a0000, other.data);
+    auto t03        = _mm_sub_ps(t0, t3);
+    return            _mm_add_ps(t03, t12m);
+
+    #elif GT_QUATERNION_MULTIPLY_VERSION == 2
+
 	/* multiplication of two quaternions (x, y, z, w) x (a, b, c, d)      */
 	/* The product of two quaternions is:                                 */
 	/* (X,Y,Z,W) = (xd+yc-zb+wa, -xc+yd+za+wb, xb-ya+zd+wc, -xa-yb-zc+wd) */
@@ -153,13 +236,13 @@ quatf quatf::operator * (const quatf& other) const noexcept
 	auto baba = _mm_shuffle_ps(copy, copy, _MM_SHUFFLE(0,1,0,1));
 	auto dcdc = _mm_shuffle_ps(copy, copy, _MM_SHUFFLE(2,3,2,3));
 
-	#else
+	#else // BOOST_MSVC
 
 	auto wzyx = _mm_shuffle_ps(data, data, _MM_SHUFFLE(0,1,2,3));
 	auto baba = _mm_shuffle_ps(other.data, other.data, _MM_SHUFFLE(0,1,0,1));
 	auto dcdc = _mm_shuffle_ps(other.data, other.data, _MM_SHUFFLE(2,3,2,3));
 
-	#endif
+	#endif // BOOST_MSVC
 
 	/* variable names below are for parts of componens of result (X,Y,Z,W) */
 	/* nX stands for -X and similarly for the other components             */
@@ -186,12 +269,15 @@ quatf quatf::operator * (const quatf& other) const noexcept
 
 	/* operations: 6 shuffles, 4 multiplications, 3 compound additions/subtractions   */
 
-	// This is the old way of multiplying two quaternions
-	// return quatf(
-	// 	w * b.w - x * b.x - y * b.y - z * b.z,
-	// 	w * b.x + x * b.w + y * b.z - z * b.y,
-	// 	w * b.y - x * b.z + y * b.w + z * b.x,
-	// 	w * b.z + x * b.y - y * b.x + z * b.w);
+	#else // GT_QUATERNION_MULTIPLY_VERSION
+
+	return quatf(
+		w * other.w - x * other.x - y * other.y - z * other.z,
+		w * other.x + x * other.w + y * other.z - z * other.y,
+		w * other.y - x * other.z + y * other.w + z * other.x,
+		w * other.z + x * other.y - y * other.x + z * other.w);
+
+	#endif // GT_QUATERNION_MULTIPLY_VERSION
 }
 
 quatf quatf::yaw_pitch_roll(
@@ -199,6 +285,8 @@ quatf quatf::yaw_pitch_roll(
 	const float pitch, 
 	const float roll)
 {
+	GT_PROFILE_FUNCTION;
+
 	return
 		axis_angle(vec3f(0.0f, 0.0f, -1.0f), roll)
 		* axis_angle(vec3f(1.0f, 0.0f, 0.0f), pitch) 
@@ -207,6 +295,8 @@ quatf quatf::yaw_pitch_roll(
 
 quatf quatf::look_at(const vec3f& eye_position, const vec3f& subject_position, const vec3f& up_direction)
 {
+	GT_PROFILE_FUNCTION;
+
 	const auto direction = (subject_position - eye_position).normalize();
 
 	if (almost_equal(direction.z, 1.0f, 5))
@@ -256,6 +346,7 @@ quatf quatf::look_at(const vec3f& eye_position, const vec3f& subject_position, c
 
 quatf quatf::look_at(const vec3f& f, const vec3f& up)
 {
+	GT_PROFILE_FUNCTION;
 
 	const auto r = cross(f, up).normalize();
 	const auto u = cross(r, f).normalize();
@@ -326,12 +417,16 @@ quatf quatf::look_at(const vec3f& f, const vec3f& up)
 
 void quatf::add_mouse(const vec2f& angles) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	const auto rot = axis_angle(vec3f(0.0f, 1.0f, 0.0f), angles.x);
 	*this = axis_angle(rot.right_direction(), angles.y) * (*this) * rot;
 }
 
 quatf quatf::mouse(const vec2f& angles)
 {
+	GT_PROFILE_FUNCTION;
+	
 	const auto rot = axis_angle(vec3f(0.0f, 1.0f, 0.0f), angles.x);
 	return axis_angle(rot.right_direction(), angles.y) * rot;
 }

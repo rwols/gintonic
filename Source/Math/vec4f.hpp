@@ -7,6 +7,8 @@
 #pragma once
 
 #include "../Foundation/utilities.hpp"
+#include "../Foundation/Profiler.hpp"
+
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
@@ -75,14 +77,14 @@ public:
 	/// Default constructor.
 	inline vec4f() noexcept
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor that sets every coordinate to the given value.
 	inline vec4f(const float s) noexcept
 	: data(_mm_set1_ps(s))
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor.
@@ -90,13 +92,13 @@ public:
 		const float c, const float d) noexcept
 	: x(a), y(b), z(c), w(d)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor for a raw SSE value.
 	inline vec4f(__m128 values) noexcept : data(values)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Initializer list constructor.
@@ -105,13 +107,13 @@ public:
 	/// Copy constructor.
 	inline vec4f(const vec4f& v) noexcept : data(v.data)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Move constructor.
 	inline vec4f(vec4f&& v) noexcept : data(v.data)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor.
@@ -127,6 +129,8 @@ public:
 	/// Copy assignment operator.
 	inline vec4f& operator = (const vec4f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = v.data;
 		return *this;
 	}
@@ -134,13 +138,14 @@ public:
 	/// Move assignment operator.
 	inline vec4f& operator = (vec4f&& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = v.data;
 		return *this;
 	}
 
 	/// Initializer list assignment operator.
-	vec4f& operator=(std::initializer_list<float> init) 
-		noexcept;
+	vec4f& operator=(std::initializer_list<float> init) noexcept;
 
 	/// Constructor that takes an FbxVector4.
 	vec4f(const FBXSDK_NAMESPACE::FbxVector4& v) noexcept;
@@ -151,6 +156,8 @@ public:
 	/// Add-and-assign operator.
 	inline vec4f& operator += (const vec4f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_add_ps(data, v.data);
 		return *this;
 	}
@@ -158,6 +165,8 @@ public:
 	/// Add-and-assign operator that first builds a vec4f.
 	inline vec4f& operator += (const float s) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_add_ps(data, _mm_set1_ps(s));
 		return *this;
 	}
@@ -165,6 +174,8 @@ public:
 	/// Subtract-and-assign operator.
 	inline vec4f& operator -= (const vec4f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_sub_ps(data, v.data);
 		return *this;
 	}
@@ -172,6 +183,8 @@ public:
 	/// Subtract-and-assign operator that first builds a vec4f.
 	inline vec4f& operator -= (const float s) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_sub_ps(data, _mm_set1_ps(s));
 		return *this;
 	}
@@ -179,6 +192,8 @@ public:
 	/// Pointwise-multiply-and-assign operator.
 	inline vec4f& operator *= (const vec4f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_mul_ps(data, v.data);
 		return *this;
 	}
@@ -186,6 +201,8 @@ public:
 	/// Pointwise-multiply-and-assign operator.
 	inline vec4f& operator *= (const float s) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_mul_ps(data, _mm_load1_ps(&s));
 		return *this;
 	}
@@ -193,6 +210,8 @@ public:
 	/// Pointwise-divide-and-assign operator.
 	inline vec4f& operator /= (float s) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		s = 1.0f / s;
 		return operator*=(s);
 	}
@@ -200,110 +219,144 @@ public:
 	/// Equality comparison operator.
 	inline bool operator == (const vec4f& v) const noexcept
 	{
-		return x == v.x && y == v.y && z == v.z && w == v.w;
+		GT_PROFILE_FUNCTION;
+
+		return _mm_movemask_ps(_mm_cmpeq_ps(data, v.data)) == 0xf;
+
+		// return x == v.x && y == v.y && z == v.z && w == v.w;
 	}
 
 	/// Inequality comparison operator.
 	inline bool operator != (const vec4f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return !operator==(v);
 	}
 
 	/// Less-than comparison operator.
 	inline bool operator < (const vec4f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return x < v.x && y < v.y && z < v.z && w < v.w;
 	}
 
 	/// Greater-than-or-equal-to comparison operator.
 	inline bool operator >= (const vec4f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return x >= v.x && y >= v.y && z >= v.z && w >= v.w;
 	}
 
 	/// Greater-than comparison operator.
 	inline bool operator > (const vec4f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return x > v.x && y > v.y && z > v.z && w > v.w;
 	}
 
 	/// Less-than-or-equal-to comparison operator.
 	inline bool operator <= (const vec4f& v) const noexcept
 	{
-		return x <= v.x && y <= v.y && z <= v.z && w <= v.w;
+		GT_PROFILE_FUNCTION;
+
+		return _mm_movemask_ps(_mm_cmple_ps(data, v.data)) == 0xf;
+
+		// return x <= v.x && y <= v.y && z <= v.z && w <= v.w;
 	}
 
 	/// Addition operator.
 	inline vec4f operator + (const vec4f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_add_ps(data, v.data);
 	}
 
 	/// Addition operator that first builds a vec4f.
 	inline vec4f operator + (const float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_add_ps(data, _mm_set1_ps(s));
 	}
 
 	/// Addition operator that first builds a vec4f (from the left).
-	inline friend vec4f operator + (const float s, const vec4f& v) 
-		noexcept
+	inline friend vec4f operator + (const float s, const vec4f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_add_ps(_mm_set1_ps(s), v.data);
 	}
 
 	/// "Take the negative" operator.
 	inline vec4f operator -() const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_mul_ps(_mm_set1_ps(-1.0f), data);
 	}
 
 	/// Subtraction operator.
 	inline vec4f operator - (const vec4f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_sub_ps(data, v.data);
 	}
 
 	/// Subtraction operator that first builds a vec4f.
 	inline vec4f operator - (const float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_sub_ps(data, _mm_set1_ps(s));
 	}
 
 	/// Subtraction operator that first builds a vec4f (from the left).
-	inline friend vec4f operator - (const float s, const vec4f& v) 
-		noexcept
+	inline friend vec4f operator - (const float s, const vec4f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_sub_ps(_mm_set1_ps(s), v.data);
 	}
 
 	/// Pointwise-multiplication operator.
 	inline vec4f operator * (const vec4f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_mul_ps(data, v.data);
 	}
 
 	/// Pointwise-multiplication operator.
 	inline vec4f operator * (const float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_mul_ps(data, _mm_load1_ps(&s));
 	}
 
 	/// Pointwise-multiplication operator (from the left).
-	friend vec4f operator * (const float lhs, const vec4f& rhs) 
-		noexcept;
+	friend vec4f operator * (const float lhs, const vec4f& rhs) noexcept;
 
 	/// Division by scalar operator.
 	inline vec4f operator / (float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		s = 1.0f / s;
 		return operator*(s);
 	}
 
 	/// The dot product (also called inner product).
-	inline friend float dot(const vec4f& lhs, const vec4f& rhs) 
-		noexcept
+	inline friend float dot(const vec4f& lhs, const vec4f& rhs) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		#if GINTONIC_SSE_VERSION >= 41
 
 			return _mm_cvtss_f32(_mm_dp_ps(lhs.data, rhs.data, 0xffffffff));
@@ -320,32 +373,40 @@ public:
 	/// Get the squared length.
 	inline float length2() const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return dot(*this, *this);
 	}
 
 	/// Get the length.
 	inline float length() const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return std::sqrt(length2());
 	}
 
 	/// Normalize this vec4f to unit length.
 	inline vec4f& normalize() noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return operator/=(length());
 	}
 
 	/// Pointwise convert radians to degrees.
-	inline friend vec4f deg2rad(const vec4f& degrees) 
-		noexcept
+	inline friend vec4f deg2rad(const vec4f& degrees) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_mul_ps(degrees.data, _mm_set1_ps(0.0174532925f));
 	}
 
 	/// Pointwise convert degrees to radians.
-	inline friend vec4f rad2deg(const vec4f& radians) 
-		noexcept
+	inline friend vec4f rad2deg(const vec4f& radians) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_mul_ps(radians.data, _mm_set1_ps(57.2957795f));
 	}
 
@@ -361,6 +422,8 @@ private:
 	template <class Archive> 
 	inline void serialize(Archive& ar, const unsigned /*version*/)
 	{
+		GT_PROFILE_FUNCTION;
+		
 		ar & BOOST_SERIALIZATION_NVP(x) & BOOST_SERIALIZATION_NVP(y) 
 			& BOOST_SERIALIZATION_NVP(z) & BOOST_SERIALIZATION_NVP(w);
 	}

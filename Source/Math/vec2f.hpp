@@ -8,6 +8,8 @@
 #define gintonic_vec2f_hpp
 
 #include "../Foundation/utilities.hpp"
+#include "../Foundation/Profiler.hpp"
+
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
@@ -74,14 +76,14 @@ public:
 	inline vec2f() noexcept
 	: dummy0(0.0f), dummy1(0.0f)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor that sets every coordinate to the given value.
 	inline vec2f(const float s) noexcept
 	: data(_mm_set1_ps(s))
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor.
@@ -94,7 +96,7 @@ public:
 	/// Constructor for a raw SSE value.
 	inline vec2f(__m128 values) noexcept : data(values)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Initializer list constructor.
@@ -103,13 +105,13 @@ public:
 	/// Copy constructor.
 	inline vec2f(const vec2f& v) noexcept : data(v.data)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Move constructor.
 	inline vec2f(vec2f&& v) noexcept : data(v.data)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor that takes an FbxVector2.
@@ -118,6 +120,8 @@ public:
 	/// Copy assignment operator.
 	inline vec2f& operator = (const vec2f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = v.data;
 		return *this;
 	}
@@ -125,13 +129,14 @@ public:
 	/// Move assignment operator.
 	inline vec2f& operator = (vec2f&& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = v.data;
 		return *this;
 	}
 
 	/// Initializer list assignment operator.
-	vec2f& operator=(std::initializer_list<float> init) 
-		noexcept;
+	vec2f& operator=(std::initializer_list<float> init) noexcept;
 
 	/// Assignment operator that takes an FbxVector2.
 	vec2f& operator=(const FBXSDK_NAMESPACE::FbxVector2& v) noexcept;
@@ -139,6 +144,8 @@ public:
 	/// Add-and-assign operator.
 	inline vec2f& operator += (const vec2f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_add_ps(data, v.data);
 		return *this;
 	}
@@ -146,6 +153,8 @@ public:
 	/// Add-and-assign operator that first builds a vec2f.
 	inline vec2f& operator += (const float s) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_add_ps(data, _mm_set1_ps(s));
 		return *this;
 	}
@@ -153,6 +162,8 @@ public:
 	/// Subtract-and-assign operator.
 	inline vec2f& operator -= (const vec2f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_sub_ps(data, v.data);
 		return *this;
 	}
@@ -160,6 +171,8 @@ public:
 	/// Subtract-and-assign operator that first builds a vec2f.
 	inline vec2f& operator -= (const float s) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_sub_ps(data, _mm_set1_ps(s));
 		return *this;
 	}
@@ -167,6 +180,8 @@ public:
 	/// Pointwise-multiply-and-assign operator.
 	inline vec2f& operator *= (const vec2f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_mul_ps(data, v.data);
 		return *this;
 	}
@@ -174,6 +189,8 @@ public:
 	/// Pointwise-multiply-and-assign operator.
 	inline vec2f& operator *= (const float s) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_mul_ps(data, _mm_set1_ps(s));
 		return *this;
 	}
@@ -181,6 +198,8 @@ public:
 	/// Pointwise-divide-and-assign operator.
 	inline vec2f& operator /= (float s) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		s = 1.0f / s;
 		return operator*=(s);
 	}
@@ -188,102 +207,131 @@ public:
 	/// Equality comparison operator.
 	inline bool operator == (const vec2f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return x == v.x && y == v.y;
 	}
 
 	/// Inequality comparison operator.
 	inline bool operator != (const vec2f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return !operator==(v);
 	}
 
 	/// Less-than comparison operator.
 	inline bool operator < (const vec2f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return x < v.x && y < v.y;
 	}
 
 	/// Greater-than-or-equal-to comparison operator.
 	inline bool operator >= (const vec2f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return x >= v.x && y >= v.y;
 	}
 
 	/// Greater-than comparison operator.
 	inline bool operator > (const vec2f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return x > v.x && y > v.y;
 	}
 
 	/// Less-than-or-equal-to comparison operator.
 	inline bool operator <= (const vec2f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return x <= v.x && y <= v.y;
 	}
 
 	/// Addition operator.
 	inline vec2f operator + (const vec2f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_add_ps(data, v.data);
 	}
 
 	/// Addition operator that first builds a vec2f.
 	inline vec2f operator + (const float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_add_ps(data, _mm_set1_ps(s));
 	}
 
 	/// Addition operator that first builds a vec2f (from the left).
-	inline friend vec2f operator + (const float s, const vec2f& v) 
-		noexcept
+	inline friend vec2f operator + (const float s, const vec2f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_add_ps(_mm_set1_ps(s), v.data);
 	}
 
 	/// Subtraction operator.
 	inline vec2f operator - (const vec2f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_sub_ps(data, v.data);
 	}
 
 	/// Subtraction operator that first builds a vec2f.
 	inline vec2f operator - (const float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_sub_ps(data, _mm_set1_ps(s));
 	}
 
 	/// Subtraction operator that first builds a vec2f (from the left).
-	inline friend vec2f operator - (const float s, const vec2f& v) 
-		noexcept
+	inline friend vec2f operator - (const float s, const vec2f& v) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_sub_ps(_mm_set1_ps(s), v.data);
 	}
 
 	/// "Take the negative" operator.
 	inline vec2f operator - () const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_mul_ps(_mm_set1_ps(-1.0f), data);
 	}
 
 	/// Pointwise-multiplication operator.
 	inline vec2f operator * (const vec2f& v) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_mul_ps(data, v.data);
 	}
 
 	/// Pointwise-multiplication operator.
 	inline vec2f operator * (const float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_mul_ps(data, _mm_load1_ps(&s));
 	}
 
 	/// Pointwise-multiplication operator (from the left).
-	friend vec2f operator * (const float lhs, const vec2f& rhs) 
-		noexcept;
+	friend vec2f operator * (const float lhs, const vec2f& rhs) noexcept;
 
 	/// Division by scalar operator.
 	inline vec2f operator / (float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		s = 1.0f / s;
 		return operator*(s);
 	}
@@ -292,6 +340,8 @@ public:
 	inline friend float dot(const vec2f& lhs, const vec2f& rhs) 
 		noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		const auto product = _mm_mul_ps(lhs.data, rhs.data);
 		return _mm_cvtss_f32(_mm_hadd_ps(product, product));
 	}
@@ -299,18 +349,24 @@ public:
 	/// Get the squared length.
 	inline float length2() const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return dot(*this, *this);
 	}
 
 	/// Get the length.
 	inline float length() const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return std::sqrt(length2());
 	}
 
 	/// Normalize this vec2f to unit length.
 	inline vec2f& normalize() noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return operator/=(length());
 	}
 
@@ -321,9 +377,10 @@ public:
 	friend vec2f rad2deg(const vec2f& radians) noexcept;
 
 	/// Pack two vec2f in a single SSE register.
-	inline friend __m128 pack(const vec2f& lhs, const vec2f& rhs) 
-		noexcept
+	inline friend __m128 pack(const vec2f& lhs, const vec2f& rhs) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_shuffle_ps(lhs.data, rhs.data, 0x44);
 	}
 
@@ -339,6 +396,8 @@ private:
 	template <class Archive>
 	inline void serialize(Archive& ar, const unsigned /*version*/)
 	{
+		GT_PROFILE_FUNCTION;
+
 		ar & BOOST_SERIALIZATION_NVP(x) & BOOST_SERIALIZATION_NVP(y);
 	}
 };
@@ -349,9 +408,10 @@ private:
 
 //!@cond
 // Implementation needs to be outside of the class for MSVC.
-inline vec2f operator * (const float lhs, const vec2f& rhs) 
-	noexcept
+inline vec2f operator * (const float lhs, const vec2f& rhs) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return _mm_mul_ps(_mm_load1_ps(&lhs), rhs.data);
 }
 //!@endcond
@@ -359,33 +419,40 @@ inline vec2f operator * (const float lhs, const vec2f& rhs)
 /// Convert from radians to degrees, pointwise.
 inline vec2f deg2rad(const vec2f& degrees) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return _mm_mul_ps(degrees.data, _mm_set1_ps(0.0174532925f));
 }
 
 /// Convert from degrees to radians, pointwise.
 inline vec2f rad2deg(const vec2f& radians) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return _mm_mul_ps(radians.data, _mm_set1_ps(57.2957795f));
 }
 
 /// Get the squared distance between two vectors.
-inline float distance2(const vec2f& u, const vec2f& v) 
-	noexcept
+inline float distance2(const vec2f& u, const vec2f& v) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return (u-v).length2();
 }
 
 /// Get the distance between two vectors.
-inline float distance(const vec2f& u, const vec2f& v) 
-	noexcept
+inline float distance(const vec2f& u, const vec2f& v) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return (u-v).length();
 }
 
 /// Mix two vectors.
-inline vec2f mix(const vec2f& u, const vec2f& v, const float a) 
-	noexcept
+inline vec2f mix(const vec2f& u, const vec2f& v, const float a) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return (1.0f - a) * u + a * v;
 }
 
@@ -400,6 +467,8 @@ inline vec2f mix(const vec2f& u, const vec2f& v, const float a)
  */
 inline vec2f project(const vec2f& u, const vec2f& v) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return dot(u,v) * v;
 }
 
@@ -414,6 +483,8 @@ inline vec2f project(const vec2f& u, const vec2f& v) noexcept
  */
 inline vec2f reject(const vec2f& u, const vec2f& v) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return u - project(u, v);
 }
 
@@ -428,20 +499,24 @@ inline vec2f reject(const vec2f& u, const vec2f& v) noexcept
  */
 inline vec2f reflect(const vec2f& u, const vec2f& v) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return 2.0f * project(u,v) - v;
 }
 
 /// Output stream support for vectors.
-inline std::ostream& operator << (std::ostream& os, const vec2f& v) 
-	noexcept
+inline std::ostream& operator << (std::ostream& os, const vec2f& v) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return os << v.x << ' ' << v.y;
 }
 
 /// Input stream support for vectors.
-inline std::istream& operator >> (std::istream& is, vec2f& v) 
-	noexcept
+inline std::istream& operator >> (std::istream& is, vec2f& v) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	is >> v.x >> v.y;
 	return is;
 }
@@ -455,9 +530,13 @@ inline std::istream& operator >> (std::istream& is, vec2f& v)
  * determines the precision of the measurement.
  * @return True if the two vectors are almost equal, false otherwise.
  */
-inline bool almost_equal(const vec2f& u, const vec2f& v, 
+inline bool almost_equal(
+	const vec2f& u, 
+	const vec2f& v, 
 	const int units_in_last_place)
 {
+	GT_PROFILE_FUNCTION;
+
 	return almost_equal(0.0f, distance(u,v), units_in_last_place);
 }
 

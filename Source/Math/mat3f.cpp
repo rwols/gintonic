@@ -7,6 +7,8 @@ namespace gintonic {
 
 mat3f::mat3f(const vec3f& column0, const vec3f& column1, const vec3f& column2)
 {
+	GT_PROFILE_FUNCTION;
+
 	data[0] = column0.x;
 	data[1] = column0.y;
 	data[2] = column0.z;
@@ -27,13 +29,15 @@ mat3f::mat3f(const vec3f& column0, const vec3f& column1, const vec3f& column2)
 	column1.x, column1.y, column1.z, 
 	column2.x, column2.y, column2.z}
 {
-	/* Empty on purpose. */
+	GT_PROFILE_FUNCTION;
 }
 
 #endif
 
 vec3f mat3f::operator * (const vec3f& v) const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return vec3f(
 		m00 * v.x + m01 * v.y + m02 * v.z,
 		m10 * v.x + m11 * v.y + m12 * v.z,
@@ -51,6 +55,8 @@ vec3f mat3f::operator * (const vec3f& v) const noexcept
 
 mat3f mat3f::operator * (const mat3f& b) const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	mat3f r;
 	// __m128 m0, m1, m2;
 
@@ -86,6 +92,8 @@ mat3f mat3f::operator * (const mat3f& b) const noexcept
 
 mat3f& mat3f::invert() noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	const float A =   m11 * m22 - m12 * m21 ;
 	const float B = -(m10 * m22 - m12 * m20);
 	const float C =   m10 * m21 - m11 * m20 ;
@@ -113,6 +121,8 @@ mat3f& mat3f::invert() noexcept
 
 mat3f& mat3f::transpose() noexcept
 {
+	GT_PROFILE_FUNCTION;
+	
 	std::swap(m01, m10);
 	std::swap(m02, m20);
 	std::swap(m12, m21);

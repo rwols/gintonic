@@ -7,6 +7,8 @@
 #pragma once
 
 #include "../Foundation/utilities.hpp"
+#include "../Foundation/Profiler.hpp"
+
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
@@ -46,25 +48,25 @@ union alignas(16) mat2f
 	inline mat2f(const float m00, const float m01, const float m10, const float m11)
 	: m00(m00), m10(m10), m01(m01), m11(m11)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 	
 	/// Copy constructor.
 	inline mat2f(const mat2f& m) : data(m.data)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 	
 	/// Move constructor.
 	inline mat2f(mat2f&& m) : data(m.data)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 	
 	/// Constructor which takes a raw SSE type.
 	inline mat2f(__m128 data) : data(data)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 	
 	/// Column constructor.
@@ -76,6 +78,8 @@ union alignas(16) mat2f
 	/// Copy assignment operator.
 	inline mat2f& operator=(const mat2f& m)
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = m.data;
 		return *this;
 	}
@@ -83,6 +87,8 @@ union alignas(16) mat2f
 	/// Move assignment operator.
 	inline mat2f& operator=(mat2f&& m)
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = m.data;
 		return *this;
 	}
@@ -93,6 +99,8 @@ union alignas(16) mat2f
 	/// Add-and-assign operator.
 	inline mat2f& operator += (const mat2f& v)
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_add_ps(data, v.data);
 		return *this;
 	}
@@ -100,6 +108,8 @@ union alignas(16) mat2f
 	/// Substract-and-assign operator.
 	inline mat2f& operator -= (const mat2f& v)
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_sub_ps(data, v.data);
 		return *this;
 	}
@@ -107,6 +117,8 @@ union alignas(16) mat2f
 	/// Multiply-and-assign operator.
 	inline mat2f& operator *= (const mat2f& v)
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_hadd_ps(
 			_mm_mul_ps(
 				data, 
@@ -121,6 +133,8 @@ union alignas(16) mat2f
 	/// Multiply-and-assign operator for scalars.
 	inline mat2f& operator *= (const float s)
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_mul_ps(data, _mm_load1_ps(&s));
 		return *this;
 	}
@@ -128,6 +142,8 @@ union alignas(16) mat2f
 	/// Divide-and-assign operator for scalars.
 	inline mat2f& operator /= (const float s)
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_div_ps(data, _mm_load1_ps(&s));
 		return *this;
 	}
@@ -135,12 +151,16 @@ union alignas(16) mat2f
 	/// Equality comparison operator.
 	inline bool operator == (const mat2f& m)
 	{
+		GT_PROFILE_FUNCTION;
+
 		return m00 == m.m00 && m10 == m.m10 && m01 == m.m01 && m.m11;
 	}
 	
 	/// Inequality comparison operator.
 	inline bool operator != (const mat2f& m)
 	{
+		GT_PROFILE_FUNCTION;
+
 		return !operator==(m);
 	}
 
@@ -151,6 +171,8 @@ private:
 	template <class Archive> 
 	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
+		GT_PROFILE_FUNCTION;
+
 		ar & m00 & m10 & m01 & m11;
 	}
 };
@@ -162,12 +184,16 @@ private:
 /// Addition operator.
 inline mat2f operator + (const mat2f& lhs, const mat2f& rhs)
 {
+	GT_PROFILE_FUNCTION;
+
 	return _mm_add_ps(lhs.data, rhs.data);
 }
 
 /// Subtraction operator.
 inline mat2f operator - (const mat2f& lhs, const mat2f& rhs)
 {
+	GT_PROFILE_FUNCTION;
+
 	return _mm_sub_ps(lhs.data, rhs.data);
 }
 
@@ -177,12 +203,16 @@ vec2f operator * (const mat2f& m, const vec2f& v);
 /// Output stream support for two-dimensional matrices.
 inline std::ostream& operator << (std::ostream& os, const mat2f& m)
 {
+	GT_PROFILE_FUNCTION;
+
 	return os << m.m00 << ' ' << m.m10 << ' ' << m.m01 << ' ' << m.m11;
 }
 
 /// Input stream support for two-dimensional matrices.
 inline std::istream& operator >> (std::istream& is, mat2f& m)
 {
+	GT_PROFILE_FUNCTION;
+	
 	is >> m.m00 >> m.m10 >> m.m01 >> m.m11;
 	return is;
 }

@@ -7,6 +7,8 @@
 #pragma once
 
 #include "../Foundation/utilities.hpp"
+#include "../Foundation/Profiler.hpp"
+
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
@@ -57,20 +59,20 @@ public:
 	inline quatf()
 	: x(0.0f), y(0.0f), z(0.0f), w(1.0f)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor that takes a raw SSE type.
 	inline quatf(const __m128& data) : data(data)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor. Note that the real part is the first argument.
 	inline quatf(const float w, const float x, const float y, const float z)
 	: x(x), y(y), z(z), w(w)  
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Constructor.
@@ -94,18 +96,24 @@ public:
 	/// Scalar multiplication operator.
 	inline quatf operator * (const float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_mul_ps(data, _mm_set1_ps(s));
 	}
 
 	/// Multiply-and-assign operator.
 	inline quatf& operator *= (const quatf& q) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return *this = *this * q;
 	}
 
 	/// Multiply-and-assign operator for scalars.
 	inline quatf& operator *= (const float s) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_mul_ps(data, _mm_set1_ps(s));
 		return *this;
 	}
@@ -113,26 +121,36 @@ public:
 
 	inline quatf operator / (const quatf& q) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return *this * q.inverse();
 	}
 
 	inline quatf operator / (const float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_mul_ps(data, _mm_set1_ps(1.0f / s));
 	}
 
 	inline friend quatf operator / (const float s, const quatf& q) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return _mm_mul_ps(q.data, _mm_set1_ps(1.0f / s));
 	}
 
 	inline quatf& operator /= (const quatf& q) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return *this = (*this * q.inverse());
 	}
 
 	inline quatf& operator /= (const float s) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		data = _mm_mul_ps(data, _mm_set1_ps(1.0f / s));
 		return *this;
 	}
@@ -150,11 +168,15 @@ public:
 	 */
 	inline quatf conjugate() const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return quatf(w, -x, -y, -z);
 	}
 
 	inline quatf& invert() noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		x = -x;
 		y = -y;
 		z = -z;
@@ -163,6 +185,8 @@ public:
 
 	inline quatf inverse() const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return conjugate() / length2();
 	}
 
@@ -224,6 +248,8 @@ public:
 	 */
 	inline float length() const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return std::sqrt(length2());
 	}
 
@@ -233,18 +259,24 @@ public:
 	 */
 	inline quatf& normalize() noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return operator/=(length());
 	}
 
 	/// Equality comparison operator.
 	inline bool operator == (const quatf& other) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return x == other.x && y == other.y && z == other.z && w == other.w;
 	}
 
 	/// Inequality comparison operator.
 	inline bool operator != (const quatf& other) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return !operator==(other);
 	}
 
@@ -319,6 +351,8 @@ private:
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
+		GT_PROFILE_FUNCTION;
+
 		ar & BOOST_SERIALIZATION_NVP(x) 
 			& BOOST_SERIALIZATION_NVP(y) 
 			& BOOST_SERIALIZATION_NVP(z)
@@ -333,12 +367,16 @@ private:
 /// Stream output support for quaternions.
 inline std::ostream& operator<<(std::ostream& os, const quatf& q)
 {
+	GT_PROFILE_FUNCTION;
+
 	return os << q.w << ' ' << q.x << ' ' << q.y << ' ' << q.z;
 }
 
 /// Stream input support for quaternions.
 inline std::istream& operator>>(std::istream& is, quatf& q)
 {
+	GT_PROFILE_FUNCTION;
+	
 	is >> q.w >> q.x >> q.y >> q.z;
 	return is;
 }

@@ -5,11 +5,15 @@ namespace gintonic {
 
 SQT::SQT(const mat4f& affineMatrix)
 {
+	GT_PROFILE_FUNCTION;
+
 	affineMatrix.decompose(*this);
 }
 
 SQT::SQT(const FbxNode* pFbxNode)
 {
+	GT_PROFILE_FUNCTION;
+
 	auto lValue = pFbxNode->LclScaling.Get();
 	scale.x = static_cast<float>(lValue[0]);
 	scale.y = static_cast<float>(lValue[1]);
@@ -32,11 +36,13 @@ SQT::SQT(const FbxAMatrix& affineMatrix)
 , rotation(affineMatrix.GetQ())
 , translation(affineMatrix.GetT())
 {
-	/* Empty on purpose .*/
+	GT_PROFILE_FUNCTION;
 }
 
 SQT SQT::operator % (const SQT& other) const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return SQT(
 		scale * other.scale, 
 		rotation * other.rotation, 
@@ -45,6 +51,8 @@ SQT SQT::operator % (const SQT& other) const noexcept
 
 SQT& SQT::operator %= (const SQT& other) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	scale *= other.scale;
 	rotation *= other.rotation;
 	translation += other.translation;
@@ -53,6 +61,8 @@ SQT& SQT::operator %= (const SQT& other) noexcept
 
 SQT SQT::inverse() const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return SQT(
 		vec3f(1.0f / scale.x, 1.0f / scale.y, 1.0f / scale.z),
 		rotation.conjugate(),
@@ -61,6 +71,8 @@ SQT SQT::inverse() const noexcept
 
 SQT& SQT::invert() noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	scale.x = 1.0f / scale.x;
 	scale.y = 1.0f / scale.y;
 	scale.z = 1.0f / scale.z;
@@ -71,6 +83,8 @@ SQT& SQT::invert() noexcept
 
 std::ostream& operator << (std::ostream& os, const SQT& sqt)
 {
+	GT_PROFILE_FUNCTION;
+
 	os << "Scale: " << sqt.scale 
 		<< ", Rotation: " << sqt.rotation 
 		<< ", Translation: " << sqt.translation;
@@ -79,6 +93,8 @@ std::ostream& operator << (std::ostream& os, const SQT& sqt)
 
 std::istream& operator >> (std::istream& is, SQT& sqt)
 {
+	GT_PROFILE_FUNCTION;
+	
 	is >> sqt.scale >> sqt.rotation >> sqt.translation;
 	return is;
 }

@@ -4,8 +4,7 @@
  * @author Raoul Wols
  */
 
-#ifndef gintonic_box2f_hpp
-#define gintonic_box2f_hpp
+#pragma once
 
 #include "vec2f.hpp"
 
@@ -60,6 +59,8 @@ private:
 	template <class Archive>
 	void serialize(Archive& archive, const unsigned int /*version */)
 	{
+		GT_PROFILE_FUNCTION;
+
 		archive & minCorner & maxCorner;
 	}
 };
@@ -93,5 +94,3 @@ std::ostream& operator << (std::ostream& os, const box2f& b);
 std::istream& operator >> (std::istream& is, box2f& b);
 
 } // namespace gintonic
-
-#endif

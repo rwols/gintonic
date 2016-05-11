@@ -50,7 +50,7 @@ struct alignas(16) SQT
 	, rotation(1.0f, 0.0f, 0.0f, 0.0f)
 	, translation(0.0f, 0.0f, 0.0f)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/**
@@ -65,7 +65,7 @@ struct alignas(16) SQT
 	, rotation(rotation)
 	, translation(translation)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/**
@@ -138,6 +138,8 @@ struct alignas(16) SQT
 	 */
 	inline void look_at(const SQT& other) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		rotation = quatf::look_at(translation, other.translation, vec3f(0.0f, 1.0f, 0.0f));
 	}
 
@@ -151,6 +153,8 @@ struct alignas(16) SQT
 	 */
 	inline void move_forward(const float amount) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		translation += amount * rotation.forward_direction();
 	}
 
@@ -165,6 +169,8 @@ struct alignas(16) SQT
 	 */
 	inline void move_backward(const float amount) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		translation -= amount * rotation.forward_direction();
 	}
 
@@ -178,6 +184,8 @@ struct alignas(16) SQT
 	 */
 	inline void move_right(const float amount) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		translation += amount * rotation.right_direction();
 	}
 
@@ -192,6 +200,8 @@ struct alignas(16) SQT
 	 */
 	inline void move_left(const float amount) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		translation -= amount * rotation.right_direction();
 	}
 
@@ -205,6 +215,8 @@ struct alignas(16) SQT
 	 */
 	inline void move_up(const float amount) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		translation += amount * rotation.up_direction();
 	}
 
@@ -219,6 +231,8 @@ struct alignas(16) SQT
 	 */
 	inline void move_down(const float amount) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		translation -= amount * rotation.up_direction();
 	}
 
@@ -229,6 +243,8 @@ struct alignas(16) SQT
 	 */
 	inline void add_mousedelta(const vec2f& delta) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		rotation.add_mousedelta(delta);
 	}
 
@@ -242,6 +258,8 @@ struct alignas(16) SQT
 	 */
 	inline vec3f apply_to_point(const vec3f& point) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return rotation.apply_to(point) * scale + translation;
 	}
 
@@ -254,6 +272,8 @@ struct alignas(16) SQT
 	 */
 	inline vec3f apply_to_direction(const vec3f& direction) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return rotation.apply_to(direction);
 	}
 
@@ -266,6 +286,8 @@ private:
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
+		GT_PROFILE_FUNCTION;
+		
 		ar & BOOST_SERIALIZATION_NVP(scale) 
 			& BOOST_SERIALIZATION_NVP(rotation) 
 			& BOOST_SERIALIZATION_NVP(translation);

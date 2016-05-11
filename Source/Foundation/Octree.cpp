@@ -237,6 +237,22 @@ Octree* Octree::erase(std::shared_ptr<Entity> entity)
 	else return this;
 }
 
+Octree* Octree::getRoot() noexcept
+{
+	if (!mParent) return this;
+	auto* lResult = mParent;
+	while (lResult->mParent) lResult = lResult->mParent;
+	return lResult;
+}
+
+const Octree* Octree::getRoot() const noexcept
+{
+	if (!mParent) return this;
+	auto* lResult = mParent;
+	while (lResult->mParent) lResult = lResult->mParent;
+	return lResult;
+}
+
 void Octree::backRecursiveInsert(std::shared_ptr<Entity> entity)
 {
 	if (mBounds.contains(entity->globalBoundingBox()))
@@ -280,59 +296,59 @@ Octree* Octree::backRecursiveDelete()
 	else return this; // We're the root node. Don't delete that!
 }
 
-void Octree::notify(std::shared_ptr<Entity> entity)
-{
-	// Make sure that this Octree node is actually the Octree node
-	// that's stored in the Entity.
-	assert(this == entity->mOctree);
+// void Octree::notify(std::shared_ptr<Entity> entity)
+// {
+// 	// Make sure that this Octree node is actually the Octree node
+// 	// that's stored in the Entity.
+// 	assert(this == entity->mOctree);
 
-	// If the entity moved but still fits entirely inside
-	// the bounds of this quad, then we do nothing at all.
-	// It's already part of the list of entities of this quad.
-	if (mBounds.contains(entity->globalBoundingBox()))
-	{
-		return;
-	}
+// 	// If the entity moved but still fits entirely inside
+// 	// the bounds of this quad, then we do nothing at all.
+// 	// It's already part of the list of entities of this quad.
+// 	if (mBounds.contains(entity->globalBoundingBox()))
+// 	{
+// 		return;
+// 	}
 
-	// At this point, the entity has moved and does not
-	// fit anymore in the current box's bounds. So we erase
-	// this entity from the current box's Entity list.
-	for (auto lIter = mEntities.begin(); lIter != mEntities.end(); ++lIter)
-	{
-		if (lIter->entity.lock() == entity)
-		{
-			lIter->transformChangeConnection.disconnect();
-			lIter->destructConnection.disconnect();
+// 	// At this point, the entity has moved and does not
+// 	// fit anymore in the current box's bounds. So we erase
+// 	// this entity from the current box's Entity list.
+// 	for (auto lIter = mEntities.begin(); lIter != mEntities.end(); ++lIter)
+// 	{
+// 		if (lIter->entity.lock() == entity)
+// 		{
+// 			lIter->transformChangeConnection.disconnect();
+// 			lIter->destructConnection.disconnect();
 
-			// Make sure we are not subscribed to the events of the Entity.
-			assert(lIter->transformChangeConnection.connected() == false);
-			assert(lIter->destructConnection.connected() == false);
+// 			// Make sure we are not subscribed to the events of the Entity.
+// 			assert(lIter->transformChangeConnection.connected() == false);
+// 			assert(lIter->destructConnection.connected() == false);
 			
-			mEntities.erase(lIter);
-			entity->mOctree = nullptr;
+// 			mEntities.erase(lIter);
+// 			entity->mOctree = nullptr;
 
-			break;
-		}
-	}
+// 			break;
+// 		}
+// 	}
 
-	// Make sure the Entity was actually removed from this Octree node.
-	assert(entity->mOctree == nullptr);
+// 	// Make sure the Entity was actually removed from this Octree node.
+// 	assert(entity->mOctree == nullptr);
 
-	// If the quad has a parent, we let the parent handle
-	// the moved entity.
-	if (mParent)
-	{
-		mParent->notifyHelper(std::move(entity));
-	}
-	// If the box has no parent, then this quad is the root node.
-	// But the entity doesn't fit anymore; i.e. it doesn't fit
-	// in the Octree at all.
-	// We handle this by just adding this entity to the root node.
-	else
-	{
-		// mEntities.emplace_back(std::move(entity));
-	}
-}
+// 	// If the quad has a parent, we let the parent handle
+// 	// the moved entity.
+// 	if (mParent)
+// 	{
+// 		mParent->notifyHelper(std::move(entity));
+// 	}
+// 	// If the box has no parent, then this quad is the root node.
+// 	// But the entity doesn't fit anymore; i.e. it doesn't fit
+// 	// in the Octree at all.
+// 	// We handle this by just adding this entity to the root node.
+// 	else
+// 	{
+// 		// mEntities.emplace_back(std::move(entity));
+// 	}
+// }
 
 void Octree::notifyHelper(std::shared_ptr<Entity> entity)
 {
@@ -390,6 +406,7 @@ void Octree::subdivide()
 		// DEBUG_PRINT;
 		return;
 	}
+
 	// DEBUG_PRINT;
 	mChild[0] = new Octree(subdivisionThreshold, this, min, min + half);
 	// DEBUG_PRINT;

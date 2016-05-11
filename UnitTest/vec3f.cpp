@@ -107,7 +107,36 @@ BOOST_AUTO_TEST_CASE ( operators_test )
 	BOOST_CHECK_EQUAL(d.z, 0.0f);
 }
 
+BOOST_AUTO_TEST_CASE ( comparators_test )
+{
+	vec3f a(2.0f, 6.0f, 1.0f);
+	vec3f b(-10.0f, -10.0f, -10.0f);
+
+	BOOST_CHECK_EQUAL(b <= a, true);
+
+	b.x = 10.0f;
+
+	BOOST_CHECK_EQUAL(b <= a, false);
+
+	b.x = -10.0f;
+
+	BOOST_CHECK_EQUAL(b <= a, true);
+
+	b.y = 10.0f;
+
+	BOOST_CHECK_EQUAL(b <= a, false);
+
+	b.y = -10.0f;
+
+	BOOST_CHECK_EQUAL(b <= a, true);
+
+	b.y = 6.0f;
+	b.z = 2.0f;
+
+	BOOST_CHECK_EQUAL(b <= a, false);
+}
+
 BOOST_AUTO_TEST_CASE ( various_functions_test )
 {
-	std::cout << "Nothing to do, really...\n";
+	// std::cout << "Nothing to do, really...\n";
 }

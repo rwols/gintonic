@@ -10,6 +10,31 @@
 class ShadowsApplication : public Application
 {
 public:
+
+	template <class OutputIter>
+	void getNearbyEntities(
+		std::shared_ptr<gintonic::Entity> entity, 
+		const float distanceFrom, 
+		OutputIter iter)
+	{
+		using namespace gintonic;
+		const vec3f lPosition = vec3f(entity->globalTransform().data[3]);
+		const vec3f lDist(distanceFrom);
+		const box3f lBox(lPosition - lDist, lPosition + lDist);
+		mOctreeRoot.query(lBox, iter, [&entity, &distanceFrom](const std::shared_ptr<Entity>& other)
+		{
+			if (gintonic::distance2(
+				vec3f(other->globalTransform().data[3]), 
+				vec3f(entity->mGlobalTransform.data[3])) <= distanceFrom * distanceFrom)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		});
+	}
 	
 	ShadowsApplication(int argc, char** argv)
 	: Application(APPNAME, argc, argv)
@@ -34,6 +59,8 @@ public:
 		lFloor->castShadow = true;
 		lFloor->setRotation(quatf::axis_angle(vec3f(1, 0, 0), -F_PI * 0.5f));
 
+		mOctreeRoot.subdivisionThreshold = 0.5f;
+
 		for (int i = -4; i <= 4; ++i)
 		{
 			for (int j = -4; j <= 4; ++j)
@@ -42,6 +69,7 @@ public:
 				lClone->name = "Floor tile (" + std::to_string(i) + "," + std::to_string(j) + ")";
 				lClone->setTranslation(vec3f(2 * i, -1, 2 * j));
 				mRootEntity->addChild(lClone);
+				mOctreeRoot.insert(lClone);
 			}
 		}
 
@@ -52,6 +80,7 @@ public:
 		mSphere->setTranslation(vec3f(0.0f, 2.0f, 0.0f));
 		mSphere->castShadow = true;
 		mRootEntity->addChild(mSphere);
+		mOctreeRoot.insert(mSphere);
 
 		mDirectionalLight->light = std::shared_ptr<Light>
 		(
@@ -107,16 +136,11 @@ public:
 		mDefaultCamera->camera->setAngles(vec2f(-0.5f, -0.1f));
 		mDefaultCamera->setTranslation(vec3f(-3.0f, 1.0f, 4.0f));
 		
-		// mRootEntity->addChild(mDirectionalLight);
 		mRootEntity->addChild(mSpotLight);
 		mRootEntity->addChild(mPointLight);
 
-		mOctreeRoot.subdivisionThreshold = 0.5f;
-
 		mOctreeRoot.insert(mSpotLight);
 		mOctreeRoot.insert(mPointLight);
-
-		Renderer::debugDrawOctree(&mOctreeRoot);
 		
 		Renderer::setFreeformCursor(true);
 		Renderer::show();
@@ -176,6 +200,7 @@ private:
 	std::shared_ptr<gintonic::Entity> mDefaultCamera;
 
 	bool mSwitch = false;
+	bool mDrawOctreeSwitch = false;
 
 	float mSpotlightAngle = SPOTLIGHT_HALF_ANGLE_START_VALUE;
 
@@ -203,6 +228,18 @@ private:
 			mSpotlightAngle = std::min(1.0f, mSpotlightAngle);
 			mSpotLight->light->setCosineHalfAngle(mSpotlightAngle);
 		}
+		if (Renderer::keyTogglePress(SDL_SCANCODE_O))
+		{
+			mDrawOctreeSwitch = !mDrawOctreeSwitch;
+		}
+		if (mDrawOctreeSwitch)
+		{
+			Renderer::debugDrawOctree(&mOctreeRoot);
+		}
+		else
+		{
+			Renderer::debugDrawOctree(nullptr);
+		}
 
 		// mDirectionalLight->setRotation
 		// (
@@ -224,12 +261,15 @@ private:
 		mSphere->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mDeltaTime / 10.0f));
 
 		std::vector<std::shared_ptr<Entity>> lNearbyEntities;
-		const box3f lQueryBox{{-10, -10, -10}, {10, 10, 10}};
-		mOctreeRoot.query(lQueryBox, std::back_inserter(lNearbyEntities));
+		getNearbyEntities(Renderer::getCameraEntity(), 8.0f, std::back_inserter(lNearbyEntities));
+		// const float lDims = 4;
+		// const vec3f lCameraPos = vec3f((Renderer::getCameraEntity()->globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data);
+		// const box3f lQueryBox{lCameraPos + vec3f{-lDims, -lDims, -lDims}, lCameraPos + vec3f{lDims, lDims, lDims}};
+		// mOctreeRoot.query(lQueryBox, std::back_inserter(lNearbyEntities));
 		for (const auto& lNearbyEntity : lNearbyEntities)
 		{
-			Renderer::cerr() << lNearbyEntity->name << " is near! "
-				<< lNearbyEntity->globalBoundingBox() << " is inside " << lQueryBox << '\n';
+			Renderer::cerr() << lNearbyEntity->name << " is near!\n";
+				// << lNearbyEntity->globalBoundingBox() << " has distance " << << '\n';
 		}
 	}
 

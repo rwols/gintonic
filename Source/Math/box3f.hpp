@@ -75,6 +75,36 @@ struct box3f
 	 */
 	void addPoint(const vec4f& point) noexcept;
 
+	template <class OutputIter>
+	void getCorners(OutputIter iter) const noexcept
+	{
+		#if 1
+
+		const auto lDims = _mm_sub_ps(maxCorner.data, minCorner.data);
+		*iter = minCorner; ++iter;
+		*iter = _mm_add_ps(minCorner.data, _mm_x000_ps(lDims)); ++iter;
+		*iter = _mm_add_ps(minCorner.data, _mm_0y00_ps(lDims)); ++iter;
+		*iter = _mm_add_ps(minCorner.data, _mm_00z0_ps(lDims)); ++iter;
+		*iter = _mm_add_ps(minCorner.data, _mm_0yz0_ps(lDims)); ++iter;
+		*iter = _mm_add_ps(minCorner.data, _mm_x0z0_ps(lDims)); ++iter;
+		*iter = _mm_add_ps(minCorner.data, _mm_xy00_ps(lDims)); ++iter;
+		*iter = maxCorner; ++iter;
+		
+		#else
+
+		const auto lDimensions = maxCorner - minCorner;
+		*iter = minCorner; ++iter;
+		*iter = minCorner + vec3f(lDimensions.x, 0.0f, 0.0f); ++iter;
+		*iter = minCorner + vec3f(0.0f, lDimensions.y, 0.0f); ++iter;
+		*iter = minCorner + vec3f(0.0f, 0.0f, lDimensions.z); ++iter;
+		*iter = minCorner + vec3f(0.0f, lDimensions.y, lDimensions.z); ++iter;
+		*iter = minCorner + vec3f(lDimensions.x, 0.0f, lDimensions.z); ++iter;
+		*iter = minCorner + vec3f(lDimensions.x, lDimensions.y, 0.0f); ++iter;
+		*iter = maxCorner; ++iter;
+
+		#endif
+	}
+
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
 private:
@@ -83,6 +113,8 @@ private:
 	template <class Archive>
 	void serialize(Archive& archive, const unsigned int /*version */)
 	{
+		GT_PROFILE_FUNCTION;
+		
 		archive & minCorner & maxCorner;
 	}
 };

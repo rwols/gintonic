@@ -16,6 +16,7 @@ namespace gintonic {
 
 mat4f::mat4f(const vec3f& translation)
 {
+	GT_PROFILE_FUNCTION;
 	data[0] = _mm_set1_ps(0.0f);
 	data[1] = _mm_set1_ps(0.0f);
 	data[2] = _mm_set1_ps(0.0f);
@@ -31,7 +32,7 @@ mat4f::mat4f(const vec3f& translation)
 , m02(0.0f), m12(0.0f), m22(1.0f), m32(0.0f)
 , m03(translation.x), m13(translation.y), m23(translation.z), m33(1.0f)
 {
-	/* Empty on purpose. */
+	GT_PROFILE_FUNCTION;
 }
 
 #endif
@@ -40,6 +41,8 @@ mat4f::mat4f(const vec3f& translation)
 
 mat4f::mat4f(const quatf& rotation)
 {
+	GT_PROFILE_FUNCTION;
+
 	// SIMDify this...
 	const auto n = rotation.length2();
 	const auto s = (n == 0.0f) ? 0.0f : 2.0f / n;
@@ -76,6 +79,8 @@ mat4f::mat4f(const quatf& rotation)
 
 mat4f::mat4f(const SQT& transform)
 {
+	GT_PROFILE_FUNCTION;
+
 	// SIMDify this...
 	const auto n = transform.rotation.length2();
 	const auto s = (n == 0.0f) ? 0.0f : 2.0f / n;
@@ -128,11 +133,13 @@ mat4f::mat4f(const SQT& transform)
 
 mat4f::mat4f(const Entity& e) : mat4f(e.globalTransform())
 {
-	/* Empty on purpose. */
+	GT_PROFILE_FUNCTION;
 }
 
 mat4f::mat4f(const box3f& box)
 {
+	GT_PROFILE_FUNCTION;
+
 	const float lLeft = box.minCorner.x;
 	const float lRight = box.maxCorner.x;
 	const float lTop = box.maxCorner.y;
@@ -164,6 +171,8 @@ mat4f::mat4f(const box3f& box)
 
 mat4f::mat4f(const mat3f& rotation_part)
 {
+	GT_PROFILE_FUNCTION;
+
 	data[0] = _mm_set_ps(rotation_part.data[0], rotation_part.data[1], rotation_part.data[2], 0.0f);
 	data[1] = _mm_set_ps(rotation_part.data[3], rotation_part.data[4], rotation_part.data[5], 0.0f);
 	data[2] = _mm_set_ps(rotation_part.data[6], rotation_part.data[7], rotation_part.data[8], 0.0f);
@@ -182,6 +191,8 @@ mat4f::mat4f(const mat3f& rotation_part)
 
 mat4f::mat4f(const vec4f& column0, const vec4f& column1, const vec4f& column2, const vec4f& column3)
 {
+	GT_PROFILE_FUNCTION;
+
 	data[0] = column0.data;
 	data[1] = column1.data;
 	data[2] = column2.data;
@@ -193,13 +204,15 @@ mat4f::mat4f(const vec4f& column0, const vec4f& column1, const vec4f& column2, c
 mat4f::mat4f(const vec4f& column0, const vec4f& column1, const vec4f& column2, const vec4f& column3)
 : data{column0.data, column1.data, column2.data, column3.data}
 {
-	/* Empty on purpose. */
+	GT_PROFILE_FUNCTION;
 }
 
 #endif
 
 vec4f mat4f::operator * (const vec4f& v) const
 {
+	GT_PROFILE_FUNCTION;
+
 	const auto m0 = _mm_mul_ps(data[0], _mm_replicate_x_ps(v.data));
 	const auto m1 = _mm_mul_ps(data[1], _mm_replicate_y_ps(v.data));
 	const auto m2 = _mm_mul_ps(data[2], _mm_replicate_z_ps(v.data));
@@ -209,6 +222,8 @@ vec4f mat4f::operator * (const vec4f& v) const
 
 mat4f mat4f::operator * (const mat4f& other) const
 {
+	GT_PROFILE_FUNCTION;
+
 	#ifdef BOOST_MSVC
 
 	mat4f r;
@@ -281,12 +296,16 @@ mat4f mat4f::operator * (const mat4f& other) const
 
 mat4f& mat4f::operator *= (const mat4f& other)
 {
+	GT_PROFILE_FUNCTION;
+
 	*this = *this * other;
 	return *this;
 }
 
 mat4f::mat4f(const vec3f& axis, const float rotation_angle)
 {
+	GT_PROFILE_FUNCTION;
+
 	vec3f v;
 	const float sin = std::sin(rotation_angle);
 	const float cos = std::cos(rotation_angle);
@@ -319,6 +338,8 @@ mat4f::mat4f(const vec3f& axis, const float rotation_angle)
 
 mat4f& mat4f::set_orthographic(const float left, const float right, const float bottom, const float top, const float nearplane, const float farplane)
 {
+	GT_PROFILE_FUNCTION;
+
 	const float rl = right - left;
 	const float tb = top - bottom;
 	const float fn = farplane - nearplane;
@@ -350,6 +371,8 @@ mat4f& mat4f::set_orthographic(const float left, const float right, const float 
 
 mat4f& mat4f::set_orthographic(const float width, const float height, const float nearplane, const float farplane)
 {
+	GT_PROFILE_FUNCTION;
+
 	const float fn = farplane - nearplane;
 
 	data[0] = _mm_set1_ps(0.0f);
@@ -380,6 +403,8 @@ mat4f& mat4f::set_orthographic(const float width, const float height, const floa
 
 mat4f::mat4f(const vec3f& eye_location, const vec3f& subject_location, const vec3f& up_direction)
 {
+	GT_PROFILE_FUNCTION;
+
 	const auto f = (subject_location - eye_location).normalize();
 	const auto s = cross(f, up_direction).normalize();
 	const auto u = cross(s, f).normalize();
@@ -407,6 +432,8 @@ mat4f::mat4f(const vec3f& eye_location, const vec3f& subject_location, const vec
 
 mat4f& mat4f::set_perspective(const float fieldofview, const float aspectratio, const float nearplane, const float farplane)
 {
+	GT_PROFILE_FUNCTION;
+
 	data[0] = _mm_set1_ps(0.0f);
 	data[1] = _mm_set1_ps(0.0f);
 	data[2] = _mm_set1_ps(0.0f);
@@ -425,6 +452,8 @@ mat4f& mat4f::set_perspective(const float fieldofview, const float aspectratio, 
 
 mat4f& mat4f::set_perspective_infinite(const float fieldofview, const float aspectratio, const float nearplane)
 {
+	GT_PROFILE_FUNCTION;
+
 	data[0] = _mm_set1_ps(0.0f);
 	data[1] = _mm_set1_ps(0.0f);
 	data[2] = _mm_set1_ps(0.0f);
@@ -443,6 +472,8 @@ mat4f& mat4f::set_perspective_infinite(const float fieldofview, const float aspe
 
 mat4f& mat4f::set_inverse_perspective(const float fieldofview, const float aspectratio, const float nearplane, const float farplane)
 {
+	GT_PROFILE_FUNCTION;
+
 	const float b = 1.0f / std::tan(fieldofview / 2.0f);
 	const float nf2 = 2.0f * nearplane * farplane;
 	
@@ -462,7 +493,7 @@ mat4f& mat4f::set_inverse_perspective(const float fieldofview, const float aspec
 
 void mat4f::unproject_perspective(float& fieldofview, float& aspectratio, float& nearplane, float& farplane)
 {
-	// This seems to fail my unit test for some reason ?
+	GT_PROFILE_FUNCTION;
 
 	fieldofview = 2.0f * std::atan(1.0f / m11);
 	aspectratio = m11 / m00;
@@ -472,6 +503,8 @@ void mat4f::unproject_perspective(float& fieldofview, float& aspectratio, float&
 
 void mat4f::decompose(vec3f& scale, quatf& rotation, vec3f& translation) const
 {
+	GT_PROFILE_FUNCTION;
+
 	// SIMDify this...
 
 	mat4f tmp(*this);
@@ -532,28 +565,48 @@ void mat4f::decompose(vec3f& scale, quatf& rotation, vec3f& translation) const
 
 void mat4f::decompose(SQT& sqt) const
 {
+	GT_PROFILE_FUNCTION;
+
 	decompose(sqt.scale, sqt.rotation, sqt.translation);
 }
 
 vec3f mat4f::apply_to_point(const vec3f& point) const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	const auto tmp = *this * vec4f(point, 1.0f);
 	return vec3f(tmp.x, tmp.y, tmp.z);
 }
 
 vec3f mat4f::apply_to_direction(const vec3f& direction) const noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	const auto tmp = *this * vec4f(direction, 0.0f);
 	return vec3f(tmp.x, tmp.y, tmp.z);
 }
 
-mat3f mat4f::upper_left_33() const
+#define GT_UPPER_LEFT_33_VERSION 1
+
+mat3f mat4f::upperLeft33() const
 {
+	GT_PROFILE_FUNCTION;
+
+	#if GT_UPPER_LEFT_33_VERSION == 1
+
+	return mat3f(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+
+	#else // GT_UPPER_LEFT_33_VERSION
+
 	return mat3f(vec3f(data[0]), vec3f(data[1]), vec3f(data[2]));
+
+	#endif // GT_UPPER_LEFT_33_VERSION
 }
 
 std::ostream& operator << (std::ostream& os, const mat4f& m)
 {
+	GT_PROFILE_FUNCTION;
+
 	#ifdef BOOST_MSVC
 
 	return os << m.m00 << ' ' << m.m10 << ' ' << m.m20 << ' ' << m.m30 << ' '

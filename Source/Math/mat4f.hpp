@@ -7,6 +7,7 @@
 #pragma once
 
 #include "../Foundation/utilities.hpp"
+#include "../Foundation/Profiler.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
@@ -82,12 +83,14 @@ public:
 	/// Get a raw value pointer.
 	inline float* value_ptr() noexcept
 	{
+		GT_PROFILE_FUNCTION;
 		return &m00;
 	}
 
 	/// Get a raw value pointer, const version.
 	inline const float* value_ptr() const noexcept
 	{
+		GT_PROFILE_FUNCTION;
 		return &m00;
 	}
 
@@ -101,7 +104,7 @@ public:
 	, m02(0.0f), m12(0.0f), m22(diagonal), m32(0.0f)
 	, m03(0.0f), m13(0.0f), m23(0.0f), m33(diagonal)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Build a scaling transformation.
@@ -111,7 +114,7 @@ public:
 	, m02(0.0f), m12(0.0f), m22(scalez), m32(0.0f)
 	, m03(0.0f), m13(0.0f), m23(0.0f), m33(1.0f)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Build an affine rotation matrix.
@@ -142,12 +145,14 @@ public:
 	, m02(m02), m12(m12), m22(m22), m32(m32)
 	, m03(m03), m13(m13), m23(m23), m33(m33)
 	{
-		/* Empty on purpose. */
+		GT_PROFILE_FUNCTION;
 	}
 
 	/// Column constructor.
 	mat4f(const __m128& column0, const __m128& column1, const __m128& column2, const __m128& column3)
 	{
+		GT_PROFILE_FUNCTION;
+
 		data[0] = column0;
 		data[1] = column1;
 		data[2] = column2;
@@ -193,6 +198,8 @@ public:
 	/// Add-and-assign operator.
 	inline mat4f& operator += (const mat4f& other)
 	{
+		GT_PROFILE_FUNCTION;
+
 		data[0] = _mm_add_ps(data[0], other.data[0]);
 		data[1] = _mm_add_ps(data[1], other.data[1]);
 		data[2] = _mm_add_ps(data[2], other.data[2]);
@@ -203,6 +210,8 @@ public:
 	/// Subtract-and-assign operator.
 	inline mat4f& operator -= (const mat4f& other)
 	{
+		GT_PROFILE_FUNCTION;
+
 		data[0] = _mm_sub_ps(data[0], other.data[0]);
 		data[1] = _mm_sub_ps(data[1], other.data[1]);
 		data[2] = _mm_sub_ps(data[2], other.data[2]);
@@ -216,6 +225,8 @@ public:
 	/// Addition operator.
 	inline mat4f operator + (const mat4f& other) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return mat4f(
 			_mm_add_ps(data[0], other.data[0]), 
 			_mm_add_ps(data[1], other.data[1]),
@@ -226,12 +237,16 @@ public:
 	/// Addition operator that first builds a diagonal matrix.
 	inline mat4f operator + (const float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return *this + mat4f(s);
 	}
 
 	/// Subtraction operator.
 	inline mat4f operator - (const mat4f& other) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return mat4f(
 			_mm_sub_ps(data[0], other.data[0]), 
 			_mm_sub_ps(data[1], other.data[1]),
@@ -242,6 +257,8 @@ public:
 	/// Subtraction operator that first builds a diagonal matrix.
 	inline mat4f operator - (const float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		return *this - mat4f(s);
 	}
 
@@ -254,6 +271,8 @@ public:
 	/// Scalar multiplication operator.
 	inline mat4f operator * (const float s) const noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		const auto tmp = _mm_set1_ps(s);
 		return mat4f(
 			_mm_mul_ps(data[0], tmp),
@@ -265,6 +284,8 @@ public:
 	/// Scalar multiplication operator (from the left).
 	inline friend mat4f operator * (const float s, const mat4f& m) noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		const auto tmp = _mm_set1_ps(s);
 		return mat4f(
 			_mm_mul_ps(tmp, m.data[0]),
@@ -276,6 +297,8 @@ public:
 	/// Transpose this matrix.
 	inline mat4f& transpose() noexcept
 	{
+		GT_PROFILE_FUNCTION;
+
 		std::swap(m01, m10);
 		std::swap(m02, m20);
 		std::swap(m03, m30);
@@ -292,7 +315,7 @@ public:
 	vec3f apply_to_direction(const vec3f& direction) const noexcept;
 
 	/// Get the upper-left three by three submatrix.
-	mat3f upper_left_33() const;
+	mat3f upperLeft33() const;
 
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
@@ -303,6 +326,8 @@ private:
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
+		GT_PROFILE_FUNCTION;
+
 		ar & BOOST_SERIALIZATION_NVP(m00) & BOOST_SERIALIZATION_NVP(m10) 
 			& BOOST_SERIALIZATION_NVP(m20) & BOOST_SERIALIZATION_NVP(m30) 
 			& BOOST_SERIALIZATION_NVP(m01) & BOOST_SERIALIZATION_NVP(m11) 
@@ -324,6 +349,8 @@ std::ostream& operator << (std::ostream& os, const mat4f& m);
 /// Input stream support for four by four matrices.
 inline std::istream& operator >> (std::istream& is, mat4f& m)
 {
+	GT_PROFILE_FUNCTION;
+
 	is >> m.m00 >> m.m10 >> m.m20 >> m.m30
 		>> m.m01 >> m.m11 >> m.m21 >> m.m31
 		>> m.m02 >> m.m12 >> m.m22 >> m.m32
