@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "OpenGL/textures.hpp"
+// #include "OpenGL/textures.hpp"
 
 namespace gintonic {
 
@@ -27,7 +27,7 @@ public:
 	 * 
 	 * @param diffuse_texture A diffuse cube texture for the skybox.
 	 */
-	skybox(OpenGL::cube_texture diffuse_texture);
+	// skybox(OpenGL::cube_texture diffuse_texture);
 
 	/// Copy constructor.
 	skybox(const skybox&) = default;
@@ -42,7 +42,7 @@ public:
 	skybox& operator = (skybox&&);
 
 	/// The diffuse cube texture for the skybox.
-	OpenGL::cube_texture diffuse_texture;
+	// OpenGL::cube_texture diffuse_texture;
 
 	/**
 	 * @brief Draw the skybox.

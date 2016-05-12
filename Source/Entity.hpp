@@ -470,7 +470,6 @@ public:
 	 */
 	void unsetParent();
 
-
 	/**
 	 * @brief Get a pointer to the parent of this Entity.
 	 *

@@ -163,36 +163,6 @@ void Entity::updateGlobalInfo() noexcept
 	}
 }
 
-// void Entity::updateGlobalInfo(mat4fstack& matrixStack) noexcept
-// {
-// 	matrixStack.push(mLocalTransform);
-// 	updateGlobalDatamembers(matrixStack);
-// 	for (auto child : mChildren)
-// 	{
-// 		if (child) child->updateGlobalInfo(matrixStack);
-// 	}
-// 	matrixStack.pop();
-// }
-
-// void Entity::updateGlobalInfo() noexcept
-// {
-// 	mat4fstack lMatrixStack(computeGlobalTransform());
-// 	updateGlobalDatamembers(lMatrixStack);
-// 	for (auto lChild : mChildren)
-// 	{
-// 		if (lChild) lChild->updateGlobalInfo(lMatrixStack);
-// 	}
-// }
-
-// void Entity::updateGlobalDatamembers(const mat4fstack& matrixStack) noexcept
-// {
-// 	mGlobalTransform = matrixStack.top();
-// 	const vec3f t(mGlobalTransform.data[3]);
-// 	mGlobalBoundingBox.minCorner = t + mLocalBoundingBox.minCorner;
-// 	mGlobalBoundingBox.maxCorner = t + mLocalBoundingBox.maxCorner;
-// 	if (mOctree) mOctree->notify(this);
-// }
-
 void Entity::setScale(const vec3f& scale) noexcept
 {
 	mLocalTransform.scale = scale;
@@ -408,8 +378,14 @@ void Entity::setParent(std::shared_ptr<Entity> parent)
 
 void Entity::unsetParent()
 {
-	// Also sets mParent to nullptr
-	if (auto lParent = mParent.lock()) lParent->removeChild(shared_from_this());
+	if (auto lParent = mParent.lock())
+	{
+		lParent->removeChild(shared_from_this());
+	}
+	else
+	{
+		mParent = std::shared_ptr<Entity>(nullptr);
+	}
 }
 
 void Entity::getViewMatrix(mat4f& result) const noexcept
@@ -501,23 +477,18 @@ Entity::~Entity() noexcept
 	try
 	{
 		onDie(shared_from_this());
+
 	}
 	catch (...)
 	{
 		// Absorb the exceptions
 	}
 	SQT lSQT;
-	// if (mOctree) mOctree->erase(this);
 	for (auto lChild : mChildren)
 	{
-		if (lChild)
-		{
-			assert(lChild->mParent.lock().get() == this);
-			lChild->mParent = std::shared_ptr<Entity>(nullptr);
-			lChild->mGlobalTransform.decompose(lSQT);
-			lChild->mLocalTransform = lSQT;
-		}
-
+		if (lChild->mParent.expired() == false) lChild->mParent.reset();
+		lChild->mGlobalTransform.decompose(lSQT);
+		lChild->mLocalTransform = lSQT;
 	}
 	unsetParent();
 }
