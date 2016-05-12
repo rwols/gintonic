@@ -23,7 +23,7 @@ namespace gintonic {
  * a scale in the X, Y and Z directions, it provides a quaternion
  * rotation and provides a translation for the origin.
  */
-struct alignas(16) SQT
+struct alignas(__m128) SQT
 {
 	/**
 	 * @brief The scaling part of this SQT.

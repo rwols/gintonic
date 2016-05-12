@@ -14,6 +14,8 @@
 #include "../Math/mat3f.hpp"
 #include "../Math/mat4f.hpp"
 
+#include "../Entity.hpp"
+
 #include "OpenGL/khrplatform.hpp"
 
 #include "Font.hpp"
@@ -204,7 +206,7 @@ public:
 	 */
 	static void initialize(
 		const char* windowTitle, 
-		std::shared_ptr<Entity> cameraEntity = std::make_shared<Entity>("DefaultCamera"), 
+		std::shared_ptr<Entity> cameraEntity = std::shared_ptr<Entity>(new Entity("DefaultCamera")), 
 		const bool fullscreen = true, 
 		const int preferredWidth = 800, 
 		const int preferredHeight = 640,

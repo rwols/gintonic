@@ -141,7 +141,7 @@ std::vector<AnimStack> FbxImporter::loadAnimations()
 
 std::shared_ptr<Entity> FbxImporter::traverse(FbxNode* pNode, ResultStructure& result)
 {
-	auto lNewEntity = std::make_shared<Entity>(pNode);
+	auto lNewEntity = std::shared_ptr<Entity>(new Entity(pNode));
 	// result.entities.push_back(lNewEntity);
 
 	std::cerr << "\nFound FBX Node: " << lNewEntity->name << "\n\n";
@@ -176,7 +176,7 @@ std::shared_ptr<Material> FbxImporter::processMaterial(FbxNode* pNode, ResultStr
 
 	if (!lMaterial)
 	{
-		lMaterial = std::make_shared<Material>(pNode->GetMaterial(0));
+		lMaterial = std::shared_ptr<Material>(new Material(pNode->GetMaterial(0)));
 	}
 
 	result.materials.push_back(lMaterial);
@@ -199,7 +199,7 @@ std::shared_ptr<Mesh> FbxImporter::processMesh(FbxNode* pNode, ResultStructure& 
 
 	if (!lMesh)
 	{
-		lMesh = std::make_shared<Mesh>(pNode->GetMesh());
+		lMesh = std::shared_ptr<Mesh>(new Mesh(pNode->GetMesh()));
 	}
 
 	result.meshes.push_back(lMesh);
@@ -222,7 +222,7 @@ std::shared_ptr<Camera> FbxImporter::processCamera(FbxNode* pNode, ResultStructu
 
 	if (!lCamera)
 	{
-		lCamera = std::make_shared<Camera>(pNode->GetCamera());
+		lCamera = std::shared_ptr<Camera>(new Camera(pNode->GetCamera()));
 	}
 
 	result.cameras.push_back(lCamera);

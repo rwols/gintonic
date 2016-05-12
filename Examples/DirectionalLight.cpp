@@ -15,14 +15,14 @@ public:
 	{
 		using namespace gintonic;
 
-		mCubeEntity = std::make_shared<Entity>("Cube");
-		mCubeEntity->material = std::make_shared<Material>();
+		mCubeEntity = std::shared_ptr<Entity>(new Entity("Cube"));
+		mCubeEntity->material = std::shared_ptr<Material>();
 		mCubeEntity->material->name = "RuralBrickWall";
 		mCubeEntity->material->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
 		mCubeEntity->material->specularColor = vec4f(1.0f, 1.0f, 1.0f, 20.0f);
-		mCubeEntity->material->diffuseTexture = std::make_shared<Texture2D>("Resources/RuralBrickWall.jpg");
-		mCubeEntity->material->specularTexture = std::make_shared<Texture2D>("Resources/RuralBrickWall_SPEC.png");
-		mCubeEntity->material->normalTexture = std::make_shared<Texture2D>("Resources/RuralBrickWall_NRM.png");
+		mCubeEntity->material->diffuseTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/RuralBrickWall.jpg"));
+		mCubeEntity->material->specularTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/RuralBrickWall_SPEC.png"));
+		mCubeEntity->material->normalTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/RuralBrickWall_NRM.png"));
 		mCubeEntity->mesh = Renderer::getUnitCubeWithTangents();
 
 		Renderer::getCameraEntity()->setTranslation(vec3f(2.0f, 1.0f, 4.0f));
@@ -32,7 +32,7 @@ public:
 		lLight->name = "DirectionalLight";
 		lLight->setIntensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 
-		auto lLightEntity = std::make_shared<Entity>
+		auto lLightEntity = std::shared_ptr<Entity>(new Entity
 		(
 			"DirectionalLight",
 			SQT
@@ -41,7 +41,7 @@ public:
 				quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), -static_cast<float>(M_PI) / 2.0f),
 				vec3f(0.0f, 0.0f, 0.0f)
 			)
-		);
+		));
 		lLightEntity->light = lLight;
 
 		mRootEntity->addChild(mCubeEntity);

@@ -12,7 +12,7 @@ public:
 	: Application(APPNAME, argc, argv)
 	{
 		using namespace gintonic;
-		auto lCamera = std::make_shared<Camera>();
+		auto lCamera = std::shared_ptr<Camera>(new Camera());
 		lCamera->name = "OrthoCamera";
 		lCamera->setNearPlane(-5.0f);
 		lCamera->setFarPlane(5.0f);
@@ -25,12 +25,12 @@ public:
 		Renderer::setFreeformCursor(true);
 		Renderer::show();
 
-		auto lTexture = std::make_shared<Texture2D>("Resources/DaVinci.jpg");
-		auto lMaterial = std::make_shared<Material>();
+		auto lTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/DaVinci.jpg"));
+		auto lMaterial = std::shared_ptr<Material>(new Material());
 		lMaterial->name = "DaVinci";
 		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.0f);
 		lMaterial->diffuseTexture = lTexture;
-		auto lCube = std::make_shared<Entity>("Cube");
+		auto lCube = std::shared_ptr<Entity>(new Entity("Cube"));
 		lCube->material = lMaterial;
 		lCube->mesh = Renderer::getUnitCube();
 		lCube->setParent(mRootEntity);

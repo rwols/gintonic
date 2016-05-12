@@ -16,6 +16,8 @@
 class FbxVector4; // Forward declaration.	
 #include <fbxsdk/fbxsdk_nsend.h>
 
+#include <cassert>
+
 namespace gintonic {
 
 union vec2f; // Forward declaration.
@@ -53,7 +55,7 @@ union quatf; // Forward declaration.
  * case you will have to make sure by hand that objects are allocated on a
  * 16-byte boundary.
  */
-union alignas(16) vec3f
+union alignas(__m128) vec3f
 {
 public:
 
@@ -78,6 +80,8 @@ public:
 	: dummy(0.0f)
 	{
 		GT_PROFILE_FUNCTION;
+		static_assert(alignof(__m128) == 16, "Should be 16");
+		assert(isAligned(this, 16));
 	}
 
 	/// Constructor that sets every coordinate to the given value.
@@ -258,6 +262,9 @@ public:
 	inline bool operator <= (const vec3f& v) const noexcept
 	{
 		GT_PROFILE_FUNCTION;
+
+		assert(isAligned(this));
+		assert(isAligned(&v));
 
 		return (_mm_movemask_ps(_mm_cmple_ps(data, v.data)) & 0x7) == 0x7;
 

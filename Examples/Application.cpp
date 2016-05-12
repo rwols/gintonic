@@ -7,7 +7,7 @@ Application::Application(const char* windowTitle, int argc, char** argv)
 	{
 		lFullscreen = static_cast<bool>(std::atoi(argv[1]));
 	}
-	auto lCameraEntity = std::make_shared<gintonic::Entity>("DefaultCamera");
+	auto lCameraEntity = std::shared_ptr<gintonic::Entity>(new gintonic::Entity("DefaultCamera"));
 	boost::filesystem::current_path(gintonic::get_executable_path());
 	gintonic::Renderer::initialize(windowTitle, std::move(lCameraEntity), lFullscreen, 800, 640);
 }

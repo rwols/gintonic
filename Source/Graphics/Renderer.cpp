@@ -49,7 +49,7 @@ GUI::Base* sGUIRoot = nullptr;
 
 GeometryBuffer* sGeometryBuffer = nullptr;
 
-std::shared_ptr<Camera> sDefaultCamera = std::make_shared<Camera>();
+std::shared_ptr<Camera> sDefaultCamera = std::shared_ptr<Camera>(new Camera());
 
 std::vector<std::shared_ptr<Entity>> sShadowCastingLightEntities;
 std::vector<std::shared_ptr<Entity>> sShadowCastingPointLightEntities;
@@ -352,7 +352,7 @@ void Renderer::initialize(
 	sDefaultCamera->setNearPlane(1.0f);
 	sDefaultCamera->setFarPlane(50.0f);
 	sDefaultCamera->setProjectionType(Camera::kPerspective);
-	if (!cameraEntity) cameraEntity = std::make_shared<Entity>("DefaultCamera");
+	if (!cameraEntity) cameraEntity = std::shared_ptr<Entity>(new Entity("DefaultCamera"));
 	setCameraEntity(std::move(cameraEntity));
 
 	//
@@ -373,7 +373,7 @@ void Renderer::initialize(
 	const unsigned int lPointSize = 24;
 
 	// This may throw a Font::InitException when the font is not present.
-	sDebugFont = std::make_shared<Font>(FONT_FILE_LOCATION, lPointSize);
+	sDebugFont = std::shared_ptr<Font>(new Font(FONT_FILE_LOCATION, lPointSize));
 	sDebugErrorStream = new FontStream();
 	sDebugLogStream = new FontStream();
 
@@ -1118,22 +1118,22 @@ void Renderer::submitEntityRecursive(std::shared_ptr<Entity> current)
 
 std::shared_ptr<Entity> Renderer::createGizmo()
 {
-	auto lRedMaterial = std::make_shared<Material>();
+	auto lRedMaterial = std::shared_ptr<Material>(new Material());
 	lRedMaterial->name = "Red";
 	lRedMaterial->diffuseColor = vec4f(1.0f, 0.0f, 0.0f, 0.0f);
 	lRedMaterial->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 
-	auto lGreenMaterial = std::make_shared<Material>();
+	auto lGreenMaterial = std::shared_ptr<Material>(new Material());
 	lGreenMaterial->name = "Green";
 	lGreenMaterial->diffuseColor = vec4f(0.0f, 1.0f, 0.0f, 0.0f);
 	lGreenMaterial->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 
-	auto lBlueMaterial = std::make_shared<Material>();
+	auto lBlueMaterial = std::shared_ptr<Material>(new Material());
 	lBlueMaterial->name = "Blue";
 	lBlueMaterial->diffuseColor = vec4f(0.0f, 0.0f, 1.0f, 0.0f);
 	lBlueMaterial->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 
-	auto lRightArrowCone = std::make_shared<Entity>
+	auto lRightArrowCone = std::shared_ptr<Entity>(new Entity
 	(
 		"RightArrowCone",
 		SQT
@@ -1142,11 +1142,11 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf(1.0f, 0.0f, 0.0f, 0.0f),
 			vec3f(0.0f, 0.0f, -1.0f)
 		)
-	);
+	));
 	lRightArrowCone->material = lRedMaterial;
 	lRightArrowCone->mesh = getUnitCone();
 
-	auto lRightArrowCylinder = std::make_shared<Entity>
+	auto lRightArrowCylinder = std::shared_ptr<Entity>(new Entity
 	(
 		"RightArrowCylinder",
 		SQT
@@ -1155,12 +1155,12 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), -static_cast<float>(M_PI) * 0.5f),
 			vec3f(1.0f, 0.0f, 0.0f)
 		)
-	);
+	));
 	lRightArrowCylinder->material = lRedMaterial;
 	lRightArrowCylinder->mesh = getUnitCylinder();
 	lRightArrowCylinder->addChild(lRightArrowCone);
 
-	auto lUpArrowCone = std::make_shared<Entity>
+	auto lUpArrowCone = std::shared_ptr<Entity>(new Entity
 	(
 		"UpArrowCone",
 		SQT
@@ -1169,11 +1169,11 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf(1.0f, 0.0f, 0.0f, 0.0f),
 			vec3f(0.0f, 0.0f, -1.0f)
 		)
-	);
+	));
 	lUpArrowCone->material = lGreenMaterial;
 	lUpArrowCone->mesh = getUnitCone();
 
-	auto lUpArrowCylinder = std::make_shared<Entity>
+	auto lUpArrowCylinder = std::shared_ptr<Entity>(new Entity
 	(
 		"UpArrowCylinder",
 		SQT
@@ -1182,12 +1182,12 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), static_cast<float>(M_PI) * 0.5f),
 			vec3f(0.0f, 1.0f, 0.0f)
 		)
-	);
+	));
 	lUpArrowCylinder->material = lGreenMaterial;
 	lUpArrowCylinder->mesh = getUnitCylinder();
 	lUpArrowCylinder->addChild(lUpArrowCone);
 
-	auto lForwardArrowCone = std::make_shared<Entity>
+	auto lForwardArrowCone = std::shared_ptr<Entity>(new Entity
 	(
 		"ForwardArrowCone",
 		SQT
@@ -1196,11 +1196,11 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf(1.0f, 0.0f, 0.0f, 0.0f),
 			vec3f(0.0f, 0.0f, -1.0f)
 		)
-	);
+	));
 	lForwardArrowCone->material = lBlueMaterial;
 	lForwardArrowCone->mesh = getUnitCone();
 
-	auto lBackwardArrowCylinder = std::make_shared<Entity>
+	auto lBackwardArrowCylinder = std::shared_ptr<Entity>(new Entity
 	(
 		"ForwardArrowCylinder",
 		SQT
@@ -1209,12 +1209,12 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), static_cast<float>(M_PI)),
 			vec3f(0.0f, 0.0f, 1.0f)
 		)
-	);
+	));
 	lBackwardArrowCylinder->material = lBlueMaterial;
 	lBackwardArrowCylinder->mesh = getUnitCylinder();
 	lBackwardArrowCylinder->addChild(lForwardArrowCone);
 
-	auto lGizmoRoot = std::make_shared<Entity>
+	auto lGizmoRoot = std::shared_ptr<Entity>(new Entity
 	(
 		"Gizmo",
 		SQT
@@ -1223,7 +1223,7 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf(1.0f, 0.0f, 0.0f, 0.0f), 
 			vec3f(0.0f, 0.0f, 0.0f)
 		)
-	);
+	));
 	lGizmoRoot->addChild(lRightArrowCylinder);
 	lGizmoRoot->addChild(lUpArrowCylinder);
 	lGizmoRoot->addChild(lBackwardArrowCylinder);

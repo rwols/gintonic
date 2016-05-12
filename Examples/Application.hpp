@@ -23,7 +23,7 @@ public:
 
 protected:
 
-	std::shared_ptr<gintonic::Entity> mRootEntity = std::make_shared<gintonic::Entity>("Root");
+	std::shared_ptr<gintonic::Entity> mRootEntity = std::shared_ptr<gintonic::Entity>(new gintonic::Entity("Root"));
 
 	bool mCameraRespondsToKeyboard = true;
 	bool mCameraRespondsToMouse = true;

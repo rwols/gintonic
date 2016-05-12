@@ -58,19 +58,19 @@ std::shared_ptr<Light> Light::create(const FbxLight* pFbxLight)
 			std::cerr << "\tPoint light\n";
 			std::cerr << "\tIntensity: " << lIntensity << '\n';
 			std::cerr << "\tAttenuation: " << lAttenuation << '\n';
-			lLight = std::make_shared<PointLight>(lIntensity, lAttenuation);
+			lLight = std::shared_ptr<PointLight>(new PointLight(lIntensity, lAttenuation));
 			break;
 		}
 		case FbxLight::eDirectional:
 		{
 			std::cerr << "\tDirectional light\n";
-			lLight = std::make_shared<DirectionalLight>(lIntensity);
+			lLight = std::shared_ptr<DirectionalLight>(new DirectionalLight(lIntensity));
 			break;
 		}
 		case FbxLight::eSpot:
 		{
 			std::cerr << "\tSpot light\n";
-			lLight = std::make_shared<SpotLight>(lIntensity, lAttenuation);
+			lLight = std::shared_ptr<SpotLight>(new SpotLight(lIntensity, lAttenuation));
 		}
 		case FbxLight::eArea:
 		{
