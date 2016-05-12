@@ -23,7 +23,7 @@ public:
 		mGUIRoot->box.maxCorner = vec2f( 0.5f, 0.5f / Renderer::aspectRatio());
 		// mGUIRoot->box = box2f(vec2f(-1.0f, -1.0f), vec2f(1.0f, 1.0f));
 		mGUIRoot->color = vec4f(0.3f, 0.3f, 0.3f, 0.0f);
-		mGUIRoot->texture = std::make_shared<Texture2D>("Resources/DaVinci.jpg");
+		mGUIRoot->texture = std::shared_ptr<Texture2D>(new Texture2D("Resources/DaVinci.jpg"));
 		mGUIRoot->onMouseEnter.connect([&]()
 		{
 			mGUIRoot->color = vec4f(0.3f, 0.0f, 0.0f, 0.1f);
@@ -36,19 +36,11 @@ public:
 		auto lConsoleView = new GUI::ConsoleView();
 
 		lConsoleView->console = &mConsole;
-		lConsoleView->font    = std::make_shared<Font>("Resources/Inconsolata-Regular.ttf", 24);
+		lConsoleView->font    = std::shared_ptr<Font>(new Font("Resources/Inconsolata-Regular.ttf", 24));
 		lConsoleView->box     = mGUIRoot->box;
 		lConsoleView->color   = vec4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 		mGUIRoot->addChild(lConsoleView);
-
-		// auto lTextContainer = new GUI::TextPointerContainer();
-		// lTextContainer->color = vec4f(1.0f, 1.0f, 1.0f, 0.5f);
-		// lTextContainer->box = mGUIRoot->box;
-		// lTextContainer->font = std::make_shared<Font>("Resources/Inconsolata-Regular.ttf", 24);
-		// lTextContainer->pointerToString = &mConsole.getActiveString();
-
-		// mGUIRoot->addChild(lTextContainer);
 
 		Renderer::setGUIRoot(mGUIRoot);
 

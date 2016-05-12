@@ -56,7 +56,8 @@ Entity::Entity(const FbxNode* pFbxNode)
 
 
 Entity::Entity(const Entity& other)
-: mLocalTransform(other.mLocalTransform)
+: Object<Entity, std::string>(other)
+, mLocalTransform(other.mLocalTransform)
 , mGlobalTransform(other.mGlobalTransform)
 , mOctree(other.mOctree)
 , castShadow(other.castShadow)
@@ -71,7 +72,8 @@ Entity::Entity(const Entity& other)
 }
 
 Entity::Entity(Entity&& other) noexcept
-: mLocalTransform(std::move(other.mLocalTransform))
+: Object<Entity, std::string>(std::move(other))
+, mLocalTransform(std::move(other.mLocalTransform))
 , mGlobalTransform(std::move(other.mGlobalTransform))
 , mChildren(std::move(other.mChildren))
 , mParent(std::move(other.mParent))
@@ -90,6 +92,7 @@ Entity::Entity(Entity&& other) noexcept
 
 Entity& Entity::operator = (const Entity& other)
 {
+	Object<Entity, std::string>::operator=(other);
 	mLocalTransform = other.mLocalTransform;
 	mGlobalTransform = other.mGlobalTransform;
 	mOctree = other.mOctree;
@@ -108,6 +111,7 @@ Entity& Entity::operator = (const Entity& other)
 
 Entity& Entity::operator = (Entity&& other) noexcept
 {
+	Object<Entity, std::string>::operator=(std::move(other));
 	mLocalTransform = std::move(other.mLocalTransform);
 	mGlobalTransform = std::move(other.mGlobalTransform);
 	mChildren = std::move(other.mChildren);
@@ -506,9 +510,14 @@ Entity::~Entity() noexcept
 	// if (mOctree) mOctree->erase(this);
 	for (auto lChild : mChildren)
 	{
-		lChild->mParent = std::shared_ptr<Entity>(nullptr);
-		lChild->mGlobalTransform.decompose(lSQT);
-		lChild->mLocalTransform = lSQT;
+		if (lChild)
+		{
+			assert(lChild->mParent.lock().get() == this);
+			lChild->mParent = std::shared_ptr<Entity>(nullptr);
+			lChild->mGlobalTransform.decompose(lSQT);
+			lChild->mLocalTransform = lSQT;
+		}
+
 	}
 	unsetParent();
 }
@@ -516,7 +525,7 @@ Entity::~Entity() noexcept
 std::shared_ptr<Entity> Entity::cloneRecursive() const
 {
 	// Invoke the copy constructor.
-	auto lClone = std::make_shared<Entity>(*this);
+	auto lClone = std::shared_ptr<Entity>(new Entity(*this));
 	for (auto lChild : mChildren)
 	{
 		lClone->addChild(lChild->cloneRecursive());

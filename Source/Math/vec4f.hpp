@@ -53,7 +53,7 @@ union vec3f; // Forward declaration.
  * case you will have to make sure by hand that objects are allocated on a
  * 16-byte boundary.
  */
-union alignas(16) vec4f
+union alignas(__m128) vec4f
 {
 private:
 	

@@ -27,7 +27,9 @@
 	#include <spe.h>
 #endif
 
+#include "config.hpp"
 #include <iosfwd>
+#include <cstdint>
 
 #define _mm_shuffle(v,a,b,c,d) _mm_shuffle_ps((v), (v), _MM_SHUFFLE(a,b,c,d))
 
@@ -74,6 +76,34 @@
 
 #define _mm_negate(v) _mm_xor_ps((v), _mm_set1_ps(-0.0f))
 
+#ifdef BOOST_MSVC
+
+#define _mm_x000_ps(v) _mm_and_ps((v),                   _mm_castsi128_ps(_mm_setr_epi32(0xffffffff, 0x0, 0x0, 0x0)))
+#define _mm_0x00_ps(v) _mm_and_ps(_mm_replicate_x_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0x0, 0xffffffff, 0x0, 0x0)))
+#define _mm_00x0_ps(v) _mm_and_ps(_mm_replicate_x_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0x0, 0x0, 0xffffffff, 0x0)))
+#define _mm_000x_ps(v) _mm_and_ps(_mm_replicate_x_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0x0, 0x0, 0x0, 0xffffffff)))
+
+#define _mm_y000_ps(v) _mm_and_ps(_mm_replicate_y_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0xffffffff, 0x0, 0x0, 0x0)))
+#define _mm_0y00_ps(v) _mm_and_ps((v),                   _mm_castsi128_ps(_mm_setr_epi32(0x0, 0xffffffff, 0x0, 0x0)))
+#define _mm_00y0_ps(v) _mm_and_ps(_mm_replicate_y_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0x0, 0x0, 0xffffffff, 0x0)))
+#define _mm_000y_ps(v) _mm_and_ps(_mm_replicate_y_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0x0, 0x0, 0x0, 0xffffffff)))
+
+#define _mm_z000_ps(v) _mm_and_ps(_mm_replicate_z_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0xffffffff, 0x0, 0x0, 0x0)))
+#define _mm_0z00_ps(v) _mm_and_ps(_mm_replicate_z_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0x0, 0xffffffff, 0x0, 0x0)))
+#define _mm_00z0_ps(v) _mm_and_ps((v),                   _mm_castsi128_ps(_mm_setr_epi32(0x0, 0x0, 0xffffffff, 0x0)))
+#define _mm_000z_ps(v) _mm_and_ps(_mm_replicate_z_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0x0, 0x0, 0x0, 0xffffffff)))
+
+#define _mm_w000_ps(v) _mm_and_ps(_mm_replicate_w_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0xffffffff, 0x0, 0x0, 0x0)))
+#define _mm_0w00_ps(v) _mm_and_ps(_mm_replicate_w_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0x0, 0xffffffff, 0x0, 0x0)))
+#define _mm_00w0_ps(v) _mm_and_ps(_mm_replicate_w_ps(v), _mm_castsi128_ps(_mm_setr_epi32(0x0, 0x0, 0xffffffff, 0x0)))
+#define _mm_000w_ps(v) _mm_and_ps((v),                   _mm_castsi128_ps(_mm_setr_epi32(0x0, 0x0, 0x0, 0xffffffff)))
+
+#define _mm_0yz0_ps(v) _mm_and_ps((v), _mm_castsi128_ps(_mm_setr_epi32(0x0, 0xffffffff, 0xffffffff, 0x0)))
+#define _mm_x0z0_ps(v) _mm_and_ps((v), _mm_castsi128_ps(_mm_setr_epi32(0xffffffff, 0x0, 0xffffffff, 0x0)))
+#define _mm_xy00_ps(v) _mm_and_ps((v), _mm_castsi128_ps(_mm_setr_epi32(0xffffffff, 0xffffffff, 0x0, 0x0)))
+
+#else // BOOST_MSVC
+
 #define _mm_x000_ps(v) _mm_and_ps((v),                   _mm_setr_epi32(0xffffffff, 0x0, 0x0, 0x0))
 #define _mm_0x00_ps(v) _mm_and_ps(_mm_replicate_x_ps(v), _mm_setr_epi32(0x0, 0xffffffff, 0x0, 0x0))
 #define _mm_00x0_ps(v) _mm_and_ps(_mm_replicate_x_ps(v), _mm_setr_epi32(0x0, 0x0, 0xffffffff, 0x0))
@@ -98,7 +128,15 @@
 #define _mm_x0z0_ps(v) _mm_and_ps((v), _mm_setr_epi32(0xffffffff, 0x0, 0xffffffff, 0x0))
 #define _mm_xy00_ps(v) _mm_and_ps((v), _mm_setr_epi32(0xffffffff, 0xffffffff, 0x0, 0x0))
 
+#endif // BOOST_MSVC
+
 namespace gintonic {
+
+template <class T>
+inline bool isAligned(T const * const ptr, std::size_t alignment = alignof(T))
+{
+    return 0 == reinterpret_cast<std::uintptr_t>(ptr) % alignment;
+}
 
 std::ostream& operator << (std::ostream&, const __m128&);
 

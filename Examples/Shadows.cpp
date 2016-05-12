@@ -25,7 +25,7 @@ public:
 		{
 			if (gintonic::distance2(
 				vec3f(other->globalTransform().data[3]), 
-				vec3f(entity->mGlobalTransform.data[3])) <= distanceFrom * distanceFrom)
+				vec3f(entity->globalTransform().data[3])) <= distanceFrom * distanceFrom)
 			{
 				return true;
 			}
@@ -41,11 +41,11 @@ public:
 	{
 		using namespace gintonic;
 
-		auto lBricksDiffuseTexture = std::make_shared<Texture2D>("Resources/bricks.jpg");
-		auto lBricksSpecularTexture = std::make_shared<Texture2D>("Resources/bricks_SPEC.png");
-		auto lBricksNormalTexture = std::make_shared<Texture2D>("Resources/bricks_NRM.png");
+		auto lBricksDiffuseTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/bricks.jpg"));
+		auto lBricksSpecularTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/bricks_SPEC.png"));
+		auto lBricksNormalTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/bricks_NRM.png"));
 
-		auto lMaterial = std::make_shared<Material>();
+		auto lMaterial = std::shared_ptr<Material>(new Material());
 		lMaterial->name = "Bricks";
 		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
 		lMaterial->specularColor = vec4f(0.3f, 0.3f, 0.3f, 20.0f);
@@ -53,7 +53,7 @@ public:
 		lMaterial->specularTexture = lBricksSpecularTexture;
 		lMaterial->normalTexture = lBricksNormalTexture;
 
-		auto lFloor = std::make_shared<Entity>();
+		auto lFloor = std::shared_ptr<Entity>(new Entity());
 		lFloor->material = lMaterial;
 		lFloor->mesh = Renderer::getUnitCubeWithTangents();
 		lFloor->castShadow = true;
@@ -73,7 +73,7 @@ public:
 			}
 		}
 
-		mSphere = std::make_shared<Entity>();
+		mSphere = std::shared_ptr<Entity>(new Entity());
 		mSphere->name = "Sphere";
 		mSphere->material = lMaterial;
 		mSphere->mesh = Renderer::getUnitCubeWithTangents();
@@ -105,9 +105,9 @@ public:
 		mSpotLight->camera = Renderer::getCameraEntity()->camera;
 		mSpotLight->castShadow = true;
 
-		auto lSpotLightChild = std::make_shared<Entity>();
+		auto lSpotLightChild = std::shared_ptr<Entity>(new Entity());
 		lSpotLightChild->castShadow = false;
-		lSpotLightChild->material = std::make_shared<Material>();
+		lSpotLightChild->material = std::shared_ptr<Material>(new Material());
 		lSpotLightChild->material->diffuseColor = vec4f(1.0f, 0.0f, 0.0f, 0.0f);
 		lSpotLightChild->material->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 		lSpotLightChild->mesh = Renderer::getUnitSphere();
@@ -124,9 +124,9 @@ public:
 		mPointLight->light->name = "pointy the point light";
 		mPointLight->camera = Renderer::getCameraEntity()->camera;
 		mPointLight->castShadow = true;
-		auto lPointLightChild = std::make_shared<Entity>();
+		auto lPointLightChild = std::shared_ptr<Entity>(new Entity());
 		lPointLightChild->castShadow = false;
-		lPointLightChild->material = std::make_shared<Material>();
+		lPointLightChild->material = std::shared_ptr<Material>(new Material());
 		lPointLightChild->material->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.0f);
 		lPointLightChild->material->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 		lPointLightChild->mesh = Renderer::getUnitSphere();
@@ -152,7 +152,7 @@ private:
 
 	std::shared_ptr<gintonic::Entity> mSphere;
 
-	std::shared_ptr<gintonic::Entity> mDirectionalLight = std::make_shared<gintonic::Entity>
+	std::shared_ptr<gintonic::Entity> mDirectionalLight = std::shared_ptr<gintonic::Entity>(new gintonic::Entity
 	(
 		"DefaultDirectionalLight",
 		gintonic::SQT
@@ -165,9 +165,9 @@ private:
 			), 
 			gintonic::vec3f(0.0f, 0.0f, 0.0f)
 		)
-	);
+	));
 
-	std::shared_ptr<gintonic::Entity> mSpotLight = std::make_shared<gintonic::Entity>
+	std::shared_ptr<gintonic::Entity> mSpotLight = std::shared_ptr<gintonic::Entity>(new gintonic::Entity
 	(
 		"spotty",
 		gintonic::SQT
@@ -180,9 +180,9 @@ private:
 			),
 			gintonic::vec3f(-1.0f, 6.0f, 1.0f)
 		)
-	);
+	));
 
-	std::shared_ptr<gintonic::Entity> mPointLight = std::make_shared<gintonic::Entity>
+	std::shared_ptr<gintonic::Entity> mPointLight = std::shared_ptr<gintonic::Entity>(new gintonic::Entity
 	(
 		"pointy",
 		gintonic::SQT
@@ -195,7 +195,7 @@ private:
 			),
 			gintonic::vec3f(2.0f, 6.0f, -2.0f)
 		)
-	);
+	));
 
 	std::shared_ptr<gintonic::Entity> mDefaultCamera;
 

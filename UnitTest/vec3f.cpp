@@ -10,6 +10,39 @@
 
 using namespace gintonic;
 
+BOOST_AUTO_TEST_CASE ( alignment_issues )
+{
+	char dummy0;
+	vec3f v0;
+	BOOST_CHECK(isAligned(&v0));
+	char dummy1;
+	vec3f v1;
+	BOOST_CHECK(isAligned(&v1));
+	char dummy2;
+	vec3f v2;
+	BOOST_CHECK(isAligned(&v2));
+	char dummy3;
+	vec3f v3;
+	BOOST_CHECK(isAligned(&v3));
+	char dummy4;
+	auto v4 = v0 + v1;
+	BOOST_CHECK(isAligned(&v4));
+	char dummy5;
+	auto v5 = v2 + v3;
+	BOOST_CHECK(isAligned(&v5));
+	char dummy6;
+	auto v6 = v4 - v5;
+	BOOST_CHECK(isAligned(&v6));
+	
+	auto ptr0 = std::make_unique<vec3f>(1.0f, 2.0f, 3.0f);
+	auto ptr1 = std::make_unique<vec3f>(2.0f, 4.0f, 5.0f);
+	auto ptr2 = std::make_unique<vec3f>(8.0f, 6.0f, 0.0f);
+
+	BOOST_CHECK(isAligned(ptr0.get()));
+	BOOST_CHECK(isAligned(ptr1.get()));
+	BOOST_CHECK(isAligned(ptr2.get()));
+}
+
 BOOST_AUTO_TEST_CASE( constructor_test )
 {
 	vec3f a(1.0f, 0.0f, 0.0f);

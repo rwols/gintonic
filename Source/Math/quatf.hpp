@@ -34,7 +34,7 @@ union vec3f; // Forward declaration.
 /**
  * @brief Represents a quaternion.
  */
-union alignas(16) quatf
+union alignas(__m128) quatf
 {
 private:
 

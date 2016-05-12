@@ -11,12 +11,12 @@ public:
 	{
 		using namespace gintonic;
 
-		auto lMaterial = std::make_shared<Material>();
+		auto lMaterial = std::shared_ptr<Material>(new Material());
 		lMaterial->name = "RuralBrickWall";
 		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.0f);
 		lMaterial->specularColor = vec4f(1.0f, 1.0f, 1.0f, 8.0f);
-		lMaterial->diffuseTexture = std::make_shared<Texture2D>("Resources/RuralBrickWall.jpg");
-		mCubeEntity = std::make_shared<Entity>("Cube");
+		lMaterial->diffuseTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/RuralBrickWall.jpg"));
+		mCubeEntity = std::shared_ptr<Entity>(new Entity("Cube"));
 		mCubeEntity->material = lMaterial;
 		mCubeEntity->mesh = Renderer::getUnitCube();
 

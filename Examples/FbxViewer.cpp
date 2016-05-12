@@ -202,7 +202,7 @@ public:
 			lLight->setIntensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 			lLight->name = "DefaultDirectionalLight";
 
-			auto lLightEntity = std::make_shared<gintonic::Entity>
+			auto lLightEntity = std::shared_ptr<gintonic::Entity>(new Entity
 			(
 				"DefaultDirectionalLight", 
 				SQT
@@ -215,7 +215,7 @@ public:
 					), 
 					vec3f(0.0f, 0.0f, 0.0f)
 				)
-			);
+			));
 			lLightEntity->light = lLight;
 			mRootEntity->addChild(lLightEntity);
 		}

@@ -82,7 +82,7 @@ Material::Material(
 : diffuseColor(diffuseColor)
 , specularColor(specularColor)
 {
-	diffuseTexture = std::make_shared<Texture2D>(diffuse_texture);
+	diffuseTexture = std::shared_ptr<Texture2D>(new Texture2D(diffuse_texture));
 }
 
 Material::Material(
@@ -93,8 +93,8 @@ Material::Material(
 : diffuseColor(diffuseColor)
 , specularColor(specularColor)
 {
-	diffuseTexture = std::make_shared<Texture2D>(diffuse_texture);
-	specularTexture = std::make_shared<Texture2D>(specular_texture);
+	diffuseTexture = std::shared_ptr<Texture2D>(new Texture2D(diffuse_texture));
+	specularTexture = std::shared_ptr<Texture2D>(new Texture2D(specular_texture));
 }
 
 Material::Material(
@@ -106,9 +106,9 @@ Material::Material(
 : diffuseColor(diffuseColor)
 , specularColor(specularColor)
 {
-	diffuseTexture = std::make_shared<Texture2D>(diffuse_texture);
-	specularTexture = std::make_shared<Texture2D>(specular_texture);
-	normalTexture = std::make_shared<Texture2D>(normal_texture);
+	diffuseTexture = std::shared_ptr<Texture2D>(new Texture2D(diffuse_texture));
+	specularTexture = std::shared_ptr<Texture2D>(new Texture2D(specular_texture));
+	normalTexture = std::shared_ptr<Texture2D>(new Texture2D(normal_texture));
 }
 
 Material::Material(
@@ -151,7 +151,7 @@ Material::Material(const FbxSurfaceMaterial* pFbxMaterial)
 	if (lNumDiffuseTextures)
 	{
 		auto pFbxTexture = getFbxTexture(pFbxMaterial, FbxSurfaceMaterial::sDiffuse, 0);
-		diffuseTexture = std::make_shared<Texture2D>(pFbxTexture);
+		diffuseTexture = std::shared_ptr<Texture2D>(new Texture2D(pFbxTexture));
 		std::cerr << "\tDiffuse texture: " << diffuseTexture->name << '\n';
 	}
 	else
@@ -161,7 +161,7 @@ Material::Material(const FbxSurfaceMaterial* pFbxMaterial)
 	if (lNumSpecularTextures)
 	{
 		auto pFbxTexture = getFbxTexture(pFbxMaterial, FbxSurfaceMaterial::sSpecular, 0);
-		specularTexture = std::make_shared<Texture2D>(pFbxTexture);
+		specularTexture = std::shared_ptr<Texture2D>(new Texture2D(pFbxTexture));
 		std::cerr << "\tSpecular texture: " << specularTexture->name << '\n';
 	}
 	else
@@ -171,7 +171,7 @@ Material::Material(const FbxSurfaceMaterial* pFbxMaterial)
 	if (lNumNormalTextures)
 	{
 		auto pFbxTexture = getFbxTexture(pFbxMaterial, FbxSurfaceMaterial::sNormalMap, 0);
-		normalTexture = std::make_shared<Texture2D>(pFbxTexture);
+		normalTexture = std::shared_ptr<Texture2D>(new Texture2D(pFbxTexture));
 		std::cerr << "\tNormal texture: " << normalTexture->name << '\n';
 	}
 	else
