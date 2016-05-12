@@ -1,4 +1,4 @@
-#include "Application.hpp"
+#include "Common/Application.hpp"
 
 #define APPNAME "PointLights"
 

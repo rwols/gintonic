@@ -232,7 +232,7 @@ public:
 	 * @brief Get the entities of this Octree and of its children too.
 	 * @tparam OutputIter The output iterator type.
 	 * @param iter An output iterator.
-	 * @filter A filter to apply to each entity within the search result.
+	 * @param filter A filter to apply to each entity within the search result.
 	 * If the filter returns true, then the entity is added to the result set.
 	 * Otherwise it is discarded.
 	 */
@@ -243,7 +243,7 @@ public:
 	 * @brief Get the entities of this Octree and of its children too.
 	 * @tparam OutputIter The output iterator type.
 	 * @param iter An output iterator.
-	 * @filter A filter to apply to each entity within the search result.
+	 * @param filter A filter to apply to each entity within the search result.
 	 * If the filter returns true, then the entity is added to the result set.
 	 * Otherwise it is discarded.
 	 */
@@ -257,7 +257,7 @@ public:
 	 * number of entities in the tree. This is the non-const version, so
 	 * you'll get a container of mutable entities.
 	 * @param volume The volume to fetch all entities from.
-	 * @iter An output iterator to store the results.
+	 * @param iter An output iterator to store the results.
 	 */
 	template <class OutputIter>
 	void query(const box3f& volume, OutputIter iter);
@@ -269,7 +269,7 @@ public:
 	 * number of entities in the tree. This is the const version, so you'll 
 	 * get a container of immutable entities.
 	 * @param volume The volume to fetch all entities from.
-	 * @iter An output iterator to store the results.
+	 * @param iter An output iterator to store the results.
 	 */
 	template <class OutputIter>
 	void query(const box3f& volume, OutputIter iter) const;
@@ -281,8 +281,8 @@ public:
 	 * number of entities in the tree. This is the const version, so you'll 
 	 * get a container of immutable entities.
 	 * @param volume The volume to fetch all entities from.
-	 * @iter An output iterator to store the results.
-	 * @filter A filter to apply to each entity within the search result.
+	 * @param iter An output iterator to store the results.
+	 * @param filter A filter to apply to each entity within the search result.
 	 * If the filter returns true, then the entity is added to the result set.
 	 * Otherwise it is discarded.
 	 */
@@ -296,8 +296,8 @@ public:
 	 * number of entities in the tree. This is the const version, so you'll 
 	 * get a container of immutable entities.
 	 * @param volume The volume to fetch all entities from.
-	 * @iter An output iterator to store the results.
-	 * @filter A filter to apply to each entity within the search result.
+	 * @param iter An output iterator to store the results.
+	 * @param filter A filter to apply to each entity within the search result.
 	 * If the filter returns true, then the entity is added to the result set.
 	 * Otherwise it is discarded.
 	 */
@@ -360,20 +360,6 @@ public:
 	 * @return The root of the octree node.
 	 */
 	const Octree* getRoot() const noexcept;
-
-	// Notify the Octree that an Entity's global bounding box
-	// has changed. This can result in possibly mutating the tree,
-	// even changing the parent.
-	
-	/**
-	 * @brief Notify this Octree node that the Entity has moved.
-	 * @deprecated We probably want to use an event system for this. An
-	 * Entity right now has an event that fires when its global transform has
-	 * changed so the Octree should probably just subscribe to that event and
-	 * do its thing via this route.
-	 * @param entity The Entity whose global transform has changed.
-	 */
-	// void notify(std::shared_ptr<Entity> entity);
 
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 

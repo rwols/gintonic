@@ -1,5 +1,5 @@
 #include "gintonic.hpp"
-#include "Application.hpp"
+#include "Common/Application.hpp"
 #include "Graphics/GUI/Panel.hpp"
 #include "Graphics/GUI/StringView.hpp"
 #include "Graphics/GUI/StringPointerView.hpp"
