@@ -42,7 +42,7 @@
  * for your class to get your class aligned on a memory boundary.
  * @param alignment The memory boundary alignment. Usual values are 16 or 128.
  */
-#ifdef BOOST_MSVC
+#if defined(BOOST_MSVC) || defined(__APPLE__)
 #define GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(alignment)               \
 inline static void* operator new(std::size_t count)                          \
 {                                                                            \
