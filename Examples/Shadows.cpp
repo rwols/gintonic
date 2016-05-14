@@ -209,10 +209,7 @@ private:
 		using namespace gintonic;
 		if (Renderer::keyTogglePress(SDL_SCANCODE_L))
 		{
-			// mCameraRespondsToKeyboard = mCameraRespondsToMouse = mSwitch;
 			mSwitch = !mSwitch;
-			// Renderer::setCameraEntity(mSwitch ? mSpotLight : mDefaultCamera);
-			// Renderer::setEntityDebugShadowBuffer(mSwitch ? mSpotLight : nullptr);
 			Renderer::setEntityDebugShadowBuffer(mSwitch ? mDirectionalLight : nullptr);
 		}
 		if (Renderer::key(SDL_SCANCODE_LEFT))
@@ -231,26 +228,9 @@ private:
 		if (Renderer::keyTogglePress(SDL_SCANCODE_O))
 		{
 			mDrawOctreeSwitch = !mDrawOctreeSwitch;
-		}
-		if (mDrawOctreeSwitch)
-		{
-			Renderer::debugDrawOctree(&mOctreeRoot);
-		}
-		else
-		{
-			Renderer::debugDrawOctree(nullptr);
+			Renderer::debugDrawOctree(mDrawOctreeSwitch ? &mOctreeRoot : nullptr);
 		}
 
-		// mDirectionalLight->setRotation
-		// (
-		// 	quatf::axis_angle
-		// 	(
-		// 		vec3f(1.0f, 0.0f, 0.0f),
-		// 		- F_PI * 0.5f + std::sin(mElapsedTime * 0.4f) * 0.5f
-		// 	)
-		// );
-		// mSpotLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, -2.0f));
-		// mDirectionalLight->setRotation(quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), -M_PI / 2.0f + std::sin(mElapsedTime)));
 		mSpotLight->setTranslation(vec3f(-4.0f * std::sin(mElapsedTime), 6.0f, 2.0f));
 		mSpotLight->setRotation(
 			quatf::look_at(
@@ -262,14 +242,10 @@ private:
 
 		std::vector<std::shared_ptr<Entity>> lNearbyEntities;
 		getNearbyEntities(Renderer::getCameraEntity(), 8.0f, std::back_inserter(lNearbyEntities));
-		// const float lDims = 4;
-		// const vec3f lCameraPos = vec3f((Renderer::getCameraEntity()->globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data);
-		// const box3f lQueryBox{lCameraPos + vec3f{-lDims, -lDims, -lDims}, lCameraPos + vec3f{lDims, lDims, lDims}};
-		// mOctreeRoot.query(lQueryBox, std::back_inserter(lNearbyEntities));
+		
 		for (const auto& lNearbyEntity : lNearbyEntities)
 		{
 			Renderer::cerr() << lNearbyEntity->name << " is near!\n";
-				// << lNearbyEntity->globalBoundingBox() << " has distance " << << '\n';
 		}
 	}
 
