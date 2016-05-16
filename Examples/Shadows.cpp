@@ -235,7 +235,7 @@ private:
 		mSpotLight->setRotation(
 			quatf::look_at(
 				mSpotLight->localTransform().translation, 
-				mSphere->localTransform().translation, 
+				mSphere->localTransform().translation,  
 				vec3f(0.0f, 1.0f, 0.0f)));
 		mPointLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, -2.0f));
 		mSphere->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mDeltaTime / 10.0f));
