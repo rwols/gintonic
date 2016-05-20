@@ -104,16 +104,16 @@ if [ $? -ne $SUCCESS ] ; then
 fi
 
 # Install FBX SDK
-# FBX_INSTALL="fbx${FBX_VERSION}_fbxsdk_linux"
-# FBX_TAR="${FBX_INSTALL}.tar.gz"
-# FBX_DOWNLOAD_FOLDER='http://images.autodesk.com/adsk/files'
-# wget -O $FBX_TAR $FBX_DOWNLOAD_FOLDER/$FBX_TAR
-# tar -xf $FBX_TAR
-# sudo ./$FBX_INSTALL $FBX_INSTALL_PREFIX
-# if [ $? -eq $SUCCESS ]; then
-# 	continue
-# else
-# 	exit $FBX_INSTALLATION_FAILED
+FBX_INSTALL="fbx${FBX_VERSION}_fbxsdk_linux"
+FBX_TAR="${FBX_INSTALL}.tar.gz"
+FBX_DOWNLOAD_FOLDER='http://images.autodesk.com/adsk/files'
+wget -O $FBX_TAR $FBX_DOWNLOAD_FOLDER/$FBX_TAR
+tar -xf $FBX_TAR
+sudo ./$FBX_INSTALL $FBX_INSTALL_PREFIX
+if [ $? -eq $SUCCESS ]; then
+	continue
+else
+	exit $FBX_INSTALLATION_FAILED
 fi
 
 # Go back to our source directory.

@@ -121,21 +121,22 @@ std::shared_ptr<Entity> FbxImporter::loadEntities(
 
 std::vector<AnimStack> FbxImporter::loadAnimations()
 {
-	const int lAnimStackCount = mScene->GetSrcObjectCount<FbxAnimStack>();
-	std::vector<AnimStack> lResult;
-	lResult.reserve(lAnimStackCount);
-	for (int i = 0; i < lAnimStackCount; ++i)
-	{
-		FbxAnimStack* lAnimStack = (FbxAnimStack*)mScene->GetSrcObject<FbxAnimStack>(i);
-		FbxAnimEvaluator* lAnimEvaluator = mScene->GetAnimationEvaluator();
-		// lAnimStack->GetName(); // Get the name of the animation if needed
-		const int lLayerCount = lAnimStack->GetMemberCount();
-		for (int j = 0; j < lLayerCount; ++j)
-		{
-			FbxAnimLayer* lAnimLayer = (FbxAnimLayer*)lAnimStack->GetMember(j);
-			// FbxAnimCurve* lTranslationCurve = 
-		}
-	}
+	THROW_NOT_IMPLEMENTED_EXCEPTION();
+	// const int lAnimStackCount = mScene->GetSrcObjectCount<FbxAnimStack>();
+	// std::vector<AnimStack> lResult;
+	// lResult.reserve(lAnimStackCount);
+	// for (int i = 0; i < lAnimStackCount; ++i)
+	// {
+	// 	FbxAnimStack* lAnimStack = (FbxAnimStack*)mScene->GetSrcObject<FbxAnimStack>(i);
+	// 	FbxAnimEvaluator* lAnimEvaluator = mScene->GetAnimationEvaluator();
+	// 	// lAnimStack->GetName(); // Get the name of the animation if needed
+	// 	const int lLayerCount = lAnimStack->GetMemberCount();
+	// 	for (int j = 0; j < lLayerCount; ++j)
+	// 	{
+	// 		FbxAnimLayer* lAnimLayer = (FbxAnimLayer*)lAnimStack->GetMember(j);
+			
+	// 	}
+	// }
 	return std::vector<AnimStack>();
 }
 

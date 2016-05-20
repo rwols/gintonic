@@ -72,17 +72,17 @@ struct Triangle
 	}
 };
 
-std::ostream& operator << (std::ostream& os, const Triangle& triangle)
-{
-	return os << '[' << triangle[0] 
-		<< ", " << triangle[1] 
-		<< ", " << triangle[2] << ']';
-}
+// std::ostream& operator << (std::ostream& os, const Triangle& triangle)
+// {
+// 	return os << '[' << triangle[0] 
+// 		<< ", " << triangle[1] 
+// 		<< ", " << triangle[2] << ']';
+// }
 
-std::ostream& operator << (std::ostream& os, const Edge& edge)
-{
-	return os << '[' << edge.first << " -> " << edge.second << ']';
-}
+// std::ostream& operator << (std::ostream& os, const Edge& edge)
+// {
+// 	return os << '[' << edge.first << " -> " << edge.second << ']';
+// }
 
 struct NeighborPair
 {
@@ -768,7 +768,7 @@ void Mesh::set(FbxMesh* pFbxMesh)
 		if (!lEdgeToNeighborMap[e3].addNeighbor(&(*lInsertionResult))) lMoreThan2Neighbors = true;
 	}
 
-	assert(pFbxMesh->GetPolygonVertexCount() == mIndices.size());
+	assert(pFbxMesh->GetPolygonVertexCount() == static_cast<int>(mIndices.size()));
 
 	mIndicesAdjacent.clear();
 
@@ -1143,9 +1143,9 @@ void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>&
 
 	buildBonesRecursive(lRootBone, -1, lIndexToBoneMap, lBoneToClusterMap);
 
-	assert(bones.size() == lBoneCount);
+	assert(static_cast<Mesh::Bone::IndexType>(bones.size()) == lBoneCount);
 
-	for (Bone::IndexType i = 0; i < bones.size(); ++i)
+	for (Bone::IndexType i = 0; i < static_cast<Mesh::Bone::IndexType>(bones.size()); ++i)
 	{
 		const auto r1 = lIndexToBoneMap.find(i);
 		assert(r1 != lIndexToBoneMap.end());

@@ -42,7 +42,7 @@
  * for your class to get your class aligned on a memory boundary.
  * @param alignment The memory boundary alignment. Usual values are 16 or 128.
  */
-#if defined(BOOST_MSVC) || defined(__APPLE__)
+// #if defined(BOOST_MSVC) || defined(__APPLE__)
 #define GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(alignment)               \
 inline static void* operator new(std::size_t count)                          \
 {                                                                            \
@@ -63,38 +63,8 @@ inline static void operator delete(void* ptr, std::size_t count)             \
 inline static void operator delete[](void* ptr, std::size_t count)           \
 {                                                                            \
 	_mm_free(ptr);                                                           \
-}   
-#else // BOOST_MSVC
-#define GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(alignment)               \
-inline static void* operator new(std::size_t count)                          \
-{                                                                            \
-	return _mm_malloc(count, alignment);                                     \
-}                                                                            \
-inline static void operator delete(void* ptr)                                \
-{                                                                            \
-	_mm_free(ptr);                                                           \
-}                                                                            \
-inline static void* operator new[](std::size_t count)                        \
-{                                                                            \
-	return _mm_malloc(count, alignment);                                     \
-}                                                                            \
-inline static void operator delete[](void* ptr)                              \
-{                                                                            \
-	_mm_free(ptr);                                                           \
-}                                                                            \
-inline static void* operator new(std::size_t count, void* ptr)               \
-{                                                                            \
-	return ptr;                                                              \
-}                                                                            \
-// inline static void operator delete(void* ptr, std::size_t count)             
-// {                                                                            
-// 	_mm_free(ptr);                                                           
-// }                                                                            
-// inline static void operator delete[](void* ptr, std::size_t count)           
-// {                                                                            
-// 	_mm_free(ptr);                                                           
-// }                                                                            
-#endif // BOOST_MSVC
+}
+
 
 /**
  * @brief The memory boundary of an SSE type.

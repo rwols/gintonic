@@ -89,10 +89,15 @@ option(HIDE_CONSOLE "Hide the console on Windows." ON)
 
 option(REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE "Redirect the standard output to the renderer's error stream." ${ENABLE_DEBUG_TRACE})
 
+option(USE_NEW_CLANG_CPP_LIB "Use libc++ instead of stdlib." OFF)
+
 if (WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /D_SCL_SECURE_NO_WARNINGS /DNOMINMAX /D_USE_MATH_DEFINES /DBOOST_ALL_NO_LIB /arch:SSE")
 else ()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -std=c++14 -Wall -msse3")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -msse3")
+	if (USE_NEW_CLANG_CPP_LIB)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+	endif ()
 endif ()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -158,7 +163,8 @@ else ()
 		${FREETYPE_LIBRARIES}
 		${FBX_LIBRARY} 
 		${CMAKE_THREAD_LIBS_INIT}
-		-ldl)
+		-ldl
+		-lstdc++)
 endif ()
 
 add_subdirectory (Tools)

@@ -823,7 +823,7 @@ void Renderer::renderGeometry() noexcept
 		lMaterialShaderProgram.setMatrixN(matrix_N());
 
 
-		for (lNumBones = 0; lNumBones < lEntity->mesh->bones.size(); ++lNumBones)
+		for (lNumBones = 0; lNumBones < static_cast<Mesh::Bone::IndexType>(lEntity->mesh->bones.size()); ++lNumBones)
 		{
 			matrixBs[lNumBones] = lEntity->mesh->evaluateBoneAtTime(lNumBones, 0.0f);
 			matrixBNs[lNumBones] = matrixBs[lNumBones].upperLeft33().invert().transpose();
@@ -867,7 +867,7 @@ void Renderer::renderGeometry() noexcept
 		lMaterialShaderProgram.setMatrixVM(matrix_VM());
 		lMaterialShaderProgram.setMatrixN(matrix_N());
 
-		for (lNumBones = 0; lNumBones < lEntity->mesh->bones.size(); ++lNumBones)
+		for (lNumBones = 0; lNumBones < static_cast<Mesh::Bone::IndexType>(lEntity->mesh->bones.size()); ++lNumBones)
 		{
 			matrixBs[lNumBones] = lEntity->mesh->evaluateBoneAtTime(lNumBones, 0.0f);
 			matrixBNs[lNumBones] = matrixBs[lNumBones].upperLeft33().invert().transpose();

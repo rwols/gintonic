@@ -43,30 +43,6 @@ public:                                                                         
 	}                                                                                        \
 };
 
-// #define GT_DEFINE_UNIFORM_ARRAY(UNIFORM_TYPE, UNIFORM_NAME, UNIFORM_NAME_WITH_FIRST_CAPITAL) \
-// /** @brief Class that encapsulates a uniform variable in a shader. */                        \
-// class UNIFORM_NAME : virtual public OpenGL::ShaderProgram                                    \
-// {                                                                                            \
-// private:                                                                                     \
-// 	GLuint mLocation;                                                                        \
-// protected:                                                                                   \
-// 	UNIFORM_NAME()                                                                           \
-// 	{                                                                                        \
-// 		mLocation = getUniformLocation(GT_STRINGIFY(UNIFORM_NAME));                          \
-// 	}                                                                                        \
-// 	virtual ~UNIFORM_NAME() noexcept = default;                                              \
-// public:                                                                                      \
-// 	/**                                                                                      \
-// 	 * @brief Set the value of the UNIFORM_NAME uniform in the shader program.               \
-// 	 * @param [in] value The value to set.                                                   \
-// 	 */                                                                                      \
-// 	void GT_PASTE_TOGETHER(set, UNIFORM_NAME_WITH_FIRST_CAPITAL)                             \
-// 		(UNIFORM_TYPE value) const noexcept                                                  \
-// 	{                                                                                        \
-// 		setUniform(mLocation, value);                                                        \
-// 	}                                                                                        \
-// };
-
 GT_DEFINE_UNIFORM(const mat4f&, matrixPVM,                     MatrixPVM);
 GT_DEFINE_UNIFORM(const mat4f&, matrixVM,                      MatrixVM);
 GT_DEFINE_UNIFORM(const mat4f&, matrixPV,                      MatrixPV);

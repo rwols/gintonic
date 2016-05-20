@@ -16,7 +16,7 @@ public:
 		using namespace gintonic;
 
 		mCubeEntity = std::shared_ptr<Entity>(new Entity("Cube"));
-		mCubeEntity->material = std::shared_ptr<Material>();
+		mCubeEntity->material = std::shared_ptr<Material>(new Material());
 		mCubeEntity->material->name = "RuralBrickWall";
 		mCubeEntity->material->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
 		mCubeEntity->material->specularColor = vec4f(1.0f, 1.0f, 1.0f, 20.0f);

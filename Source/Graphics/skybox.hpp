@@ -25,7 +25,6 @@ public:
 	/**
 	 * @brief Constructor.
 	 * 
-	 * @param diffuse_texture A diffuse cube texture for the skybox.
 	 */
 	// skybox(OpenGL::cube_texture diffuse_texture);
 
