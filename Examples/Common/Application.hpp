@@ -53,20 +53,28 @@ private:
 #define DEFINE_MAIN(DerivedApplicationName)                         \
 int main(int argc, char* argv[])                                    \
 {                                                                   \
+	DEBUG_PRINT;                                                    \
 	try                                                             \
 	{                                                               \
+		DEBUG_PRINT;                                                \
 		DerivedApplicationName lDerivedApplicationName(argc, argv); \
+		DEBUG_PRINT;                                                \
 		while (lDerivedApplicationName.shouldClose() == false)      \
 		{                                                           \
 			lDerivedApplicationName.renderUpdate();                 \
 		}                                                           \
+		DEBUG_PRINT;                                                \
 	}                                                               \
 	catch (const std::exception& lException)                        \
 	{                                                               \
+		DEBUG_PRINT;                                                \
 		std::cerr << lException.what() << '\n';                     \
+		DEBUG_PRINT;                                                \
 		GT_FINALIZE_PROFILING;                                      \
+		DEBUG_PRINT;                                                \
 		return EXIT_FAILURE;                                        \
 	}                                                               \
+	DEBUG_PRINT;                                                    \
 	GT_FINALIZE_PROFILING;                                          \
 	return EXIT_SUCCESS;                                            \
 }

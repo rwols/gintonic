@@ -60,8 +60,8 @@ private:
 	virtual void onRenderUpdate() final
 	{
 		using namespace gintonic;
-		mCubeEntity->postMultiplyRotation(quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), mDeltaTime / 10.0f));
-		mCubeEntity->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mDeltaTime / 5.0f));
+		mCubeEntity->postMultiplyRotation(quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), static_cast<float>(mDeltaTime) / 10.0f));
+		mCubeEntity->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), static_cast<float>(mDeltaTime) / 5.0f));
 	}
 
 };

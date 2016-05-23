@@ -294,8 +294,14 @@ public:
 
 		Bone() = default;
 
-		Bone(NameType name, const IndexType parent, const TransformType& localTransform)
-		: name(std::move(name)), parent(parent), localTransform(localTransform) {}
+		template <class A, class B, class C>
+		Bone(A&& name, B&& parent, C&& localTransform)
+		: name(std::forward<A>(name))
+		, parent(std::forward<B>(parent))
+		, localTransform(std::forward<C>(localTransform))
+		{
+			/* Empty on purpose. */
+		}
 
 		GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 		

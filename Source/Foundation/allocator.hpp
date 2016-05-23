@@ -128,7 +128,7 @@ public:
 	template <typename U> inline allocator(const allocator<U, Alignment>&) {}
 
 	/// Default destructor does nothing interesting.
-	inline ~allocator() {}
+	inline ~allocator() noexcept = default;
 
 	/**
 	 * @brief Allocate a number of objects.

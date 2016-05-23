@@ -36,10 +36,10 @@ private:
 	{
 		using namespace gintonic;
 
-		const auto lYAxis = (1.0f + std::cos(mElapsedTime)) / 2.0f;
-		const auto lZAxis = (1.0f + std::sin(mElapsedTime)) / 2.0f;
+		const auto lYAxis = (1.0f + std::cos(static_cast<float>(mElapsedTime))) / 2.0f;
+		const auto lZAxis = (1.0f + std::sin(static_cast<float>(mElapsedTime))) / 2.0f;
 		const auto lRotationAxis = vec3f(0.0f, lYAxis, lZAxis).normalize();
-		const auto lQuaternion = quatf::axis_angle(lRotationAxis, -mElapsedTime / 4.0f);
+		const auto lQuaternion = quatf::axis_angle(lRotationAxis, -static_cast<float>(mElapsedTime) / 4.0f);
 
 		mCubeEntity->setRotation(lQuaternion);
 		mCubeEntity->material->diffuseColor.x = lYAxis;

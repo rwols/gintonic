@@ -701,9 +701,9 @@ void Mesh::set(FbxMesh* pFbxMesh)
 
 			if (lHasTangents) lSlot2Entry = {T.x, T.y, T.z, lHandedness};
 
-			Mesh::vec3f lPosition(lFbxPosition[0], lFbxPosition[1], lFbxPosition[2]);
+			Mesh::vec3f lPosition(static_cast<GLfloat>(lFbxPosition[0]), static_cast<GLfloat>(lFbxPosition[1]), static_cast<GLfloat>(lFbxPosition[2]));
 
-			const gintonic::vec3f lPositionAsGTVec(lFbxPosition[0], lFbxPosition[1], lFbxPosition[2]);
+			const gintonic::vec3f lPositionAsGTVec(static_cast<GLfloat>(lFbxPosition[0]), static_cast<GLfloat>(lFbxPosition[1]), static_cast<GLfloat>(lFbxPosition[2]));
 
 			// Add the position to the mesh's local bounding box.
 			mLocalBoundingBox.addPoint(lPositionAsGTVec);

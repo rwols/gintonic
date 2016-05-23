@@ -144,7 +144,7 @@ private:
 			lBoolMatrix.push_back(std::vector<bool>(2 * mNumObjects + 1));
 			for (int j  = -mNumObjects; j <= mNumObjects; ++j)
 			{
-				lBoolMatrix[i + mNumObjects][j + mNumObjects] = static_cast<bool>(std::rand() % 2);
+				lBoolMatrix[i + mNumObjects][j + mNumObjects] = (std::rand() % 2) == 0;
 			}
 		}
 
@@ -201,7 +201,7 @@ private:
 	virtual void onRenderUpdate() final
 	{
 		using namespace gintonic;
-		mRootOfLights->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mDeltaTime));
+		mRootOfLights->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), static_cast<float>(mDeltaTime)));
 	}
 
 };

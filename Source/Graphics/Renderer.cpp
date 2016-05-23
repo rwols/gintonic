@@ -374,8 +374,12 @@ void Renderer::initialize(
 
 	// This may throw a Font::InitException when the font is not present.
 	sDebugFont = Font::create(FONT_FILE_LOCATION, lPointSize);
-	sDebugErrorStream = new FontStream();
-	sDebugLogStream = new FontStream();
+	sDebugErrorStream = (FontStream*) _mm_malloc(sizeof(FontStream), 16); // we want this on a 16-byte boundary.
+	sDebugLogStream   = (FontStream*) _mm_malloc(sizeof(FontStream), 16); // we want this on a 16-byte boundary.
+	new (sDebugErrorStream) FontStream(); // placement new
+	new (sDebugLogStream)   FontStream(); // placement new
+	// sDebugErrorStream = new FontStream();
+	// sDebugLogStream = new FontStream();
 
 	#ifdef ENABLE_DEBUG_TRACE
 	sDebugErrorStream->open(sDebugFont);
@@ -627,6 +631,34 @@ void Renderer::release()
 	{
 		delete sGeometryBuffer;
 		sGeometryBuffer = nullptr;
+	}
+	if (sDebugErrorStream)
+	{
+		try
+		{
+			// Explicitly call destructor.
+			sDebugErrorStream->~FontStream();	
+		}
+		catch (...)
+		{
+			// Absorb all exception.
+		}
+		_mm_free(sDebugErrorStream);
+		sDebugErrorStream = nullptr;
+	}
+	if (sDebugLogStream)
+	{
+		try
+		{
+			// Explicitly call destructor.
+			sDebugLogStream->~FontStream();	
+		}
+		catch (...)
+		{
+			// Absorb all exception.
+		}
+		_mm_free(sDebugLogStream);
+		sDebugErrorStream = nullptr;
 	}
 	if (sContext) // deletes shaders, textures, framebuffers, etc.
 	{

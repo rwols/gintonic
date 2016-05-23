@@ -5,7 +5,7 @@ Application::Application(const char* windowTitle, int argc, char** argv)
 	bool lFullscreen = true;
 	if (argc > 1)
 	{
-		lFullscreen = static_cast<bool>(std::atoi(argv[1]));
+		lFullscreen = std::atoi(argv[1]) != 0;
 	}
 	auto lCameraEntity = gintonic::Entity::create("DefaultCamera");
 	boost::filesystem::current_path(gintonic::get_executable_path());

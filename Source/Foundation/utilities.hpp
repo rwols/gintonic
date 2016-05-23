@@ -6,11 +6,13 @@
 
 #pragma once
 
-#include "simd.hpp"
 #include <cmath>
 #include <limits>
 #include <memory>
 #include <iostream>
+#include <cassert>
+
+#include "simd.hpp"
 #include "config.hpp"
 
 #ifdef BOOST_MSVC
@@ -52,15 +54,39 @@ inline static void* operator new[](std::size_t count)                        \
 {                                                                            \
 	return _mm_malloc(count, alignment);                                     \
 }                                                                            \
-inline static void* operator new(std::size_t count, void* ptr)               \
+inline static void* operator new(std::size_t count, void* here)              \
 {                                                                            \
-	return ptr;                                                              \
+	assert(isAligned(here, alignment));                                      \
+	return here;                                                             \
 }                                                                            \
-inline static void operator delete(void* ptr, std::size_t count)             \
+inline static void* operator new[](std::size_t count, void* here)            \
+{                                                                            \
+	assert(isAligned(here, alignment));                                      \
+	return here;                                                             \
+}                                                                            \
+inline static void operator delete(void* ptr)                                \
 {                                                                            \
 	_mm_free(ptr);                                                           \
 }                                                                            \
-inline static void operator delete[](void* ptr, std::size_t count)           \
+inline static void operator delete[](void* ptr)                              \
+{                                                                            \
+	_mm_free(ptr);                                                           \
+}                                                                            \
+inline static void operator delete(void* ptr, void* here)                    \
+{                                                                            \
+	assert(isAligned(here, alignment));                                      \
+	_mm_free(ptr);                                                           \
+}                                                                            \
+inline static void operator delete[](void* ptr, void* here)                  \
+{                                                                            \
+	assert(isAligned(here, alignment));                                      \
+	_mm_free(ptr);                                                           \
+}                                                                            \
+inline static void operator delete(void* ptr, std::size_t size)              \
+{                                                                            \
+	_mm_free(ptr);                                                           \
+}                                                                            \
+inline static void operator delete[](void* ptr, std::size_t size)            \
 {                                                                            \
 	_mm_free(ptr);                                                           \
 }

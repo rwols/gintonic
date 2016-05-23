@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( constructor_test )
 	SQT sqt;
 
 	sqt.scale = vec3f(1.0f, 1.0f, 1.0f);
-	sqt.rotation = quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), M_PI / 2.0f);
+	sqt.rotation = quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), static_cast<float>(M_PI) / 2.0f);
 	sqt.translation = vec3f(0.0f, 0.0f, 100.0f);
 
 	mat4f matFromSQT(sqt);
@@ -295,6 +295,11 @@ BOOST_AUTO_TEST_CASE ( various_functions_test )
 	BOOST_CHECK_CLOSE(farplane, recovered_farplane, 0.001f);
 }
 
+inline float randf()
+{
+	return static_cast<float>(rand());
+}
+
 BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 {
 	const float width = 1440.0f;
@@ -338,7 +343,7 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 			SQT
 			(
 				vec3f(1.0f, 1.0f, 1.0f),
-				quatf(rand(), rand(), rand(), rand()).normalize(),
+				quatf(randf(), randf(), randf(), randf()).normalize(),
 				createRandomVector3()
 			)
 		);
@@ -348,7 +353,7 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 			SQT
 			(
 				vec3f(1.0f, 1.0f, 1.0f),
-				quatf(rand(), rand(), rand(), rand()).normalize(),
+				quatf(randf(), randf(), randf(), randf()).normalize(),
 				createRandomVector3()
 			)
 		);
@@ -358,16 +363,16 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 			SQT
 			(
 				vec3f(1.0f, 1.0f, 1.0f),
-				quatf(rand(), rand(), rand(), rand()).normalize(),
+				quatf(randf(), randf(), randf(), randf()).normalize(),
 				createRandomVector3()
 			)
 		);
 
-		float lNearPlane = rand() % 100;
-		float lFarPlane  = lNearPlane + 1 + (rand() % 100);
+		float lNearPlane = static_cast<float>(rand() % 100);
+		float lFarPlane  = lNearPlane + 1.0f + static_cast<float>(rand() % 100);
 
-		lCameraEntity->camera->setWidth(100 + (rand() % 1000));
-		lCameraEntity->camera->setHeight(100 + (rand() % 1000));
+		lCameraEntity->camera->setWidth(100.0f + static_cast<float>(rand() % 1000));
+		lCameraEntity->camera->setHeight(100.0f + static_cast<float>(rand() % 1000));
 		lCameraEntity->camera->setNearPlane(lNearPlane);
 		lCameraEntity->camera->setFarPlane(lFarPlane);
 
@@ -378,11 +383,11 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 		const auto lCameraInverseView = lCameraEntity->globalTransform();
 		const auto lModel          = lGeometryEntity->globalTransform();
 
-		lNearPlane                 = rand() % 100;
-		lFarPlane                  = lNearPlane + 1 + (rand() % 100);
+		lNearPlane                 = static_cast<float>(rand() % 100);
+		lFarPlane                  = lNearPlane + static_cast<float>(1 + (rand() % 100));
 
 		mat4f lLightProjection;
-		lLightProjection.set_orthographic(1 + (rand() % 100), 1 + (rand() % 100), lNearPlane, lFarPlane);
+		lLightProjection.set_orthographic(1 + static_cast<float>(rand() % 100), 1 + static_cast<float>(rand() % 100), lNearPlane, lFarPlane);
 
 		mat4f lShouldBeAlmostIdentity;
 		mat4f lActualIndentity(1.0f);
@@ -425,16 +430,16 @@ BOOST_AUTO_TEST_CASE ( decomposition )
 	std::srand((int)std::clock());
 	for (int i = 0; i < 100000; ++i)
 	{
-		quatf lRotation(rand(), rand(), rand(), rand());
+		quatf lRotation(randf(), randf(), randf(), randf());
 
 
 		lRotation.normalize();
 
-		// vec3f lScale(rand(), rand(), rand());
+		// vec3f lScale(randf(), randf(), randf());
 		vec3f lScale(1.0f, 1.0f, 1.0f);
 		lScale.normalize();
 
-		vec3f lTranslation(rand(), rand(), rand());
+		vec3f lTranslation(randf(), randf(), randf());
 
 		quatf lRecoveredRotation;
 		vec3f lRecoveredScale, lRecoveredTranslation;

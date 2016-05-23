@@ -19,7 +19,7 @@ Texture2D::Texture2D(const FbxTexture* pFbxTexture)
 	{
 		loadFromFile(pFbxFileTexture->GetFileName());	
 	}
-	catch (const std::exception& e)
+	catch (const std::exception& /*lException*/)
 	{
 		// Failed! We try it one more time, but this time
 		// we take the parent path of the FbxScene's file, and

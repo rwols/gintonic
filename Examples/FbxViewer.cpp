@@ -211,7 +211,7 @@ public:
 					quatf::axis_angle
 					(
 						vec3f(1.0f, 0.0f, 0.0f), 
-						-M_PI / 2.0f + 1.0f
+						-static_cast<float>(M_PI) / 2.0f + 1.0f
 					), 
 					vec3f(0.0f, 0.0f, 0.0f)
 				)
@@ -233,7 +233,7 @@ private:
 		using namespace gintonic;
 		if (Renderer::key(SDL_SCANCODE_EQUALS))
 		{
-			mLightIntensity += mDeltaTime * INTENSITY_CHANGE_SPEED;
+			mLightIntensity += static_cast<float>(mDeltaTime) * INTENSITY_CHANGE_SPEED;
 			for (auto lEntity : mLights)
 			{
 				lEntity->light->setBrightness(mLightIntensity);
@@ -241,7 +241,7 @@ private:
 		}
 		if (Renderer::key(SDL_SCANCODE_MINUS))
 		{
-			mLightIntensity -= mDeltaTime * INTENSITY_CHANGE_SPEED;
+			mLightIntensity -= static_cast<float>(mDeltaTime) * INTENSITY_CHANGE_SPEED;
 
 			if (mLightIntensity < 0.0f)
 			{
@@ -253,7 +253,7 @@ private:
 				lEntity->light->setBrightness(mLightIntensity);
 			}
 		}
-		mModel->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mElapsedTime / 10.0f));
+		mModel->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), static_cast<float>(mElapsedTime) / 10.0f));
 	}
 };
 

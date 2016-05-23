@@ -67,7 +67,7 @@ public:
 			{
 				auto lClone = lFloor->cloneRecursive();
 				lClone->name = "Floor tile (" + std::to_string(i) + "," + std::to_string(j) + ")";
-				lClone->setTranslation(vec3f(2 * i, -1, 2 * j));
+				lClone->setTranslation(vec3f(static_cast<float>(2 * i), -1.0f, static_cast<float>(2 * j)));
 				mRootEntity->addChild(lClone);
 				mOctreeRoot.insert(lClone);
 			}
@@ -193,14 +193,14 @@ private:
 		}
 		if (Renderer::key(SDL_SCANCODE_LEFT))
 		{
-			mSpotlightAngle -= mDeltaTime * ANGLE_CHANGE_SPEED;
+			mSpotlightAngle -= static_cast<float>(mDeltaTime) * ANGLE_CHANGE_SPEED;
 			mSpotlightAngle = std::max(0.0f, mSpotlightAngle);
 			mSpotLight->light->setCosineHalfAngle(mSpotlightAngle);
 
 		}
 		if (Renderer::key(SDL_SCANCODE_RIGHT))
 		{
-			mSpotlightAngle += mDeltaTime * ANGLE_CHANGE_SPEED;
+			mSpotlightAngle += static_cast<float>(mDeltaTime) * ANGLE_CHANGE_SPEED;
 			mSpotlightAngle = std::min(1.0f, mSpotlightAngle);
 			mSpotLight->light->setCosineHalfAngle(mSpotlightAngle);
 		}
@@ -210,14 +210,14 @@ private:
 			Renderer::debugDrawOctree(mDrawOctreeSwitch ? &mOctreeRoot : nullptr);
 		}
 
-		mSpotLight->setTranslation(vec3f(-4.0f * std::sin(mElapsedTime), 6.0f, 2.0f));
+		mSpotLight->setTranslation(vec3f(-4.0f * std::sin(static_cast<float>(mElapsedTime)), 6.0f, 2.0f));
 		mSpotLight->setRotation(
 			quatf::look_at(
 				mSpotLight->localTransform().translation, 
 				mSphere->localTransform().translation,  
 				vec3f(0.0f, 1.0f, 0.0f)));
-		mPointLight->setTranslation(vec3f(4.0f * std::sin(mElapsedTime), 6.0f, -2.0f));
-		mSphere->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mDeltaTime / 10.0f));
+		mPointLight->setTranslation(vec3f(4.0f * std::sin(static_cast<float>(mElapsedTime)), 6.0f, -2.0f));
+		mSphere->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), static_cast<float>(mDeltaTime) / 10.0f));
 
 		std::vector<std::shared_ptr<Entity>> lNearbyEntities;
 		getNearbyEntities(Renderer::getCameraEntity(), 8.0f, std::back_inserter(lNearbyEntities));

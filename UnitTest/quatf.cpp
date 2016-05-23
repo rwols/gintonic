@@ -24,6 +24,11 @@ BOOST_CHECK_SMALL(val.w, tolerance);
 
 using namespace gintonic;
 
+float randf()
+{
+	return static_cast<float>(rand());
+}
+
 BOOST_AUTO_TEST_CASE( constructor_test )
 {
 
@@ -61,7 +66,7 @@ BOOST_AUTO_TEST_CASE ( inverses_and_conjugates )
 	std::srand((int)std::clock());
 	for (int i = 0; i < 1000000; ++i)
 	{
-		quatf lRotation(rand(), rand(), rand(), rand());
+		quatf lRotation(randf(), randf(), randf(), randf());
 		quatf lCopy0 = lRotation;
 		
 		const float lLengthSquared = lRotation.length2();

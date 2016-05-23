@@ -22,6 +22,11 @@ BOOST_CHECK_EQUAL(lhs->normalTexture->name, rhs->normalTexture->name);
 
 using namespace gintonic;
 
+float randf()
+{
+	return static_cast<float>(rand());
+}
+
 BOOST_AUTO_TEST_CASE( serialization_of_materials )
 {
 	Renderer::initialize("Dummy Context", nullptr, false, 1, 1, false, false, false);
@@ -34,8 +39,8 @@ BOOST_AUTO_TEST_CASE( serialization_of_materials )
 		boost::filesystem::path lTemporaryFilename = boost::filesystem::unique_path();
 		auto lMaterial = Material::create
 		(
-			vec4f(rand(), rand(), rand(), rand()),
-			vec4f(rand(), rand(), rand(), rand()),
+			vec4f(randf(), randf(), randf(), randf()),
+			vec4f(randf(), randf(), randf(), randf()),
 			"Resources/bricks.jpg", 
 			"Resources/bricks_SPEC.png", 
 			"Resources/bricks_NRM.png"
