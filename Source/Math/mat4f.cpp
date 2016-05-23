@@ -618,7 +618,7 @@ std::ostream& operator << (std::ostream& os, const mat4f& m)
 
 	const auto lTransposedCopy = mat4f(m).transpose();
 	std::aligned_storage<4 * sizeof(float), 16>::type lFloats;
-	std::size_t lFieldWidth(0);
+	std::char_traits<std::stringstream::char_type>::pos_type lFieldWidth{0};
 	for (int i = 0; i < 4; ++i)
 	{
 		_mm_store_ps(reinterpret_cast<float*>(&lFloats), lTransposedCopy.data[i]);

@@ -20,9 +20,19 @@ class Camera : public Object<Camera, std::string>
 {
 public:
 
+	template <class ...Args>
+	inline static SharedPtr create(Args&&... args)
+	{
+		return SharedPtr(new Camera(std::forward<Args>(args)...));
+	}
+
+private:
+
 	Camera() = default;
 	Camera(std::string name);
 	Camera(const FBXSDK_NAMESPACE::FbxCamera*);
+
+public:
 
 	virtual ~Camera() noexcept = default;
 

@@ -12,7 +12,7 @@ using namespace gintonic;
 
 BOOST_AUTO_TEST_CASE( main_test )
 {
-	auto lEntity = std::make_shared<Entity>();
+	auto lEntity = Entity::create();
 	const box3f lBoundingBox(vec3f(-128.0f, -128.0f, -128.0f), vec3f(128.0f, 128.0f, 128.0f));
 	Octree lRoot(lBoundingBox);
 	lRoot.insert(lEntity);

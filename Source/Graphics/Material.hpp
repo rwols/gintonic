@@ -46,8 +46,16 @@ public:
 
 	//@{
 	
+	template <class ...Args>
+	inline static SharedPtr create(Args&&... args)
+	{
+		return SharedPtr(new Material(std::forward<Args>(args)...));
+	}
+	
 	/// Destructor.
 	virtual ~Material() noexcept = default;
+
+private:
 
 	/**
 	 * @brief Default constructor.
@@ -140,6 +148,8 @@ public:
 	 * @param fbxmat The FBX material.
 	 */
 	Material(const FBXSDK_NAMESPACE::FbxSurfaceMaterial* fbxmat);
+
+public:
 
 	//@}
 

@@ -41,11 +41,11 @@ public:
 	{
 		using namespace gintonic;
 
-		auto lBricksDiffuseTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/bricks.jpg"));
-		auto lBricksSpecularTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/bricks_SPEC.png"));
-		auto lBricksNormalTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/bricks_NRM.png"));
+		auto lBricksDiffuseTexture = Texture2D::create("Resources/bricks.jpg");
+		auto lBricksSpecularTexture = Texture2D::create("Resources/bricks_SPEC.png");
+		auto lBricksNormalTexture = Texture2D::create("Resources/bricks_NRM.png");
 
-		auto lMaterial = std::shared_ptr<Material>(new Material());
+		auto lMaterial = Material::create();
 		lMaterial->name = "Bricks";
 		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
 		lMaterial->specularColor = vec4f(0.3f, 0.3f, 0.3f, 20.0f);
@@ -53,7 +53,7 @@ public:
 		lMaterial->specularTexture = lBricksSpecularTexture;
 		lMaterial->normalTexture = lBricksNormalTexture;
 
-		auto lFloor = std::shared_ptr<Entity>(new Entity());
+		auto lFloor = Entity::create();
 		lFloor->material = lMaterial;
 		lFloor->mesh = Renderer::getUnitCubeWithTangents();
 		lFloor->castShadow = true;
@@ -73,7 +73,7 @@ public:
 			}
 		}
 
-		mSphere = std::shared_ptr<Entity>(new Entity());
+		mSphere = Entity::create();
 		mSphere->name = "Sphere";
 		mSphere->material = lMaterial;
 		mSphere->mesh = Renderer::getUnitCubeWithTangents();
@@ -82,51 +82,30 @@ public:
 		mRootEntity->addChild(mSphere);
 		mOctreeRoot.insert(mSphere);
 
-		mDirectionalLight->light = std::shared_ptr<Light>
-		(
-			new DirectionalLight
-			(
-				vec4f(1.0f, 1.0f, 1.0f, 0.1f) // Intensity
-			)
-		);
+		mDirectionalLight->light = DirectionalLight::create(vec4f(1.0f, 1.0f, 1.0f, 0.1f));
 		mDirectionalLight->light->name = "DirectionalLight";
 		mDirectionalLight->castShadow = true;
 		
-		mSpotLight->light = std::shared_ptr<Light>
-		(
-			new SpotLight
-			(
-				vec4f(1.0f, 0.0f, 0.0f, 10.0f),  // Intensity
-				vec4f(0.1f, 0.4f, 0.5f, 4.0f),   // Attenuation
-				SPOTLIGHT_HALF_ANGLE_START_VALUE // Angle
-			)
-		);
+		mSpotLight->light = SpotLight::create(vec4f(1.0f, 0.0f, 0.0f, 10.0f), vec4f(0.1f, 0.4f, 0.5f, 4.0f), SPOTLIGHT_HALF_ANGLE_START_VALUE);
 		mSpotLight->light->name = "spotty the spotlight";
 		mSpotLight->camera = Renderer::getCameraEntity()->camera;
 		mSpotLight->castShadow = true;
 
-		auto lSpotLightChild = std::shared_ptr<Entity>(new Entity());
+		auto lSpotLightChild = Entity::create();
 		lSpotLightChild->castShadow = false;
-		lSpotLightChild->material = std::shared_ptr<Material>(new Material());
+		lSpotLightChild->material = Material::create();
 		lSpotLightChild->material->diffuseColor = vec4f(1.0f, 0.0f, 0.0f, 0.0f);
 		lSpotLightChild->material->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 		lSpotLightChild->mesh = Renderer::getUnitSphere();
 		mSpotLight->addChild(lSpotLightChild);
 
-		mPointLight->light = std::shared_ptr<Light>
-		(
-			new PointLight
-			(
-				vec4f(1.0f, 1.0f, 1.0f, 10.0f),  // Intensity
-				vec4f(0.1f, 0.4f, 0.5f, 4.0f)    // Attenuation
-			)
-		);
+		mPointLight->light = PointLight::create(vec4f(1.0f, 1.0f, 1.0f, 10.0f), vec4f(0.1f, 0.4f, 0.5f, 4.0f));
 		mPointLight->light->name = "pointy the point light";
 		mPointLight->camera = Renderer::getCameraEntity()->camera;
 		mPointLight->castShadow = true;
-		auto lPointLightChild = std::shared_ptr<Entity>(new Entity());
+		auto lPointLightChild = Entity::create();
 		lPointLightChild->castShadow = false;
-		lPointLightChild->material = std::shared_ptr<Material>(new Material());
+		lPointLightChild->material = Material::create();
 		lPointLightChild->material->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.0f);
 		lPointLightChild->material->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 		lPointLightChild->mesh = Renderer::getUnitSphere();
@@ -152,7 +131,7 @@ private:
 
 	std::shared_ptr<gintonic::Entity> mSphere;
 
-	std::shared_ptr<gintonic::Entity> mDirectionalLight = std::shared_ptr<gintonic::Entity>(new gintonic::Entity
+	std::shared_ptr<gintonic::Entity> mDirectionalLight = gintonic::Entity::create
 	(
 		"DefaultDirectionalLight",
 		gintonic::SQT
@@ -165,9 +144,9 @@ private:
 			), 
 			gintonic::vec3f(0.0f, 0.0f, 0.0f)
 		)
-	));
+	);
 
-	std::shared_ptr<gintonic::Entity> mSpotLight = std::shared_ptr<gintonic::Entity>(new gintonic::Entity
+	std::shared_ptr<gintonic::Entity> mSpotLight = gintonic::Entity::create
 	(
 		"spotty",
 		gintonic::SQT
@@ -180,9 +159,9 @@ private:
 			),
 			gintonic::vec3f(-1.0f, 6.0f, 1.0f)
 		)
-	));
+	);
 
-	std::shared_ptr<gintonic::Entity> mPointLight = std::shared_ptr<gintonic::Entity>(new gintonic::Entity
+	std::shared_ptr<gintonic::Entity> mPointLight = gintonic::Entity::create
 	(
 		"pointy",
 		gintonic::SQT
@@ -195,7 +174,7 @@ private:
 			),
 			gintonic::vec3f(2.0f, 6.0f, -2.0f)
 		)
-	));
+	);
 
 	std::shared_ptr<gintonic::Entity> mDefaultCamera;
 

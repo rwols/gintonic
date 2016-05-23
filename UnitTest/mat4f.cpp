@@ -304,16 +304,16 @@ BOOST_AUTO_TEST_CASE ( shadow_algorithm_test )
 	const float nearplane = 1.0;
 	const float farplane = 1000.0f;
 
-	auto lLightEntity = std::make_shared<Entity>("Light");
+	auto lLightEntity = Entity::create("Light");
 
-	auto lGeometryEntity = std::make_shared<Entity>("SomeEntity");
+	auto lGeometryEntity = Entity::create("SomeEntity");
 
-	auto lCamera = std::make_shared<Camera>();
+	auto lCamera = Camera::create();
 	lCamera->name = "DefaultCamera";
 	lCamera->setNearPlane(nearplane);
 	lCamera->setFarPlane(farplane);
 	lCamera->setProjectionType(Camera::kPerspective);
-	auto lCameraEntity = std::make_shared<Entity>("Camera");
+	auto lCameraEntity = Entity::create("Camera");
 	lCameraEntity->camera = lCamera;
 	lCameraEntity->camera->setWidth(width);
 	lCameraEntity->camera->setHeight(height);

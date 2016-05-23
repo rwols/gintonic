@@ -49,7 +49,7 @@ GUI::Base* sGUIRoot = nullptr;
 
 GeometryBuffer* sGeometryBuffer = nullptr;
 
-std::shared_ptr<Camera> sDefaultCamera = std::shared_ptr<Camera>(new Camera());
+std::shared_ptr<Camera> sDefaultCamera = Camera::create("DefaultCamera");
 
 std::vector<std::shared_ptr<Entity>> sShadowCastingLightEntities;
 std::vector<std::shared_ptr<Entity>> sShadowCastingPointLightEntities;
@@ -352,7 +352,7 @@ void Renderer::initialize(
 	sDefaultCamera->setNearPlane(1.0f);
 	sDefaultCamera->setFarPlane(50.0f);
 	sDefaultCamera->setProjectionType(Camera::kPerspective);
-	if (!cameraEntity) cameraEntity = std::shared_ptr<Entity>(new Entity("DefaultCamera"));
+	if (!cameraEntity) cameraEntity = Entity::create("DefaultCamera");
 	setCameraEntity(std::move(cameraEntity));
 
 	//
@@ -373,7 +373,7 @@ void Renderer::initialize(
 	const unsigned int lPointSize = 24;
 
 	// This may throw a Font::InitException when the font is not present.
-	sDebugFont = std::shared_ptr<Font>(new Font(FONT_FILE_LOCATION, lPointSize));
+	sDebugFont = Font::create(FONT_FILE_LOCATION, lPointSize);
 	sDebugErrorStream = new FontStream();
 	sDebugLogStream = new FontStream();
 
@@ -1118,22 +1118,22 @@ void Renderer::submitEntityRecursive(std::shared_ptr<Entity> current)
 
 std::shared_ptr<Entity> Renderer::createGizmo()
 {
-	auto lRedMaterial = std::shared_ptr<Material>(new Material());
+	auto lRedMaterial = Material::create();
 	lRedMaterial->name = "Red";
 	lRedMaterial->diffuseColor = vec4f(1.0f, 0.0f, 0.0f, 0.0f);
 	lRedMaterial->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 
-	auto lGreenMaterial = std::shared_ptr<Material>(new Material());
+	auto lGreenMaterial = Material::create();
 	lGreenMaterial->name = "Green";
 	lGreenMaterial->diffuseColor = vec4f(0.0f, 1.0f, 0.0f, 0.0f);
 	lGreenMaterial->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 
-	auto lBlueMaterial = std::shared_ptr<Material>(new Material());
+	auto lBlueMaterial = Material::create();
 	lBlueMaterial->name = "Blue";
 	lBlueMaterial->diffuseColor = vec4f(0.0f, 0.0f, 1.0f, 0.0f);
 	lBlueMaterial->specularColor = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 
-	auto lRightArrowCone = std::shared_ptr<Entity>(new Entity
+	auto lRightArrowCone = Entity::create
 	(
 		"RightArrowCone",
 		SQT
@@ -1142,11 +1142,11 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf(1.0f, 0.0f, 0.0f, 0.0f),
 			vec3f(0.0f, 0.0f, -1.0f)
 		)
-	));
+	);
 	lRightArrowCone->material = lRedMaterial;
 	lRightArrowCone->mesh = getUnitCone();
 
-	auto lRightArrowCylinder = std::shared_ptr<Entity>(new Entity
+	auto lRightArrowCylinder = Entity::create
 	(
 		"RightArrowCylinder",
 		SQT
@@ -1155,12 +1155,12 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), -static_cast<float>(M_PI) * 0.5f),
 			vec3f(1.0f, 0.0f, 0.0f)
 		)
-	));
+	);
 	lRightArrowCylinder->material = lRedMaterial;
 	lRightArrowCylinder->mesh = getUnitCylinder();
 	lRightArrowCylinder->addChild(lRightArrowCone);
 
-	auto lUpArrowCone = std::shared_ptr<Entity>(new Entity
+	auto lUpArrowCone = Entity::create
 	(
 		"UpArrowCone",
 		SQT
@@ -1169,11 +1169,11 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf(1.0f, 0.0f, 0.0f, 0.0f),
 			vec3f(0.0f, 0.0f, -1.0f)
 		)
-	));
+	);
 	lUpArrowCone->material = lGreenMaterial;
 	lUpArrowCone->mesh = getUnitCone();
 
-	auto lUpArrowCylinder = std::shared_ptr<Entity>(new Entity
+	auto lUpArrowCylinder = Entity::create
 	(
 		"UpArrowCylinder",
 		SQT
@@ -1182,12 +1182,12 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), static_cast<float>(M_PI) * 0.5f),
 			vec3f(0.0f, 1.0f, 0.0f)
 		)
-	));
+	);
 	lUpArrowCylinder->material = lGreenMaterial;
 	lUpArrowCylinder->mesh = getUnitCylinder();
 	lUpArrowCylinder->addChild(lUpArrowCone);
 
-	auto lForwardArrowCone = std::shared_ptr<Entity>(new Entity
+	auto lForwardArrowCone = Entity::create
 	(
 		"ForwardArrowCone",
 		SQT
@@ -1196,11 +1196,11 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf(1.0f, 0.0f, 0.0f, 0.0f),
 			vec3f(0.0f, 0.0f, -1.0f)
 		)
-	));
+	);
 	lForwardArrowCone->material = lBlueMaterial;
 	lForwardArrowCone->mesh = getUnitCone();
 
-	auto lBackwardArrowCylinder = std::shared_ptr<Entity>(new Entity
+	auto lBackwardArrowCylinder = Entity::create
 	(
 		"ForwardArrowCylinder",
 		SQT
@@ -1209,12 +1209,12 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), static_cast<float>(M_PI)),
 			vec3f(0.0f, 0.0f, 1.0f)
 		)
-	));
+	);
 	lBackwardArrowCylinder->material = lBlueMaterial;
 	lBackwardArrowCylinder->mesh = getUnitCylinder();
 	lBackwardArrowCylinder->addChild(lForwardArrowCone);
 
-	auto lGizmoRoot = std::shared_ptr<Entity>(new Entity
+	auto lGizmoRoot = Entity::create
 	(
 		"Gizmo",
 		SQT
@@ -1223,7 +1223,7 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 			quatf(1.0f, 0.0f, 0.0f, 0.0f), 
 			vec3f(0.0f, 0.0f, 0.0f)
 		)
-	));
+	);
 	lGizmoRoot->addChild(lRightArrowCylinder);
 	lGizmoRoot->addChild(lUpArrowCylinder);
 	lGizmoRoot->addChild(lBackwardArrowCylinder);
@@ -1410,7 +1410,7 @@ void Renderer::initializeBasicShapes()
 
 	/* Set up the unit quad */
 
-	sUnitQuadPUN.reset(new Mesh());
+	sUnitQuadPUN = Mesh::create();
 	sUnitQuadPUN->name = "UnitQuad";
 	sUnitQuadPUN->set(
 		{
@@ -1432,7 +1432,7 @@ void Renderer::initializeBasicShapes()
 
 	/* Set up the unit cube */
 
-	sUnitCubePUN.reset(new Mesh());
+	sUnitCubePUN = Mesh::create();
 	sUnitCubePUN->name = "UnitCube";
 	sUnitCubePUN->set(
 		{
@@ -1523,7 +1523,7 @@ void Renderer::initializeBasicShapes()
 
 	/* Set up the unit cube with tangents (and bitangents) */
 
-	sUnitCubePUNTB.reset(new Mesh());
+	sUnitCubePUNTB = Mesh::create();
 	sUnitCubePUNTB->name = "UnitCubeWithTangents";
 	sUnitCubePUNTB->set(
 		{
@@ -1646,7 +1646,7 @@ void Renderer::initializeBasicShapes()
 
 	/* Set up the flipped unit cube */
 
-	sFlippedUnitCubePUN.reset(new Mesh());
+	sFlippedUnitCubePUN = Mesh::create();
 	sFlippedUnitCubePUN->name = "FlippedUnitCube";
 	sFlippedUnitCubePUN->set(
 		{
@@ -1797,7 +1797,7 @@ void Renderer::initializeBasicShapes()
 		delete lSphereFace[f];
 	}
 
-	sUnitSpherePUN.reset(new Mesh());
+	sUnitSpherePUN = Mesh::create();
 	sUnitSpherePUN->name = "UnitSphere";
 	sUnitSpherePUN->set(lIndices, lPosition_XYZ_TexCoord_X, lNormal_XYZ_TexCoord_Y);
 
@@ -1847,7 +1847,7 @@ void Renderer::initializeBasicShapes()
 		lCounter += 5;
 	}
 
-	sUnitConePUN.reset(new Mesh());
+	sUnitConePUN = Mesh::create();
 	sUnitConePUN->name = "UnitCone";
 	sUnitConePUN->set(lIndices, lPosition_XYZ_TexCoord_X, lNormal_XYZ_TexCoord_Y);
 
@@ -1899,7 +1899,7 @@ void Renderer::initializeBasicShapes()
 		lCounter += 4;
 	}
 	
-	sUnitCylinderPUN.reset(new Mesh());
+	sUnitCylinderPUN = Mesh::create();
 	sUnitCylinderPUN->name = "UnitCylinder";
 	sUnitCylinderPUN->set(lIndices, lPosition_XYZ_TexCoord_X, lNormal_XYZ_TexCoord_Y);
 }

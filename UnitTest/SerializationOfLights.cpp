@@ -36,8 +36,8 @@ BOOST_AUTO_TEST_CASE( Serialization )
 
 		boost::filesystem::path lTemporaryFilename = boost::filesystem::unique_path();
 
-		auto lEntity = std::make_shared<Entity>("JustSomeRandomEntity");
-		lEntity->light = std::shared_ptr<Light>(new AmbientLight(vec4f(1.0f, 1.0f, 1.0f, 1.0f)));
+		auto lEntity = Entity::create("JustSomeRandomEntity");
+		lEntity->light = AmbientLight::create(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 
 		// auto lLight = std::shared_ptr<Light>(new DirectionalLight(vec4f(1.0f, 1.0f, 1.0f, 1.0f)));
 

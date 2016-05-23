@@ -72,7 +72,7 @@ private:
 		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 		lTransform.translation = vec3f(0.0f, 0.0f, 0.0f);
 
-		mRootOfLights = std::shared_ptr<Entity>(new Entity("RootOfLights"));
+		mRootOfLights = Entity::create("RootOfLights");
 		mRootOfLights->setTranslationY(3.0f);
 
 		mRootEntity->addChild(mRootOfLights);
@@ -90,16 +90,16 @@ private:
 
 			lTransform.rotation      = quatf::axis_angle(lUp, -lAngle);
 
-			auto lLight = std::shared_ptr<Light>(new PointLight(lIntensity, lAttenuation));
+			auto lLight = PointLight::create(lIntensity, lAttenuation);
 
 			lIntensity.w = 0.0f;
 
-			auto lMaterial           = std::shared_ptr<Material>(new Material());
+			auto lMaterial           = Material::create();
 			lMaterial->name          = "Light" + std::to_string(i);
 			lMaterial->diffuseColor  = lIntensity;
 			lMaterial->specularColor = lSpecularity;
 
-			auto lLightEntity        = std::shared_ptr<Entity>(new Entity());
+			auto lLightEntity        = Entity::create();
 			lLightEntity->name       = "Light" + std::to_string(i);
 			lLightEntity->light      = lLight;
 			lLightEntity->material   = lMaterial;
@@ -111,11 +111,11 @@ private:
 		}
 
 		#ifdef ALSO_ADD_DIRECTIONAL_LIGHT
-		auto lLight = std::shared_ptr<Light>(new DirectionalLight());
+		auto lLight = DirectionalLight::create();
 		lLight->intensity = 0.3f;
 		lLight->name = "DefaultDirectionalLight";
 
-		auto lLightEntity = std::shared_ptr<gintonic::Entity>(new Entity
+		auto lLightEntity = Entity::create
 		(
 			"DefaultDirectionalLight", 
 			SQT
@@ -128,7 +128,7 @@ private:
 				), 
 				vec3f(0.0f, 0.0f, 0.0f)
 			)
-		));
+		);
 		lLightEntity->light = lLight;
 		mRootEntity->addChild(lLightEntity);
 		#endif
@@ -152,18 +152,18 @@ private:
 		lTransform.scale = 1.0f;
 		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 
-		auto lDaVinciTexture       = std::shared_ptr<Texture2D>(new Texture2D("Resources/DaVinci.jpg"));
-		auto lBrickDiffuseTexture  = std::shared_ptr<Texture2D>(new Texture2D("Resources/bricks.jpg"));
-		auto lBrickSpecularTexture = std::shared_ptr<Texture2D>(new Texture2D("Resources/bricks_SPEC.png"));
-		auto lBrickNormalTexture   = std::shared_ptr<Texture2D>(new Texture2D("Resources/bricks_NRM.png"));
+		auto lDaVinciTexture       = Texture2D::create("Resources/DaVinci.jpg");
+		auto lBrickDiffuseTexture  = Texture2D::create("Resources/bricks.jpg");
+		auto lBrickSpecularTexture = Texture2D::create("Resources/bricks_SPEC.png");
+		auto lBrickNormalTexture   = Texture2D::create("Resources/bricks_NRM.png");
 
-		auto lDaVinciMaterial            = std::shared_ptr<Material>(new Material());
+		auto lDaVinciMaterial            = Material::create();
 		lDaVinciMaterial->name           = "DaVinci";
 		lDaVinciMaterial->diffuseColor   = vec4f(0.7f, 0.7f, 0.7f, 1.0f);
 		lDaVinciMaterial->specularColor  = vec4f(0.3f, 0.3f, 0.3f, 80.0f);
 		lDaVinciMaterial->diffuseTexture = lDaVinciTexture;
 
-		auto lBrickMaterialWithNormalMap             = std::shared_ptr<Material>(new Material());
+		auto lBrickMaterialWithNormalMap             = Material::create();
 		lBrickMaterialWithNormalMap->name            = "BricksWithNormalMap";
 		lBrickMaterialWithNormalMap->diffuseColor    = vec4f(0.8f, 0.8f, 0.8f,  1.0f);
 		lBrickMaterialWithNormalMap->specularColor   = vec4f(0.2f, 0.2f, 0.2f, 20.0f);
@@ -179,7 +179,7 @@ private:
 				lTransform.translation.y = 0.0f;
 				lTransform.translation.z = 3.0f * static_cast<float>(j);
 
-				auto lEntity = std::shared_ptr<Entity>(new Entity());
+				auto lEntity = Entity::create();
 				lEntity->name = "Geometry(" + std::to_string(i) + "," + std::to_string(j) + ")";
 				lEntity->setLocalTransform(lTransform);
 				if (lBoolMatrix[i + mNumObjects][j + mNumObjects])

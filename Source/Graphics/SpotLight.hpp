@@ -17,6 +17,14 @@ class SpotLight : public PointLight
 {
 public:
 
+	template <class ...Args>
+	inline static SharedPtr create(Args&&... args)
+	{
+		return SharedPtr(new SpotLight(std::forward<Args>(args)...));
+	}
+
+protected:
+
 	/// Default constructor.
 	SpotLight() = default;
 
@@ -43,6 +51,8 @@ public:
 	 * @param [in] cosineHalfAngle The cosine of the half angle for the spot light.
 	 */
 	SpotLight(const vec4f& intensity, const vec4f& attenuation, const float cosineHalfAngle);
+
+public:
 
 	/// Destructor.
 	virtual ~SpotLight() noexcept = default;

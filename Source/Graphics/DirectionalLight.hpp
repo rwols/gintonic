@@ -20,6 +20,14 @@ class DirectionalLight : public AmbientLight
 {
 public:
 
+	template <class ...Args>
+	inline static SharedPtr create(Args&&... args)
+	{
+		return SharedPtr(new DirectionalLight(std::forward<Args>(args)...));
+	}
+
+protected:
+
 	/// Default constructor.
 	DirectionalLight() = default;
 	
@@ -29,6 +37,8 @@ public:
 	 * @param intensity The intensity value.
 	 */
 	DirectionalLight(const vec4f& intensity);
+
+public:
 
 	/// Destructor.
 	virtual ~DirectionalLight() noexcept = default;

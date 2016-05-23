@@ -320,6 +320,14 @@ public:
 		return mLocalBoundingBox;
 	}
 
+	template <class ...Args>
+	inline static SharedPtr create(Args&&... args)
+	{
+		return SharedPtr(new Mesh(std::forward<Args>(args)...));
+	}
+
+private:
+
 	/**
 	 * @brief Default constructor.
 	 */
@@ -387,6 +395,8 @@ public:
 	 */
 	Mesh(
 		const boost::filesystem::path&  nativeMeshFile);
+
+public:
 
 	/**
 	 * @brief Change this mesh according to the new `FbxMesh`.

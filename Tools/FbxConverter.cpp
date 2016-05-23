@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 		gintonic::Renderer::initialize
 		(
 			argv[0], // Window title
-			std::make_shared<gintonic::Entity>("DummyCamera"), // Dummy camera
+			gintonic::Entity::create("DummyCamera"), // Dummy camera
 			false,   // Don't go fullscreen
 			1,       // viewport width
 			1,       // viewport height

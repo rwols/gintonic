@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE( serialization_of_materials )
 	{
 
 		boost::filesystem::path lTemporaryFilename = boost::filesystem::unique_path();
-		auto lMaterial = std::make_shared<Material>
+		auto lMaterial = Material::create
 		(
 			vec4f(rand(), rand(), rand(), rand()),
 			vec4f(rand(), rand(), rand(), rand()),
@@ -67,7 +67,7 @@ void add_a_material(OutputIter material_iter)
 {
 	vec4f diffcolor(randfloat(), randfloat(), randfloat(), 1.0f);
 	vec4f speccolor(randfloat(), randfloat(), randfloat(), 20.0f);
-	auto lMaterial = std::make_shared<Material>(diffcolor, speccolor);
+	auto lMaterial = Material::create(diffcolor, speccolor);
 	*material_iter = lMaterial;
 	++material_iter;
 }
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( reference_counting_of_textures )
 	boost::filesystem::current_path(get_executable_path());
 	std::vector<std::shared_ptr<Material>> materials;
 	{
-		auto mat1 = std::make_shared<Material>(diffcolor, speccolor, 
+		auto mat1 = Material::create(diffcolor, speccolor, 
 			"Resources/bricks.jpg", 
 			"Resources/bricks_SPEC.png", 
 			"Resources/bricks_NRM.png");
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( reference_counting_of_textures )
 			mat2->diffuseColor.x = 0.0f;
 			materials.push_back(mat2);
 			{
-				auto mat3 = std::make_shared<Material>(diffcolor, speccolor);
+				auto mat3 = Material::create(diffcolor, speccolor);
 				materials.push_back(mat3);
 			}
 		}

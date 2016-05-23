@@ -72,6 +72,30 @@ public:
 	//@{
 
 	/**
+	 * @brief Creates a new Entity::SharedPtr with the given constructor arguments.
+	 * Note that this is the *only* way to create new a new Entity. It's impossible
+	 * to create an Entity on the stack *by design*, and it is also impossible to
+	 * create a new Entity with std::make_shared *by design*.
+	 * @param[in] args The constructor argsuments.
+	 * @tparam Args The variadic template pack.
+	 * @return A new Entity::SharedPtr.
+	 * @sa Entity::Entity
+	 */
+	template <class ...Args>
+	inline static SharedPtr create(Args&&... args)
+	{
+		// Don't use std::make_shared<...>(...)
+		// because Entity::operator new and co. need to be called
+		// explicitly, while std::make_shared uses its own allocation
+		// strategy. In practise, this means std::make_shared does not
+		// allocate on a 16-byte boundary, which is required for Entity
+		// to function properly.
+		return SharedPtr(new Entity(std::forward<Args>(args)...));
+	}
+
+private:
+
+	/**
 	 * @brief Default constructor.
 	 * @details The default constructor constructs an Entity with a local
 	 * transform centered at the origin and with the standard unit axes of
@@ -133,6 +157,8 @@ public:
 	 * @param other Another entity.
 	 */
 	Entity& operator = (Entity&& other) noexcept;
+
+public:
 
 	/**
 	 * @brief Highly non-trivial destructor. See details.

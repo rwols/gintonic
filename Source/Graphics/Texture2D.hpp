@@ -53,6 +53,14 @@ public:
 		virtual const char* what() const noexcept { return "UnknownImageFormatException"; }
 	};
 
+	template <class ...Args>
+	inline static SharedPtr create(Args&&... args)
+	{
+		return SharedPtr(new Texture2D(std::forward<Args>(args)...));
+	}
+
+private:
+
 	/**
 	 * @brief Construct from an FbxTexture.
 	 * @param pFbxTexture Pointer to an FbxTexture.
@@ -85,6 +93,8 @@ public:
 	 * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
 	 */
 	Texture2D(boost::filesystem::path pathToImageFile);
+
+public:
 
 	/// Defaulted destructor.
 	virtual ~Texture2D() noexcept = default;

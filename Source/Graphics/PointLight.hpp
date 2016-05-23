@@ -23,6 +23,15 @@ class PointLight : public Light
 {
 public:
 
+	template <class ...Args>
+	inline static SharedPtr create(Args&&... args)
+	{
+		return SharedPtr(new PointLight(std::forward<Args>(args)...));
+	}
+
+protected:
+
+
 	/// Default constructor.
 	PointLight() = default;
 
@@ -40,6 +49,8 @@ public:
 	 * @param attenuation The attenuation value.
 	 */
 	PointLight(const vec4f& intensity, const vec4f& attenuation);
+
+public:
 
 	/// Destructor.
 	virtual ~PointLight() noexcept = default;

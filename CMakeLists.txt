@@ -18,6 +18,7 @@ file(GLOB_RECURSE gintonic_source_files "${source_directory}/*.cpp")
 file(GLOB lua_source_files "${source_directory}/${lua_src_dir}/*.c")
 file(GLOB shader_source_files "${source_directory}/Graphics/Shaders/*.vert" "${source_directory}/Graphics/Shaders/*.frag")
 set(src_files ${gintonic_source_files} ${lua_source_files})
+set_source_files_properties(${lua_source_files} PROPERTIES LANGUAGE CXX)
 
 project(gintonic C CXX)
 
@@ -57,12 +58,12 @@ string(REPLACE ".lib" ".dll" BOOST_UNIT_TEST_FRAMEWORK_DLL ${BOOST_UNIT_TEST_FRA
 find_package(OpenGL REQUIRED)
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
-if (WIN32)
-	# do nothing
-else ()
-	find_package(JPEG REQUIRED)
-	find_package(PNG REQUIRED)
-endif ()
+# if (WIN32)
+# 	# do nothing
+# else ()
+# 	find_package(JPEG REQUIRED)
+# 	find_package(PNG REQUIRED)
+# endif ()
 
 find_package(Freetype REQUIRED)
 find_package(FBX REQUIRED)
@@ -94,7 +95,7 @@ option(USE_NEW_CLANG_CPP_LIB "Use libc++ instead of stdlib." OFF)
 if (WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /D_SCL_SECURE_NO_WARNINGS /DNOMINMAX /D_USE_MATH_DEFINES /DBOOST_ALL_NO_LIB /arch:SSE")
 else ()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -msse3")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -msse3 -DLUA_USE_POSIX")
 	if (USE_NEW_CLANG_CPP_LIB)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 	endif ()
@@ -147,8 +148,8 @@ elseif (APPLE)
 		${Boost_LIBRARIES} 
 		${OPENGL_LIBRARIES} 
 		${SDL2_LIBRARY} 
-		${JPEG_LIBRARIES} 
-		${PNG_LIBRARIES} 
+		# ${JPEG_LIBRARIES} 
+		# ${PNG_LIBRARIES} 
 		${FREETYPE_LIBRARIES}
 		${FBX_LIBRARY} 
 		${CMAKE_THREAD_LIBS_INIT})
@@ -158,13 +159,12 @@ else ()
 		${Boost_LIBRARIES} 
 		${OPENGL_LIBRARIES} 
 		${SDL2_LIBRARY} 
-		${JPEG_LIBRARIES} 
-		${PNG_LIBRARIES} 
+		# ${JPEG_LIBRARIES} 
+		# ${PNG_LIBRARIES} 
 		${FREETYPE_LIBRARIES}
 		${FBX_LIBRARY} 
 		${CMAKE_THREAD_LIBS_INIT}
-		-ldl
-		-lstdc++)
+		-ldl)
 endif ()
 
 add_subdirectory (Tools)

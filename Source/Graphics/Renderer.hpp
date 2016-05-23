@@ -206,7 +206,7 @@ public:
 	 */
 	static void initialize(
 		const char* windowTitle, 
-		std::shared_ptr<Entity> cameraEntity = std::shared_ptr<Entity>(new Entity("DefaultCamera")), 
+		Entity::SharedPtr cameraEntity = Entity::create("DefaultCamera"), 
 		const bool fullscreen = true, 
 		const int preferredWidth = 800, 
 		const int preferredHeight = 640,

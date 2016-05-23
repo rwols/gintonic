@@ -56,6 +56,14 @@ public:
 	 */
 	typedef char char_type;
 
+	template <class ...Args>
+	inline static SharedPtr create(Args&&... args)
+	{
+		return SharedPtr(new Font(std::forward<Args>(args)...));
+	}
+
+private:
+
 	/**
 	 * @brief Construct a Font from the given filename with the
 	 * given point size.
@@ -82,6 +90,8 @@ public:
 	 * @throws InitException when the supplied filename could not be loaded.
 	 */
 	Font(boost::filesystem::path filename, const unsigned int pointsize);
+
+public:
 
 	/**
 	 * @brief Returns the point size in pixels.

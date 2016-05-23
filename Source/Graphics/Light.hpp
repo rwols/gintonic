@@ -30,6 +30,8 @@ public:
 	 */
 	static std::shared_ptr<Light> create(const FBXSDK_NAMESPACE::FbxLight* pFbxLight);
 
+protected:
+
 	/// Default constructor.
 	Light() = default;
 
@@ -39,6 +41,8 @@ public:
 	 * @param intensity The intensity value.
 	 */
 	Light(const vec4f& intensity);
+
+public:
 	
 	/// Destructor.
 	virtual ~Light() noexcept = default;

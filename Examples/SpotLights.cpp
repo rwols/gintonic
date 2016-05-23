@@ -103,7 +103,7 @@ private:
 		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 		lTransform.translation = vec3f(0.0f, 0.0f, 0.0f);
 
-		mRootOfLights = std::shared_ptr<Entity>(new Entity("RootOfLights"));
+		mRootOfLights = Entity::create("RootOfLights");
 		mRootOfLights->setTranslationY(3.0f);
 
 		mRootEntity->addChild(mRootOfLights);
@@ -125,17 +125,17 @@ private:
 
 			// auto lLight              = std::shared_ptr<Light>(new PointLight(lIntensity, lAttenuation));
 			// lLight->name             = "PointLight" + std::to_string(i);
-			auto lLight              = std::shared_ptr<Light>(new SpotLight(lIntensity, lAttenuation, mSpotlightAngle));
+			auto lLight              = SpotLight::create(lIntensity, lAttenuation, mSpotlightAngle);
 			lLight->name             = "SpotLight" + std::to_string(i);
 
 			lIntensity.w             = 0.0f;
 
-			auto lMaterial           = std::shared_ptr<Material>(new Material());
+			auto lMaterial           = Material::create();
 			lMaterial->name          = "Light" + std::to_string(i);
 			lMaterial->diffuseColor  = lIntensity;
 			lMaterial->specularColor = lSpecularity;
 
-			auto lLightEntity        = std::shared_ptr<Entity>(new Entity());
+			auto lLightEntity        = Entity::create();
 			lLightEntity->name       = "Light" + std::to_string(i);
 			lLightEntity->light      = lLight;
 			lLightEntity->material   = lMaterial;
@@ -147,7 +147,7 @@ private:
 		}
 
 		#ifdef ALSO_ADD_DIRECTIONAL_LIGHT
-		auto lLight = std::shared_ptr<Light>(new DirectionalLight());
+		auto lLight = DirectionalLight::create();
 		lLight->intensity = 0.3f;
 		lLight->name = "DefaultDirectionalLight";
 
@@ -178,11 +178,11 @@ private:
 		lTransform.scale = 1.0f;
 		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 
-		auto lBrickDiffuseTexture = std::shared_ptr<Texture2D>(new Texture2D("../../Examples/bricks.jpg"));
-		auto lBrickSpecularTexture = std::shared_ptr<Texture2D>(new Texture2D("../../Examples/bricks_SPEC.png"));
-		auto lBrickNormalTexture = std::shared_ptr<Texture2D>(new Texture2D("../../Examples/bricks_NRM.png"));
+		auto lBrickDiffuseTexture = Texture2D::create("../../Examples/bricks.jpg");
+		auto lBrickSpecularTexture = Texture2D::create("../../Examples/bricks_SPEC.png");
+		auto lBrickNormalTexture = Texture2D::create("../../Examples/bricks_NRM.png");
 
-		auto lBrickMaterialWithNormalMap = std::shared_ptr<Material>(new Material());
+		auto lBrickMaterialWithNormalMap = Material::create();
 		lBrickMaterialWithNormalMap->name = "BricksWithNormalMap";
 		lBrickMaterialWithNormalMap->diffuseColor = MATERIAL_DIFFUSE_COLOR;
 		lBrickMaterialWithNormalMap->specularColor = MATERIAL_SPECULAR_COLOR;
@@ -198,7 +198,7 @@ private:
 				lTransform.translation.y = 0.0f;
 				lTransform.translation.z = 2.0f * static_cast<float>(j);
 
-				auto lEntity = std::shared_ptr<Entity>(new Entity());
+				auto lEntity = Entity::create();
 				lEntity->name = "Geometry(" + std::to_string(i) + "," + std::to_string(j) + ")";
 				lEntity->setLocalTransform(lTransform);
 				lEntity->material = lBrickMaterialWithNormalMap;

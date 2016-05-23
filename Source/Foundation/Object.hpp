@@ -39,6 +39,11 @@ class Object : public std::enable_shared_from_this<Derived>
 {
 public:
 
+	using SharedPtr = std::shared_ptr<Derived>;
+	using ConstSharedPtr = std::shared_ptr<const Derived>;
+	using WeakPtr = std::weak_ptr<Derived>;
+	using ConstWeakPtr = std::weak_ptr<const Derived>;
+
 	class NoNameException : public std::exception
 	{
 	public:

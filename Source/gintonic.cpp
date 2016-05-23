@@ -25,7 +25,7 @@ void initializeEverything(const char* window_title, std::shared_ptr<Entity> came
 
 void initializeEverything(const char* windowTitle)
 {
-	auto lCameraEntity = std::shared_ptr<Entity>(new Entity("DefaultCamera"));
+	auto lCameraEntity = Entity::create("DefaultCamera");
 	initializeEverything(windowTitle, std::move(lCameraEntity));
 }
 

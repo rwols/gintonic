@@ -198,11 +198,11 @@ public:
 			// so that we see something interesting.
 			// The directional light shines downwards.
 			
-			auto lLight = std::shared_ptr<Light>(new DirectionalLight());
+			auto lLight = DirectionalLight::create();
 			lLight->setIntensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 			lLight->name = "DefaultDirectionalLight";
 
-			auto lLightEntity = std::shared_ptr<gintonic::Entity>(new Entity
+			auto lLightEntity = Entity::create
 			(
 				"DefaultDirectionalLight", 
 				SQT
@@ -215,7 +215,7 @@ public:
 					), 
 					vec3f(0.0f, 0.0f, 0.0f)
 				)
-			));
+			);
 			lLightEntity->light = lLight;
 			mRootEntity->addChild(lLightEntity);
 		}

@@ -16,10 +16,10 @@ public:
 		// Put a directional light in the scene
 		// so that we see something interesting.
 		// The directional light shines downwards.
-		auto lLight = std::shared_ptr<Light>(new DirectionalLight());
+		auto lLight = DirectionalLight::create();
 		lLight->setIntensity(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
 		lLight->name = "DefaultDirectionalLight";
-		auto lLightEntity = std::shared_ptr<gintonic::Entity>(new gintonic::Entity
+		auto lLightEntity = gintonic::Entity::create
 		(
 			"DefaultDirectionalLight",
 			SQT
@@ -32,24 +32,24 @@ public:
 				), 
 				vec3f(0.0f, 0.0f, 0.0f)
 			)
-		));
+		);
 		lLightEntity->light = lLight;
 
-		auto lMaterial = std::shared_ptr<Material>(new Material());
+		auto lMaterial = Material::create();
 		lMaterial->diffuseColor   = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
 		lMaterial->specularColor  = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
-		lMaterial->diffuseTexture = std::shared_ptr<Texture2D>(new Texture2D("../../Examples/DaVinci.jpg"));
+		lMaterial->diffuseTexture = Texture2D::create("../../Examples/DaVinci.jpg");
 
 		auto lGizmo = Renderer::createGizmo();
 
-		auto lInsideOutCubeEntity = std::shared_ptr<Entity>(new Entity("InsideOutCube"));
+		auto lInsideOutCubeEntity = Entity::create("InsideOutCube");
 		lInsideOutCubeEntity->mesh = Renderer::getInsideOutUnitCube();
 		lInsideOutCubeEntity->material = lMaterial;
 		lInsideOutCubeEntity->setScale(vec3f(20.0f, 20.0f, 20.0f));
 		lInsideOutCubeEntity->setRotation(quatf(1.0f, 0.0f, 0.0f, 0.0f));
 		lInsideOutCubeEntity->setTranslation(vec3f(0.0f, 0.0f, 0.0f));
 
-		auto lCubeEntity = std::shared_ptr<Entity>(new Entity("Cube"));
+		auto lCubeEntity = Entity::create("Cube");
 		lCubeEntity->mesh = Renderer::getUnitCube();
 		lCubeEntity->material = lMaterial;
 		lCubeEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
@@ -57,7 +57,7 @@ public:
 		lCubeEntity->setTranslation(vec3f(-3.0f, 0.0f, 0.0f));
 		lCubeEntity->addChild(lGizmo);
 
-		auto lSphereEntity = std::shared_ptr<Entity>(new Entity("Sphere"));
+		auto lSphereEntity = Entity::create("Sphere");
 		lSphereEntity->mesh = Renderer::getUnitSphere();
 		lSphereEntity->material = lMaterial;
 		lSphereEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
@@ -65,7 +65,7 @@ public:
 		lSphereEntity->setTranslation(vec3f(3.0f, 0.0f, 0.0f));
 		lSphereEntity->addChild(lGizmo);
 
-		auto lConeEntity = std::shared_ptr<Entity>(new Entity("Cone"));
+		auto lConeEntity = Entity::create("Cone");
 		lConeEntity->mesh = Renderer::getUnitCone();
 		lConeEntity->material = lMaterial;
 		lConeEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
@@ -73,7 +73,7 @@ public:
 		lConeEntity->setTranslation(vec3f(0.0f, 0.0f, -3.0f));
 		lConeEntity->addChild(lGizmo);
 
-		auto lCylinderEntity = std::shared_ptr<Entity>(new Entity("Cylinder"));
+		auto lCylinderEntity = Entity::create("Cylinder");
 		lCylinderEntity->mesh = Renderer::getUnitCylinder();
 		lCylinderEntity->material = lMaterial;
 		lCylinderEntity->setScale(vec3f(1.0f, 1.0f, 1.0f));
@@ -81,7 +81,7 @@ public:
 		lCylinderEntity->setTranslation(vec3f(0.0f, 0.0f, 3.0f));
 		lCylinderEntity->addChild(lGizmo);
 
-		mRootOfSolidShapes = std::shared_ptr<Entity>(new Entity("RootOfSolidShapes"));
+		mRootOfSolidShapes = Entity::create("RootOfSolidShapes");
 		mRootOfSolidShapes->addChild(lCubeEntity);
 		mRootOfSolidShapes->addChild(lSphereEntity);
 		mRootOfSolidShapes->addChild(lConeEntity);

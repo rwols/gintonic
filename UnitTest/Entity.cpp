@@ -13,10 +13,10 @@ using namespace gintonic;
 
 BOOST_AUTO_TEST_CASE( parents_and_children )
 {
-	auto lEnt1 = std::shared_ptr<Entity>(new Entity("ent1"));
-	auto lEnt2 = std::shared_ptr<Entity>(new Entity("ent2"));
-	auto lEnt3 = std::shared_ptr<Entity>(new Entity("ent3"));
-	auto lEnt4 = std::shared_ptr<Entity>(new Entity("ent4"));
+	auto lEnt1 = Entity::create("ent1");
+	auto lEnt2 = Entity::create("ent2");
+	auto lEnt3 = Entity::create("ent3");
+	auto lEnt4 = Entity::create("ent4");
 
 	lEnt1->addChild(lEnt2);
 	lEnt2->addChild(lEnt3);

@@ -12,27 +12,36 @@ using namespace gintonic;
 
 BOOST_AUTO_TEST_CASE ( alignment_issues )
 {
-	char dummy0;
+	char dummy0{0};
 	vec3f v0;
 	BOOST_CHECK(isAligned(&v0));
-	char dummy1;
+	char dummy1{0};
 	vec3f v1;
 	BOOST_CHECK(isAligned(&v1));
-	char dummy2;
+	char dummy2{0};
 	vec3f v2;
 	BOOST_CHECK(isAligned(&v2));
-	char dummy3;
+	char dummy3{0};
 	vec3f v3;
 	BOOST_CHECK(isAligned(&v3));
-	char dummy4;
+	char dummy4{0};
 	auto v4 = v0 + v1;
 	BOOST_CHECK(isAligned(&v4));
-	char dummy5;
+	char dummy5{0};
 	auto v5 = v2 + v3;
 	BOOST_CHECK(isAligned(&v5));
-	char dummy6;
+	char dummy6{0};
 	auto v6 = v4 - v5;
 	BOOST_CHECK(isAligned(&v6));
+
+	// Silence warnings about unused variables.
+	dummy0 += 1;
+	dummy1 += 1;
+	dummy2 += 1;
+	dummy3 += 1;
+	dummy4 += 1;
+	dummy5 += 1;
+	dummy6 += 1;
 	
 	auto ptr0 = std::make_unique<vec3f>(1.0f, 2.0f, 3.0f);
 	auto ptr1 = std::make_unique<vec3f>(2.0f, 4.0f, 5.0f);

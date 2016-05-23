@@ -12,7 +12,7 @@ public:
 	{
 		using namespace gintonic;
 
-		auto lCamera = std::shared_ptr<Camera>(new Camera());
+		auto lCamera = Camera::create();
 		lCamera->name = "OrthoCamera";
 		lCamera->setNearPlane(-5.0f);
 		lCamera->setFarPlane(5.0f);
@@ -27,7 +27,7 @@ public:
 
 		mOctreeRoot.subdivisionThreshold = 0.02f;
 
-		mMouseEntity = std::shared_ptr<Entity>(new Entity("Mouse"));
+		mMouseEntity = Entity::create("Mouse");
 
 		mOctreeRoot.insert(mMouseEntity);
 
