@@ -178,9 +178,9 @@ private:
 		lTransform.scale = 1.0f;
 		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 
-		auto lBrickDiffuseTexture = Texture2D::create("../../Examples/bricks.jpg");
-		auto lBrickSpecularTexture = Texture2D::create("../../Examples/bricks_SPEC.png");
-		auto lBrickNormalTexture = Texture2D::create("../../Examples/bricks_NRM.png");
+		auto lBrickDiffuseTexture = Texture2D::create("Resources/bricks.jpg");
+		auto lBrickSpecularTexture = Texture2D::create("Resources/bricks_SPEC.png");
+		auto lBrickNormalTexture = Texture2D::create("Resources/bricks_NRM.png");
 
 		auto lBrickMaterialWithNormalMap = Material::create();
 		lBrickMaterialWithNormalMap->name = "BricksWithNormalMap";
@@ -219,7 +219,7 @@ private:
 		
 		if (Renderer::key(SDL_SCANCODE_UP))
 		{
-			mSpotlightExponent += mDeltaTime * EXPONENT_CHANGE_SPEED;
+			mSpotlightExponent += static_cast<float>(mDeltaTime) * EXPONENT_CHANGE_SPEED;
 
 			for (auto lChild : *mRootOfLights)
 			{
@@ -230,7 +230,7 @@ private:
 		}
 		if (Renderer::key(SDL_SCANCODE_DOWN))
 		{
-			mSpotlightExponent -= mDeltaTime * EXPONENT_CHANGE_SPEED;
+			mSpotlightExponent -= static_cast<float>(mDeltaTime) * EXPONENT_CHANGE_SPEED;
 
 			if (mSpotlightExponent < 1.0f)
 			{
@@ -246,7 +246,7 @@ private:
 		}
 		if (Renderer::key(SDL_SCANCODE_LEFT))
 		{
-			mSpotlightAngle -= mDeltaTime * ANGLE_CHANGE_SPEED;
+			mSpotlightAngle -= static_cast<float>(mDeltaTime) * ANGLE_CHANGE_SPEED;
 			mSpotlightAngle = std::max(0.0f, mSpotlightAngle);
 
 			for (auto lChild : *mRootOfLights)
@@ -256,7 +256,7 @@ private:
 		}
 		if (Renderer::key(SDL_SCANCODE_RIGHT))
 		{
-			mSpotlightAngle += mDeltaTime * ANGLE_CHANGE_SPEED;
+			mSpotlightAngle += static_cast<float>(mDeltaTime) * ANGLE_CHANGE_SPEED;
 			mSpotlightAngle = std::min(1.0f, mSpotlightAngle);
 
 			for (auto lChild : *mRootOfLights)
@@ -266,7 +266,7 @@ private:
 		}
 		if (Renderer::key(SDL_SCANCODE_EQUALS))
 		{
-			mLightIntensity += mDeltaTime * INTENSITY_CHANGE_SPEED;
+			mLightIntensity += static_cast<float>(mDeltaTime) * INTENSITY_CHANGE_SPEED;
 
 			for (auto lChild : *mRootOfLights)
 			{
@@ -275,7 +275,7 @@ private:
 		}
 		if (Renderer::key(SDL_SCANCODE_MINUS))
 		{
-			mLightIntensity -= mDeltaTime * INTENSITY_CHANGE_SPEED;
+			mLightIntensity -= static_cast<float>(mDeltaTime) * INTENSITY_CHANGE_SPEED;
 
 			if (mLightIntensity < 0.0f)
 			{
@@ -289,7 +289,7 @@ private:
 		}
 
 		lAxis = vec3f(0.0f, 1.0f, 0.0f);
-		lAngle = mDeltaTime;
+		lAngle = static_cast<float>(mDeltaTime);
 		lQuaternion = quatf::axis_angle(lAxis, lAngle);
 		mRootOfLights->postMultiplyRotation(lQuaternion);
 	}

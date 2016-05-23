@@ -66,10 +66,10 @@ vertex_PC::vertex_PC(FbxMesh const*const pMesh, const std::size_t i, const std::
 	position[2] = static_cast<float>(pMesh->GetControlPointAt(i)[2]);
 	auto fbx_color_layer = pMesh->GetLayer(layer)->GetVertexColors();
 	auto fbx_color = fbx_color_layer->GetDirectArray()[fbx_color_layer->GetIndexArray()[i]];
-	color[0] = fbx_color[0];
-	color[1] = fbx_color[1];
-	color[2] = fbx_color[2];
-	color[3] = fbx_color[3];
+	color[0] = static_cast<float>(fbx_color[0]);
+	color[1] = static_cast<float>(fbx_color[1]);
+	color[2] = static_cast<float>(fbx_color[2]);
+	color[3] = static_cast<float>(fbx_color[3]);
 }
 vertex_PC::vertex_PC(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f& n, const vec3f& t, const vec3f& b)
 {
@@ -83,13 +83,13 @@ vertex_PC::vertex_PC(const vec3f& p, const vec4f& c, const vec2f& u, const vec3f
 }
 vertex_PC::vertex_PC(const FbxVector4& p, const FbxColor& c, const FbxVector2& u, const FbxVector4& n, const FbxVector4& t, const FbxVector4& b)
 {
-	position[0] = p[0];
-	position[1] = p[1];
-	position[2] = p[2];
-	color[0] = c[0];
-	color[1] = c[1];
-	color[2] = c[2];
-	color[3] = c[3];
+	position[0] = static_cast<float>(p[0]);
+	position[1] = static_cast<float>(p[1]);
+	position[2] = static_cast<float>(p[2]);
+	color[0] = static_cast<float>(c[0]);
+	color[1] = static_cast<float>(c[1]);
+	color[2] = static_cast<float>(c[2]);
+	color[3] = static_cast<float>(c[3]);
 }
 
 

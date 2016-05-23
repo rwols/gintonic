@@ -28,7 +28,7 @@ public:
 				quatf::axis_angle
 				(
 					vec3f(1.0f, 0.0f, 0.0f), 
-					-M_PI / 2.0f + 1.0f
+					-static_cast<float>(M_PI) / 2.0f + 1.0f
 				), 
 				vec3f(0.0f, 0.0f, 0.0f)
 			)
@@ -103,12 +103,12 @@ private:
 
 		for (auto lShape : *mRootOfSolidShapes)
 		{
-			lShape->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), mElapsedTime));
+			lShape->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), static_cast<float>(mElapsedTime)));
 		}
 
 		// All the simple solids are a child of the "invisible" root entity, centered
 		// at the origin. So we apply a rotation to that too, in order to make the solids "spin around".
-		mRootOfSolidShapes->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), -mElapsedTime / 4.0f));
+		mRootOfSolidShapes->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), -static_cast<float>(mElapsedTime) / 4.0f));
 	}
 };
 
