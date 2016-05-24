@@ -480,17 +480,28 @@ Entity::~Entity() noexcept
 	}
 	catch (...)
 	{
-		std::cerr << "FATAL: Exception thrown during destruction of Entity " << this << '\n';
-		std::terminate();
+		// Absorb exceptions.
 	}
-	SQT lSQT;
 	for (auto lChild : mChildren)
 	{
-		if (lChild->mParent.expired() == false) lChild->mParent.reset();
-		lChild->mGlobalTransform.decompose(lSQT);
-		lChild->mLocalTransform = lSQT;
+		lChild->mParent.reset();
+		lChild->mGlobalTransform.decompose(lChild->mLocalTransform);
 	}
-	unsetParent();
+	if (auto lParent = mParent.lock())
+	{
+		for (auto lIter = lParent->mChildren.begin(); lIter != lParent->mChildren.end(); ++lIter)
+		{
+			if (lIter->get() == this)
+			{
+				lParent->mChildren.erase(lIter);
+				return;
+			}
+		}
+	}
+	// If no lock can be acquired, the parent is dead.
+	// In that case we don't have to care about removing
+	// ourselves from the children list of the parent
+	// since that's gone.
 }
 
 std::shared_ptr<Entity> Entity::cloneRecursive() const

@@ -42,7 +42,7 @@ class Entity : public Object<Entity, std::string>
 public:
 
 	/// The type of datastructure for the list of children.
-	typedef std::list<std::shared_ptr<Entity>> children_datastructure_type;
+	typedef std::list<Entity::SharedPtr> children_datastructure_type;
 
 	/// The iterator type for the list of children.
 	typedef children_datastructure_type::iterator iterator;
