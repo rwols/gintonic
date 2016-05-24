@@ -27,6 +27,33 @@ float randf()
 	return static_cast<float>(rand());
 }
 
+BOOST_AUTO_TEST_CASE( catch_memory_leak )
+{
+	Renderer::initialize("Dummy Context", nullptr, false, 1, 1, false, false, false);
+	auto lMaterial = Material::create(randf(), randf());
+	lMaterial->diffuseTexture = nullptr;
+	lMaterial->specularTexture = nullptr;
+	lMaterial->normalTexture = nullptr;
+
+
+	std::cout << "sizeof(string):        " << sizeof(std::string) << '\n';
+	std::cout << "sizeof(ReadWriteLock): " << sizeof(ReadWriteLock) << '\n';
+	std::cout << "sizeof(Material):      " << sizeof(Material) << '\n'; 
+	std::cout << "sizeof(vec4f):         " << sizeof(vec4f) << '\n'; 
+	std::cout << "sizeof(sharedptr):     " << sizeof(std::shared_ptr<Texture2D>) << '\n';
+
+	std::cout << "offsetof(diffuseColor) : " << offsetof(Material, diffuseColor) << '\n';
+
+	lMaterial = Material::create
+	(
+		vec4f(randf(), randf(), randf(), randf()),
+		vec4f(randf(), randf(), randf(), randf()),
+		"Resources/bricks.jpg", 
+		"Resources/bricks_SPEC.png", 
+		"Resources/bricks_NRM.png"
+	);
+}
+
 BOOST_AUTO_TEST_CASE( serialization_of_materials )
 {
 	Renderer::initialize("Dummy Context", nullptr, false, 1, 1, false, false, false);
