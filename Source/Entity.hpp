@@ -7,13 +7,15 @@
 #pragma once
 
 #include "ForwardDeclarations.hpp"
-
-#include "Foundation/Object.hpp"
+#include "Camera.hpp"
 
 #include "Math/SQT.hpp"
 #include "Math/box3f.hpp"
 #include "Math/mat4f.hpp"
 
+#include "Graphics/Material.hpp"
+#include "Graphics/Mesh.hpp"
+#include "Graphics/Light.hpp"
 #include "Graphics/ShadowBuffer.hpp"
 
 #include <list>
@@ -55,7 +57,7 @@ private:
 
 	children_datastructure_type mChildren;
 
-	std::weak_ptr<Entity> mParent = std::shared_ptr<Entity>(nullptr);
+	WeakPtr mParent = SharedPtr(nullptr);
 
 	friend class Octree;
 
@@ -180,7 +182,7 @@ public:
 	 * @brief Clone this entity; clone all its children too.
 	 * @return The cloned entity.
 	 */
-	std::shared_ptr<Entity> cloneRecursive() const;
+	SharedPtr cloneRecursive() const;
 
 	//@}
 
@@ -197,22 +199,22 @@ public:
 	/**
 	 * @brief The Material associated to this Entity.
 	 */
-	std::shared_ptr<Material> material;
+	Material::SharedPtr material;
 
 	/**
 	 * @brief The Mesh associated to this Entity.
 	 */
-	std::shared_ptr<Mesh> mesh;
+	Mesh::SharedPtr mesh;
 
 	/**
 	 * @brief The Light associated to this Entity.
 	 */
-	std::shared_ptr<Light> light;
+	Light::SharedPtr light;
 
 	/**
 	 * @brief The Camera associated to this Entity.
 	 */
-	std::shared_ptr<Camera> camera;
+	Camera::SharedPtr camera;
 
 	/**
 	 * @brief The ShadowBuffer associated to this Entity.
@@ -227,17 +229,15 @@ public:
 
 	/**
 	 * @brief Event that fires when this Entity is about to die.
-	 *
-	 * @param e A reference to the Entity that is about to die.
+	 * @param e A pointer to a const Entity that is about to die.
 	 */
-	boost::signals2::signal<void(std::shared_ptr<Entity>)> onDie;
+	boost::signals2::signal<void(Entity*)> onDie;
 
 	/**
 	 * @brief Event that fires when the global transform has changed.
-	 *
 	 * @param e A reference to the Entity whose global transform has changed.
 	 */
-	boost::signals2::signal<void(std::shared_ptr<Entity>)> onTransformChange;
+	boost::signals2::signal<void(SharedPtr)> onTransformChange;
 
 	//@}
 

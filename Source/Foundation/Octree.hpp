@@ -26,7 +26,7 @@ private:
 
 	struct EntityHolder
 	{
-		std::weak_ptr<Entity>       entity;
+		Entity::WeakPtr             entity;
 		boost::signals2::connection transformChangeConnection;
 		boost::signals2::connection destructConnection;
 
@@ -35,7 +35,7 @@ private:
 		EntityHolder(EntityHolder&&)                  = default;
 		EntityHolder& operator= (const EntityHolder&) = default;
 		EntityHolder& operator= (EntityHolder&&)      = default;
-		~EntityHolder() noexcept                      = default;
+		~EntityHolder() noexcept;
 
 		template <class A, class B, class C>
 		EntityHolder(A&& a, B&& b, C&& c)
@@ -47,6 +47,7 @@ private:
 		}
 	};
 
+	void* mAllocationPlace = nullptr;
 	Octree* mParent = nullptr;
 	Octree* mChild[8] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
 	box3f mBounds;
@@ -333,21 +334,35 @@ public:
 	 * needed.
 	 * @param entity The Entity to insert.
 	 */
-	void insert(std::shared_ptr<Entity> entity);
+	void insert(Entity::SharedPtr entity);
 
 	/**
-	 * @brief Erase an Entity from the tree.
+	 * @brief Erase all weak pointer entities which are no longer valid in
+	 * this Octree node.
+	 * @details This method does not recurse down into the tree. It will only
+	 * attempt to erase all entities in this node's Entity list whose reference
+	 * count is zero. If no entities
+	 * remain in the node's list and if this is a leaf node, then the node
+	 * will delete itself. This process continues up the tree.
+	 * @return The farthest parent who still has non-leaf children, or entities
+	 * inside it, or the root node, or nullptr if no entities were removed.
+	 * Client code should only check for nullptr because that signals a logical
+	 * error.
+	 */
+	Octree* erase();
+
+	/**
+	 * @brief Erase the given entity from this Octree node.
 	 * @details This method does not recurse down into the tree. It will only
 	 * attempt to erase the Entity in this node's Entity list. If no entities
 	 * remain in the node's list and if this is a leaf node, then the node
 	 * will delete itself. This process continues up the tree.
-	 * @param entity The Entity to erase.
 	 * @return The farthest parent who still has non-leaf children, or entities
-	 * inside it, or the root node, or nullptr if the entity was not present in
-	 * this Octree node. Client code should only check for nullptr because that
+	 * inside it, or the root node, or nullptr if the Entity is not part of this
+	 * Octree node. Client code should only check for nullptr because that
 	 * signals a logical error.
 	 */
-	Octree* erase(std::shared_ptr<Entity> entity);
+	Octree* erase(Entity::SharedPtr entity);
 
 	/**
 	 * @brief Returns the root of the octree node.

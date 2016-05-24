@@ -39,6 +39,7 @@ class Object : public std::enable_shared_from_this<Derived>
 {
 public:
 
+	using name_type = NameType;
 	using SharedPtr = std::shared_ptr<Derived>;
 	using ConstSharedPtr = std::shared_ptr<const Derived>;
 	using WeakPtr = std::weak_ptr<Derived>;
@@ -49,11 +50,14 @@ public:
 	public:
 		inline NoNameException() noexcept {};
 		virtual ~NoNameException() noexcept = default;
-		virtual const char* what() const noexcept { return "NoNameException"; }
+		virtual const char* what() const noexcept
+		{
+			return "NoNameException";
+		}
 	};
 
 	/// The name of this Object.
-	NameType name;
+	name_type name;
 
 	/// The ReadWriteLock for this Object.
 	ReadWriteLock readWriteLock;
@@ -65,7 +69,7 @@ public:
 	 * @brief Constructor that takes a name.
 	 * @param [in] name The name of the new Object.
 	 */
-	Object(const NameType& name)
+	Object(const name_type& name)
 	: name(name)
 	{
 		/* Empty on purpose. */
@@ -75,7 +79,7 @@ public:
 	 * @brief Constructor that takes a name.
 	 * @param [in] name The name of the new Object.
 	 */
-	Object(NameType&& name)
+	Object(name_type&& name)
 	: name(std::move(name))
 	{
 		/* Empty on purpose. */

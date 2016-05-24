@@ -46,20 +46,20 @@
  */
 // #if defined(BOOST_MSVC) || defined(__APPLE__)
 #define GINTONIC_DEFINE_ALIGNED_OPERATOR_NEW_DELETE(alignment)               \
-inline static void* operator new(std::size_t count)                          \
+inline static void* operator new(const std::size_t count)                    \
 {                                                                            \
 	return _mm_malloc(count, alignment);                                     \
 }                                                                            \
-inline static void* operator new[](std::size_t count)                        \
+inline static void* operator new[](const std::size_t count)                  \
 {                                                                            \
 	return _mm_malloc(count, alignment);                                     \
 }                                                                            \
-inline static void* operator new(std::size_t count, void* here)              \
+inline static void* operator new(const std::size_t /*count*/, void* here)    \
 {                                                                            \
 	assert(isAligned(here, alignment));                                      \
 	return here;                                                             \
 }                                                                            \
-inline static void* operator new[](std::size_t count, void* here)            \
+inline static void* operator new[](const std::size_t /*count*/, void* here)  \
 {                                                                            \
 	assert(isAligned(here, alignment));                                      \
 	return here;                                                             \
@@ -74,23 +74,22 @@ inline static void operator delete[](void* ptr)                              \
 }                                                                            \
 inline static void operator delete(void* ptr, void* here)                    \
 {                                                                            \
+	assert(isAligned(ptr,  alignment));                                      \
 	assert(isAligned(here, alignment));                                      \
-	_mm_free(ptr);                                                           \
 }                                                                            \
 inline static void operator delete[](void* ptr, void* here)                  \
 {                                                                            \
+	assert(isAligned(ptr,  alignment));                                      \
 	assert(isAligned(here, alignment));                                      \
-	_mm_free(ptr);                                                           \
 }                                                                            \
-inline static void operator delete(void* ptr, std::size_t size)              \
+inline static void operator delete(void* ptr, const std::size_t /*count*/)   \
 {                                                                            \
-	_mm_free(ptr);                                                           \
+	assert(isAligned(ptr,  alignment));                                      \
 }                                                                            \
-inline static void operator delete[](void* ptr, std::size_t size)            \
+inline static void operator delete[](void* ptr, const std::size_t /*count*/) \
 {                                                                            \
-	_mm_free(ptr);                                                           \
+	assert(isAligned(ptr,  alignment));                                      \
 }
-
 
 /**
  * @brief The memory boundary of an SSE type.

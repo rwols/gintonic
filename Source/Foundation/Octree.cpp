@@ -4,6 +4,16 @@
 
 namespace gintonic {
 
+Octree::EntityHolder::~EntityHolder() noexcept
+{
+	if (auto lPtr = entity.lock())
+	{
+		lPtr->mOctree = nullptr;
+	}
+	destructConnection.disconnect();
+	transformChangeConnection.disconnect();
+}
+
 // Constructors.
 Octree::Octree(const box3f& bounds)
 : mBounds(bounds)
@@ -25,26 +35,42 @@ Octree::Octree(const Octree& other)
 : mBounds(other.mBounds)
 , mEntities(other.mEntities)
 {
-	if (other.mChild[0]) mChild[0] = new Octree(*(other.mChild[0]));
-	else mChild[0] = nullptr;
-	if (other.mChild[1]) mChild[1] = new Octree(*(other.mChild[1]));
-	else mChild[1] = nullptr;
-	if (other.mChild[2]) mChild[2] = new Octree(*(other.mChild[2]));
-	else mChild[2] = nullptr;
-	if (other.mChild[3]) mChild[3] = new Octree(*(other.mChild[3]));
-	else mChild[3] = nullptr;
-	if (other.mChild[4]) mChild[4] = new Octree(*(other.mChild[4]));
-	else mChild[4] = nullptr;
-	if (other.mChild[5]) mChild[5] = new Octree(*(other.mChild[5]));
-	else mChild[5] = nullptr;
-	if (other.mChild[6]) mChild[6] = new Octree(*(other.mChild[6]));
-	else mChild[6] = nullptr;
-	if (other.mChild[7]) mChild[7] = new Octree(*(other.mChild[7]));
-	else mChild[7] = nullptr;
+	if (other.mAllocationPlace)
+	{
+		mAllocationPlace = _mm_malloc(sizeof(Octree) * 8, 16);
+		assert(mAllocationPlace != nullptr);
+		for (std::size_t c = 0; c < 8; ++c)
+		{
+			mChild[0] = new ((Octree*)mAllocationPlace + c) Octree(*(other.mChild[c]));
+		}
+	}
+	else
+	{
+		mChild[0] = mChild[1] = mChild[2] 
+			= mChild[3] = mChild[4] = mChild[5] 
+			= mChild[6] = mChild[7] = nullptr;
+	}
+	// if (other.mChild[0]) mChild[0] = new Octree(*(other.mChild[0]));
+	// else mChild[0] = nullptr;
+	// if (other.mChild[1]) mChild[1] = new Octree(*(other.mChild[1]));
+	// else mChild[1] = nullptr;
+	// if (other.mChild[2]) mChild[2] = new Octree(*(other.mChild[2]));
+	// else mChild[2] = nullptr;
+	// if (other.mChild[3]) mChild[3] = new Octree(*(other.mChild[3]));
+	// else mChild[3] = nullptr;
+	// if (other.mChild[4]) mChild[4] = new Octree(*(other.mChild[4]));
+	// else mChild[4] = nullptr;
+	// if (other.mChild[5]) mChild[5] = new Octree(*(other.mChild[5]));
+	// else mChild[5] = nullptr;
+	// if (other.mChild[6]) mChild[6] = new Octree(*(other.mChild[6]));
+	// else mChild[6] = nullptr;
+	// if (other.mChild[7]) mChild[7] = new Octree(*(other.mChild[7]));
+	// else mChild[7] = nullptr;
 }
 
 Octree::Octree(Octree&& other)
-: mParent(other.mParent)
+: mAllocationPlace(other.mAllocationPlace)
+, mParent(other.mParent)
 , mBounds(std::move(other.mBounds))
 , mEntities(std::move(other.mEntities))
 {
@@ -57,6 +83,7 @@ Octree::Octree(Octree&& other)
 	mChild[6] = other.mChild[6];
 	mChild[7] = other.mChild[7];
 
+	other.mAllocationPlace = nullptr;
 	other.mParent = nullptr;
 	
 	other.mChild[0] = other.mChild[1] = other.mChild[2] 
@@ -69,22 +96,34 @@ Octree& Octree::operator = (const Octree& other)
 	// Explicitly call the destructor.
 	this->~Octree();
 
-	if (other.mChild[0]) mChild[0] = new Octree(*(other.mChild[0]));
-	else mChild[0] = nullptr;
-	if (other.mChild[1]) mChild[1] = new Octree(*(other.mChild[1]));
-	else mChild[1] = nullptr;
-	if (other.mChild[2]) mChild[2] = new Octree(*(other.mChild[2]));
-	else mChild[2] = nullptr;
-	if (other.mChild[3]) mChild[3] = new Octree(*(other.mChild[3]));
-	else mChild[3] = nullptr;
-	if (other.mChild[4]) mChild[4] = new Octree(*(other.mChild[4]));
-	else mChild[4] = nullptr;
-	if (other.mChild[5]) mChild[5] = new Octree(*(other.mChild[5]));
-	else mChild[5] = nullptr;
-	if (other.mChild[6]) mChild[6] = new Octree(*(other.mChild[6]));
-	else mChild[6] = nullptr;
-	if (other.mChild[7]) mChild[7] = new Octree(*(other.mChild[7]));
-	else mChild[7] = nullptr;
+	assert(mAllocationPlace == nullptr);
+
+	if (other.mAllocationPlace != nullptr)
+	{
+		mAllocationPlace = _mm_malloc(sizeof(Octree) * 8, 16);
+		assert(mAllocationPlace != nullptr);
+		for (std::size_t c = 0; c < 8; ++c)
+		{
+			mChild[0] = new ((Octree*)mAllocationPlace + c) Octree(*(other.mChild[c]));
+		}
+	}
+
+	// if (other.mChild[0]) mChild[0] = new Octree(*(other.mChild[0]));
+	// else mChild[0] = nullptr;
+	// if (other.mChild[1]) mChild[1] = new Octree(*(other.mChild[1]));
+	// else mChild[1] = nullptr;
+	// if (other.mChild[2]) mChild[2] = new Octree(*(other.mChild[2]));
+	// else mChild[2] = nullptr;
+	// if (other.mChild[3]) mChild[3] = new Octree(*(other.mChild[3]));
+	// else mChild[3] = nullptr;
+	// if (other.mChild[4]) mChild[4] = new Octree(*(other.mChild[4]));
+	// else mChild[4] = nullptr;
+	// if (other.mChild[5]) mChild[5] = new Octree(*(other.mChild[5]));
+	// else mChild[5] = nullptr;
+	// if (other.mChild[6]) mChild[6] = new Octree(*(other.mChild[6]));
+	// else mChild[6] = nullptr;
+	// if (other.mChild[7]) mChild[7] = new Octree(*(other.mChild[7]));
+	// else mChild[7] = nullptr;
 
 	return *this;
 }
@@ -93,6 +132,9 @@ Octree& Octree::operator = (Octree&& other)
 {
 	// Explicitly call the destructor.
 	this->~Octree();
+
+	mAllocationPlace = other.mAllocationPlace;
+	other.mAllocationPlace = nullptr;
 
 	mChild[0] = other.mChild[0];
 	mChild[1] = other.mChild[1];
@@ -117,7 +159,18 @@ Octree& Octree::operator = (Octree&& other)
 // Non-trivial destructor calls delete on all of its children.
 Octree::~Octree()
 {
-	for (const auto* c : mChild) delete c;
+	if (mAllocationPlace != nullptr)
+	{
+		for (auto*& lChild : mChild)
+		{
+			// DEBUG_PRINT;
+			(Octree::operator delete)(lChild, mAllocationPlace);
+			lChild->~Octree();
+			lChild = nullptr;
+		}
+		_mm_free(mAllocationPlace);
+		mAllocationPlace = nullptr;
+	}
 }
 
 bool Octree::isLeaf() const noexcept
@@ -177,14 +230,14 @@ void Octree::insert(std::shared_ptr<Entity> entity)
 	// update the octree along with it. We store the connection object
 	// so that we may disconnect from the entity once it leaves the bounding
 	// box of this octree node.
-	auto lTransformChangeConnection = entity->onTransformChange.connect( [this] (std::shared_ptr<Entity> thisEntity)
+	auto lTransformChangeConnection = entity->onTransformChange.connect( [this] (Entity::SharedPtr thisEntity)
 	{
 		assert(this == thisEntity->mOctree);
 		// PRINT_VAR(this);
 		auto lUpmostParent = this->erase(thisEntity);
 		// PRINT_VAR(lUpmostParent);
 		assert(lUpmostParent);
-		assert(nullptr == thisEntity->mOctree);
+		thisEntity->mOctree = nullptr;
 		lUpmostParent->backRecursiveInsert(thisEntity);
 	});
 
@@ -193,12 +246,11 @@ void Octree::insert(std::shared_ptr<Entity> entity)
 	// Subscribe to the onDie event of the Entity.
 	// When the Entity dies (i.e. destructor is called), we need to
 	// be notified of that event so that we remove the Entity from the octree node too.
-	auto lDieConnection = entity->onDie.connect( [this] (std::shared_ptr<Entity> thisEntity)
+	auto lDieConnection = entity->onDie.connect( [this] (Entity* thisEntity)
 	{
 		assert(this == thisEntity->mOctree);
-		auto lUpmostParent = this->erase(thisEntity);
+		auto lUpmostParent = thisEntity->mOctree->erase();
 		assert(lUpmostParent);
-		assert(nullptr == thisEntity->mOctree);
 	});
 
 	// DEBUG_PRINT;
@@ -206,7 +258,67 @@ void Octree::insert(std::shared_ptr<Entity> entity)
 	mEntities.emplace_back(std::move(entity), std::move(lTransformChangeConnection), std::move(lDieConnection));
 }
 
-Octree* Octree::erase(std::shared_ptr<Entity> entity)
+Octree* Octree::erase()
+{
+	std::size_t lEraseCount(0);
+	// DEBUG_PRINT;
+	// if (entity->mOctree != this) return nullptr;
+	// DEBUG_PRINT;
+	auto lIter = mEntities.begin();
+	while (lIter != mEntities.end())
+	{
+		if (lIter->entity.expired())
+		{
+			// lIter->transformChangeConnection.disconnect();
+			// lIter->destructConnection.disconnect();
+			lIter->destructConnection.disconnect();
+			lIter = mEntities.erase(lIter);
+			++lEraseCount;
+		}
+		else
+		{
+			++lIter;
+		}
+	}
+	// for (auto lIter = mEntities.begin(); lIter != mEntities.end(); ++lIter)
+	// {
+	// 	// DEBUG_PRINT;
+	// 	if (!lIter->entity.lock())
+	// 	{
+	// 		lIter->transformChangeConnection.disconnect();
+	// 		lIter->destructConnection.disconnect();
+	// 		lIter = mEntities.erase(lIter);
+	// 		++lEraseCount;
+	// 	}
+	// 	// if (entity == lIter->entity.lock())
+	// 	// {
+	// 	// 	// DEBUG_PRINT;
+	// 	// 	lIter->transformChangeConnection.disconnect();
+	// 	// 	lIter->destructConnection.disconnect();
+
+	// 	// 	// DEBUG_PRINT;
+	// 	// 	assert(lIter->transformChangeConnection.connected() == false);
+	// 	// 	assert(lIter->destructConnection.connected() == false);
+			
+	// 	// 	// DEBUG_PRINT;
+	// 	// 	mEntities.erase(lIter);
+	// 	// 	entity->mOctree = nullptr;
+
+	// 	// 	// DEBUG_PRINT;
+	// 	// 	break; 
+	// 	// }
+	// }
+	if (lEraseCount > 0)
+	{
+		return mParent ? mParent->backRecursiveDelete() : this ;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+Octree* Octree::erase(Entity::SharedPtr entity)
 {
 	// DEBUG_PRINT;
 	if (entity->mOctree != this) return nullptr;
@@ -232,7 +344,6 @@ Octree* Octree::erase(std::shared_ptr<Entity> entity)
 			break; 
 		}
 	}
-	// DEBUG_PRINT;
 	if (mParent) return mParent->backRecursiveDelete();
 	else return this;
 }
@@ -286,9 +397,14 @@ Octree* Octree::backRecursiveDelete()
 		// DEBUG_PRINT;
 		for (auto*& lChildNode : mChild)
 		{
-			delete lChildNode;
+			(Octree::operator delete)(lChildNode, mAllocationPlace);
+			lChildNode->~Octree();
 			lChildNode = nullptr;
 		}
+		// DEBUG_PRINT;
+		_mm_free(mAllocationPlace);
+		// DEBUG_PRINT;
+		mAllocationPlace = nullptr;
 	}
 	// DEBUG_PRINT;
 
@@ -393,53 +509,74 @@ Octree::Octree(const float subdivisionThreshold, Octree* parent, const vec3f& mi
 void Octree::subdivide()
 {
 	// DEBUG_PRINT;
-	auto min = mBounds.minCorner;
+	auto lMin = mBounds.minCorner;
 	// DEBUG_PRINT;
-	auto max = mBounds.maxCorner;
 	// DEBUG_PRINT;
-	const auto half = (max - min) / 2.0f;
+	const auto lHalf = (mBounds.maxCorner - lMin) / 2.0f;
 	// DEBUG_PRINT;
-	if (half.x <= this->subdivisionThreshold 
-		|| half.y <= this->subdivisionThreshold 
-		|| half.z <= this->subdivisionThreshold)
+	if (lHalf.x <= this->subdivisionThreshold 
+		|| lHalf.y <= this->subdivisionThreshold 
+		|| lHalf.z <= this->subdivisionThreshold)
 	{
 		// DEBUG_PRINT;
 		return;
 	}
 
-	// DEBUG_PRINT;
-	mChild[0] = new Octree(subdivisionThreshold, this, min, min + half);
-	// DEBUG_PRINT;
-	min.x += half.x;
-	// DEBUG_PRINT;
-	mChild[1] = new Octree(subdivisionThreshold, this, min, min + half);
-	// DEBUG_PRINT;
-	min.y += half.y;
-	// DEBUG_PRINT;
-	mChild[2] = new Octree(subdivisionThreshold, this, min, min + half);
-	// DEBUG_PRINT;
-	min.x -= half.x;
-	// DEBUG_PRINT;
-	mChild[3] = new Octree(subdivisionThreshold, this, min, min + half);
-	// DEBUG_PRINT;
-	min.y -= half.y;
-	// at this point, we are at the original location of min
-	min.z += half.z;
-	// DEBUG_PRINT;
-	mChild[4] = new Octree(subdivisionThreshold, this, min, min + half);
-	// DEBUG_PRINT;
-	min.x += half.x;
-	// DEBUG_PRINT;
-	mChild[5] = new Octree(subdivisionThreshold, this, min, min + half);
-	// DEBUG_PRINT;
-	min.y += half.y;
-	// DEBUG_PRINT;
-	mChild[6] = new Octree(subdivisionThreshold, this, min, min + half);
-	// DEBUG_PRINT;
-	min.x -= half.x;
-	// DEBUG_PRINT;
-	mChild[7] = new Octree(subdivisionThreshold, this, min, min + half);
-	// DEBUG_PRINT;
+	assert(mAllocationPlace == nullptr);
+
+	mAllocationPlace = _mm_malloc(sizeof(Octree) * 8, 16);
+
+	mChild[0] = new ((Octree*)mAllocationPlace + 0) Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	lMin.x += lHalf.x;
+	mChild[1] = new ((Octree*)mAllocationPlace + 1) Octree(subdivisionThreshold, this, lMin, lMin + lHalf); 
+	lMin.y += lHalf.y;
+	mChild[2] = new ((Octree*)mAllocationPlace + 2) Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	lMin.x -= lHalf.x;
+	mChild[3] = new ((Octree*)mAllocationPlace + 3) Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	lMin.y -= lHalf.y;
+	// at this point, we are at the original location of lMin
+	lMin.z += lHalf.z;
+	mChild[4] = new ((Octree*)mAllocationPlace + 4) Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	lMin.x += lHalf.x;
+	mChild[5] = new ((Octree*)mAllocationPlace + 5) Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	lMin.y += lHalf.y;
+	mChild[6] = new ((Octree*)mAllocationPlace + 6) Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	lMin.x -= lHalf.x;
+	mChild[7] = new ((Octree*)mAllocationPlace + 7) Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+
+	// // DEBUG_PRINT;
+	// mChild[0] = new Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	// // DEBUG_PRINT;
+	
+	// // DEBUG_PRINT;
+	// mChild[1] = new Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	// // DEBUG_PRINT;
+	
+	// // DEBUG_PRINT;
+	// mChild[2] = new Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	// // DEBUG_PRINT;
+	
+	// // DEBUG_PRINT;
+	// mChild[3] = new Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	// // DEBUG_PRINT;
+	// lMin.y -= lHalf.y;
+	// // at this point, we are at the original location of lMin
+	// lMin.z += lHalf.z;
+	// // DEBUG_PRINT;
+	// mChild[4] = new Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	// // DEBUG_PRINT;
+	// lMin.x += lHalf.x;
+	// // DEBUG_PRINT;
+	// mChild[5] = new Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	// // DEBUG_PRINT;
+	// lMin.y += lHalf.y;
+	// // DEBUG_PRINT;
+	// mChild[6] = new Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	// // DEBUG_PRINT;
+	// lMin.x -= lHalf.x;
+	// // DEBUG_PRINT;
+	// mChild[7] = new Octree(subdivisionThreshold, this, lMin, lMin + lHalf);
+	// // DEBUG_PRINT;
 }
 
 } // namespace gintonic

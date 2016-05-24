@@ -476,12 +476,12 @@ Entity::~Entity() noexcept
 {
 	try
 	{
-		onDie(shared_from_this());
-
+		onDie(this);
 	}
 	catch (...)
 	{
-		// Absorb the exceptions
+		std::cerr << "FATAL: Exception thrown during destruction of Entity " << this << '\n';
+		std::terminate();
 	}
 	SQT lSQT;
 	for (auto lChild : mChildren)
