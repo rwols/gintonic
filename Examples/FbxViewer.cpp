@@ -126,11 +126,11 @@ class FbxViewerApplication : public Application
 {
 public:
 
-	std::shared_ptr<gintonic::Entity> mModel;
+	gintonic::Entity::SharedPtr mModel;
 
 	float mLightIntensity = LIGHT_INTENSITY_START_VALUE;
 
-	std::vector<std::shared_ptr<gintonic::Entity>> mLights;
+	std::vector<gintonic::Entity::SharedPtr> mLights;
 
 	FbxViewerApplication(int argc, char** argv)
 	: Application(APPNAME, argc, argv)
@@ -154,7 +154,7 @@ public:
 		{
 			std::cout << "Loading native file: " << lFilename << '\n';
 			const auto lFilenameAsString = lFilename.string();
-			std::ifstream lInput(lFilenameAsString);
+			std::ifstream lInput(lFilenameAsString, std::ios::binary);
 			InputArchiveType lInputArchive(lInput);
 			lInputArchive >> mModel;
 		}
@@ -162,7 +162,7 @@ public:
 		{
 			std::cout << "Found cache: " << lCachedFile << '\n';
 			const auto lFilenameAsString = lCachedFile.string();
-			std::ifstream lInput(lFilenameAsString);
+			std::ifstream lInput(lFilenameAsString, std::ios::binary);
 			InputArchiveType lInputArchive(lInput);
 			lInputArchive >> mModel;
 		}
@@ -174,7 +174,7 @@ public:
 			mModel = lImporter.loadEntities();
 			// mModel->name = lFilename.stem().string();
 			// Serialize the model for caching
-			std::ofstream lOutput("Resources/" + mModel->name + ".entity");
+			std::ofstream lOutput("Resources/" + mModel->name + ".entity", std::ios::binary);
 			OutputArchiveType lOutputArchive(lOutput);
 			lOutputArchive << mModel;
 		}

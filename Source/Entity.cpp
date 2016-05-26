@@ -474,6 +474,7 @@ mat4f Entity::getViewMatrix() const noexcept
 
 Entity::~Entity() noexcept
 {
+	// std::cerr << name << " destructor called.\n";
 	try
 	{
 		onDie(this);
@@ -482,11 +483,23 @@ Entity::~Entity() noexcept
 	{
 		// Absorb exceptions.
 	}
+	// DEBUG_PRINT;
 	for (auto lChild : mChildren)
 	{
-		lChild->mParent.reset();
-		lChild->mGlobalTransform.decompose(lChild->mLocalTransform);
+		if (lChild.use_count())
+		{
+			// DEBUG_PRINT;
+			// std::cerr << "\tChild refcount: " << lChild.use_count() << '\n';
+			// DEBUG_PRINT;
+			// std::cerr << "\t" << lChild->name << "\n";
+			// DEBUG_PRINT;
+			lChild->mParent.reset();
+			// DEBUG_PRINT;
+			lChild->mGlobalTransform.decompose(lChild->mLocalTransform);
+			// DEBUG_PRINT;
+		}
 	}
+	// DEBUG_PRINT;
 	if (auto lParent = mParent.lock())
 	{
 		for (auto lIter = lParent->mChildren.begin(); lIter != lParent->mChildren.end(); ++lIter)

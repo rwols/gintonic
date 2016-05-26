@@ -1145,7 +1145,7 @@ void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>&
 
 	assert(static_cast<Mesh::Bone::IndexType>(bones.size()) == lBoneCount);
 
-	for (Bone::IndexType i = 0; i < static_cast<Mesh::Bone::IndexType>(bones.size()); ++i)
+	for (Bone::IndexType i = 0; i < static_cast<Bone::IndexType>(bones.size()); ++i)
 	{
 		const auto r1 = lIndexToBoneMap.find(i);
 		assert(r1 != lIndexToBoneMap.end());

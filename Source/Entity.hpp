@@ -748,16 +748,27 @@ private:
 	template <class Archive>
 	void serialize(Archive& archive, const unsigned int /*version*/)
 	{
+		DEBUG_PRINT;
 		archive & boost::serialization::base_object<Object<Entity, std::string>>(*this);
+		DEBUG_PRINT;
 		archive & mLocalTransform;
+		DEBUG_PRINT;
 		archive & mGlobalTransform;
+		DEBUG_PRINT;
 		archive & mParent;
+		DEBUG_PRINT;
 		archive & castShadow;
+		DEBUG_PRINT;
 		archive & material;
+		DEBUG_PRINT;
 		archive & mesh;
+		DEBUG_PRINT;
 		archive & light;
+		DEBUG_PRINT;
 		archive & camera;
+		DEBUG_PRINT;
 		archive & mChildren;
+		DEBUG_PRINT;
 	}
 };
 

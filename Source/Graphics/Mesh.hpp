@@ -573,43 +573,77 @@ private:
 	template <class Archive>
 	void save(Archive& archive, const unsigned int /*version*/) const
 	{
+		DEBUG_PRINT;
 		archive & mLocalBoundingBox;
+		DEBUG_PRINT;
 
+		DEBUG_PRINT;
 		archive & bones;
+		DEBUG_PRINT;
 
+		DEBUG_PRINT;
 		archive & mIndices;
+		DEBUG_PRINT;
 		archive & mIndicesAdjacent;
+		DEBUG_PRINT;
 
+		DEBUG_PRINT;
 		archive & mPosition_XYZ_uv_X;
+		DEBUG_PRINT;
 		archive & mNormal_XYZ_uv_Y;
+		DEBUG_PRINT;
 		archive & mTangent_XYZ_hand;
+		DEBUG_PRINT;
 
+		DEBUG_PRINT;
 		archive & mPositions;
+		DEBUG_PRINT;
 
+		DEBUG_PRINT;
 		archive & mBoneIndices;
+		DEBUG_PRINT;
 		archive & mBoneWeights;
+		DEBUG_PRINT;
 	}
 
 	template <class Archive>
 	void load(Archive& archive, const unsigned int /*version*/)
 	{
+		DEBUG_PRINT;
 		archive & mLocalBoundingBox;
+		DEBUG_PRINT;
 
+		DEBUG_PRINT;
 		archive & bones;
+		DEBUG_PRINT;
 
+		DEBUG_PRINT;
 		archive & mIndices;
+		DEBUG_PRINT;
 		archive & mIndicesAdjacent;
+		DEBUG_PRINT;
 
+		DEBUG_PRINT;
 		archive & mPosition_XYZ_uv_X;
+		DEBUG_PRINT;
 		archive & mNormal_XYZ_uv_Y;
+		DEBUG_PRINT;
 		archive & mTangent_XYZ_hand;
+		DEBUG_PRINT;
 
+		DEBUG_PRINT;
 		archive & mPositions;
+		DEBUG_PRINT;
 
+		DEBUG_PRINT;
 		archive & mBoneIndices;
+		DEBUG_PRINT;
 		archive & mBoneWeights;
+		DEBUG_PRINT;
 
+		DEBUG_PRINT;
 		uploadData();
+		DEBUG_PRINT;
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER();
