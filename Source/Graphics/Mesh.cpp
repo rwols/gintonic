@@ -1131,10 +1131,19 @@ void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>&
 		lBoneToClusterMap.emplace(lLink, lCluster);
 
 		// Is this the root bone?
-		if (lLink->GetParent() == lLink->GetScene()->GetRootNode() || 
-			lLink->GetParent() == pFbxMesh->GetNode())
+		if (lLink->GetParent() == lLink->GetScene()->GetRootNode())
 		{
 			lRootBone = lLink;
+			std::cerr << "\t\t" << lLink->GetName() << " is not the root node!\n";
+		}
+		else if (lLink->GetParent() == pFbxMesh->GetNode())
+		{
+			lRootBone = lLink;
+			std::cerr << "\t\t" << lLink->GetName() << " is the mesh node!\n";
+		}
+		else
+		{
+			std::cerr << "\t\t" << lLink->GetName() << " is neither the root nor the mesh node.\n";
 		}
 
 	}

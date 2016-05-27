@@ -474,7 +474,6 @@ mat4f Entity::getViewMatrix() const noexcept
 
 Entity::~Entity() noexcept
 {
-	// std::cerr << name << " destructor called.\n";
 	try
 	{
 		onDie(this);

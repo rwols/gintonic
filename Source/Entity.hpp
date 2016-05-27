@@ -28,14 +28,12 @@ namespace gintonic {
 class Octree;
 
 /**
- * @brief Represents an entity in the world.
- *
- * @details Entities should be created on the heap and managed via shared
- * pointers. Entities carry various components. The components are instantiated
- * with a unique pointer. Thus entities own components. Each component may have
- * a shared poiner to some large data somewhere in memory. Thus, a component
- * is like a vector in that the component itself should have a small memory
- * footprint, while the data that they point to might be very memory-intensive.
+ * @brief Represents an Entity in the world. An Entity can only be
+ * instantiated on the heap, using the static method Entity::create.
+ * This method is (variadic) templated, simply calling an appropriate
+ * Entity constructor. It returns a shared pointer to an Entity.
+ * An Entity carries various components, mostly via shared pointers.
+ * Examples of components are Material, Mesh and Light.
  */
 class Entity : public Object<Entity, std::string>
 {
