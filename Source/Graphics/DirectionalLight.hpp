@@ -20,6 +20,8 @@ class DirectionalLight : public AmbientLight
 {
 public:
 
+	using Super = AmbientLight;
+
 	template <class ...Args>
 	inline static SharedPtr create(Args&&... args)
 	{
@@ -65,7 +67,7 @@ private:
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AmbientLight);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
 	}
 };
 

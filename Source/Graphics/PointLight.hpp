@@ -23,6 +23,8 @@ class PointLight : public Light
 {
 public:
 
+	using Super = Light;
+
 	template <class ...Args>
 	inline static SharedPtr create(Args&&... args)
 	{
@@ -129,7 +131,7 @@ private:
 	template <class Archive>
 	void save(Archive& ar, const unsigned /*version*/) const
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Light);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
 		ar & boost::serialization::make_nvp("attenuation", mAttenuation);
 	}
 
@@ -137,7 +139,7 @@ private:
 	void load(Archive& ar, const unsigned /*version*/)
 	{
 		vec4f att;
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Light);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
 		ar & boost::serialization::make_nvp("attenuation", att);
 		setAttenuation(att);
 	}

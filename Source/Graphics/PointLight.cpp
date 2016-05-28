@@ -22,13 +22,13 @@
 namespace gintonic {
 
 PointLight::PointLight(const vec4f& intensity)
-: Light(intensity)
+: Super(intensity)
 {
 	/* Empty on purpose. */
 }
 
 PointLight::PointLight(const vec4f& intensity, const vec4f& attenuation)
-: Light(intensity)
+: Super(intensity)
 {
 	setAttenuation(attenuation);
 }
@@ -48,7 +48,6 @@ void PointLight::shine(
 	const Entity& lightEntity, 
 	const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) const noexcept
 {
-	// const auto& lSilhouetteProgram   = SilhouetteShaderProgram::get();
 	const auto& lShadowVolumeProgram = ShadowVolumeShaderProgram::get();
 	const auto& lPointLightProgram   = PointLightShaderProgram::get();
 
@@ -58,6 +57,13 @@ void PointLight::shine(
 	{
 		// Go to world space.
 		lLightPos = (lightEntity.globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data;
+
+		// Polygon offset is needed because otherwise the shadow volume will
+		// Z-fight with the original geometry. We need to draw the shadow volume
+		// just a tiny bit "away" from the original geometry. It's possible to do this
+		// in the geometry shader, but I find this a more elegant solution.
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(1.0f, 1.0f);
 
 		Renderer::beginStencilPass();
 		glStencilFunc(GL_ALWAYS, 0, 0xff);
@@ -82,17 +88,9 @@ void PointLight::shine(
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP); // Prevent update to the stencil buffer.
 		Renderer::endStencilPass();
 
-		// lSilhouetteProgram.activate();
-		// lSilhouetteProgram.setColor(vec3f(mIntensity.data));
-
-		// for (const auto lGeometryEntity : shadowCastingGeometryEntities)
-		// {
-		// 	// Go from world space to the local space of the mesh.
-		// 	lLightPosInLocalCoordinates = (lGeometryEntity->getViewMatrix() * vec4f(lLightPos, 1.0f)).data;
-		// 	lSilhouetteProgram.setLightPosition(lLightPosInLocalCoordinates);
-		// 	lSilhouetteProgram.setMatrixPVM( lMatrixPV * lGeometryEntity->globalTransform() );
-		// 	lGeometryEntity->mesh->drawAdjacent();
-		// }
+		// Restore original state. Here we implicitly assume that the default
+		// state is to apply no polygon offset.
+		glDisable(GL_POLYGON_OFFSET_FILL);
 		
 		// Move the light from world space to view space.
 		lLightPos = (Renderer::matrix_V() * vec4f(lLightPos, 1.0f)).data;
@@ -187,10 +185,6 @@ void PointLight::calculateCutoffRadius() noexcept
 
 	const auto lFarplane = Renderer::getCameraEntity()->camera->farPlane();
 	if (lFarplane / 2.0f < mCutoffRadius) mCutoffRadius = lFarplane / 2.0f;
-
-	// #ifdef DEBUG_POINT_LIGHTS
-	// PRINT_VAR(mCutoffRadius);
-	// #endif
 
 	#undef in
 	#undef att

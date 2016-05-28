@@ -18,6 +18,8 @@ class Light : public Object<Light, std::string>
 {
 public:
 
+	using Super = Object<Light, std::string>;
+
 	/**
 	 * @brief Construct a light from an FbxLight.
 	 * @details This static method returns a shared pointer to a new light.
@@ -181,9 +183,10 @@ private:
 	friend boost::serialization::access;
 
 	template <class Archive> 
-	void serialize(Archive& ar, const unsigned /*version*/)
+	void serialize(Archive& archive, const unsigned /*version*/)
 	{
-		ar & BOOST_SERIALIZATION_NVP(mIntensity);
+		archive & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
+		archive & BOOST_SERIALIZATION_NVP(mIntensity);
 	}
 };
 

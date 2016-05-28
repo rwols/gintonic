@@ -17,6 +17,8 @@ class SpotLight : public PointLight
 {
 public:
 
+	using Super = PointLight;
+
 	template <class ...Args>
 	inline static SharedPtr create(Args&&... args)
 	{
@@ -84,7 +86,7 @@ private:
 	template <class Archive>
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(PointLight);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
 	}
 };
 

@@ -52,13 +52,13 @@ void emitCaps()
 	vec4 lDirection = getVertex(0) - lLightPos4;
 
 	// FRONT CAP: Just a tiny bit *away* from the original triangle.
-	gl_Position = matrixPVM * (getVertex(0) + lDirection * DIR_EPSILON);
+	gl_Position = matrixPVM * (getVertex(0)/* + lDirection * DIR_EPSILON*/);
 	EmitVertex();
 	lDirection = getVertex(2) - lLightPos4;
-	gl_Position = matrixPVM * (getVertex(2) + lDirection * DIR_EPSILON);
+	gl_Position = matrixPVM * (getVertex(2)/* + lDirection * DIR_EPSILON*/);
 	EmitVertex();
 	lDirection = getVertex(4) - lLightPos4;
-	gl_Position = matrixPVM * (getVertex(4) + lDirection * DIR_EPSILON);
+	gl_Position = matrixPVM * (getVertex(4)/* + lDirection * DIR_EPSILON*/);
 	EmitVertex();
 	EndPrimitive();
 

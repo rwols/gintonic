@@ -40,6 +40,8 @@ class Material : public Object<Material, std::string>
 {
 public:
 
+	using Super = Object<Material, std::string>;
+
 	/**
 	 * @name Constructors and destructor
 	 */
@@ -190,7 +192,7 @@ private:
 	template <class Archive>
 	void serialize(Archive& archive, const unsigned int /*version*/)
 	{
-		archive & boost::serialization::base_object<Object<Material, std::string>>(*this);
+		archive & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
 		archive & diffuseColor;
 		archive & specularColor;
 		archive & diffuseTexture;

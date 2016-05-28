@@ -17,6 +17,8 @@ class AmbientLight : public Light
 {
 public:
 
+	using Super = Light;
+
 	template <class ...Args>
 	inline static SharedPtr create(Args&&... args)
 	{
@@ -116,7 +118,7 @@ private:
 	template <class Archive> 
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Light);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
 	}
 };
 

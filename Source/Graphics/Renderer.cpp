@@ -378,13 +378,9 @@ void Renderer::initialize(
 	sDebugLogStream   = (FontStream*) _mm_malloc(sizeof(FontStream), 16); // we want this on a 16-byte boundary.
 	new (sDebugErrorStream) FontStream(); // placement new
 	new (sDebugLogStream)   FontStream(); // placement new
-	// sDebugErrorStream = new FontStream();
-	// sDebugLogStream = new FontStream();
-
-	#ifdef ENABLE_DEBUG_TRACE
 	sDebugErrorStream->open(sDebugFont);
 	sDebugLogStream->open(sDebugFont);
-	#endif
+	// #endif
 
 	//
 	// Check various values.
@@ -969,8 +965,6 @@ void Renderer::finalizeRendering() noexcept
 	sNonShadowCastingGeometryEntities.clear();
 	sEntitiesLock.release();
 
-	#ifdef ENABLE_DEBUG_TRACE
-
 	const auto& lTextProgram = FlatTextShaderProgram::get();
 	lTextProgram.activate();
 	lTextProgram.setColor(vec3f(1.0f, 0.0f, 0.0f));
@@ -978,16 +972,10 @@ void Renderer::finalizeRendering() noexcept
 	lTextProgram.setColor(vec3f(0.8f, 0.8f, 0.8f));
 	sDebugLogStream->close();
 
-	#endif
-
 	SDL_GL_SwapWindow(sWindow);
-
-	#ifdef ENABLE_DEBUG_TRACE
 
 	sDebugErrorStream->open(sDebugFont);
 	sDebugLogStream->open(sDebugFont);
-
-	#endif
 }
 
 void Renderer::processEvents() noexcept
