@@ -170,9 +170,9 @@ public:
 		{
 			std::cout << "Loading file: " << lFilename << '\n';
 			const auto lFilenameAsString = lFilename.string();
-			gintonic::FbxImporter lImporter(lFilenameAsString.c_str());
+			gintonic::FbxImporter lImporter(lFilenameAsString.c_str(), true, false, true);
 			mModel = lImporter.loadEntities();
-			// mModel->name = lFilename.stem().string();
+
 			// Serialize the model for caching
 			std::ofstream lOutput("Resources/" + mModel->name + ".entity", std::ios::binary);
 			OutputArchiveType lOutputArchive(lOutput);
@@ -228,6 +228,8 @@ public:
 
 private:
 
+	bool mRotateModel = false;
+
 	virtual void onRenderUpdate() final
 	{
 		using namespace gintonic;
@@ -253,7 +255,15 @@ private:
 				lEntity->light->setBrightness(mLightIntensity);
 			}
 		}
-		mModel->setRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), static_cast<float>(mElapsedTime) / 10.0f));
+		if (Renderer::keyTogglePress(SDL_SCANCODE_R))
+		{
+			mRotateModel = !mRotateModel;
+		}
+		if (mRotateModel)
+		{
+			mModel->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), static_cast<float>(mDeltaTime) / 10.0f));
+		}
+		
 	}
 };
 

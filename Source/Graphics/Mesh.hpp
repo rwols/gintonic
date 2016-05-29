@@ -558,6 +558,11 @@ private:
 	void buildBonesRecursive(
 		const FBXSDK_NAMESPACE::FbxNode*, 
 		const Bone::IndexType,
+		std::map<std::string, Bone::IndexType>&);
+
+	void buildBonesRecursive(
+		const FBXSDK_NAMESPACE::FbxNode*, 
+		const Bone::IndexType,
 		std::map<Bone::IndexType, const FBXSDK_NAMESPACE::FbxNode*>&,
 		const std::map<const FBXSDK_NAMESPACE::FbxNode*,
 		const FBXSDK_NAMESPACE::FbxCluster*>&);

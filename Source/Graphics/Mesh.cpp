@@ -1058,6 +1058,29 @@ void Mesh::evaluateBoneAtTimeRecursive(const std::size_t boneIndex, const float 
 }
 
 void Mesh::buildBonesRecursive(
+	const FbxNode* pFbxNode, 
+	const Bone::IndexType parentIndex, 
+	std::map<std::string, Bone::IndexType>& boneNameToIndexMap)
+{
+	Bone::IndexType lNewBoneIndex = static_cast<Bone::IndexType>(-1);
+	if (pFbxNode->GetNodeAttribute() &&
+		pFbxNode->GetNodeAttribute()->GetAttributeType() &&
+		pFbxNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
+	{
+		lNewBoneIndex = static_cast<Bone::IndexType>(bones.size());
+		Bone lNewBone;
+		lNewBone.parent = parentIndex;
+		lNewBone.name = pFbxNode->GetName();
+		boneNameToIndexMap[lNewBone.name] = lNewBoneIndex;
+		bones.push_back(lNewBone);
+	}
+	for (int i = 0; i < pFbxNode->GetChildCount(); ++i)
+	{
+		buildBonesRecursive(pFbxNode->GetChild(i), lNewBoneIndex, boneNameToIndexMap);
+	}
+}
+
+void Mesh::buildBonesRecursive(
 	const FbxNode* bone, 
 	const Bone::IndexType parent, 
 	std::map<Bone::IndexType, const FbxNode*>& lIndexToBoneMap,
@@ -1068,9 +1091,12 @@ void Mesh::buildBonesRecursive(
 	assert(lFindResult != lBoneToClusterMap.end());
 	const auto lCluster = lFindResult->second;
 	lIndexToBoneMap[lThisIndex] = bone;
-	FbxAMatrix lAffineMatrix;
-	lCluster->GetTransformLinkMatrix(lAffineMatrix);
-	bones.emplace_back(std::string(bone->GetName()), parent, SQT(lAffineMatrix));
+	FbxAMatrix lTransformLink;
+	FbxAMatrix lTransform;
+	lCluster->GetTransformLinkMatrix(lTransformLink);
+	lCluster->GetTransformMatrix(lTransform);
+	const SQT lGlobalBindposeInverse(lTransform.Inverse() * lTransform);
+	bones.emplace_back(std::string(bone->GetName()), parent, lGlobalBindposeInverse);
 	for (int i = 0; i < bone->GetChildCount(); ++i)
 	{
 		buildBonesRecursive(bone->GetChild(i), lThisIndex, lIndexToBoneMap, lBoneToClusterMap);
@@ -1079,6 +1105,7 @@ void Mesh::buildBonesRecursive(
 
 void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>& fbxIndicesToOwnMap)
 {
+	std::map<std::string, Bone::IndexType> lBoneNameToIndexMap;
 	std::map<Bone::IndexType, const FbxNode*> lIndexToBoneMap;
 	std::map<const FbxNode*, std::vector<std::pair<GLuint, GLfloat>>> lBoneToInfluenceMap;
 	std::map<const FbxNode*, const FbxCluster*> lBoneToClusterMap;
@@ -1087,114 +1114,181 @@ void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>&
 	bones.clear();
 	mBoneIndices.clear();
 	mBoneWeights.clear();
-	mBoneIndices.resize(mPosition_XYZ_uv_X.size());
-	mBoneWeights.resize(mPosition_XYZ_uv_X.size());
-
-	std::fill(mBoneIndices.begin(), mBoneIndices.end(), Mesh::vec4i(-1, -1, -1, -1));
-	std::fill(mBoneWeights.begin(), mBoneWeights.end(), Mesh::vec4f(0.0f, 0.0f, 0.0f, 0.0f));
 
 	if (pFbxMesh->GetDeformerCount() <= 0)
 	{
 		return;
 	}
-	const auto pFbxSkin = FbxCast<FbxSkin>(pFbxMesh->GetDeformer(0));
-	if (!pFbxSkin)
+
+	mBoneIndices.resize(mPosition_XYZ_uv_X.size());
+	mBoneWeights.resize(mPosition_XYZ_uv_X.size());
+
+	std::fill(mBoneIndices.begin(), mBoneIndices.end(), Mesh::vec4i(0, 0, 0, 0));
+	std::fill(mBoneWeights.begin(), mBoneWeights.end(), Mesh::vec4f(0.0f, 0.0f, 0.0f, 0.0f));
+
+	buildBonesRecursive(pFbxMesh->GetNode(), static_cast<Bone::IndexType>(-1), lBoneNameToIndexMap);
+	if (bones.empty())
 	{
-		std::cerr << "\tFound deformer, but it's of the wrong type (not an FbxSkin)\n";
-		return;
+		// Last resort to find bones.
+		// This can have the unfortunate effect that multiple meshes
+		// could have the same skeleton.
+		buildBonesRecursive(pFbxMesh->GetScene()->GetRootNode(), static_cast<Bone::IndexType>(-1), lBoneNameToIndexMap);
 	}
-	const int lBoneCount = pFbxSkin->GetClusterCount();
-	bones.reserve(lBoneCount);
-	std::cerr << "\tMesh has " << lBoneCount << " bones.\n";
+	
+	std::cerr << "\tMesh has " << bones.size() << " bones.\n";
 
-	for (int b = 0; b < lBoneCount; ++b)
+	for (Bone::IndexType lBone = 0; lBone < static_cast<Bone::IndexType>(bones.size()); ++lBone)
 	{
-		const auto lCluster = pFbxSkin->GetCluster(b);
-		const auto lLink    = lCluster->GetLink();
-
-		std::vector<std::pair<GLuint, GLfloat>> lBoneInfluence;
-		lBoneInfluence.reserve(lCluster->GetControlPointIndicesCount());
-
-		for (int i = 0; i < lCluster->GetControlPointIndicesCount(); ++i)
-		{
-			const auto lFindResult = fbxIndicesToOwnMap.find(lCluster->GetControlPointIndices()[i]);
-			assert(lFindResult != fbxIndicesToOwnMap.end());
-
-			lBoneInfluence.emplace_back
-			(
-				lFindResult->second, 
-				static_cast<GLfloat>(lCluster->GetControlPointWeights()[i])
-			);
-		}
-
-		lBoneToInfluenceMap.emplace(lLink, std::move(lBoneInfluence));
-		lBoneToClusterMap.emplace(lLink, lCluster);
-
-		// Is this the root bone?
-		if (lLink->GetParent() == lLink->GetScene()->GetRootNode())
-		{
-			lRootBone = lLink;
-			std::cerr << "\t\t" << lLink->GetName() << " is not the root node!\n";
-		}
-		else if (lLink->GetParent() == pFbxMesh->GetNode())
-		{
-			lRootBone = lLink;
-			std::cerr << "\t\t" << lLink->GetName() << " is the mesh node!\n";
-		}
-		else
-		{
-			std::cerr << "\t\t" << lLink->GetName() << " is neither the root nor the mesh node.\n";
-		}
-
+		std::cerr << "\t\tBone " << lBone << ": " << bones[lBone].name << ", parent " << bones[lBone].parent << '\n';
 	}
 
-	assert(lRootBone);
+	std::cerr << "\tMesh has " << pFbxMesh->GetDeformerCount() << " deformer";
+	if (pFbxMesh->GetDeformerCount() > 1) std::cerr << "s.\n";
+	else std::cerr << ".\n";
 
-	buildBonesRecursive(lRootBone, -1, lIndexToBoneMap, lBoneToClusterMap);
-
-	assert(static_cast<Mesh::Bone::IndexType>(bones.size()) == lBoneCount);
-
-	for (Bone::IndexType i = 0; i < static_cast<Bone::IndexType>(bones.size()); ++i)
+	for (int d = 0; d < pFbxMesh->GetDeformerCount(); ++d)
 	{
-		const auto r1 = lIndexToBoneMap.find(i);
-		assert(r1 != lIndexToBoneMap.end());
-		const auto r2 = lBoneToInfluenceMap.find(r1->second);
-		assert(r2 != lBoneToInfluenceMap.end());
-		const auto& lBoneInfluence = r2->second;
-		// const auto& lBoneInfluence = lBoneToInfluenceMap[lIndexToBoneMap[i]];
-		for (const auto& lPair : lBoneInfluence)
+		const auto pFbxSkin = FbxCast<FbxSkin>(pFbxMesh->GetDeformer(d));
+		if (!pFbxSkin)
 		{
-			if (mBoneIndices[lPair.first].x == -1)
+			std::cerr << "\tDeformer " << d << " is not an FbxSkin. Skipping...\n";
+			continue;
+		}
+		std::cerr << "\tDeformer " << d << " has " << pFbxSkin->GetClusterCount() << " clusters.\n";
+		for (int c = 0; c < pFbxSkin->GetClusterCount(); ++c)
+		{
+			const auto lCluster    = pFbxSkin->GetCluster(c);
+			const auto lLink       = lCluster->GetLink();
+			const auto lFindResult = lBoneNameToIndexMap.find(lLink->GetName());
+			if (lFindResult == lBoneNameToIndexMap.end())
 			{
-				mBoneIndices[lPair.first].x = i;
-				mBoneWeights[lPair.first].x = lPair.second;
+				exception lException(this->name);
+				lException.append(": ");
+				lException.append("could not find bone with name ");
+				lException.append(lLink->GetName());
+				throw lException;
 			}
-			else if (mBoneIndices[lPair.first].y == -1)
+
+			FbxAMatrix lTransform;
+			FbxAMatrix lTransformLink;
+			FbxAMatrix lGlobalBindPoseInverse;
+
+			lCluster->GetTransformMatrix(lTransform);
+			lCluster->GetTransformLinkMatrix(lTransformLink);
+
+			lGlobalBindPoseInverse = lTransformLink.Inverse() * lTransform;
+
+			bones[lFindResult->second].transform = SQT(lGlobalBindPoseInverse);
+
+			std::vector<std::pair<GLuint, GLfloat>> lBoneInfluence;
+			lBoneInfluence.reserve(lCluster->GetControlPointIndicesCount());
+
+			for (int i = 0; i < lCluster->GetControlPointIndicesCount(); ++i)
 			{
-				mBoneIndices[lPair.first].y = i;
-				mBoneWeights[lPair.first].y = lPair.second;
+				const auto lFindResult = fbxIndicesToOwnMap.find(lCluster->GetControlPointIndices()[i]);
+				assert(lFindResult != fbxIndicesToOwnMap.end());
+
+				lBoneInfluence.emplace_back
+				(
+					lFindResult->second, 
+					static_cast<GLfloat>(lCluster->GetControlPointWeights()[i])
+				);
 			}
-			else if (mBoneIndices[lPair.first].z == -1)
-			{
-				mBoneIndices[lPair.first].z = i;
-				mBoneWeights[lPair.first].z = lPair.second;
-			}
-			else if (mBoneIndices[lPair.first].w == -1)
-			{
-				mBoneIndices[lPair.first].w = i;
-				mBoneWeights[lPair.first].w = lPair.second;
-			}
-			else
-			{
-				std::cerr << "\tWARNING: Vertex " << lPair.first << " is influenced by more than 4 bones:\n";
-				std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].x].name << '\n';
-				std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].y].name << '\n';
-				std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].z].name << '\n';
-				std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].w].name << '\n';
-				std::cerr << "\t\t" << bones[i].name << '\n';
-			}
+
 		}
 	}
+
+	// const int lBoneCount = pFbxSkin->GetClusterCount();
+	// bones.reserve(lBoneCount);
+
+	// for (int b = 0; b < lBoneCount; ++b)
+	// {
+	// 	const auto lCluster = pFbxSkin->GetCluster(b);
+	// 	const auto lLink    = lCluster->GetLink();
+
+	// 	std::vector<std::pair<GLuint, GLfloat>> lBoneInfluence;
+	// 	lBoneInfluence.reserve(lCluster->GetControlPointIndicesCount());
+
+	// 	for (int i = 0; i < lCluster->GetControlPointIndicesCount(); ++i)
+	// 	{
+	// 		const auto lFindResult = fbxIndicesToOwnMap.find(lCluster->GetControlPointIndices()[i]);
+	// 		assert(lFindResult != fbxIndicesToOwnMap.end());
+
+	// 		lBoneInfluence.emplace_back
+	// 		(
+	// 			lFindResult->second, 
+	// 			static_cast<GLfloat>(lCluster->GetControlPointWeights()[i])
+	// 		);
+	// 	}
+
+	// 	lBoneToInfluenceMap.emplace(lLink, std::move(lBoneInfluence));
+	// 	lBoneToClusterMap.emplace(lLink, lCluster);
+
+	// 	// Is this the root bone?
+	// 	if (lLink->GetParent() == lLink->GetScene()->GetRootNode())
+	// 	{
+	// 		lRootBone = lLink;
+	// 		std::cerr << "\t\t" << lLink->GetName() << " is not the root node!\n";
+	// 	}
+	// 	else if (lLink->GetParent() == pFbxMesh->GetNode())
+	// 	{
+	// 		lRootBone = lLink;
+	// 		std::cerr << "\t\t" << lLink->GetName() << " is the mesh node!\n";
+	// 	}
+	// 	else
+	// 	{
+	// 		std::cerr << "\t\t" << lLink->GetName() << " is neither the root nor the mesh node.\n";
+	// 	}
+
+	// }
+
+	// assert(lRootBone);
+
+	// buildBonesRecursive(lRootBone, -1, lIndexToBoneMap, lBoneToClusterMap);
+
+	// assert(static_cast<Mesh::Bone::IndexType>(bones.size()) == lBoneCount);
+
+	// for (Bone::IndexType i = 0; i < static_cast<Bone::IndexType>(bones.size()); ++i)
+	// {
+	// 	const auto r1 = lIndexToBoneMap.find(i);
+	// 	assert(r1 != lIndexToBoneMap.end());
+	// 	const auto r2 = lBoneToInfluenceMap.find(r1->second);
+	// 	assert(r2 != lBoneToInfluenceMap.end());
+	// 	const auto& lBoneInfluence = r2->second;
+	// 	// const auto& lBoneInfluence = lBoneToInfluenceMap[lIndexToBoneMap[i]];
+	// 	for (const auto& lPair : lBoneInfluence)
+	// 	{
+	// 		if (mBoneIndices[lPair.first].x == -1)
+	// 		{
+	// 			mBoneIndices[lPair.first].x = i;
+	// 			mBoneWeights[lPair.first].x = lPair.second;
+	// 		}
+	// 		else if (mBoneIndices[lPair.first].y == -1)
+	// 		{
+	// 			mBoneIndices[lPair.first].y = i;
+	// 			mBoneWeights[lPair.first].y = lPair.second;
+	// 		}
+	// 		else if (mBoneIndices[lPair.first].z == -1)
+	// 		{
+	// 			mBoneIndices[lPair.first].z = i;
+	// 			mBoneWeights[lPair.first].z = lPair.second;
+	// 		}
+	// 		else if (mBoneIndices[lPair.first].w == -1)
+	// 		{
+	// 			mBoneIndices[lPair.first].w = i;
+	// 			mBoneWeights[lPair.first].w = lPair.second;
+	// 		}
+	// 		else
+	// 		{
+	// 			std::cerr << "\tWARNING: Vertex " << lPair.first << " is influenced by more than 4 bones:\n";
+	// 			std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].x].name << '\n';
+	// 			std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].y].name << '\n';
+	// 			std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].z].name << '\n';
+	// 			std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].w].name << '\n';
+	// 			std::cerr << "\t\t" << bones[i].name << '\n';
+	// 		}
+	// 	}
+	// }
 }
 
 void Mesh::uploadData()

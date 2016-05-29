@@ -72,8 +72,12 @@ FbxImporter::FbxImporter(const char* filename,
 	if (setAxisSystemToOpenGL)
 	{
 		// Convert the scene to the correct axis system and orientation.
-		// Also triangulate everything in the scene in-place, just in case.
 		FbxAxisSystem::OpenGL.ConvertScene(mScene);
+	}
+
+	if (triangulateAllMeshes)
+	{
+		// Triangulate everything in the scene in-place.
 		FbxGeometryConverter lConverter(mManager);
 		lConverter.Triangulate(mScene, true);
 	}

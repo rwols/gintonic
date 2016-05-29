@@ -20,33 +20,43 @@ namespace gintonic {
  */
 class Octree
 {
-private:
+public:
 
 	// friend class Entity;
+	
+	using EntityHolder = std::tuple
+	<
+		std::weak_ptr<Entity>, 
+		boost::signals2::connection, 
+		boost::signals2::connection
+	>;
 
-	struct EntityHolder
-	{
-		Entity::WeakPtr             entity;
-		boost::signals2::connection transformChangeConnection;
-		boost::signals2::connection destructConnection;
+private:
 
-		EntityHolder()                                = default;
-		EntityHolder(const EntityHolder&)             = default;
-		EntityHolder(EntityHolder&&)                  = default;
-		EntityHolder& operator= (const EntityHolder&) = default;
-		EntityHolder& operator= (EntityHolder&&)      = default;
-		~EntityHolder() noexcept;
+	// struct EntityHolder
+	// {
+	// 	Entity::WeakPtr             entity;
+	// 	boost::signals2::connection transformChangeConnection;
+	// 	boost::signals2::connection destructConnection;
 
-		template <class A, class B, class C>
-		EntityHolder(A&& a, B&& b, C&& c)
-		: entity(std::forward<A>(a))
-		, transformChangeConnection(std::forward<B>(b))
-		, destructConnection(std::forward<C>(c))
-		{
-			/* Empty on purpose. */
-		}
-	};
+	// 	EntityHolder()                                = default;
+	// 	EntityHolder(const EntityHolder&)             = default;
+	// 	EntityHolder(EntityHolder&&)                  = default;
+	// 	EntityHolder& operator= (const EntityHolder&) = default;
+	// 	EntityHolder& operator= (EntityHolder&&)      = default;
+	// 	~EntityHolder() noexcept;
 
+	// 	template <class A, class B, class C>
+	// 	EntityHolder(A&& a, B&& b, C&& c)
+	// 	: entity(std::forward<A>(a))
+	// 	, transformChangeConnection(std::forward<B>(b))
+	// 	, destructConnection(std::forward<C>(c))
+	// 	{
+	// 		/* Empty on purpose. */
+	// 	}
+	// };
+
+	static void destroyEntityHolder(EntityHolder&);
 	void* mAllocationPlace = nullptr;
 	Octree* mParent = nullptr;
 	Octree* mChild[8] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
@@ -364,6 +374,8 @@ public:
 	 */
 	Octree* erase(Entity::SharedPtr entity);
 
+	Octree* erase(const typename std::list<std::tuple<std::weak_ptr<Entity>, boost::signals2::connection, boost::signals2::connection>>::iterator& iter);
+
 	/**
 	 * @brief Returns the root of the octree node.
 	 * @return The root of the octree node.
@@ -386,8 +398,6 @@ private:
 
 	void backRecursiveInsert(std::shared_ptr<Entity>);
 	Octree* backRecursiveDelete();
-
-	void notifyHelper(std::shared_ptr<Entity>);
 
 	void subdivide();
 };
@@ -431,7 +441,7 @@ void Octree::getEntities(OutputIter iter)
 {
 	for (auto& lHolder : mEntities)
 	{
-		if (auto lEntityPtr = lHolder.entity.lock())
+		if (auto lEntityPtr = std::get<0>(lHolder).lock())
 		{
 			*iter = lEntityPtr;
 			++iter;
@@ -445,7 +455,7 @@ void Octree::getEntities(OutputIter iter) const
 {
 	for (const auto& lHolder : mEntities)
 	{
-		if (const auto lEntityPtr = lHolder.entity.lock())
+		if (const auto lEntityPtr = std::get<0>(lHolder).lock())
 		{
 			*iter = lEntityPtr;
 			++iter;
@@ -459,7 +469,7 @@ void Octree::getEntities(OutputIter iter, FilterFunc filter)
 {
 	for (auto& lHolder : mEntities)
 	{
-		if (auto lEntityPtr = lHolder.entity.lock())
+		if (auto lEntityPtr = std::get<0>(lHolder).lock())
 		{
 			if (filter(lEntityPtr))
 			{
@@ -477,7 +487,7 @@ void Octree::getEntities(OutputIter iter, FilterFunc filter) const
 {
 	for (const auto& lHolder : mEntities)
 	{
-		if (std::shared_ptr<const Entity> lEntityPtr = lHolder.entity.lock())
+		if (std::shared_ptr<const Entity> lEntityPtr = std::get<0>(lHolder).lock())
 		{
 			if (filter(lEntityPtr))
 			{
@@ -497,7 +507,7 @@ void Octree::query(const box3f& volume, OutputIter iter)
 	// PRINT_VAR(this);
 	for (auto& lHolder : mEntities)
 	{
-		if (auto lEntityPtr = lHolder.entity.lock())
+		if (auto lEntityPtr = std::get<0>(lHolder).lock())
 		{
 			if (intersects(volume, lEntityPtr->globalBoundingBox()))
 			{
@@ -506,6 +516,7 @@ void Octree::query(const box3f& volume, OutputIter iter)
 			}
 		}
 	}
+	if (mAllocationPlace == nullptr) return;
 	for (auto* lChildNode : mChild)
 	{
 		// Case 0: If there is no child node, continue
@@ -584,7 +595,7 @@ void Octree::query(const box3f& volume, OutputIter iter) const
 {
 	for (const auto& lHolder : mEntities)
 	{
-		if (std::shared_ptr<const Entity> lEntityPtr = lHolder.entity.lock())
+		if (std::shared_ptr<const Entity> lEntityPtr = std::get<0>(lHolder).lock())
 		{
 			if (intersects(volume, lEntityPtr->globalBoundingBox()))
 			{
@@ -594,6 +605,7 @@ void Octree::query(const box3f& volume, OutputIter iter) const
 		}
 
 	}
+	if (mAllocationPlace == nullptr) return;
 	for (const auto* lChildNode : mChild)
 	{
 		if (lChildNode == nullptr) continue;
@@ -620,7 +632,7 @@ void Octree::query(const box3f& volume, OutputIter iter, FilterFunc filter)
 {
 	for (auto& lHolder : mEntities)
 	{
-		if (auto lEntityPtr = lHolder.entity.lock())
+		if (auto lEntityPtr = std::get<0>(lHolder).lock())
 		{
 			if (intersects(volume, lEntityPtr->globalBoundingBox()))
 			{
@@ -633,6 +645,7 @@ void Octree::query(const box3f& volume, OutputIter iter, FilterFunc filter)
 			}
 		}
 	}
+	if (mAllocationPlace == nullptr) return;
 	for (auto* lChildNode : mChild)
 	{
 		if (lChildNode == nullptr) continue;
@@ -659,7 +672,7 @@ void Octree::query(const box3f& volume, OutputIter iter, FilterFunc filter) cons
 {
 	for (const auto& lHolder : mEntities)
 	{
-		if (std::shared_ptr<const Entity> lEntityPtr = lHolder.entity.lock())
+		if (std::shared_ptr<const Entity> lEntityPtr = std::get<0>(lHolder).lock())
 		{
 			if (intersects(volume, lEntityPtr->globalBoundingBox()))
 			{
@@ -672,6 +685,7 @@ void Octree::query(const box3f& volume, OutputIter iter, FilterFunc filter) cons
 			}
 		}
 	}
+	if (mAllocationPlace == nullptr) return;
 	for (const auto* lChildNode : mChild)
 	{
 		if (lChildNode == nullptr) continue;
@@ -696,14 +710,16 @@ void Octree::query(const box3f& volume, OutputIter iter, FilterFunc filter) cons
 template <class Func> 
 void Octree::foreach(Func f)
 {
-	for (auto& o : mEntities) if (auto ptr = o.entity.lock()) f(ptr);
+	for (auto& o : mEntities) if (auto ptr = std::get<0>(o).lock()) f(ptr);
+	if (mAllocationPlace == nullptr) return;
 	for (auto* c : mChild) if (c) c->foreach(f);
 }
 
 template <class Func>
 void Octree::foreach(Func f) const
 {
-	for (const auto& o : mEntities) if (const auto ptr = o.entity.lock()) f(ptr);
+	for (const auto& o : mEntities) if (const auto ptr = std::get<0>(o).lock()) f(ptr);
+	if (mAllocationPlace == nullptr) return;
 	for (const auto* c : mChild) if (c) c->foreach(f);
 }
 
@@ -711,6 +727,7 @@ template <class Func>
 void Octree::forEachNode(Func f)
 {
 	f(this);
+	if (mAllocationPlace == nullptr) return;
 	for (auto* lChildNode : mChild) if (lChildNode) lChildNode->forEachNode(f);
 }
 
@@ -718,6 +735,7 @@ template <class Func>
 void Octree::forEachNode(Func f) const
 {
 	f(this);
+	if (mAllocationPlace == nullptr) return;
 	for (auto* lChildNode : mChild) if (lChildNode) lChildNode->forEachNode(f);
 }
 

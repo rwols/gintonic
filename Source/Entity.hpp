@@ -25,8 +25,6 @@
 
 namespace gintonic {
 
-class Octree;
-
 /**
  * @brief Represents an Entity in the world. An Entity can only be
  * instantiated on the heap, using the static method Entity::create.
@@ -60,6 +58,7 @@ private:
 	friend class Octree;
 
 	Octree* mOctree = nullptr;
+	typename std::list<std::tuple<std::weak_ptr<Entity>, boost::signals2::connection, boost::signals2::connection>>::iterator mOctreeListIter;
 
 	void updateGlobalInfo() noexcept;
 

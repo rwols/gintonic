@@ -60,6 +60,7 @@ Entity::Entity(const Entity& other)
 , mLocalTransform(other.mLocalTransform)
 , mGlobalTransform(other.mGlobalTransform)
 , mOctree(other.mOctree)
+, mOctreeListIter(other.mOctreeListIter)
 , castShadow(other.castShadow)
 , material(other.material)
 , mesh(other.mesh)
@@ -78,6 +79,7 @@ Entity::Entity(Entity&& other) noexcept
 , mChildren(std::move(other.mChildren))
 , mParent(std::move(other.mParent))
 , mOctree(std::move(other.mOctree))
+, mOctreeListIter(std::move(other.mOctreeListIter))
 , castShadow(std::move(other.castShadow))
 , material(std::move(other.material))
 , mesh(std::move(other.mesh))
@@ -96,6 +98,7 @@ Entity& Entity::operator = (const Entity& other)
 	mLocalTransform = other.mLocalTransform;
 	mGlobalTransform = other.mGlobalTransform;
 	mOctree = other.mOctree;
+	mOctreeListIter = other.mOctreeListIter;
 	castShadow = other.castShadow;
 	material = other.material;
 	mesh = other.mesh;
@@ -117,6 +120,7 @@ Entity& Entity::operator = (Entity&& other) noexcept
 	mChildren = std::move(other.mChildren);
 	mParent = std::move(other.mParent);
 	mOctree = std::move(other.mOctree);
+	mOctreeListIter = std::move(other.mOctreeListIter);
 	castShadow = std::move(other.castShadow);
 	material = std::move(other.material);
 	mesh = std::move(other.mesh);
@@ -153,10 +157,6 @@ void Entity::updateGlobalInfo() noexcept
 	{
 		mGlobalTransform = mat4f(mLocalTransform);
 	}
-	// if (mOctree)
-	// {
-	// 	mOctree->notify(this);
-	// }
 	for (auto lChild : mChildren)
 	{
 		lChild->updateGlobalInfo();
@@ -485,14 +485,14 @@ Entity::~Entity() noexcept
 	// DEBUG_PRINT;
 	for (auto lChild : mChildren)
 	{
-		if (lChild.use_count())
+		if (lChild.use_count()) // Not thread-safe :(
 		{
 			// DEBUG_PRINT;
 			// std::cerr << "\tChild refcount: " << lChild.use_count() << '\n';
 			// DEBUG_PRINT;
 			// std::cerr << "\t" << lChild->name << "\n";
 			// DEBUG_PRINT;
-			lChild->mParent.reset();
+			lChild->mParent = SharedPtr(nullptr);
 			// DEBUG_PRINT;
 			lChild->mGlobalTransform.decompose(lChild->mLocalTransform);
 			// DEBUG_PRINT;
@@ -519,7 +519,7 @@ Entity::~Entity() noexcept
 std::shared_ptr<Entity> Entity::cloneRecursive() const
 {
 	// Invoke the copy constructor.
-	auto lClone = std::shared_ptr<Entity>(new Entity(*this));
+	std::shared_ptr<Entity> lClone(new Entity(*this));
 	for (auto lChild : mChildren)
 	{
 		lClone->addChild(lChild->cloneRecursive());
