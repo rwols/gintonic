@@ -31,9 +31,10 @@
 
 #define FONT_FILE_LOCATION "Resources/Inconsolata-Regular.ttf"
 
-#define HAS_DIFFUSE_TEXTURE 1
-#define HAS_SPECULAR_TEXTURE 2
-#define HAS_NORMAL_TEXTURE 4
+#define HAS_DIFFUSE_TEXTURE         1
+#define HAS_SPECULAR_TEXTURE        2
+#define HAS_NORMAL_TEXTURE          4
+#define HAS_TANGENTS_AND_BITANGENTS 8
 
 #define GBUFFER_TEX_DIFFUSE 0
 #define GBUFFER_TEX_SPECULAR 1
@@ -172,17 +173,17 @@ int sKeyStateCount;
 
 MatrixPipeline sMatrixPipeline;
 
-bool Renderer::s_matrix_P_dirty = true;
-bool Renderer::s_matrix_VM_dirty = true;
-bool Renderer::s_matrix_PVM_dirty = true;
-bool Renderer::s_matrix_N_dirty = true;
+bool Renderer::sMatrixPDirty = true;
+bool Renderer::sMatrixVMDirty = true;
+bool Renderer::sMatrixPVMDirty = true;
+bool Renderer::sMatrixNDirty = true;
 
-mat4f Renderer::s_matrix_P = mat4f(1.0f);
-mat4f Renderer::s_matrix_V = mat4f(1.0f);
-mat4f Renderer::s_matrix_M = mat4f(1.0f);
-mat4f Renderer::s_matrix_VM = mat4f(1.0f);
-mat4f Renderer::s_matrix_PVM = mat4f(1.0f);
-mat3f Renderer::s_matrix_N = mat3f(1.0f);
+mat4f Renderer::sMatrixP = mat4f(1.0f);
+mat4f Renderer::sMatrixV = mat4f(1.0f);
+mat4f Renderer::sMatrixM = mat4f(1.0f);
+mat4f Renderer::sMatrixVM = mat4f(1.0f);
+mat4f Renderer::sMatrixPVM = mat4f(1.0f);
+mat3f Renderer::sMatrixN = mat3f(1.0f);
 
 std::shared_ptr<Entity> Renderer::sCameraEntity = std::shared_ptr<Entity>(nullptr);
 std::shared_ptr<Entity> Renderer::sDebugShadowBufferEntity = std::shared_ptr<Entity>(nullptr);
@@ -440,7 +441,7 @@ void Renderer::resize(const int width, const int height)
 	sWidth = width;
 	sHeight = height;
 	sAspectRatio = (float)sWidth / (float)sHeight;
-	s_matrix_P_dirty = true;
+	sMatrixPDirty = true;
 	glViewport(0, 0, sWidth, sHeight);
 
 	//
@@ -812,99 +813,107 @@ void Renderer::renderGeometry() noexcept
 	std::vector<mat4f, allocator<mat4f>> matrixBs;
 	std::vector<mat3f> matrixBNs;
 
-	Mesh::Bone::IndexType lNumBones;
+	Mesh::Bone::IndexType lBone;
 
 	matrixBs.resize(GT_MESH_MAX_BONES);
 	matrixBNs.resize(GT_MESH_MAX_BONES);
 
-	for (auto lEntity : sShadowCastingGeometryEntities)
+	for (const auto& lEntity : sShadowCastingGeometryEntities)
 	{
-		GLint lMaterialFlag = 0;
+		GLint lMaterialFlag             = 0;
 		GLint lHasTangentsAndBitangents = 0;
+		const auto lMaterial            = lEntity->material.get();
+		const auto lMesh                = lEntity->mesh.get();
+
+		if (lMaterial->diffuseTexture)
+		{
+			lMaterialFlag |= HAS_DIFFUSE_TEXTURE;
+			lMaterial->diffuseTexture->bind(GBUFFER_TEX_DIFFUSE);
+		}
+		if (lMaterial->specularTexture)
+		{
+			lMaterialFlag |= HAS_SPECULAR_TEXTURE;
+			lMaterial->specularTexture->bind(GBUFFER_TEX_SPECULAR);
+		}
+		if (lMaterial->normalTexture)
+		{
+			lMaterialFlag |= HAS_NORMAL_TEXTURE;
+			lMaterial->normalTexture->bind(GBUFFER_TEX_NORMAL);
+		}
+		if (lMesh->hasTangentsAndBitangents())
+		{
+			lMaterialFlag |= HAS_TANGENTS_AND_BITANGENTS;
+			lHasTangentsAndBitangents = 1;
+		}
+
+		for (lBone = 0; lBone < static_cast<Mesh::Bone::IndexType>(lMesh->skeleton.size()); ++lBone)
+		{
+			matrixBs[lBone] = lMesh->evaluateBoneAtTime(lBone, 0.0f);
+			matrixBNs[lBone] = matrixBs[lBone].upperLeft33().invert().transpose();
+		}
 
 		setModelMatrix(lEntity->globalTransform());
 
-		if (lEntity->material->diffuseTexture)
-		{
-			lMaterialFlag |= HAS_DIFFUSE_TEXTURE;
-			lEntity->material->diffuseTexture->bind(GBUFFER_TEX_DIFFUSE);
-		}
-		if (lEntity->material->specularTexture)
-		{
-			lMaterialFlag |= HAS_SPECULAR_TEXTURE;
-			lEntity->material->specularTexture->bind(GBUFFER_TEX_SPECULAR);
-		}
-		if (lEntity->material->normalTexture)
-		{
-			lMaterialFlag |= HAS_NORMAL_TEXTURE;
-			lEntity->material->normalTexture->bind(GBUFFER_TEX_NORMAL);
-		}
-
-		if (lEntity->mesh->hasTangentsAndBitangents()) lHasTangentsAndBitangents = 1;
-
-		lMaterialShaderProgram.setMaterialDiffuseColor(lEntity->material->diffuseColor);
-		lMaterialShaderProgram.setMaterialSpecularColor(lEntity->material->specularColor);
+		lMaterialShaderProgram.setMaterialDiffuseColor(lMaterial->diffuseColor);
+		lMaterialShaderProgram.setMaterialSpecularColor(lMaterial->specularColor);
 		lMaterialShaderProgram.setMaterialFlag(lMaterialFlag);
 		lMaterialShaderProgram.setHasTangentsAndBitangents(lHasTangentsAndBitangents);
 		lMaterialShaderProgram.setMatrixPVM(matrix_PVM());
 		lMaterialShaderProgram.setMatrixVM(matrix_VM());
 		lMaterialShaderProgram.setMatrixN(matrix_N());
-
-
-		for (lNumBones = 0; lNumBones < static_cast<Mesh::Bone::IndexType>(lEntity->mesh->bones.size()); ++lNumBones)
-		{
-			matrixBs[lNumBones] = lEntity->mesh->evaluateBoneAtTime(lNumBones, 0.0f);
-			matrixBNs[lNumBones] = matrixBs[lNumBones].upperLeft33().invert().transpose();
-		}
-
 		lMaterialShaderProgram.setMatrixB(matrixBs);
 		lMaterialShaderProgram.setMatrixBN(matrixBNs);
 
-		lEntity->mesh->draw();
+		lMesh->draw();
 	}
-	for (const auto lEntity : sNonShadowCastingGeometryEntities)
+
+	for (const auto& lEntity : sNonShadowCastingGeometryEntities)
 	{
-		GLint lMaterialFlag = 0;
+		GLint lMaterialFlag             = 0;
 		GLint lHasTangentsAndBitangents = 0;
+		const auto lMaterial            = lEntity->material.get();
+		const auto lMesh                = lEntity->mesh.get();
+
+		if (lMaterial->diffuseTexture)
+		{
+			lMaterialFlag |= HAS_DIFFUSE_TEXTURE;
+			lMaterial->diffuseTexture->bind(GBUFFER_TEX_DIFFUSE);
+		}
+		if (lMaterial->specularTexture)
+		{
+			lMaterialFlag |= HAS_SPECULAR_TEXTURE;
+			lMaterial->specularTexture->bind(GBUFFER_TEX_SPECULAR);
+		}
+		if (lMaterial->normalTexture)
+		{
+			lMaterialFlag |= HAS_NORMAL_TEXTURE;
+			lMaterial->normalTexture->bind(GBUFFER_TEX_NORMAL);
+		}
+		if (lMesh->hasTangentsAndBitangents())
+		{
+			lMaterialFlag |= HAS_TANGENTS_AND_BITANGENTS;
+			lHasTangentsAndBitangents = 1;
+		}
+
+		for (lBone = 0; lBone < static_cast<Mesh::Bone::IndexType>(lMesh->skeleton.size()); ++lBone)
+		{
+			matrixBs[lBone] = lMesh->evaluateBoneAtTime(lBone, 0.0f);
+			matrixBNs[lBone] = matrixBs[lBone].upperLeft33().invert().transpose();
+		}
 
 		setModelMatrix(lEntity->globalTransform());
 
-		if (lEntity->material->diffuseTexture)
-		{
-			lMaterialFlag |= HAS_DIFFUSE_TEXTURE;
-			lEntity->material->diffuseTexture->bind(GBUFFER_TEX_DIFFUSE);
-		}
-		if (lEntity->material->specularTexture)
-		{
-			lMaterialFlag |= HAS_SPECULAR_TEXTURE;
-			lEntity->material->specularTexture->bind(GBUFFER_TEX_SPECULAR);
-		}
-		if (lEntity->material->normalTexture)
-		{
-			lMaterialFlag |= HAS_NORMAL_TEXTURE;
-			lEntity->material->normalTexture->bind(GBUFFER_TEX_NORMAL);
-		}
-
-		if (lEntity->mesh->hasTangentsAndBitangents()) lHasTangentsAndBitangents = 1;
-
-		lMaterialShaderProgram.setMaterialDiffuseColor(lEntity->material->diffuseColor);
-		lMaterialShaderProgram.setMaterialSpecularColor(lEntity->material->specularColor);
+		lMaterialShaderProgram.setMaterialDiffuseColor(lMaterial->diffuseColor);
+		lMaterialShaderProgram.setMaterialSpecularColor(lMaterial->specularColor);
 		lMaterialShaderProgram.setMaterialFlag(lMaterialFlag);
 		lMaterialShaderProgram.setHasTangentsAndBitangents(lHasTangentsAndBitangents);
 		lMaterialShaderProgram.setMatrixPVM(matrix_PVM());
 		lMaterialShaderProgram.setMatrixVM(matrix_VM());
 		lMaterialShaderProgram.setMatrixN(matrix_N());
-
-		for (lNumBones = 0; lNumBones < static_cast<Mesh::Bone::IndexType>(lEntity->mesh->bones.size()); ++lNumBones)
-		{
-			matrixBs[lNumBones] = lEntity->mesh->evaluateBoneAtTime(lNumBones, 0.0f);
-			matrixBNs[lNumBones] = matrixBs[lNumBones].upperLeft33().invert().transpose();
-		}
-
 		lMaterialShaderProgram.setMatrixB(matrixBs);
 		lMaterialShaderProgram.setMatrixBN(matrixBNs);
 
-		lEntity->mesh->draw();
+		lMesh->draw();
 	}
 }
 
@@ -1069,46 +1078,46 @@ void Renderer::processEvents() noexcept
 	}
 
 	// Update the WORLD->VIEW matrix.
-	sCameraEntity->updateViewMatrix(s_matrix_V);
+	sCameraEntity->updateViewMatrix(sMatrixV);
 	sCameraPosition = vec3f((sCameraEntity->globalTransform() * vec4f(0.0f, 0.0f, 0.0f, 1.0f)).data);
 }
 
-void Renderer::update_matrix_P()
+void Renderer::updateMatrixP()
 {
-	if (s_matrix_P_dirty)
+	if (sMatrixPDirty)
 	{
-		s_matrix_P = sCameraEntity->camera->projectionMatrix();
-		s_matrix_P_dirty = false;
+		sMatrixP = sCameraEntity->camera->projectionMatrix();
+		sMatrixPDirty = false;
 	}
 }
 
-void Renderer::update_matrix_VM()
+void Renderer::updateMatrixVM()
 {
-	if (s_matrix_VM_dirty)
+	if (sMatrixVMDirty)
 	{
-		s_matrix_VM = s_matrix_V * s_matrix_M;
-		s_matrix_VM_dirty = false;
+		sMatrixVM = sMatrixV * sMatrixM;
+		sMatrixVMDirty = false;
 	}
 }
 
-void Renderer::update_matrix_PVM()
+void Renderer::updateMatrixPVM()
 {
-	update_matrix_P();
-	update_matrix_VM();
-	if (s_matrix_PVM_dirty)
+	updateMatrixP();
+	updateMatrixVM();
+	if (sMatrixPVMDirty)
 	{
-		s_matrix_PVM = sCameraEntity->camera->projectionMatrix()  * s_matrix_VM;
-		s_matrix_PVM_dirty = false;
+		sMatrixPVM = sCameraEntity->camera->projectionMatrix()  * sMatrixVM;
+		sMatrixPVMDirty = false;
 	}
 }
 
-void Renderer::update_matrix_N()
+void Renderer::updateMatrixN()
 {
-	update_matrix_VM();
-	if (s_matrix_N_dirty)
+	updateMatrixVM();
+	if (sMatrixNDirty)
 	{
-		s_matrix_N = s_matrix_VM.upperLeft33().invert().transpose();
-		s_matrix_N_dirty = false;
+		sMatrixN = sMatrixVM.upperLeft33().invert().transpose();
+		sMatrixNDirty = false;
 	}
 }
 
@@ -1138,6 +1147,13 @@ void Renderer::submitEntityRecursive(std::shared_ptr<Entity> current)
 
 std::shared_ptr<Entity> Renderer::createGizmo()
 {
+	static Entity::WeakPtr sGizmoCache;
+
+	if (auto lCachedGizmo = sGizmoCache.lock())
+	{
+		return lCachedGizmo;
+	}
+
 	auto lRedMaterial = Material::create();
 	lRedMaterial->name = "Red";
 	lRedMaterial->diffuseColor = vec4f(1.0f, 0.0f, 0.0f, 0.0f);
@@ -1247,6 +1263,8 @@ std::shared_ptr<Entity> Renderer::createGizmo()
 	lGizmoRoot->addChild(lRightArrowCylinder);
 	lGizmoRoot->addChild(lUpArrowCylinder);
 	lGizmoRoot->addChild(lBackwardArrowCylinder);
+
+	sGizmoCache = lGizmoRoot;
 
 	return lGizmoRoot;
 }

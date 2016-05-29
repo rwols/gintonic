@@ -392,6 +392,8 @@ public:
 
 private:
 
+	friend class boost::serialization::access;
+
 	Octree(const float subdivisionThreshold, Octree*, const box3f&);
 
 	Octree(const float subdivisionThreshold, Octree* parent, const vec3f& min, const vec3f& max);
@@ -400,6 +402,16 @@ private:
 	Octree* backRecursiveDelete();
 
 	void subdivide();
+
+	template <class Archive> void serialize(Archive& archive, const unsigned /*version*/)
+	{
+		archive & mAllocationPlace;
+		archive & mParent;
+		archive & mBounds;
+		archive & mEntities;
+		archive & subdivisionThreshold;
+		archive & mChild;
+	}
 };
 
 template <class ForwardIter>

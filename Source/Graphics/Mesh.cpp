@@ -1051,9 +1051,9 @@ mat4f Mesh::evaluateBoneAtTime(const std::size_t boneIndex, const float timepoin
 
 void Mesh::evaluateBoneAtTimeRecursive(const std::size_t boneIndex, const float timepoint, mat4f& matrix) const noexcept
 {
-	matrix = mat4f(bones[boneIndex].localTransform) * matrix;
-	// matrix *= mat4f(bones[boneIndex].localTransform);
-	if (bones[boneIndex].parent >= 0) evaluateBoneAtTimeRecursive(bones[boneIndex].parent, timepoint, matrix);
+	matrix = mat4f(skeleton[boneIndex].transform) * matrix;
+	// matrix *= mat4f(skeleton[boneIndex].transform);
+	if (skeleton[boneIndex].parent >= 0) evaluateBoneAtTimeRecursive(skeleton[boneIndex].parent, timepoint, matrix);
 	else return;
 }
 
@@ -1067,12 +1067,12 @@ void Mesh::buildBonesRecursive(
 		pFbxNode->GetNodeAttribute()->GetAttributeType() &&
 		pFbxNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
 	{
-		lNewBoneIndex = static_cast<Bone::IndexType>(bones.size());
+		lNewBoneIndex = static_cast<Bone::IndexType>(skeleton.size());
 		Bone lNewBone;
 		lNewBone.parent = parentIndex;
 		lNewBone.name = pFbxNode->GetName();
 		boneNameToIndexMap[lNewBone.name] = lNewBoneIndex;
-		bones.push_back(lNewBone);
+		skeleton.push_back(lNewBone);
 	}
 	for (int i = 0; i < pFbxNode->GetChildCount(); ++i)
 	{
@@ -1086,7 +1086,7 @@ void Mesh::buildBonesRecursive(
 	std::map<Bone::IndexType, const FbxNode*>& lIndexToBoneMap,
 	const std::map<const FbxNode*, const FbxCluster*>& lBoneToClusterMap)
 {
-	const auto lThisIndex = static_cast<Bone::IndexType>(bones.size());
+	const auto lThisIndex = static_cast<Bone::IndexType>(skeleton.size());
 	const auto lFindResult = lBoneToClusterMap.find(bone);
 	assert(lFindResult != lBoneToClusterMap.end());
 	const auto lCluster = lFindResult->second;
@@ -1096,7 +1096,7 @@ void Mesh::buildBonesRecursive(
 	lCluster->GetTransformLinkMatrix(lTransformLink);
 	lCluster->GetTransformMatrix(lTransform);
 	const SQT lGlobalBindposeInverse(lTransform.Inverse() * lTransform);
-	bones.emplace_back(std::string(bone->GetName()), parent, lGlobalBindposeInverse);
+	skeleton.emplace_back(std::string(bone->GetName()), parent, lGlobalBindposeInverse);
 	for (int i = 0; i < bone->GetChildCount(); ++i)
 	{
 		buildBonesRecursive(bone->GetChild(i), lThisIndex, lIndexToBoneMap, lBoneToClusterMap);
@@ -1111,7 +1111,7 @@ void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>&
 	std::map<const FbxNode*, const FbxCluster*> lBoneToClusterMap;
 	const FbxNode* lRootBone = nullptr;
 
-	bones.clear();
+	skeleton.clear();
 	mBoneIndices.clear();
 	mBoneWeights.clear();
 
@@ -1127,7 +1127,7 @@ void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>&
 	std::fill(mBoneWeights.begin(), mBoneWeights.end(), Mesh::vec4f(0.0f, 0.0f, 0.0f, 0.0f));
 
 	buildBonesRecursive(pFbxMesh->GetNode(), static_cast<Bone::IndexType>(-1), lBoneNameToIndexMap);
-	if (bones.empty())
+	if (skeleton.empty())
 	{
 		// Last resort to find bones.
 		// This can have the unfortunate effect that multiple meshes
@@ -1135,11 +1135,11 @@ void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>&
 		buildBonesRecursive(pFbxMesh->GetScene()->GetRootNode(), static_cast<Bone::IndexType>(-1), lBoneNameToIndexMap);
 	}
 	
-	std::cerr << "\tMesh has " << bones.size() << " bones.\n";
+	std::cerr << "\tMesh has " << skeleton.size() << " bones.\n";
 
-	for (Bone::IndexType lBone = 0; lBone < static_cast<Bone::IndexType>(bones.size()); ++lBone)
+	for (Bone::IndexType lBone = 0; lBone < static_cast<Bone::IndexType>(skeleton.size()); ++lBone)
 	{
-		std::cerr << "\t\tBone " << lBone << ": " << bones[lBone].name << ", parent " << bones[lBone].parent << '\n';
+		std::cerr << "\t\tBone " << lBone << ": " << skeleton[lBone].name << ", parent " << skeleton[lBone].parent << '\n';
 	}
 
 	std::cerr << "\tMesh has " << pFbxMesh->GetDeformerCount() << " deformer";
@@ -1178,7 +1178,7 @@ void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>&
 
 			lGlobalBindPoseInverse = lTransformLink.Inverse() * lTransform;
 
-			bones[lFindResult->second].transform = SQT(lGlobalBindPoseInverse);
+			skeleton[lFindResult->second].transform = SQT(lGlobalBindPoseInverse);
 
 			std::vector<std::pair<GLuint, GLfloat>> lBoneInfluence;
 			lBoneInfluence.reserve(lCluster->GetControlPointIndicesCount());
@@ -1281,11 +1281,11 @@ void Mesh::buildBonesArray(const FbxMesh* pFbxMesh, const std::map<int, GLuint>&
 	// 		else
 	// 		{
 	// 			std::cerr << "\tWARNING: Vertex " << lPair.first << " is influenced by more than 4 bones:\n";
-	// 			std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].x].name << '\n';
-	// 			std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].y].name << '\n';
-	// 			std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].z].name << '\n';
-	// 			std::cerr << "\t\t" << bones[mBoneIndices[lPair.first].w].name << '\n';
-	// 			std::cerr << "\t\t" << bones[i].name << '\n';
+	// 			std::cerr << "\t\t" << skeleton[mBoneIndices[lPair.first].x].name << '\n';
+	// 			std::cerr << "\t\t" << skeleton[mBoneIndices[lPair.first].y].name << '\n';
+	// 			std::cerr << "\t\t" << skeleton[mBoneIndices[lPair.first].z].name << '\n';
+	// 			std::cerr << "\t\t" << skeleton[mBoneIndices[lPair.first].w].name << '\n';
+	// 			std::cerr << "\t\t" << skeleton[i].name << '\n';
 	// 		}
 	// 	}
 	// }
@@ -1309,7 +1309,7 @@ void Mesh::uploadData()
 		gtBufferData(GL_ARRAY_BUFFER, mTangent_XYZ_hand, lUsageHint);
 		Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_2);
 	}
-	if (!bones.empty())
+	if (!skeleton.empty())
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_BONE_IDS]);
 		gtBufferData(GL_ARRAY_BUFFER, mBoneIndices, lUsageHint);

@@ -290,7 +290,7 @@ public:
 
 		NameType      name;
 		IndexType     parent;
-		TransformType localTransform;
+		TransformType transform;
 
 		Bone() = default;
 
@@ -298,7 +298,7 @@ public:
 		Bone(A&& name, B&& parent, C&& localTransform)
 		: name(std::forward<A>(name))
 		, parent(std::forward<B>(parent))
-		, localTransform(std::forward<C>(localTransform))
+		, transform(std::forward<C>(localTransform))
 		{
 			/* Empty on purpose. */
 		}
@@ -312,11 +312,11 @@ public:
 		template <class Archive>
 		void serialize(Archive & ar, const unsigned int /*version*/)
 		{
-			ar & name & parent & localTransform;
+			ar & name & parent & transform;
 		}
 	};
 
-	std::vector<Bone, allocator<Bone>> bones;
+	std::vector<Bone, allocator<Bone>> skeleton;
 
 	mat4f evaluateBoneAtTime(const std::size_t boneIndex, const float timepoint) const noexcept;
 
@@ -578,77 +578,43 @@ private:
 	template <class Archive>
 	void save(Archive& archive, const unsigned int /*version*/) const
 	{
-		DEBUG_PRINT;
 		archive & mLocalBoundingBox;
-		DEBUG_PRINT;
 
-		DEBUG_PRINT;
-		archive & bones;
-		DEBUG_PRINT;
+		archive & skeleton;
 
-		DEBUG_PRINT;
 		archive & mIndices;
-		DEBUG_PRINT;
 		archive & mIndicesAdjacent;
-		DEBUG_PRINT;
 
-		DEBUG_PRINT;
 		archive & mPosition_XYZ_uv_X;
-		DEBUG_PRINT;
 		archive & mNormal_XYZ_uv_Y;
-		DEBUG_PRINT;
 		archive & mTangent_XYZ_hand;
-		DEBUG_PRINT;
 
-		DEBUG_PRINT;
 		archive & mPositions;
-		DEBUG_PRINT;
 
-		DEBUG_PRINT;
 		archive & mBoneIndices;
-		DEBUG_PRINT;
 		archive & mBoneWeights;
-		DEBUG_PRINT;
 	}
 
 	template <class Archive>
 	void load(Archive& archive, const unsigned int /*version*/)
 	{
-		DEBUG_PRINT;
 		archive & mLocalBoundingBox;
-		DEBUG_PRINT;
 
-		DEBUG_PRINT;
-		archive & bones;
-		DEBUG_PRINT;
+		archive & skeleton;
 
-		DEBUG_PRINT;
 		archive & mIndices;
-		DEBUG_PRINT;
 		archive & mIndicesAdjacent;
-		DEBUG_PRINT;
 
-		DEBUG_PRINT;
 		archive & mPosition_XYZ_uv_X;
-		DEBUG_PRINT;
 		archive & mNormal_XYZ_uv_Y;
-		DEBUG_PRINT;
 		archive & mTangent_XYZ_hand;
-		DEBUG_PRINT;
 
-		DEBUG_PRINT;
 		archive & mPositions;
-		DEBUG_PRINT;
 
-		DEBUG_PRINT;
 		archive & mBoneIndices;
-		DEBUG_PRINT;
 		archive & mBoneWeights;
-		DEBUG_PRINT;
 
-		DEBUG_PRINT;
 		uploadData();
-		DEBUG_PRINT;
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER();
@@ -671,7 +637,7 @@ inline std::ostream& operator << (std::ostream& os, const Mesh::vec4i& v)
 
 inline std::ostream& operator << (std::ostream& os, const Mesh::Bone& bone)
 {
-	return os << '{' << bone.name << ", " << bone.parent << ", " << bone.localTransform << '}';
+	return os << '{' << bone.name << ", " << bone.parent << ", " << bone.transform << '}';
 }
 
 } // namespace gintonic

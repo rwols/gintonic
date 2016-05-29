@@ -39,7 +39,7 @@ Entity::Entity(std::string name)
 }
 
 Entity::Entity(std::string name, const SQT& localTransform)
-: Object<Entity, std::string>(std::move(name))
+: Super(std::move(name))
 , mLocalTransform(localTransform)
 , mGlobalTransform(mLocalTransform)
 {
@@ -47,7 +47,7 @@ Entity::Entity(std::string name, const SQT& localTransform)
 }
 
 Entity::Entity(const FbxNode* pFbxNode)
-: Object<Entity, std::string>(pFbxNode)
+: Super(pFbxNode)
 , mLocalTransform(pFbxNode)
 , mGlobalTransform(mLocalTransform)
 {
@@ -56,7 +56,7 @@ Entity::Entity(const FbxNode* pFbxNode)
 
 
 Entity::Entity(const Entity& other)
-: Object<Entity, std::string>(other)
+: Super(other)
 , mLocalTransform(other.mLocalTransform)
 , mGlobalTransform(other.mGlobalTransform)
 , mOctree(other.mOctree)
@@ -73,7 +73,7 @@ Entity::Entity(const Entity& other)
 }
 
 Entity::Entity(Entity&& other) noexcept
-: Object<Entity, std::string>(std::move(other))
+: Super(std::move(other))
 , mLocalTransform(std::move(other.mLocalTransform))
 , mGlobalTransform(std::move(other.mGlobalTransform))
 , mChildren(std::move(other.mChildren))
@@ -94,7 +94,7 @@ Entity::Entity(Entity&& other) noexcept
 
 Entity& Entity::operator = (const Entity& other)
 {
-	Object<Entity, std::string>::operator=(other);
+	Super::operator=(other);
 	mLocalTransform = other.mLocalTransform;
 	mGlobalTransform = other.mGlobalTransform;
 	mOctree = other.mOctree;
@@ -114,7 +114,7 @@ Entity& Entity::operator = (const Entity& other)
 
 Entity& Entity::operator = (Entity&& other) noexcept
 {
-	Object<Entity, std::string>::operator=(std::move(other));
+	Super::operator=(std::move(other));
 	mLocalTransform = std::move(other.mLocalTransform);
 	mGlobalTransform = std::move(other.mGlobalTransform);
 	mChildren = std::move(other.mChildren);

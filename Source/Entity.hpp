@@ -37,6 +37,8 @@ class Entity : public Object<Entity, std::string>
 {
 public:
 
+	using Super = Object<Entity, std::string>;
+
 	/// The type of datastructure for the list of children.
 	typedef std::list<Entity::SharedPtr> children_datastructure_type;
 
@@ -406,37 +408,30 @@ public:
 
 	/**
 	 * @brief Move the Entity in the direction of the local left direction.
-	 *
 	 * @details If the Entity has children, this will update the global
 	 * transform of all of its children.
-	 *
 	 * @param amount The amount of translation.
 	 */
 	void moveLeft(const float amount) noexcept;
 
 	/**
 	 * @brief Move the Entity in the direction of the local up direction.
-	 *
 	 * @details If the Entity has children, this will update the global
 	 * transform of all of its children.
-	 *
 	 * @param amount The amount of translation.
 	 */
 	void moveUp(const float amount) noexcept;
 
 	/**
 	 * @brief Move the Entity in the direction of the local down direction.
-	 *
 	 * @details If the Entity has children, this will update the global
 	 * transform of all of its children.
-	 *
 	 * @param amount The amount of translation.
 	 */
 	void moveDown(const float amount) noexcept;
 
 	/**
 	 * @brief Get the local SQT transform.
-	 *
 	 * @return A constant reference to the local SQT transform.
 	 */
 	inline const SQT& localTransform() const noexcept
@@ -494,17 +489,15 @@ public:
 	void unsetParent();
 
 	/**
-	 * @brief Get a pointer to the parent of this Entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 * In order to get an actual pointer, use the following construct:
+	 * @brief Get a pointer to the parent of this Entity. The pointer can
+	 * be null, so be sure to check for that. In order to get an actual pointer,
+	 * use the following construct:
 	 * @code
 	 * if (auto ptr = e->parent().lock())
 	 * {
 	 *   // do stuff with ptr
 	 * }
 	 * @endcode
-	 *
 	 * @return A weak pointer to the parent of this Entity.
 	 */
 	inline std::weak_ptr<Entity> parent() noexcept
@@ -514,9 +507,7 @@ public:
 
 	/**
 	 * @brief Get a constant pointer to the parent of this Entity.
-	 *
-	 * @details The pointer can be null, so be sure to check for that.
-	 *
+	 * The pointer can be null, so be sure to check for that.
 	 * @return A constant pointer to the parent of this Entity.
 	 */
 	inline const std::weak_ptr<const Entity> parent() const noexcept
@@ -526,7 +517,6 @@ public:
 
 	/**
 	 * @brief Get an iterator to the beginning of children list.
-	 *
 	 * @return An iterator to the beginning of the children list.
 	 */
 	inline iterator begin() noexcept
@@ -536,7 +526,6 @@ public:
 
 	/**
 	 * @brief Get an iterator to one-past-the-end of children list.
-	 *
 	 * @return An iterator to one-past-the-end of the children list.
 	 */
 	inline iterator end() noexcept
@@ -546,7 +535,6 @@ public:
 
 	/**
 	 * @brief Get a const iterator to the beginning of children list.
-	 *
 	 * @return A const iterator to the beginning of the children list.
 	 */
 	inline const_iterator begin() const noexcept
@@ -556,7 +544,6 @@ public:
 
 	/**
 	 * @brief Get a const iterator to one-past-the-end of children list.
-	 *
 	 * @return a const iterator to one-past-the-end of the children list.
 	 */
 	inline const_iterator end() const noexcept
@@ -566,7 +553,6 @@ public:
 
 	/**
 	 * @brief Get a const iterator to the beginning of children list.
-	 *
 	 * @return A const iterator to the beginning of the children list.
 	 */
 	inline const_iterator cbegin() const noexcept
@@ -576,7 +562,6 @@ public:
 
 	/**
 	 * @brief Get a const iterator to one-past-the-end of children list.
-	 *
 	 * @return a const iterator to one-past-the-end of the children list.
 	 */
 	inline const_iterator cend() const noexcept
@@ -607,7 +592,6 @@ public:
 	 * is already an affine matrix. If it's not, this 
 	 * method will produce incorrect results. This method
 	 * is a tiny bit more efficient than Entity::getViewMatrix
-	 * 
 	 * @param alreadyAffineMatrix A mutable reference to a
 	 * matrix which is assumed to already be affine.
 	 * 
@@ -618,7 +602,6 @@ public:
 	/**
 	 * @brief Get the `VIEW` matrix of this Entity.
 	 * @return The view matrix.
-	 * 
 	 * @sa Entity::updateViewMatrix
 	 */
 	mat4f getViewMatrix() const noexcept;
@@ -626,7 +609,6 @@ public:
 	/**
 	 * @brief Get the global transformation matrix, i.e. from `MODEL` space
 	 * to `WORLD` space.
-	 *
 	 * @return A constant reference to the global transformation matrix.
 	 */
 	inline const mat4f& globalTransform() const noexcept
@@ -636,7 +618,6 @@ public:
 
 	/**
 	 * @brief Get the global bounding box.
-	 *
 	 * @return A constant reference to the global bounding box.
 	 */
 	box3f globalBoundingBox() const noexcept;
@@ -652,13 +633,10 @@ public:
 	/**
 	 * @brief Two entities compare equal if they live at the same memory
 	 * address.
-	 *
 	 * @param other Another Entity.
-	 *
 	 * @return True if they live at the same memory address, false otherwise.
 	 */
-	inline bool operator == (const Entity& other) const
-		noexcept
+	inline bool operator == (const Entity& other) const noexcept
 	{
 		return this == &other;
 	}
@@ -666,70 +644,55 @@ public:
 	/**
 	 * @brief Two entities compare unequal if they don't live at the same
 	 * memory address.
-	 *
 	 * @param other Another Entity.
-	 *
 	 * @return True if they live don't at the same memory address,
 	 * false otherwise.
 	 */
-	inline bool operator != (const Entity& other) const
-		noexcept
+	inline bool operator != (const Entity& other) const noexcept
 	{
 		return !operator==(other);
 	}
 
 	/**
 	 * @brief Compares less via the memory addresses.
-	 *
 	 * @param other Another Entity.
-	 *
 	 * @return True if this Entity's memory address is less than the other
 	 * Entity's memory address. False otherwise.
 	 */
-	inline bool operator < (const Entity& other) const
-		noexcept
+	inline bool operator < (const Entity& other) const noexcept
 	{
 		return this < &other;
 	}
 
 	/**
 	 * @brief Compares greater-than-or-equal via the memory addresses.
-	 *
 	 * @param other Another Entity.
-	 *
 	 * @return True if this Entity's memory address is greater than or equal
 	 * to the other Entity's memory address. False otherwise.
 	 */
-	inline bool operator >= (const Entity& other) const
-		noexcept
+	inline bool operator >= (const Entity& other) const noexcept
 	{
 		return !operator<(other);
 	}
 
 	/**
 	 * @brief Compares greater-than via the memory addresses.
-	 *
 	 * @param other Another Entity.
-	 *
 	 * @return True if this Entity's memory address is greater than the other
 	 * Entity's memory address. False otherwise.
 	 */
-	inline bool operator > (const Entity& other) const
-		noexcept
+	inline bool operator > (const Entity& other) const noexcept
 	{
 		return this > &other;
 	}
 
 	/**
 	 * @brief Compares less-than-or-equal-to via the memory addresses.
-	 *
 	 * @param other Another Entity.
-	 *
 	 * @return True if this Entity's memory address is less than or equal to
 	 * the other Entity's memory address. False otherwise.
 	 */
-	inline bool operator <= (const Entity& other) const
-		noexcept
+	inline bool operator <= (const Entity& other) const noexcept
 	{
 		return !operator>(other);
 	}
@@ -745,27 +708,18 @@ private:
 	template <class Archive>
 	void serialize(Archive& archive, const unsigned int /*version*/)
 	{
-		DEBUG_PRINT;
-		archive & boost::serialization::base_object<Object<Entity, std::string>>(*this);
-		DEBUG_PRINT;
+		archive & boost::serialization::base_object<Super>(*this);
 		archive & mLocalTransform;
-		DEBUG_PRINT;
 		archive & mGlobalTransform;
-		DEBUG_PRINT;
 		archive & mParent;
-		DEBUG_PRINT;
+		archive & mOctree;
+		archive & mOctreeListIter;
 		archive & castShadow;
-		DEBUG_PRINT;
 		archive & material;
-		DEBUG_PRINT;
 		archive & mesh;
-		DEBUG_PRINT;
 		archive & light;
-		DEBUG_PRINT;
 		archive & camera;
-		DEBUG_PRINT;
 		archive & mChildren;
-		DEBUG_PRINT;
 	}
 };
 

@@ -403,8 +403,8 @@ public:
 	 */
 	inline static const mat4f& matrix_P() noexcept
 	{
-		update_matrix_P();
-		return s_matrix_P;
+		updateMatrixP();
+		return sMatrixP;
 	}
 
 	/**
@@ -413,7 +413,7 @@ public:
 	 */
 	inline static const mat4f& matrix_V() noexcept
 	{
-		return s_matrix_V;
+		return sMatrixV;
 	}
 
 	/**
@@ -422,7 +422,7 @@ public:
 	 */
 	inline static const mat4f& matrix_M() noexcept
 	{
-		return s_matrix_M;
+		return sMatrixM;
 	}
 
 	/**
@@ -431,8 +431,8 @@ public:
 	 */
 	inline static const mat4f& matrix_VM() noexcept
 	{
-		update_matrix_VM();
-		return s_matrix_VM;
+		updateMatrixVM();
+		return sMatrixVM;
 	}
 
 	/**
@@ -441,8 +441,8 @@ public:
 	 */
 	inline static const mat4f& matrix_PVM() noexcept
 	{
-		update_matrix_PVM();
-		return s_matrix_PVM;
+		updateMatrixPVM();
+		return sMatrixPVM;
 	}
 
 	/**
@@ -451,8 +451,8 @@ public:
 	 */
 	inline static const mat3f& matrix_N() noexcept
 	{
-		update_matrix_N();
-		return s_matrix_N;
+		updateMatrixN();
+		return sMatrixN;
 	}
 
 	/**
@@ -464,10 +464,10 @@ public:
 	 */
 	template <class ...Args> static void setModelMatrix(Args&&... args)
 	{
-		s_matrix_VM_dirty = true;
-		s_matrix_PVM_dirty = true;
-		s_matrix_N_dirty = true;
-		s_matrix_M = mat4f(std::forward<Args>(args)...);
+		sMatrixVMDirty = true;
+		sMatrixPVMDirty = true;
+		sMatrixNDirty = true;
+		sMatrixM = mat4f(std::forward<Args>(args)...);
 	}
 
 	///@}
@@ -883,10 +883,10 @@ public:
 
 private:
 
-	static void update_matrix_P();
-	static void update_matrix_VM();
-	static void update_matrix_PVM();
-	static void update_matrix_N();
+	static void updateMatrixP();
+	static void updateMatrixVM();
+	static void updateMatrixPVM();
+	static void updateMatrixN();
 
 	static void init_shaders();
 	static void initializeBasicShapes();
@@ -911,17 +911,17 @@ private:
 	static vec2f sMouseWheel;
 	static vec4f sFingerMotion;
 
-	static bool s_matrix_P_dirty;
-	static bool s_matrix_VM_dirty;
-	static bool s_matrix_PVM_dirty;
-	static bool s_matrix_N_dirty;
+	static bool sMatrixPDirty;
+	static bool sMatrixVMDirty;
+	static bool sMatrixPVMDirty;
+	static bool sMatrixNDirty;
 
-	static mat4f s_matrix_P;
-	static mat4f s_matrix_V;
-	static mat4f s_matrix_M;
-	static mat4f s_matrix_VM;
-	static mat4f s_matrix_PVM;
-	static mat3f s_matrix_N;
+	static mat4f sMatrixP;
+	static mat4f sMatrixV;
+	static mat4f sMatrixM;
+	static mat4f sMatrixVM;
+	static mat4f sMatrixPVM;
+	static mat3f sMatrixN;
 
 	static std::shared_ptr<Entity> sCameraEntity;
 	static std::shared_ptr<Entity> sDebugShadowBufferEntity;
