@@ -149,8 +149,11 @@ std::shared_ptr<Entity> FbxImporter::traverse(FbxNode* pNode, ResultStructure& r
 	auto lNewEntity = Entity::create(pNode);
 	// result.entities.push_back(lNewEntity);
 
-	std::cerr << "\nFound FBX Node: " << lNewEntity->name << "\n\n";
-	std::cerr << "\tLocal Transform: " << lNewEntity->localTransform() << '\n';
+	std::cerr << "\nFound FBX Node: " << lNewEntity->name << "\n\n"
+		<< "\tLocal Transform:\n"
+		<< "\t        Scale: " << lNewEntity->localTransform().scale << '\n'
+		<< "\t     Rotation: " << lNewEntity->localTransform().rotation << '\n'
+		<< "\t  Translation: " << lNewEntity->localTransform().translation << '\n';
 
 	lNewEntity->mesh     = processMesh(pNode, result);
 	lNewEntity->material = processMaterial(pNode, result);

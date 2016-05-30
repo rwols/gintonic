@@ -38,6 +38,7 @@ BOOST_AUTO_TEST_CASE( Serialization )
 
 		auto lEntity = Entity::create("JustSomeRandomEntity");
 		lEntity->light = AmbientLight::create(vec4f(1.0f, 1.0f, 1.0f, 1.0f));
+		lEntity->light->name = "JustSomeRandomLight";
 
 		// auto lLight = std::shared_ptr<Light>(new DirectionalLight(vec4f(1.0f, 1.0f, 1.0f, 1.0f)));
 
