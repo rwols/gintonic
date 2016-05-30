@@ -332,7 +332,7 @@ Octree* Octree::erase()
 	}
 }
 
-Octree* Octree::erase(const typename std::list<EntityHolder>::iterator& iter)
+Octree* Octree::erase(const std::list<EntityHolder>::iterator& iter)
 {
 	mEntities.erase(iter);
 	return mParent ? mParent->backRecursiveDelete() : this;

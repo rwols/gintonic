@@ -146,6 +146,17 @@ std::vector<AnimStack> FbxImporter::loadAnimations()
 
 std::shared_ptr<Entity> FbxImporter::traverse(FbxNode* pNode, ResultStructure& result)
 {
+	if (!pNode) return nullptr;
+	if (pNode->GetNodeAttribute() &&
+		pNode->GetNodeAttribute()->GetAttributeType() &&
+		pNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
+	{
+		// Skip skeletons.
+		// They are processed by the Mesh class.
+		std::cerr << "\nSkipping FBX Node: " << pNode->GetName() << " (this is a bone).\n\n";
+		return nullptr;
+	}
+
 	auto lNewEntity = Entity::create(pNode);
 	// result.entities.push_back(lNewEntity);
 
@@ -172,8 +183,11 @@ std::shared_ptr<Entity> FbxImporter::traverse(FbxNode* pNode, ResultStructure& r
 	for (int i = 0; i < pNode->GetChildCount(); ++i)
 	{
 		auto lChildEntity = traverse(pNode->GetChild(i), result);
-		std::cerr << "\tAdding child " << lChildEntity->name << " to parent " << lNewEntity->name << '\n';
-		lNewEntity->addChild(std::move(lChildEntity));
+		if (lChildEntity)
+		{
+			std::cerr << "\tAdding child " << lChildEntity->name << " to parent " << lNewEntity->name << '\n';
+			lNewEntity->addChild(std::move(lChildEntity));
+		}
 	}
 	return lNewEntity;
 }

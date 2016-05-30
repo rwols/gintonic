@@ -407,7 +407,7 @@ public:
 	 */
 	Octree* erase(Entity::SharedPtr entity);
 
-	Octree* erase(const typename std::list<EntityHolder>::iterator& iter);
+	Octree* erase(const std::list<EntityHolder>::iterator& iter);
 
 	/**
 	 * @brief Returns the root of the octree node.
