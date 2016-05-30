@@ -100,6 +100,8 @@ private:
 		if (entity->camera)
 		{
 			mStream << "camera ";
+			// Set the camera to this camera
+			// gintonic::Renderer::setCameraEntity(entity);
 		}
 		mStream << "]\n";
 		return true;

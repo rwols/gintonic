@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE( catch_memory_leak )
 	std::cout << "sizeof(vec4f):         " << sizeof(vec4f) << '\n'; 
 	std::cout << "sizeof(sharedptr):     " << sizeof(std::shared_ptr<Texture2D>) << '\n';
 
-	std::cout << "offsetof(diffuseColor) : " << offsetof(Material, diffuseColor) << '\n';
+	// std::cout << "offsetof(diffuseColor) : " << offsetof(Material, diffuseColor) << '\n';
 
 	lMaterial = Material::create
 	(

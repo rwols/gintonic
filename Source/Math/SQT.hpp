@@ -88,6 +88,15 @@ struct alignas(__m128) SQT
 	SQT(const FBXSDK_NAMESPACE::FbxAMatrix& affineMatrix);
 
 	/**
+	 * @brief      Set this SQT to the given affine matrix.
+	 *
+	 * @param[in]  affineMatrix  An affine matrix.
+	 *
+	 * @return     *this
+	 */
+	SQT& operator = (const FBXSDK_NAMESPACE::FbxAMatrix& affineMatrix);
+
+	/**
 	 * @brief Add two SQTs together.
 	 * @details The scales get pointwise-multiplied, the rotations
 	 * get multiplied (as quaternions), and the translations get added.

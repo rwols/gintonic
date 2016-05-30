@@ -59,8 +59,8 @@ Entity::Entity(const Entity& other)
 : Super(other)
 , mLocalTransform(other.mLocalTransform)
 , mGlobalTransform(other.mGlobalTransform)
-, mOctree(other.mOctree)
-, mOctreeListIter(other.mOctreeListIter)
+// , mOctree(other.mOctree)
+// , mOctreeListIter(other.mOctreeListIter)
 , castShadow(other.castShadow)
 , material(other.material)
 , mesh(other.mesh)
@@ -78,8 +78,8 @@ Entity::Entity(Entity&& other) noexcept
 , mGlobalTransform(std::move(other.mGlobalTransform))
 , mChildren(std::move(other.mChildren))
 , mParent(std::move(other.mParent))
-, mOctree(std::move(other.mOctree))
-, mOctreeListIter(std::move(other.mOctreeListIter))
+// , mOctree(std::move(other.mOctree))
+// , mOctreeListIter(std::move(other.mOctreeListIter))
 , castShadow(std::move(other.castShadow))
 , material(std::move(other.material))
 , mesh(std::move(other.mesh))
@@ -97,8 +97,8 @@ Entity& Entity::operator = (const Entity& other)
 	Super::operator=(other);
 	mLocalTransform = other.mLocalTransform;
 	mGlobalTransform = other.mGlobalTransform;
-	mOctree = other.mOctree;
-	mOctreeListIter = other.mOctreeListIter;
+	// mOctree = other.mOctree;
+	// mOctreeListIter = other.mOctreeListIter;
 	castShadow = other.castShadow;
 	material = other.material;
 	mesh = other.mesh;
@@ -119,8 +119,8 @@ Entity& Entity::operator = (Entity&& other) noexcept
 	mGlobalTransform = std::move(other.mGlobalTransform);
 	mChildren = std::move(other.mChildren);
 	mParent = std::move(other.mParent);
-	mOctree = std::move(other.mOctree);
-	mOctreeListIter = std::move(other.mOctreeListIter);
+	// mOctree = std::move(other.mOctree);
+	// mOctreeListIter = std::move(other.mOctreeListIter);
 	castShadow = std::move(other.castShadow);
 	material = std::move(other.material);
 	mesh = std::move(other.mesh);

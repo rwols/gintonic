@@ -157,6 +157,15 @@ std::shared_ptr<Entity> FbxImporter::traverse(FbxNode* pNode, ResultStructure& r
 	lNewEntity->light    = processLight(pNode, result);
 	lNewEntity->camera   = processCamera(pNode, result);
 
+	if ((lNewEntity->mesh && lNewEntity->material) || lNewEntity->light)
+	{
+		lNewEntity->castShadow = true;
+	}
+	else
+	{
+		lNewEntity->castShadow = false;
+	}
+
 	for (int i = 0; i < pNode->GetChildCount(); ++i)
 	{
 		auto lChildEntity = traverse(pNode->GetChild(i), result);
@@ -179,7 +188,11 @@ std::shared_ptr<Material> FbxImporter::processMaterial(FbxNode* pNode, ResultStr
 		result.materials.begin(), 
 		result.materials.end());
 
-	if (!lMaterial)
+	if (lMaterial)
+	{
+		std::cerr << "\tReusing existing material \"" << lMaterial->name << "\".\n";
+	}
+	else
 	{
 		lMaterial = Material::create(pNode->GetMaterial(0));
 	}
@@ -202,7 +215,11 @@ std::shared_ptr<Mesh> FbxImporter::processMesh(FbxNode* pNode, ResultStructure& 
 		result.meshes.begin(), 
 		result.meshes.end());
 
-	if (!lMesh)
+	if (lMesh)
+	{
+		std::cerr << "\tReusing existing mesh \"" << lMesh->name << "\".\n";
+	}
+	else
 	{
 		lMesh = Mesh::create(pNode->GetMesh());
 	}
@@ -225,7 +242,11 @@ std::shared_ptr<Camera> FbxImporter::processCamera(FbxNode* pNode, ResultStructu
 		result.cameras.begin(), 
 		result.cameras.end());
 
-	if (!lCamera)
+	if (lCamera)
+	{
+		std::cerr << "\tReusing existing camera \"" << lCamera->name << "\".\n";
+	}
+	else
 	{
 		lCamera = Camera::create(pNode->GetCamera());
 	}
@@ -248,7 +269,11 @@ std::shared_ptr<Light> FbxImporter::processLight(FbxNode* pNode, ResultStructure
 		result.lights.begin(), 
 		result.lights.end());
 
-	if (!lLight)
+	if (lLight)
+	{
+		std::cerr << "\tReusing existing light \"" << lLight->name << "\".\n";
+	}
+	else
 	{
 		lLight = Light::create(pNode->GetLight());
 	}

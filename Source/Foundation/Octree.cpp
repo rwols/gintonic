@@ -4,14 +4,25 @@
 
 namespace gintonic {
 
-void Octree::destroyEntityHolder(EntityHolder& holder)
+// void Octree::destroyEntityHolder(EntityHolder& holder)
+// {
+// 	if (auto lPtr = std::get<0>(holder).lock())
+// 	{
+// 		std::get<1>(holder).disconnect();
+// 		std::get<2>(holder).disconnect();
+// 		// lPtr->mOctree = nullptr;
+// 	}
+// }
+
+Octree::EntityHolder::~EntityHolder() noexcept
 {
-	if (auto lPtr = std::get<0>(holder).lock())
-	{
-		std::get<1>(holder).disconnect();
-		std::get<2>(holder).disconnect();
-		lPtr->mOctree = nullptr;
-	}
+	// if (auto lPtr = entity.lock())
+	// {
+	// 	transformChangeConnection.disconnect();
+	// 	destructConnection.disconnect();
+	// }
+	transformChangeConnection.disconnect();
+	destructConnection.disconnect();
 }
 
 // Constructors.
@@ -175,35 +186,56 @@ Octree::~Octree()
 
 bool Octree::isLeaf() const noexcept
 {
-	for (const auto* c : mChild) if (c) return false;
-	return true;
+	return mAllocationPlace == nullptr;
 }
 
 std::size_t Octree::count() const
 {
-	std::size_t result = mEntities.size();
-	for (const auto* c : mChild) if (c) result += c->count();
-	return result;
+	std::size_t lResult = mEntities.size();
+
+	if (!isLeaf())
+	{
+		for (const auto* lChild : mChild)
+		{
+			lResult += lChild->count();
+		}
+	}
+	return lResult;
 }
 
 void Octree::insert(std::shared_ptr<Entity> entity)
 {
-	assert(mBounds.contains(entity->globalBoundingBox()));
+	if (mBounds.contains(entity->globalBoundingBox()) == false)
+	{
+		throw EntityNotContainedInOctreeBoundingBox(this, std::move(entity));
+	}
 
 	// If we are at a leaf node, subdivide the space into eight octants.
+	// If the subdivision threshold is reached, no more subdivision will
+	// take place. In that case, Octree::isLeaf will still return true,
+	// so we have to check for that when we want to iterate over the children.
 	if (isLeaf()) subdivide();
 
 	// If the entity's bounds are contained within
 	// one of the mChild's bounds, then insert the entity
 	// in that mChild node.
-	for (auto* lChildNode : mChild)
+	if (!isLeaf())
 	{
-		if (lChildNode && lChildNode->mBounds.contains(entity->globalBoundingBox()))
+		for (auto* lChildNode : mChild)
 		{
-			lChildNode->insert(entity);
-			return;
+			if (lChildNode->mBounds.contains(entity->globalBoundingBox()))
+			{
+				lChildNode->insert(std::move(entity));
+				return;
+			}
 		}
 	}
+
+
+	// entity->mOctree = this;
+	
+	mEntities.emplace_back(entity);
+	auto lHolderIter = std::prev(mEntities.end());
 
 	// If we arrive here, then none of the mChild nodes
 	// can contain the entity. So we add it to this node.
@@ -213,32 +245,57 @@ void Octree::insert(std::shared_ptr<Entity> entity)
 	// update the octree along with it. We store the connection object
 	// so that we may disconnect from the entity once it leaves the bounding
 	// box of this octree node.
-	auto lTransformChangeConnection = entity->onTransformChange.connect( [this] (Entity::SharedPtr thisEntity)
-	{
-		assert(this == thisEntity->mOctree);
-		auto lUpmostParent = this->erase(thisEntity->mOctreeListIter);
-		assert(lUpmostParent);
-		thisEntity->mOctree = nullptr;
-		lUpmostParent->backRecursiveInsert(thisEntity);
-	});
+	auto lTransformChangeConnection = entity->onTransformChange.connect
+	(
+		[this, lHolderIter] (Entity::SharedPtr thisEntity)
+		{
+			if (auto lSharedPtr = lHolderIter->entity.lock())
+			{
+				auto lUpmostParent = this->erase(lHolderIter);
+				lUpmostParent->backRecursiveInsert(lSharedPtr);
+			}
+			// if (auto lSharedPtr = lPointerForLambda.lock())
+			// {
+			// 	Octree* lUpmostParent = this->mChildren.erase(lIterForLambda);
+			// 	lUpmostParent->backRecursiveInsert(lSharedPtr);
+			// }
+			// else
+			// {
+			// 	// Entity died in the meantime, ignore it.
+			// }
+			// assert(this == thisEntity->mOctree);
+			// auto lUpmostParent = this->erase(thisEntity->mOctreeListIter);
+			// assert(lUpmostParent);
+			// thisEntity->mOctree = nullptr;
+			// lUpmostParent->backRecursiveInsert(thisEntity);
+		}
+	);
+
+	lHolderIter->transformChangeConnection = std::move(lTransformChangeConnection);
 
 	// Subscribe to the onDie event of the Entity.
 	// When the Entity dies (i.e. destructor is called), we need to
 	// be notified of that event so that we remove the Entity from the octree node too.
-	auto lDieConnection = entity->onDie.connect( [this] (Entity* thisEntity)
-	{
-		assert(this == thisEntity->mOctree);
-		#ifdef NDEBUG
-			thisEntity->mOctree->erase(thisEntity->mOctreeListIter);
-		#else
-			auto lUpmostParent = thisEntity->mOctree->erase(thisEntity->mOctreeListIter);
-			assert(lUpmostParent);
-		#endif
-	});
+	auto lDieConnection = entity->onDie.connect
+	(
+		[this, lHolderIter] (Entity* thisEntity)
+		{
+			this->erase(lHolderIter);
+			// assert(this == thisEntity->mOctree);
+			// #ifdef NDEBUG
+			// 	thisEntity->mOctree->erase(thisEntity->mOctreeListIter);
+			// #else
+			// 	auto lUpmostParent = thisEntity->mOctree->erase(thisEntity->mOctreeListIter);
+			// 	assert(lUpmostParent);
+			// #endif
+		}
+	);
 
-	entity->mOctree = this;
-	mEntities.emplace_back(entity, std::move(lTransformChangeConnection), std::move(lDieConnection));
-	entity->mOctreeListIter = std::prev(mEntities.end());
+	lHolderIter->destructConnection = std::move(lDieConnection);
+
+	
+	// mEntities.emplace_back(entity, std::move(lTransformChangeConnection), std::move(lDieConnection));
+	// entity->mOctreeListIter = std::prev(mEntities.end());
 }
 
 Octree* Octree::erase()
@@ -250,12 +307,12 @@ Octree* Octree::erase()
 	auto lIter = mEntities.begin();
 	while (lIter != mEntities.end())
 	{
-		if (std::get<0>(*lIter).expired())
+		if (lIter->entity.expired())
 		{
 			// lIter->transformChangeConnection.disconnect();
 			// lIter->destructConnection.disconnect();
-			std::get<1>(*lIter).disconnect();
-			std::get<2>(*lIter).disconnect();
+			// lIter->transformChangeConnection.disconnect();
+			// lIter->destructConnection.disconnect();
 			// destroyEntityHolder(*lIter);
 			lIter = mEntities.erase(lIter);
 			++lEraseCount;
@@ -277,41 +334,33 @@ Octree* Octree::erase()
 
 Octree* Octree::erase(const typename std::list<EntityHolder>::iterator& iter)
 {
-	// std::get<1>(*iter).disconnect();
-	// std::get<2>(*iter).disconnect();
-	// destroyEntityHolder(*iter);
 	mEntities.erase(iter);
 	return mParent ? mParent->backRecursiveDelete() : this;
 }
 
 Octree* Octree::erase(Entity::SharedPtr entity)
 {
-	// DEBUG_PRINT;
-	if (entity->mOctree != this) return nullptr;
-	// DEBUG_PRINT;
 	for (auto lIter = mEntities.begin(); lIter != mEntities.end(); ++lIter)
 	{
-		// DEBUG_PRINT;
-		if (entity == std::get<0>(*lIter).lock())
+		if (entity == lIter->entity.lock())
 		{
-			// DEBUG_PRINT;
-			// std::get<1>(*lIter).disconnect();
-			// std::get<2>(*lIter).disconnect();
-
-			// // DEBUG_PRINT;
-			// assert(std::get<1>(*lIter).connected() == false);
-			// assert(std::get<2>(*lIter).connected() == false);
-			
-			// DEBUG_PRINT;
-			destroyEntityHolder(*lIter);
 			mEntities.erase(lIter);
-			// entity->mOctree = nullptr;
-
-			// DEBUG_PRINT;
-			break; 
+			return mParent ? mParent->backRecursiveDelete() : this;
 		}
 	}
-	return mParent ? mParent->backRecursiveDelete() : this;
+	if (isLeaf())
+	{
+		return nullptr;
+	}
+	else
+	{
+		for (auto* lChild : mChild)
+		{
+			Octree* lResult = lChild->erase(entity);
+			if (lResult) return lResult;
+		}
+		return nullptr;
+	}
 }
 
 Octree* Octree::getRoot() noexcept
@@ -343,7 +392,7 @@ void Octree::backRecursiveInsert(std::shared_ptr<Entity> entity)
 	else
 	{
 		// we are the root ... but the entity is too big!
-		throw std::runtime_error("Entity too big :(");
+		throw EntityNotContainedInOctreeBoundingBox(this, std::move(entity));
 	}
 }
 

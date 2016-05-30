@@ -57,10 +57,10 @@ private:
 
 	WeakPtr mParent = SharedPtr(nullptr);
 
-	friend class Octree;
+	// friend class Octree;
 
-	Octree* mOctree = nullptr;
-	typename std::list<std::tuple<std::weak_ptr<Entity>, boost::signals2::connection, boost::signals2::connection>>::iterator mOctreeListIter;
+	// Octree* mOctree = nullptr;
+	// typename std::list<std::tuple<std::weak_ptr<Entity>, boost::signals2::connection, boost::signals2::connection>>::iterator mOctreeListIter;
 
 	void updateGlobalInfo() noexcept;
 
@@ -712,8 +712,8 @@ private:
 		archive & mLocalTransform;
 		archive & mGlobalTransform;
 		archive & mParent;
-		archive & mOctree;
-		archive & mOctreeListIter;
+		// archive & mOctree;
+		// archive & mOctreeListIter;
 		archive & castShadow;
 		archive & material;
 		archive & mesh;

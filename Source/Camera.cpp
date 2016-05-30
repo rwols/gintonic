@@ -22,7 +22,6 @@ Camera::Camera(const FbxCamera* pFbxCamera)
 {
 	mNearPlane = static_cast<float>(pFbxCamera->GetNearPlane());
 	mFarPlane = static_cast<float>(pFbxCamera->GetFarPlane());
-	if (pFbxCamera->ProjectionType.Get() == FbxCamera::ePerspective) mProjection = kPerspective;
 	switch (pFbxCamera->ProjectionType.Get())
 	{
 		case FbxCamera::ePerspective:
@@ -34,7 +33,8 @@ Camera::Camera(const FbxCamera* pFbxCamera)
 		default:
 			mProjection = kPerspective;
 	}
-	mFieldOfView = deg2rad(static_cast<float>(pFbxCamera->FieldOfView.Get()));
+	// mFieldOfView = deg2rad(static_cast<float>(pFbxCamera->FieldOfView.Get()));
+	mFieldOfView = static_cast<float>(pFbxCamera->FieldOfView.Get());
 	mProjectionMatrixIsDirty = true;
 }
 

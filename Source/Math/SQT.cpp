@@ -14,21 +14,12 @@ SQT::SQT(const FbxNode* pFbxNode)
 {
 	GT_PROFILE_FUNCTION;
 
-	auto lValue = pFbxNode->LclScaling.Get();
-	scale.x = static_cast<float>(lValue[0]);
-	scale.y = static_cast<float>(lValue[1]);
-	scale.z = static_cast<float>(lValue[2]);
-
-	lValue = pFbxNode->LclRotation.Get();
-	rotation = quatf::yaw_pitch_roll(
-		static_cast<float>(lValue[0]), 
-		static_cast<float>(lValue[1]), 
-		static_cast<float>(lValue[2]));
-
-	lValue = pFbxNode->LclTranslation.Get();
-	translation.x = static_cast<float>(lValue[0]);
-	translation.y = static_cast<float>(lValue[1]);
-	translation.z = static_cast<float>(lValue[2]);
+	// BIG HACK!
+	FbxNode* lMutable = const_cast<FbxNode*>(pFbxNode);
+	const FbxAMatrix& lMatrix = lMutable->EvaluateLocalTransform();
+	scale = lMatrix.GetS();
+	rotation = lMatrix.GetQ();
+	translation = lMatrix.GetT();
 }
 
 SQT::SQT(const FbxAMatrix& affineMatrix)
@@ -37,6 +28,17 @@ SQT::SQT(const FbxAMatrix& affineMatrix)
 , translation(affineMatrix.GetT())
 {
 	GT_PROFILE_FUNCTION;
+}
+
+SQT& SQT::operator = (const FbxAMatrix& affineMatrix)
+{
+	GT_PROFILE_FUNCTION;
+
+	scale = affineMatrix.GetS();
+	rotation = affineMatrix.GetQ();
+	translation = affineMatrix.GetT();
+
+	return *this;
 }
 
 SQT SQT::operator % (const SQT& other) const noexcept
