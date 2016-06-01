@@ -1,8 +1,9 @@
 #include "Entity.hpp"
 
-#include "Foundation/Octree.hpp"
+// #include "Foundation/Octree.hpp"
 
 #include "Graphics/Mesh.hpp"
+#include "Graphics/ShadowBuffer.hpp"
 
 #include "Math/vec4f.hpp"
 #include "Math/SQTstack.hpp"

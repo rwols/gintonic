@@ -102,8 +102,17 @@ void main()
 	// Determine the specular factor.
 	vec3  lDirectionFromVertexToEye = normalize(/* origin */ - lViewSpaceVertexPosition);
 	vec3  lReflection               = reflect(lDirectionFromVertexToEye, lViewSpaceVertexNormal);
-	float lReflectionCosineAngle    = dot(lDirectionFromVertexToEye, lReflection);
+	float lReflectionCosineAngle    = dot(lViewSpaceVertexNormal, lReflection);
 	float lSpecularFactor           = pow(max(lReflectionCosineAngle, 0.0f), lSpecularColor.a);
+
+	// if (debugFlag == 0)
+	// {
+	// 	lSpecularFactor = 0.0f;
+	// }
+	// else
+	// {
+	// 	lSpecularFactor = 1.0f;
+	// }
 
 	// Compose the final color
 	finalColor  = lDiffuseFactor  * lDiffuseColor.rgb;

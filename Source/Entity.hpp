@@ -7,16 +7,12 @@
 #pragma once
 
 #include "ForwardDeclarations.hpp"
-#include "Camera.hpp"
+
+#include "Foundation/Object.hpp"
 
 #include "Math/SQT.hpp"
 #include "Math/box3f.hpp"
 #include "Math/mat4f.hpp"
-
-#include "Graphics/Material.hpp"
-#include "Graphics/Mesh.hpp"
-#include "Graphics/Light.hpp"
-#include "Graphics/ShadowBuffer.hpp"
 
 #include <list>
 #include <boost/signals2.hpp>
@@ -56,11 +52,6 @@ private:
 	children_datastructure_type mChildren;
 
 	WeakPtr mParent = SharedPtr(nullptr);
-
-	// friend class Octree;
-
-	// Octree* mOctree = nullptr;
-	// typename std::list<std::tuple<std::weak_ptr<Entity>, boost::signals2::connection, boost::signals2::connection>>::iterator mOctreeListIter;
 
 	void updateGlobalInfo() noexcept;
 
@@ -198,27 +189,35 @@ public:
 	/**
 	 * @brief The Material associated to this Entity.
 	 */
-	Material::SharedPtr material;
+	std::shared_ptr<Material> material;
 
 	/**
 	 * @brief The Mesh associated to this Entity.
 	 */
-	Mesh::SharedPtr mesh;
+	std::shared_ptr<Mesh> mesh;
 
 	/**
 	 * @brief The Light associated to this Entity.
 	 */
-	Light::SharedPtr light;
+	std::shared_ptr<Light> light;
 
 	/**
 	 * @brief The Camera associated to this Entity.
 	 */
-	Camera::SharedPtr camera;
+	std::shared_ptr<Camera> camera;
 
 	/**
 	 * @brief The ShadowBuffer associated to this Entity.
 	 */
 	std::unique_ptr<ShadowBuffer> shadowBuffer;
+
+	/**
+	 * @brief The animation clips associated to this Entity.
+	 */
+	std::vector<std::shared_ptr<AnimationClip>> animationClips;
+
+	AnimationClip* activeAnimationClip = nullptr;
+	float activeAnimationStartTime = 0.0f;
 
 	/**
 	 * @name Events
@@ -719,6 +718,9 @@ private:
 		archive & mesh;
 		archive & light;
 		archive & camera;
+		archive & animationClips;
+		archive & activeAnimationClip;
+		archive & activeAnimationStartTime;
 		archive & mChildren;
 	}
 };

@@ -7,6 +7,7 @@
 #include "../Math/vec4f.hpp"
 #include "../Math/MatrixPipeline.hpp"
 
+#include "AnimationClip.hpp"
 #include "GeometryBuffer.hpp"
 #include "Mesh.hpp"
 #include "ShaderPrograms.hpp"
@@ -14,6 +15,8 @@
 #include "Light.hpp"
 #include "PointLight.hpp"
 #include "SpotLight.hpp"
+#include "Skeleton.hpp"
+#include "ShadowBuffer.hpp"
 
 #include "../Camera.hpp"
 #include "../Entity.hpp"
@@ -809,21 +812,29 @@ void Renderer::renderGeometry() noexcept
 	lMaterialShaderProgram.setMaterialSpecularTexture(GBUFFER_TEX_SPECULAR);
 	lMaterialShaderProgram.setMaterialNormalTexture(GBUFFER_TEX_NORMAL);
 	lMaterialShaderProgram.setInstancedRendering(0);
+	lMaterialShaderProgram.setDebugFlag(1);
 
-	std::vector<mat4f, allocator<mat4f>> matrixBs;
-	std::vector<mat3f> matrixBNs;
+	std::vector<mat4f, allocator<mat4f>> matrixBs(GT_SKELETON_MAX_JOINTS);
+	std::vector<mat3f> matrixBNs(GT_SKELETON_MAX_JOINTS);
 
-	Mesh::Bone::IndexType lBone;
+	renderGeometry(sShadowCastingGeometryEntities, matrixBs, matrixBNs);
+	renderGeometry(sNonShadowCastingGeometryEntities, matrixBs, matrixBNs);
+}
 
-	matrixBs.resize(GT_MESH_MAX_BONES);
-	matrixBNs.resize(GT_MESH_MAX_BONES);
+void Renderer::renderGeometry(
+	const std::vector<std::shared_ptr<Entity>>& geometries, 
+	std::vector<mat4f, allocator<mat4f>>& matrixBs, 
+	std::vector<mat3f>& matrixBNs) noexcept
+{
+	const auto& lMaterialShaderProgram = MaterialShaderProgram::get();
 
-	for (const auto& lEntity : sShadowCastingGeometryEntities)
+	for (const auto& lEntity : geometries)
 	{
 		GLint lMaterialFlag             = 0;
 		GLint lHasTangentsAndBitangents = 0;
 		const auto lMaterial            = lEntity->material.get();
 		const auto lMesh                = lEntity->mesh.get();
+		const auto lAnimationClip       = lEntity->activeAnimationClip;
 
 		if (lMaterial->diffuseTexture)
 		{
@@ -845,11 +856,17 @@ void Renderer::renderGeometry() noexcept
 			lMaterialFlag |= HAS_TANGENTS_AND_BITANGENTS;
 			lHasTangentsAndBitangents = 1;
 		}
-
-		for (lBone = 0; lBone < static_cast<Mesh::Bone::IndexType>(lMesh->skeleton.size()); ++lBone)
+		if (lAnimationClip)
 		{
-			matrixBs[lBone] = lMesh->evaluateBoneAtTime(lBone, 0.0f);
-			matrixBNs[lBone] = matrixBs[lBone].upperLeft33().invert().transpose();
+			cerr() << lEntity->name << " --> " << lAnimationClip->name << '\n';
+			const auto lStart = lEntity->activeAnimationStartTime;
+			for (uint8_t j; j < lAnimationClip->jointCount(); ++j)
+			{
+				matrixBs[j] = lAnimationClip->evaluate(j, lStart, static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(elapsedTime()).count()) / double(1e9));
+				matrixBNs[j] = matrixBs[j].upperLeft33().invert().transpose();
+			}
+			lMaterialShaderProgram.setMatrixB(matrixBs);
+			lMaterialShaderProgram.setMatrixBN(matrixBNs);
 		}
 
 		setModelMatrix(lEntity->globalTransform());
@@ -861,57 +878,6 @@ void Renderer::renderGeometry() noexcept
 		lMaterialShaderProgram.setMatrixPVM(matrix_PVM());
 		lMaterialShaderProgram.setMatrixVM(matrix_VM());
 		lMaterialShaderProgram.setMatrixN(matrix_N());
-		lMaterialShaderProgram.setMatrixB(matrixBs);
-		lMaterialShaderProgram.setMatrixBN(matrixBNs);
-
-		lMesh->draw();
-	}
-
-	for (const auto& lEntity : sNonShadowCastingGeometryEntities)
-	{
-		GLint lMaterialFlag             = 0;
-		GLint lHasTangentsAndBitangents = 0;
-		const auto lMaterial            = lEntity->material.get();
-		const auto lMesh                = lEntity->mesh.get();
-
-		if (lMaterial->diffuseTexture)
-		{
-			lMaterialFlag |= HAS_DIFFUSE_TEXTURE;
-			lMaterial->diffuseTexture->bind(GBUFFER_TEX_DIFFUSE);
-		}
-		if (lMaterial->specularTexture)
-		{
-			lMaterialFlag |= HAS_SPECULAR_TEXTURE;
-			lMaterial->specularTexture->bind(GBUFFER_TEX_SPECULAR);
-		}
-		if (lMaterial->normalTexture)
-		{
-			lMaterialFlag |= HAS_NORMAL_TEXTURE;
-			lMaterial->normalTexture->bind(GBUFFER_TEX_NORMAL);
-		}
-		if (lMesh->hasTangentsAndBitangents())
-		{
-			lMaterialFlag |= HAS_TANGENTS_AND_BITANGENTS;
-			lHasTangentsAndBitangents = 1;
-		}
-
-		for (lBone = 0; lBone < static_cast<Mesh::Bone::IndexType>(lMesh->skeleton.size()); ++lBone)
-		{
-			matrixBs[lBone] = lMesh->evaluateBoneAtTime(lBone, 0.0f);
-			matrixBNs[lBone] = matrixBs[lBone].upperLeft33().invert().transpose();
-		}
-
-		setModelMatrix(lEntity->globalTransform());
-
-		lMaterialShaderProgram.setMaterialDiffuseColor(lMaterial->diffuseColor);
-		lMaterialShaderProgram.setMaterialSpecularColor(lMaterial->specularColor);
-		lMaterialShaderProgram.setMaterialFlag(lMaterialFlag);
-		lMaterialShaderProgram.setHasTangentsAndBitangents(lHasTangentsAndBitangents);
-		lMaterialShaderProgram.setMatrixPVM(matrix_PVM());
-		lMaterialShaderProgram.setMatrixVM(matrix_VM());
-		lMaterialShaderProgram.setMatrixN(matrix_N());
-		lMaterialShaderProgram.setMatrixB(matrixBs);
-		lMaterialShaderProgram.setMatrixBN(matrixBNs);
 
 		lMesh->draw();
 	}

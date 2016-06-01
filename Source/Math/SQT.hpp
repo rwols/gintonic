@@ -314,6 +314,8 @@ private:
  */
 inline float distance2(const SQT& a, const SQT& b) noexcept
 {
+	GT_PROFILE_FUNCTION;
+	
 	return distance2(a.translation, b.translation);
 }
 
@@ -328,7 +330,22 @@ inline float distance2(const SQT& a, const SQT& b) noexcept
  */
 inline float distance(const SQT& a, const SQT& b) noexcept
 {
+	GT_PROFILE_FUNCTION;
+
 	return distance(a.translation, b.translation);
+}
+
+/// Mix two SQTs.
+inline SQT mix(const SQT& u, const SQT& v, const float a) noexcept
+{
+	GT_PROFILE_FUNCTION;
+
+	return SQT
+	(
+		mix(u.scale, v.scale, a), 
+		mix(u.rotation, v.rotation, a), 
+		mix(u.translation, v.translation, a)
+	);
 }
 
 /**

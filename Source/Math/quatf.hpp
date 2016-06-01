@@ -90,6 +90,13 @@ public:
 	/// Assignment operator.
 	quatf& operator = (const FBXSDK_NAMESPACE::FbxQuaternion&);
 
+	inline quatf operator + (const quatf& other) const noexcept
+	{
+		GT_PROFILE_FUNCTION;
+
+		return _mm_add_ps(data, other.data);
+	}
+
 	/// Multiplication operator.
 	quatf operator * (const quatf& other) const noexcept;
 
@@ -99,6 +106,13 @@ public:
 		GT_PROFILE_FUNCTION;
 
 		return _mm_mul_ps(data, _mm_set1_ps(s));
+	}
+
+	inline friend quatf operator * (const float a, const quatf& q) noexcept
+	{
+		GT_PROFILE_FUNCTION;
+
+		return q * a;
 	}
 
 	/// Multiply-and-assign operator.
@@ -363,6 +377,12 @@ private:
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+
+/// Mix two quaternions. Linear interpolation. May produce undesirable effect.
+inline quatf mix(const quatf& u, const quatf& v, const float a)
+{
+	return (1.0f - a) * u + a * v;
+}
 
 /// Stream output support for quaternions.
 inline std::ostream& operator<<(std::ostream& os, const quatf& q)

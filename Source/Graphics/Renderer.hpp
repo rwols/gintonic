@@ -938,6 +938,12 @@ private:
 
 	static void prepareRendering() noexcept;
 	static void renderGeometry() noexcept;
+
+	static void renderGeometry(
+		const std::vector<std::shared_ptr<Entity>>&, 
+		std::vector<mat4f, allocator<mat4f>>&, 
+		std::vector<mat3f>&) noexcept;
+
 	static void renderShadows() noexcept;
 	static void renderPointLights() noexcept;
 	static void renderLights() noexcept;

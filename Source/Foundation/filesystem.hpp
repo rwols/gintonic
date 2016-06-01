@@ -10,6 +10,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/serialization/split_free.hpp>
 
+#include <string>
+
 namespace gintonic {
 
 /**

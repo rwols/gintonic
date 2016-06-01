@@ -12,6 +12,7 @@
 #include "Foundation/exception.hpp"
 #include "Foundation/Octree.hpp"
 
+#include "Graphics/AnimationClip.hpp"
 #include "Graphics/Renderer.hpp"
 #include "Graphics/Material.hpp"
 #include "Graphics/ShaderPrograms.hpp"
@@ -21,6 +22,7 @@
 #include "Graphics/PointLight.hpp"
 #include "Graphics/SpotLight.hpp"
 #include "Graphics/Mesh.hpp"
+#include "Graphics/Skeleton.hpp"
 #include "Graphics/skybox.hpp"
 
 #include "Entity.hpp"

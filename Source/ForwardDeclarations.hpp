@@ -18,13 +18,15 @@ class FbxLight;
 class FbxCamera;
 class FbxTexture;
 class FbxCluster;
+class FbxAnimStack;
+class FbxAnimLayer;
 #include <fbxsdk/fbxsdk_nsend.h>
 
 namespace gintonic {
 
 /* Foundation classes */
 template <class Derived, class NameType> class Object;
-template <class T, std::size_t Alignment> class allocator;
+// template <class T, std::size_t Alignment> class allocator;
 class exception;
 class ReadLock;
 class ReadWriteLock;
@@ -50,6 +52,7 @@ class SQTstack;
 
 /* Graphics classes */
 namespace GUI { class Base; }
+class AnimationClip;
 class DirectionalShadowBuffer;
 class Font;
 class Mesh;
@@ -64,6 +67,7 @@ class SpotLight;
 class Material;
 class Renderer;
 class Skybox;
+class Skeleton;
 class Mesh;
 class MaterialShaderProgram;
 class ShadowShaderProgram;

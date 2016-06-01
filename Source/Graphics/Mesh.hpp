@@ -51,8 +51,6 @@
 #define GT_VERTEX_LAYOUT_SLOT_14 14       // boneID.x boneID.y boneID.z boneID.w
 #define GT_VERTEX_LAYOUT_SLOT_15 15       // weight.x weight.y weight.z weight.w
 
-#define GT_MESH_MAX_BONES 64
-
 namespace gintonic {
 
 /**
@@ -280,45 +278,45 @@ public:
 		}
 	};
 
-	class Bone
-	{
-	public:
+	// class Bone
+	// {
+	// public:
 
-		using NameType      = std::string;
-		using IndexType     = GLint;
-		using TransformType = SQT;
+	// 	using NameType      = std::string;
+	// 	using IndexType     = GLint;
+	// 	using TransformType = SQT;
 
-		NameType      name;
-		IndexType     parent;
-		TransformType transform;
+	// 	NameType      name;
+	// 	IndexType     parent;
+	// 	TransformType transform;
 
-		Bone() = default;
+	// 	Bone() = default;
 
-		template <class A, class B, class C>
-		Bone(A&& name, B&& parent, C&& localTransform)
-		: name(std::forward<A>(name))
-		, parent(std::forward<B>(parent))
-		, transform(std::forward<C>(localTransform))
-		{
-			/* Empty on purpose. */
-		}
+	// 	template <class A, class B, class C>
+	// 	Bone(A&& name, B&& parent, C&& localTransform)
+	// 	: name(std::forward<A>(name))
+	// 	, parent(std::forward<B>(parent))
+	// 	, transform(std::forward<C>(localTransform))
+	// 	{
+	// 		/* Empty on purpose. */
+	// 	}
 
-		GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+	// 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 		
-	private:
+	// private:
 
-		friend class boost::serialization::access;
+	// 	friend class boost::serialization::access;
 
-		template <class Archive>
-		void serialize(Archive & ar, const unsigned int /*version*/)
-		{
-			ar & name & parent & transform;
-		}
-	};
+	// 	template <class Archive>
+	// 	void serialize(Archive & ar, const unsigned int /*version*/)
+	// 	{
+	// 		ar & name & parent & transform;
+	// 	}
+	// };
 
-	std::vector<Bone, allocator<Bone>> skeleton;
+	// std::vector<Bone, allocator<Bone>> skeleton;
 
-	mat4f evaluateBoneAtTime(const std::size_t boneIndex, const float timepoint) const noexcept;
+	// mat4f evaluateBoneAtTime(const std::size_t boneIndex, const float timepoint) const noexcept;
 
 	/// Get the local bounding box.
 	const box3f& getLocalBoundingBox() const noexcept
@@ -344,8 +342,17 @@ private:
 	 * 
 	 * @param [in] fbxMesh A constant pointer to an FBX mesh.
 	 */
+	Mesh(FBXSDK_NAMESPACE::FbxMesh*    fbxMesh);
+
+	/**
+	 * @brief Constructs a mesh from an `FbxMesh`.
+	 * 
+	 * @param [in] fbxMesh A constant pointer to an FBX mesh.
+	 * @param [in] skeleton The skeleton to set up the bind poses for.
+	 */
 	Mesh(
-		FBXSDK_NAMESPACE::FbxMesh*             fbxMesh);
+		FBXSDK_NAMESPACE::FbxMesh*      fbxMesh,
+		Skeleton&                       skeleton);
 
 	/**
 	 * @brief Constructs a mesh from manual arrays.
@@ -404,13 +411,24 @@ private:
 
 public:
 
+
 	/**
 	 * @brief Change this mesh according to the new `FbxMesh`.
 	 * 
 	 * @param [in] fbxMesh A constant pointer to an FBX mesh.
 	 */
 	void set(
-		FBXSDK_NAMESPACE::FbxMesh*             fbxMesh);
+		FBXSDK_NAMESPACE::FbxMesh*     fbxMesh);
+
+	/**
+	 * @brief Constructs a mesh from an `FbxMesh`.
+	 * 
+	 * @param [in] fbxMesh A constant pointer to an FBX mesh.
+	 * @param [in] skeleton The skeleton to set up the bind poses for.
+	 */
+	void set(
+		FBXSDK_NAMESPACE::FbxMesh*      fbxMesh,
+		Skeleton&                       skeleton);
 
 	/**
 	 * @brief Change this mesh according to manual arrays.
@@ -525,6 +543,11 @@ public:
 		return numIndicesAdjacent() != 0;
 	}
 
+	inline bool hasSkinning() const noexcept
+	{
+		return mJointIndices.empty() == false;
+	}
+
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
 private:
@@ -540,8 +563,8 @@ private:
 
 	std::vector<Mesh::vec3f> mPositions;
 
-	std::vector<Mesh::vec4i> mBoneIndices;
-	std::vector<Mesh::vec4f> mBoneWeights;
+	std::vector<Mesh::vec4i> mJointIndices;
+	std::vector<Mesh::vec4f> mJointWeights;
 
 	OpenGL::VertexArrayObject mVertexArrayObject;
 	OpenGL::VertexArrayObject mVertexArrayObjectAdjacencies;
@@ -553,23 +576,25 @@ private:
 	OpenGL::Vector<GL_ARRAY_BUFFER, mat3f> mNormalMatrixBuffer;
 
 	void setupInstancedRenderingMatrices() noexcept;
-	void evaluateBoneAtTimeRecursive(const std::size_t boneIndex, const float timepoint, mat4f& matrix) const noexcept;
+	// void evaluateBoneAtTimeRecursive(const std::size_t boneIndex, const float timepoint, mat4f& matrix) const noexcept;
 	
-	void buildBonesRecursive(
-		const FBXSDK_NAMESPACE::FbxNode*, 
-		const Bone::IndexType,
-		std::map<std::string, Bone::IndexType>&);
+	// void buildBonesRecursive(
+	// 	const FBXSDK_NAMESPACE::FbxNode*, 
+	// 	const Bone::IndexType,
+	// 	std::map<std::string, Bone::IndexType>&);
 
-	void buildBonesRecursive(
-		const FBXSDK_NAMESPACE::FbxNode*, 
-		const Bone::IndexType,
-		std::map<Bone::IndexType, const FBXSDK_NAMESPACE::FbxNode*>&,
-		const std::map<const FBXSDK_NAMESPACE::FbxNode*,
-		const FBXSDK_NAMESPACE::FbxCluster*>&);
+	// void buildBonesRecursive(
+	// 	const FBXSDK_NAMESPACE::FbxNode*, 
+	// 	const Bone::IndexType,
+	// 	std::map<Bone::IndexType, const FBXSDK_NAMESPACE::FbxNode*>&,
+	// 	const std::map<const FBXSDK_NAMESPACE::FbxNode*,
+	// 	const FBXSDK_NAMESPACE::FbxCluster*>&);
 
-	void buildBonesArray(const FBXSDK_NAMESPACE::FbxMesh*, const std::map<int, GLuint>&);
+	// void buildBonesArray(const FBXSDK_NAMESPACE::FbxMesh*, const std::map<int, GLuint>&);
 	void computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh::vec4f>& position_XYZ_uv_X);
 	void computeAdjacencyFromPositionInformation();
+	void buildFromFbxMesh(FBXSDK_NAMESPACE::FbxMesh*, std::map<int, GLuint>*);
+	void buildSkinningInformation(const FBXSDK_NAMESPACE::FbxMesh*, Skeleton&, const std::map<int, GLuint>&);
 	
 	void uploadData();
 
@@ -580,8 +605,6 @@ private:
 	{
 		archive & mLocalBoundingBox;
 
-		archive & skeleton;
-
 		archive & mIndices;
 		archive & mIndicesAdjacent;
 
@@ -591,8 +614,8 @@ private:
 
 		archive & mPositions;
 
-		archive & mBoneIndices;
-		archive & mBoneWeights;
+		archive & mJointIndices;
+		archive & mJointWeights;
 	}
 
 	template <class Archive>
@@ -600,8 +623,6 @@ private:
 	{
 		archive & mLocalBoundingBox;
 
-		archive & skeleton;
-
 		archive & mIndices;
 		archive & mIndicesAdjacent;
 
@@ -611,8 +632,8 @@ private:
 
 		archive & mPositions;
 
-		archive & mBoneIndices;
-		archive & mBoneWeights;
+		archive & mJointIndices;
+		archive & mJointWeights;
 
 		uploadData();
 	}
@@ -635,10 +656,10 @@ inline std::ostream& operator << (std::ostream& os, const Mesh::vec4i& v)
 	return os << '[' << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ']';
 }
 
-inline std::ostream& operator << (std::ostream& os, const Mesh::Bone& bone)
-{
-	return os << '{' << bone.name << ", " << bone.parent << ", " << bone.transform << '}';
-}
+// inline std::ostream& operator << (std::ostream& os, const Mesh::Bone& bone)
+// {
+// 	return os << '{' << bone.name << ", " << bone.parent << ", " << bone.transform << '}';
+// }
 
 } // namespace gintonic
 

@@ -18,7 +18,9 @@
 #define GT_VERTEX_LAYOUT_SLOT_14 14       // boneID.x boneID.y boneID.z boneID.w
 #define GT_VERTEX_LAYOUT_SLOT_15 15       // weight.x weight.y weight.z weight.w
 
-#define GT_MAX_BONES 64
+#define GT_MAX_JOINTS 255
+
+#define GT_JOINT_NONE 0xff
 
 layout(location = GT_VERTEX_LAYOUT_SLOT_0)        in vec4  iSlot0;
 layout(location = GT_VERTEX_LAYOUT_SLOT_1)        in vec4  iSlot1;
@@ -36,8 +38,8 @@ uniform int  hasTangentsAndBitangents;
 uniform int  instancedRendering;
 uniform int  debugFlag;
 
-uniform mat4 matrixB[GT_MAX_BONES];
-uniform mat3 matrixBN[GT_MAX_BONES];
+uniform mat4 matrixB[GT_MAX_JOINTS];
+uniform mat3 matrixBN[GT_MAX_JOINTS];
 
 out vec3 viewSpaceVertexPosition;
 out vec3 viewSpaceVertexNormal;
@@ -46,7 +48,7 @@ out mat3 tangentMatrix;
 
 vec4 fromBoneSpaceToLocalSpace(vec4 v)
 {
-	if (iBoneID == ivec4(-1, -1, -1, -1)) return v;
+	if (iBoneID == ivec4(GT_JOINT_NONE, GT_JOINT_NONE, GT_JOINT_NONE, GT_JOINT_NONE)) return v;
 	vec4 lTemp = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 	lTemp += (matrixB[iBoneID.x] * v) * iBoneWeight.x;
 	lTemp += (matrixB[iBoneID.y] * v) * iBoneWeight.y;
@@ -57,7 +59,7 @@ vec4 fromBoneSpaceToLocalSpace(vec4 v)
 
 vec3 fromBoneSpaceToNormalSpace(vec3 v)
 {
-	if (iBoneID == ivec4(-1, -1, -1, -1)) return v;
+	if (iBoneID == ivec4(GT_JOINT_NONE, GT_JOINT_NONE, GT_JOINT_NONE, GT_JOINT_NONE)) return v;
 	vec3 lTemp = vec3(0.0f, 0.0f, 0.0f);
 	lTemp += (matrixBN[iBoneID.x] * v) * iBoneWeight.x;
 	lTemp += (matrixBN[iBoneID.y] * v) * iBoneWeight.y;

@@ -1,10 +1,11 @@
 #include "Common/Application.hpp"
+
 #include <iomanip>
 #include <fstream>
+
 #include "../Source/Foundation/portable_oarchive.hpp"
 #include "../Source/Foundation/portable_iarchive.hpp"
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -31,12 +32,10 @@ public:
 		std::shared_ptr<gintonic::Entity> root, 
 		std::ostream& stream, 
 		const std::size_t tabwidth,
-		// const float lightIntensityStartValue,
 		std::vector<std::shared_ptr<gintonic::Entity>>& lights) 
 	: EntityVisitor(root)
 	, mStream(stream)
 	, mTabWidth(tabwidth)
-	// , mLightIntensityStartValue(lightIntensityStartValue)
 	, mLights(lights)
 	{
 
@@ -62,10 +61,16 @@ private:
 
 	virtual bool onVisit(std::shared_ptr<gintonic::Entity> entity)
 	{
-		
-
 		mStream << std::setw(mTabWidth * this->currentDepth()) << std::setfill(' ') << "";
 		mStream << entity->name << " [ ";
+		if (entity->animationClips.empty() == false)
+		{
+			mStream << entity->animationClips.size() << " animation clip";
+			if (entity->animationClips.size() == 1) mStream << ' ';
+			else mStream << "s ";
+			entity->activeAnimationClip = entity->animationClips[0].get();
+			entity->activeAnimationStartTime = static_cast<float>(0.0f);
+		}
 		if (entity->light)
 		{
 			containsLight = true;
@@ -130,6 +135,8 @@ public:
 
 	gintonic::Entity::SharedPtr mModel;
 
+	std::shared_ptr<gintonic::Skeleton> mSkeleton;
+
 	float mLightIntensity = LIGHT_INTENSITY_START_VALUE;
 
 	std::vector<gintonic::Entity::SharedPtr> mLights;
@@ -163,6 +170,13 @@ public:
 		else if (boost::filesystem::is_regular_file(lCachedFile))
 		{
 			std::cout << "Found cache: " << lCachedFile << '\n';
+			const std::time_t lFilenameDate   = boost::filesystem::last_write_time(lFilename);
+			const std::time_t lCachedFileDate = boost::filesystem::last_write_time(lCachedFile);
+			if (lCachedFileDate < lFilenameDate)
+			{
+				std::cout << "The cache is out of date. Loading original file.\n";
+				goto LABEL_CacheIsOutOfDate;
+			}
 			const auto lFilenameAsString = lCachedFile.string();
 			std::ifstream lInput(lFilenameAsString, std::ios::binary);
 			InputArchiveType lInputArchive(lInput);
@@ -170,6 +184,8 @@ public:
 		}
 		else
 		{
+			LABEL_CacheIsOutOfDate:
+
 			std::cout << "Loading file: " << lFilename << '\n';
 			const auto lFilenameAsString = lFilename.string();
 			gintonic::FbxImporter lImporter(lFilenameAsString.c_str(), true, false, true);
@@ -188,7 +204,6 @@ public:
 			mRootEntity, 
 			std::cout, 
 			4, 
-			// mLightIntensity, 
 			mLights);
 
 		std::cout << "\n\tHere's an overview of the scene:\n\n";
