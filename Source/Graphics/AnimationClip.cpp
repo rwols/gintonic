@@ -4,6 +4,8 @@
 
 #include <fbxsdk.h>
 
+#include <algorithm>
+
 namespace {
 
 template <class FbxType>
@@ -194,7 +196,7 @@ AnimationClip::AnimationClip(FbxAnimStack* pStack, std::shared_ptr<Skeleton> tar
 	}
 }
 
-mat4f AnimationClip::evaluate(uint8_t jointIndex, const float startTime, const float currentTime) const noexcept
+mat4f AnimationClip::evaluate(const uint8_t jointIndex, const float startTime, const float currentTime) const noexcept
 {
 	float lExactFrame;
 	std::size_t lLowerFrame;
@@ -217,18 +219,15 @@ mat4f AnimationClip::evaluate(uint8_t jointIndex, const float startTime, const f
 	}
 
 	mat4f lResult(1.0f);
-	const uint8_t lOriginalIndex = jointIndex;
 	const float lLambda = lExactFrame - static_cast<float>(lLowerFrame);
-	while (jointIndex != GT_JOINT_NONE)
+	uint8_t j = jointIndex;
+	while (j != GT_JOINT_NONE)
 	{
-		const auto lCurrent = mat4f(mix(frames[jointIndex][lLowerFrame], frames[jointIndex][lUpperFrame], lLambda));
-		// const auto lCurrent = mat4f(frames[jointIndex][std::min(static_cast<std::size_t>(lExactFrame), static_cast<std::size_t>(frames[jointIndex].size() - 1))]);
+		const auto lCurrent = mat4f(mix(frames[j][lLowerFrame], frames[j][lUpperFrame], lLambda));
 		lResult = lCurrent * lResult;
-		// lLastIndex = jointIndex;
-		jointIndex = skeleton->joints[jointIndex].parent;
+		j = skeleton->joints[j].parent;
 	}
-	// return skeleton->joints[lOriginalIndex].inverseBindPose * lResult;
-	return lResult;
+	return skeleton->joints[jointIndex].inverseBindPose * lResult;
 }
 
 } // namespace gintonic

@@ -812,6 +812,7 @@ void Renderer::renderGeometry() noexcept
 	lMaterialShaderProgram.setMaterialSpecularTexture(GBUFFER_TEX_SPECULAR);
 	lMaterialShaderProgram.setMaterialNormalTexture(GBUFFER_TEX_NORMAL);
 	lMaterialShaderProgram.setInstancedRendering(0);
+	// lMaterialShaderProgram.setDebugFlag(0);
 	lMaterialShaderProgram.setDebugFlag(1);
 
 	std::vector<mat4f, allocator<mat4f>> matrixBs(GT_SKELETON_MAX_JOINTS);
@@ -860,7 +861,7 @@ void Renderer::renderGeometry(
 		{
 			cerr() << lEntity->name << " --> " << lAnimationClip->name << '\n';
 			const auto lStart = lEntity->activeAnimationStartTime;
-			for (uint8_t j; j < lAnimationClip->jointCount(); ++j)
+			for (uint8_t j = 0; j < lAnimationClip->jointCount(); ++j)
 			{
 				matrixBs[j] = lAnimationClip->evaluate(j, lStart, static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(elapsedTime()).count()) / double(1e9));
 				matrixBNs[j] = matrixBs[j].upperLeft33().invert().transpose();

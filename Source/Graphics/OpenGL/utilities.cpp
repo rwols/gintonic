@@ -64,13 +64,13 @@ void setUniform(const GLint location,
 void setUniform(const GLint location,
 	const std::vector<mat4f, allocator<mat4f>>& values) noexcept
 {
-	glUniformMatrix4fv(location, values.size(), GL_FALSE, (const GLfloat*)values.data());
+	glUniformMatrix4fv(location, values.size(), GL_FALSE, (const GLfloat*)values[0].value_ptr());
 }
 
 void setUniform(const GLint location,
 	const std::vector<mat3f>& values) noexcept
 {
-	glUniformMatrix3fv(location, values.size(), GL_FALSE, (const GLfloat*)values.data());
+	glUniformMatrix3fv(location, values.size(), GL_FALSE, (const GLfloat*)values[0].value_ptr());
 }
 
 } // namespace opengl

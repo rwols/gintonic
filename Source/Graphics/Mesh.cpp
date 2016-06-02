@@ -7,7 +7,7 @@
 
 #include <fbxsdk.h>
 
-// #include <set>
+#include <set>
 
 namespace // anonymous namespace
 {
@@ -1009,7 +1009,9 @@ void Mesh::buildSkinningInformation(const FbxMesh* pFbxMesh, Skeleton& mySkeleto
 		return;
 	}
 
-	std::map<uint8_t, std::vector<std::pair<GLuint, GLfloat>>> lJointToInfluenceMap;
+	// std::vector<std::vector<std::pair<GLuint, GLfloat>>> lJointToInfluenceArray;
+
+	std::map<std::string, std::vector<std::pair<GLuint, GLfloat>>> lJointNameToInfluenceMap;
 
 	for (int c = 0; c < pFbxSkin->GetClusterCount(); ++c)
 	{
@@ -1023,19 +1025,19 @@ void Mesh::buildSkinningInformation(const FbxMesh* pFbxMesh, Skeleton& mySkeleto
 				<< "\" is not part of the skeleton \"" << mySkeleton.name << "\".\n";
 			continue;
 		}
-		else
-		{
-			FbxAMatrix lTransform;
-			FbxAMatrix lTransformLink;
 
-			lCluster->GetTransformMatrix(lTransform);
-			lCluster->GetTransformLinkMatrix(lTransformLink);
+		FbxAMatrix lTransform;
+		FbxAMatrix lTransformLink;
 
-			lMyJoint->inverseBindPose = mat4f(lTransformLink.Inverse() * lTransform);
-		}
+		lCluster->GetTransformMatrix(lTransform);
+		lCluster->GetTransformLinkMatrix(lTransformLink);
 
-		std::vector<std::pair<GLuint, GLfloat>> lJointInfluence;
-		lJointInfluence.reserve(lCluster->GetControlPointIndicesCount());
+		lMyJoint->inverseBindPose = mat4f(lTransformLink.Inverse() * lTransform);
+
+		auto& lJointInfluence = lJointNameToInfluenceMap[lMyJoint->name];
+	
+		// std::vector<std::pair<GLuint, GLfloat>> lJointInfluence;
+		// lJointInfluence.reserve(lCluster->GetControlPointIndicesCount());
 
 		for (int i = 0; i < lCluster->GetControlPointIndicesCount(); ++i)
 		{
@@ -1049,11 +1051,13 @@ void Mesh::buildSkinningInformation(const FbxMesh* pFbxMesh, Skeleton& mySkeleto
 			);
 		}
 
-		const auto lMyJointIndex = std::distance(mySkeleton.begin(), lMyJoint);
+		// const auto lMyJointIndex = std::distance(mySkeleton.begin(), lMyJoint);
 		std::cerr << "\tFound joint influence for joint \""  
-			<< mySkeleton[lMyJointIndex].name << "\" of skeleton \"" << mySkeleton.name << "\".\n";
-		lJointToInfluenceMap.emplace(lMyJointIndex, std::move(lJointInfluence));
+			<< lMyJoint->name << "\" of skeleton \"" << mySkeleton.name << "\".\n";
+		// lJointToInfluenceArray.emplace_back(std::move(lJointInfluence));
 	}
+
+	std::cerr << mySkeleton << '\n';
 
 	mJointIndices.resize(mPosition_XYZ_uv_X.size());
 	mJointWeights.resize(mPosition_XYZ_uv_X.size());
@@ -1063,13 +1067,17 @@ void Mesh::buildSkinningInformation(const FbxMesh* pFbxMesh, Skeleton& mySkeleto
 
 	for (uint8_t i = 0; i < static_cast<uint8_t>(mySkeleton.joints.size()); ++i)
 	{
-		const auto lFindResult = lJointToInfluenceMap.find(i);
-		if (lFindResult == lJointToInfluenceMap.end())
+		// const auto lFindResult = lJointToInfluenceMap.find(i);
+		// if (lFindResult == lJointToInfluenceMap.end())
+		// {
+
+		// }
+		const auto& lJointInfluence = lJointNameToInfluenceMap[mySkeleton[i].name];
+		if (lJointInfluence.empty())
 		{
 			std::cerr << "\tJoint \"" << mySkeleton[i].name << "\" influences no vertices at all.\n";
 			continue;
 		}
-		const auto& lJointInfluence = lFindResult->second;
 		for (const auto& lPair : lJointInfluence)
 		{
 			if (mJointIndices[lPair.first].x == static_cast<int>(i) ||

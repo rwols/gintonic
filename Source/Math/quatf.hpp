@@ -108,12 +108,12 @@ public:
 		return _mm_mul_ps(data, _mm_set1_ps(s));
 	}
 
-	inline friend quatf operator * (const float a, const quatf& q) noexcept
-	{
-		GT_PROFILE_FUNCTION;
+	// inline friend quatf operator * (const float a, const quatf& q) noexcept
+	// {
+	// 	GT_PROFILE_FUNCTION;
 
-		return q * a;
-	}
+	// 	return _mm_mul_ps(_mm_set1_ps(a), q.data);
+	// }
 
 	/// Multiply-and-assign operator.
 	inline quatf& operator *= (const quatf& q) noexcept
@@ -381,7 +381,7 @@ private:
 /// Mix two quaternions. Linear interpolation. May produce undesirable effect.
 inline quatf mix(const quatf& u, const quatf& v, const float a)
 {
-	return (1.0f - a) * u + a * v;
+	return u * (1.0f - a) + v * a;
 }
 
 /// Stream output support for quaternions.
