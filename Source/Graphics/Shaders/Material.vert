@@ -21,6 +21,13 @@
 #define GT_SKELETON_MAX_JOINTS (1 << 8)
 #define GT_JOINT_NONE ((GT_SKELETON_MAX_JOINTS) - 1)
 
+#define HAS_DIFFUSE_TEXTURE         1
+#define HAS_SPECULAR_TEXTURE        2
+#define HAS_NORMAL_TEXTURE          4
+#define HAS_TANGENTS_AND_BITANGENTS 8
+#define MESH_HAS_JOINTS             16
+#define INSTANCED_RENDERING         32
+
 layout(location = GT_VERTEX_LAYOUT_SLOT_0)        in vec4  iSlot0;
 layout(location = GT_VERTEX_LAYOUT_SLOT_1)        in vec4  iSlot1;
 layout(location = GT_VERTEX_LAYOUT_SLOT_2)        in vec4  iSlot2;
@@ -33,8 +40,9 @@ layout(location = GT_VERTEX_LAYOUT_SLOT_15)       in vec4  iBoneWeight;
 uniform mat4 matrixPVM;
 uniform mat4 matrixVM;
 uniform mat3 matrixN;
-uniform int  hasTangentsAndBitangents;
-uniform int  instancedRendering;
+uniform int  materialFlag;
+// uniform int  hasTangentsAndBitangents;
+// uniform int  instancedRendering;
 uniform int  debugFlag;
 
 uniform mat4 matrixB[GT_SKELETON_MAX_JOINTS];
@@ -69,45 +77,23 @@ vec3 fromBoneSpaceToNormalSpace(vec3 v)
 
 void main()
 {
-	vec4 localPosition;
-	if (debugFlag == 1)
-	{
-		localPosition = fromBoneSpaceToLocalSpace(vec4(iSlot0.xyz, 1.0f));
-	}
-	else
-	{
-		localPosition = vec4(iSlot0.xyz, 1.0f);
-	}
-	vec3 localNormal;
-	if (debugFlag == 1)
-	{
-		localNormal = fromBoneSpaceToNormalSpace(iSlot1.xyz);
-	}
-	else
-	{
-		localNormal = iSlot1.xyz;
-	}
+	
+	bool lHasJoints     = (materialFlag & MESH_HAS_JOINTS) == MESH_HAS_JOINTS;
+	vec4 localPosition  = lHasJoints ? fromBoneSpaceToLocalSpace(vec4(iSlot0.xyz, 1.0f)) : vec4(iSlot0.xyz, 1.0f);
+	vec3 localNormal    = lHasJoints ? fromBoneSpaceToNormalSpace(iSlot1.xyz) : iSlot1.xyz;
+	textureCoordinates  = vec2(iSlot0.w, iSlot1.w);
 
-	textureCoordinates = vec2(iSlot0.w, iSlot1.w);
-
-	if (instancedRendering != 0)
+	if ((materialFlag & INSTANCED_RENDERING) == INSTANCED_RENDERING)
 	{
 		gl_Position             =  iMatrixPVM * localPosition;
 		viewSpaceVertexPosition = (iMatrixVM  * localPosition).xyz;
 		viewSpaceVertexNormal   =  iMatrixN   * localNormal;
 
-		if (hasTangentsAndBitangents != 0)
+		if ((materialFlag & HAS_TANGENTS_AND_BITANGENTS) == HAS_TANGENTS_AND_BITANGENTS)
 		{
-			vec3 localTangent;
-			if (debugFlag == 1)
-			{
-				localTangent = fromBoneSpaceToNormalSpace(iSlot2.xyz);
-			}
-			else
-			{
-				localTangent = iSlot2.xyz;
-			}
+			vec3 localTangent   = lHasJoints ? fromBoneSpaceToNormalSpace(iSlot2.xyz) : iSlot2.xyz;
 			vec3 localBitangent = cross(localNormal, localTangent) * iSlot2.w;
+			
 			tangentMatrix = mat3(
 				iMatrixN * localTangent, 
 				iMatrixN * localBitangent, 
@@ -120,18 +106,11 @@ void main()
 		viewSpaceVertexPosition = (matrixVM  * localPosition).xyz;
 		viewSpaceVertexNormal   =  matrixN   * localNormal;
 		
-		if (hasTangentsAndBitangents != 0)
+		if ((materialFlag & HAS_TANGENTS_AND_BITANGENTS) == HAS_TANGENTS_AND_BITANGENTS)
 		{
-			vec3 localTangent;
-			if (debugFlag == 1)
-			{
-				localTangent = fromBoneSpaceToNormalSpace(iSlot2.xyz);
-			}
-			else
-			{
-				localTangent = iSlot2.xyz;
-			}
+			vec3 localTangent   = lHasJoints ? fromBoneSpaceToNormalSpace(iSlot2.xyz) : iSlot2.xyz;
 			vec3 localBitangent = cross(localNormal, localTangent) * iSlot2.w;
+
 			tangentMatrix = mat3(
 				matrixN * localTangent, 
 				matrixN * localBitangent, 

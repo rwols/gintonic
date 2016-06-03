@@ -1317,16 +1317,20 @@ void Mesh::buildSkinningInformation(const FbxMesh* pFbxMesh, Skeleton& mySkeleto
 
 void Mesh::uploadData()
 {
-	constexpr GLenum lUsageHint = GL_STATIC_DRAW;	
+	constexpr GLenum lUsageHint = GL_STATIC_DRAW;
+
 	glBindVertexArray(mVertexArrayObject);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES]);
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndices, lUsageHint);
+
 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POS_XYZ_UV_X]);
 	gtBufferData(GL_ARRAY_BUFFER, mPosition_XYZ_uv_X, lUsageHint);
 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_0);
+
 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_NOR_XYZ_UV_Y]);
 	gtBufferData(GL_ARRAY_BUFFER, mNormal_XYZ_uv_Y, lUsageHint);
 	Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_1);
+
 	if (hasTangentsAndBitangents())
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_TAN_XYZ_HAND]);
@@ -1338,6 +1342,7 @@ void Mesh::uploadData()
 		glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_BONE_IDS]);
 		gtBufferData(GL_ARRAY_BUFFER, mJointIndices, lUsageHint);
 		Mesh::vec4i::enableAttribute(GT_VERTEX_LAYOUT_SLOT_14);
+
 		glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_BONE_WEIGHTS]);
 		gtBufferData(GL_ARRAY_BUFFER, mJointWeights, lUsageHint);
 		Mesh::vec4f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_15);
@@ -1346,6 +1351,7 @@ void Mesh::uploadData()
 	glBindVertexArray(mVertexArrayObjectAdjacencies);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_INDICES_ADJ]);
 	gtBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndicesAdjacent, lUsageHint);
+
 	glBindBuffer(GL_ARRAY_BUFFER, mBuffer[GT_MESH_BUFFER_POSITIONS]);
 	gtBufferData(GL_ARRAY_BUFFER, mPositions, lUsageHint);
 	Mesh::vec3f::enableAttribute(GT_VERTEX_LAYOUT_SLOT_0);

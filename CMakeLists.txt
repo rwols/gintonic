@@ -23,6 +23,20 @@ set_source_files_properties(${lua_source_files} PROPERTIES LANGUAGE CXX)
 
 project(gintonic C CXX)
 
+# use, i.e. don't skip the full RPATH for the build tree
+set(CMAKE_SKIP_BUILD_RPATH OFF)
+
+# when building, don't use the install RPATH already
+# (but later on when installing)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH OFF) 
+
+# the RPATH to be used when installing
+set(CMAKE_INSTALL_RPATH "")
+
+# don't add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH OFF)
+
 enable_testing()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
@@ -57,15 +71,8 @@ string(REPLACE ".lib" ".dll" BOOST_PROGRAM_OPTIONS_DLL ${BOOST_PROGRAM_OPTIONS_D
 string(REPLACE ".lib" ".dll" BOOST_UNIT_TEST_FRAMEWORK_DLL ${BOOST_UNIT_TEST_FRAMEWORK_DLL})
 
 find_package(OpenGL REQUIRED)
-set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-find_package(Threads REQUIRED)
-# if (WIN32)
-# 	# do nothing
-# else ()
-# 	find_package(JPEG REQUIRED)
-# 	find_package(PNG REQUIRED)
-# endif ()
-
+# set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+# find_package(Threads REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(FBX REQUIRED)
 find_package(SDL2 REQUIRED)
@@ -126,7 +133,7 @@ include_directories(
 
 configure_file(Source/config.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.hpp)
 
-add_library(gintonic ${src_files})
+add_library(gintonic SHARED ${src_files})
 
 # set_target_properties(gintonic PROPERTIES INSTALL_RPATH "")
 
@@ -153,7 +160,8 @@ elseif (APPLE)
 		# ${PNG_LIBRARIES} 
 		${FREETYPE_LIBRARIES}
 		${FBX_LIBRARY} 
-		${CMAKE_THREAD_LIBS_INIT})
+		# ${CMAKE_THREAD_LIBS_INIT})
+		)
 else ()
 	target_link_libraries(
 		gintonic 
@@ -164,10 +172,18 @@ else ()
 		# ${PNG_LIBRARIES} 
 		${FREETYPE_LIBRARIES}
 		${FBX_LIBRARY} 
-		${CMAKE_THREAD_LIBS_INIT}
-		-ldl)
+		# ${CMAKE_THREAD_LIBS_INIT}
+		# -ldl
+		)
 endif ()
 
+add_subdirectory (Source)
 add_subdirectory (Tools)
 add_subdirectory (Examples)
 add_subdirectory (UnitTest)
+
+install(TARGETS gintonic EXPORT gintonic LIBRARY DESTINATION lib)
+install(EXPORT gintonic DESTINATION .)
+if (BUILD_DOCUMENTATION)
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION doc)
+endif()

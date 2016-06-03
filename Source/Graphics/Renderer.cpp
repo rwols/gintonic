@@ -38,6 +38,8 @@
 #define HAS_SPECULAR_TEXTURE        2
 #define HAS_NORMAL_TEXTURE          4
 #define HAS_TANGENTS_AND_BITANGENTS 8
+#define MESH_HAS_JOINTS             16
+#define INSTANCED_RENDERING         32
 
 #define GBUFFER_TEX_DIFFUSE 0
 #define GBUFFER_TEX_SPECULAR 1
@@ -811,9 +813,9 @@ void Renderer::renderGeometry() noexcept
 	lMaterialShaderProgram.setMaterialDiffuseTexture(GBUFFER_TEX_DIFFUSE);
 	lMaterialShaderProgram.setMaterialSpecularTexture(GBUFFER_TEX_SPECULAR);
 	lMaterialShaderProgram.setMaterialNormalTexture(GBUFFER_TEX_NORMAL);
-	lMaterialShaderProgram.setInstancedRendering(0);
+	// lMaterialShaderProgram.setInstancedRendering(0);
 	// lMaterialShaderProgram.setDebugFlag(0);
-	lMaterialShaderProgram.setDebugFlag(1);
+	// lMaterialShaderProgram.setDebugFlag(1);
 
 	std::vector<mat4f, allocator<mat4f>> matrixBs(GT_SKELETON_MAX_JOINTS);
 	std::vector<mat3f> matrixBNs(GT_SKELETON_MAX_JOINTS);
@@ -831,11 +833,11 @@ void Renderer::renderGeometry(
 
 	for (const auto& lEntity : geometries)
 	{
-		GLint lMaterialFlag             = 0;
-		GLint lHasTangentsAndBitangents = 0;
-		const auto lMaterial            = lEntity->material.get();
-		const auto lMesh                = lEntity->mesh.get();
-		const auto lAnimationClip       = lEntity->activeAnimationClip;
+		GLint lMaterialFlag       = 0;
+		// GLint lHasTangentsAndBitangents = 0;
+		const auto lMaterial      = lEntity->material.get();
+		const auto lMesh          = lEntity->mesh.get();
+		const auto lAnimationClip = lEntity->activeAnimationClip;
 
 		if (lMaterial->diffuseTexture)
 		{
@@ -855,7 +857,11 @@ void Renderer::renderGeometry(
 		if (lMesh->hasTangentsAndBitangents())
 		{
 			lMaterialFlag |= HAS_TANGENTS_AND_BITANGENTS;
-			lHasTangentsAndBitangents = 1;
+			// lHasTangentsAndBitangents = 1;
+		}
+		if (lMesh->hasSkinning())
+		{
+			lMaterialFlag |= MESH_HAS_JOINTS;
 		}
 		if (lAnimationClip)
 		{
@@ -875,7 +881,7 @@ void Renderer::renderGeometry(
 		lMaterialShaderProgram.setMaterialDiffuseColor(lMaterial->diffuseColor);
 		lMaterialShaderProgram.setMaterialSpecularColor(lMaterial->specularColor);
 		lMaterialShaderProgram.setMaterialFlag(lMaterialFlag);
-		lMaterialShaderProgram.setHasTangentsAndBitangents(lHasTangentsAndBitangents);
+		// lMaterialShaderProgram.setHasTangentsAndBitangents(lHasTangentsAndBitangents);
 		lMaterialShaderProgram.setMatrixPVM(matrix_PVM());
 		lMaterialShaderProgram.setMatrixVM(matrix_VM());
 		lMaterialShaderProgram.setMatrixN(matrix_N());

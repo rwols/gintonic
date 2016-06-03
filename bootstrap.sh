@@ -60,6 +60,10 @@ fi
 # Change the build directory to build the project somewhere else.
 : ${BUILD_DIRECTORY:='build'}
 
+FBX_INSTALL="fbx${FBX_VERSION}_fbxsdk_linux"
+FBX_TAR="${FBX_INSTALL}.tar.gz"
+FBX_DOWNLOAD_FOLDER='http://images.autodesk.com/adsk/files'
+
 # Tell the user what the script is going to do.
 echo $'\nThis script will install:'
 echo ' * clang-3.6 (compiler)'
@@ -91,11 +95,6 @@ read -p $'Continue? (y/n) ' -n 1 -r
 echo $'\n'
 if ! [[ $REPLY =~ ^[Yy]$ ]] ; then exit $USER_ABORT ; fi
 
-# Create a temporary directory
-# The "correct" way :-)
-CURRENTDIR=`pwd`
-TEMPDIR=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'` && cd $TEMPDIR
-
 # Install clang-3.6, CMake, Boost, SDL2, Freetype
 $PACKAGE_MANAGER update
 $PACKAGE_MANAGER install $CLANG $CMAKE $BOOST $SDL2 $FREETYPE
@@ -103,43 +102,66 @@ if [ $? -ne $SUCCESS ] ; then
 	exit $PACKAGE_MANAGER_FAILED
 fi
 
-# Install FBX SDK
-FBX_INSTALL="fbx${FBX_VERSION}_fbxsdk_linux"
-FBX_TAR="${FBX_INSTALL}.tar.gz"
-FBX_DOWNLOAD_FOLDER='http://images.autodesk.com/adsk/files'
-wget -O $FBX_TAR $FBX_DOWNLOAD_FOLDER/$FBX_TAR
-tar -xf $FBX_TAR
-sudo ./$FBX_INSTALL $FBX_INSTALL_PREFIX
-if [ $? -eq $SUCCESS ]; then
-	continue
+# If the the folder $FBX_INSTALL_PREFIX/fbxsdk exists,
+# then we assume that the FBX SDK is already installed.
+# In that case, we skip the FBX SDK installation.
+if ! [ -d "$FBX_INSTALL_PREFIX/include/fbxsdk" ]; then
+
+	# Create a temporary directory, the "correct" way :-)
+	CURRENTDIR=`pwd`
+	TEMPDIR=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'` && cd $TEMPDIR
+
+	# Fetch installation files from the Autodesk website.
+	wget -O $FBX_TAR $FBX_DOWNLOAD_FOLDER/$FBX_TAR
+
+	# Untar.
+	tar -xf $FBX_TAR
+
+	# Install the FBX SDK.
+	sudo ./$FBX_INSTALL $FBX_INSTALL_PREFIX
+	if [ $? -eq $SUCCESS ]; then
+		continue
+	else
+		exit $FBX_INSTALLATION_FAILED
+	fi
+
+	# Go back to our source directory.
+	cd $CURRENTDIR
+
+	# Clean up the temporary directory.
+	rm -rf $TEMPDIR
 else
-	exit $FBX_INSTALLATION_FAILED
+	echo 'FBX SDK seems to be already installed. Skipping FBX SDK installation.'
 fi
 
-# Go back to our source directory.
-cd $CURRENTDIR
-
-# Clean up the temporary directory.
-rm -rf $TEMPDIR
-
-# Start building the project.
+# Configure the project with CMake.
 mkdir $BUILD_DIRECTORY
 cd $BUILD_DIRECTORY
 cmake ..
-if [ $? -eq $SUCCESS ]; then
-	make -j$NUM_THREADS
-	if [ $? -eq $SUCCESS ]; then
-		echo $'\n\n\tThe project has been built succesfully!'
-		printf '\t'
-		echo "Go to the $BUILD_DIRECTORY/Examples directory and"
-		echo $'\trun some of the examples. Have fun.\n\n'
-	else
-		echo $'\n\n\tFAILED to build the project!\n\n'
-		exit $MAKE_FAILED_TO_BUILD
-	fi
-else
+if [ $? -ne $SUCCESS ]; then
 	echo $'\n\n\tFAILED to configure the project with CMake!\n\n'
 	exit $CMAKE_FAILED_TO_CONFIGURE
 fi
 
+# Build the project.
+make -j$NUM_THREADS
+if [ $? -ne $SUCCESS ]; then
+	echo $'\n\n\tFAILED to build the project!\n\n'
+	exit $MAKE_FAILED_TO_BUILD
+fi
+
+# Run the unit tests.
+ctest . -j$NUM_THREADS
+if [ $? -ne $SUCCESS ]; then
+	echo $'\n\n\tThe project has been built succesfully!'
+	printf '\t'
+	echo $'However, some unit tests failed.\n\n'
+else
+	echo $'\n\n\tThe project has been built succesfully!'
+	printf '\t'
+	echo "Go to the $BUILD_DIRECTORY/Examples directory and"
+	echo $'\trun some of the examples. Have fun.\n\n'
+fi
+
+# If we arrive here then everything went OK.
 exit $SUCCESS

@@ -166,15 +166,15 @@ class MaterialShaderProgram
 , public Uniform::matrixN
 , public Uniform::matrixB
 , public Uniform::matrixBN
-, public Uniform::instancedRendering
-, public Uniform::hasTangentsAndBitangents
+// , public Uniform::instancedRendering
+// , public Uniform::hasTangentsAndBitangents
 , public Uniform::materialDiffuseColor
 , public Uniform::materialSpecularColor
 , public Uniform::materialDiffuseTexture
 , public Uniform::materialSpecularTexture
 , public Uniform::materialNormalTexture
 , public Uniform::materialFlag
-, public Uniform::debugFlag
+// , public Uniform::debugFlag
 {
 public:
 
