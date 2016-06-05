@@ -378,10 +378,31 @@ private:
 #pragma clang diagnostic pop
 #endif
 
-/// Mix two quaternions. Linear interpolation. May produce undesirable effect.
+/**
+ * Linear interpolation between two quaternions. May produce
+ * unwanted results.
+ * @param[in] u The first quaternion.
+ * @param[in] v The second quaternion.
+ * @param[in] a Interpolation parameter. Must be a number in the closed interval [0,1].
+ * @return      The linear interpolation.
+ */
 inline quatf mix(const quatf& u, const quatf& v, const float a)
 {
 	return u * (1.0f - a) + v * a;
+}
+
+/**
+ * Spherical linear interpolation for quaternions. See the paper
+ * at http://web.mit.edu/2.998/www/QuaternionReport1.pdf.
+ * @param[in] u The first quaternion.
+ * @param[in] v The second quaternion.
+ * @param[in] s Interpolation parameter. Must be a number in the closed interval [0,1].
+ * @return      The spherical linear interpolation.
+ */
+inline quatf slerp(const quatf& u, const quatf& v, const float s)
+{
+	const float theta = std::acos((u * v).w);
+	return (u*std::sin((1.0f-s)*theta) + v*std::sin(s*theta)) / std::sin(theta);
 }
 
 /// Stream output support for quaternions.

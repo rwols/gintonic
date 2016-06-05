@@ -141,3 +141,31 @@ BOOST_AUTO_TEST_CASE ( various_functions_test )
 	BOOST_CHECK_CLOSE(up_dir.y, 1.0f, 0.1f);
 	BOOST_CHECK_CLOSE(up_dir.z, 0.0f, 0.1f);
 }
+
+BOOST_AUTO_TEST_CASE ( mix_test )
+{
+	auto a = quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), static_cast<float>(M_PI) / 2.0f);
+	auto b = quatf(1.0f, 0.0f, 0.0f, 0.0f);
+
+	quatf prev_q = a;
+	for (float lambda = 0.0f; lambda <= 1.0f; lambda += 0.001f)
+	{
+		auto q = mix(a, b, lambda);
+		GINTONIC_CHECK_VECTOR4_CLOSE(q, prev_q, 110.0f);
+		prev_q = q;
+	}
+}
+
+BOOST_AUTO_TEST_CASE ( slerp_test )
+{
+	auto a = quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), static_cast<float>(M_PI) / 2.0f);
+	auto b = quatf(1.0f, 0.0f, 0.0f, 0.0f);
+
+	quatf prev_q = a;
+	for (float lambda = 0.0f; lambda <= 1.0f; lambda += 0.001f)
+	{
+		auto q = slerp(a, b, lambda);
+		GINTONIC_CHECK_VECTOR4_CLOSE(q, prev_q, 110.0f);
+		prev_q = q;
+	}
+}

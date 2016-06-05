@@ -576,25 +576,10 @@ private:
 	OpenGL::Vector<GL_ARRAY_BUFFER, mat3f> mNormalMatrixBuffer;
 
 	void setupInstancedRenderingMatrices() noexcept;
-	// void evaluateBoneAtTimeRecursive(const std::size_t boneIndex, const float timepoint, mat4f& matrix) const noexcept;
-	
-	// void buildBonesRecursive(
-	// 	const FBXSDK_NAMESPACE::FbxNode*, 
-	// 	const Bone::IndexType,
-	// 	std::map<std::string, Bone::IndexType>&);
-
-	// void buildBonesRecursive(
-	// 	const FBXSDK_NAMESPACE::FbxNode*, 
-	// 	const Bone::IndexType,
-	// 	std::map<Bone::IndexType, const FBXSDK_NAMESPACE::FbxNode*>&,
-	// 	const std::map<const FBXSDK_NAMESPACE::FbxNode*,
-	// 	const FBXSDK_NAMESPACE::FbxCluster*>&);
-
-	// void buildBonesArray(const FBXSDK_NAMESPACE::FbxMesh*, const std::map<int, GLuint>&);
 	void computeLocalBoundingBoxFromPositionInformation(const std::vector<Mesh::vec4f>& position_XYZ_uv_X);
 	void computeAdjacencyFromPositionInformation();
-	void buildFromFbxMesh(FBXSDK_NAMESPACE::FbxMesh*, std::map<int, GLuint>*);
-	void buildSkinningInformation(const FBXSDK_NAMESPACE::FbxMesh*, Skeleton&, const std::map<int, GLuint>&);
+	void buildFromFbxMesh(FBXSDK_NAMESPACE::FbxMesh*, std::multimap<int, GLuint>*);
+	void buildSkinningInformation(const FBXSDK_NAMESPACE::FbxMesh*, Skeleton&, const std::multimap<int, GLuint>&);
 	
 	void uploadData();
 

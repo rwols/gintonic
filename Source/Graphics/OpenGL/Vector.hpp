@@ -122,6 +122,8 @@ public:
 		mCount = 0;
 	}
 
+	inline operator GLuint() const noexcept { return static_cast<GLuint>(mBuffer); }
+
 private:
 	BufferObject mBuffer;
 	GLsizei mCount = 0;

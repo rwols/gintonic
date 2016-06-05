@@ -428,7 +428,7 @@ Mesh::Mesh(
 	set(indices, position_XYZ_uv_X, normal_XYZ_uv_Y, tangent_XYZ_handedness);
 }
 
-void Mesh::buildFromFbxMesh(FbxMesh* pFbxMesh, std::map<int, GLuint>* fbxIndicesToOwnMap)
+void Mesh::buildFromFbxMesh(FbxMesh* pFbxMesh, std::multimap<int, GLuint>* fbxIndicesToOwnMap)
 {
 	setNameWithFbx(pFbxMesh);
 
@@ -446,9 +446,9 @@ void Mesh::buildFromFbxMesh(FbxMesh* pFbxMesh, std::map<int, GLuint>* fbxIndices
 	bool lHasTangents;
 	bool lMoreThan2Neighbors = false;
 
-	gintonic::Mesh::vec4f lSlot0Entry;
-	gintonic::Mesh::vec4f lSlot1Entry;
-	gintonic::Mesh::vec4f lSlot2Entry{0.0f, 0.0f, 0.0f, 1.0f};
+	Mesh::vec4f lSlot0Entry;
+	Mesh::vec4f lSlot1Entry;
+	Mesh::vec4f lSlot2Entry{0.0f, 0.0f, 0.0f, 1.0f};
 
 	FbxVector4 lFbxPosition;
 	FbxVector2 lFbxTexCoord;
@@ -466,6 +466,10 @@ void Mesh::buildFromFbxMesh(FbxMesh* pFbxMesh, std::map<int, GLuint>* fbxIndices
 	gintonic::vec3f B;
 
 	GLfloat lHandedness;
+
+	using VertexEntry = std::tuple<Mesh::vec4f, Mesh::vec4f, Mesh::vec4f>;
+
+	std::map<VertexEntry, GLuint> lVertexToIndexMap;
 
 	// Reset the bounding box.
 	mLocalBoundingBox.minCorner = std::numeric_limits<float>::max();
@@ -513,6 +517,11 @@ void Mesh::buildFromFbxMesh(FbxMesh* pFbxMesh, std::map<int, GLuint>* fbxIndices
 	mNormal_XYZ_uv_Y.clear();
 	mTangent_XYZ_hand.clear();
 
+	assert(3 * pFbxMesh->GetPolygonCount() == pFbxMesh->GetPolygonVertexCount());
+	std::vector<GLuint> lFbxIndicesLHS(pFbxMesh->GetPolygonVertices(), pFbxMesh->GetPolygonVertices() + pFbxMesh->GetPolygonVertexCount());
+	std::vector<GLuint> lFbxIndicesRHS;
+	lFbxIndicesRHS.reserve(3 * pFbxMesh->GetPolygonCount());
+
 	// For each triangle ...
 	lTriangleCount = pFbxMesh->GetPolygonCount();
 	for (i = 0; i < lTriangleCount; ++i)
@@ -524,6 +533,7 @@ void Mesh::buildFromFbxMesh(FbxMesh* pFbxMesh, std::map<int, GLuint>* fbxIndices
 		for (j = 0; j < lPolygonSize; ++j)
 		{
 			lFbxIndex = pFbxMesh->GetPolygonVertex(i, j);
+			lFbxIndicesRHS.push_back(lFbxIndex);
 
 			lFbxPosition = pFbxMesh->GetControlPointAt(lFbxIndex);
 
@@ -601,31 +611,18 @@ void Mesh::buildFromFbxMesh(FbxMesh* pFbxMesh, std::map<int, GLuint>* fbxIndices
 
 			lTriangle.indices[j] = lIndex;
 
-			bool lFoundDuplicate = false;
-			for (lIndex = 0; lIndex < mPosition_XYZ_uv_X.size(); ++lIndex)
+			const auto lFindResult = lVertexToIndexMap.find(VertexEntry{lSlot0Entry, lSlot1Entry, lSlot2Entry});
+			if (lFindResult == lVertexToIndexMap.end())
 			{
-				if (mPosition_XYZ_uv_X[lIndex] == lSlot0Entry && mNormal_XYZ_uv_Y[lIndex] == lSlot1Entry)
-				{
-					if (lHasTangents)
-					{
-						if (mTangent_XYZ_hand[lIndex] == lSlot2Entry)
-						{
-							lFoundDuplicate = true;
-							break;
-						}
-					}
-					else
-					{
-						lFoundDuplicate = true;
-						break;
-					}
-				}
-			}
-			if (!lFoundDuplicate)
-			{
+				lIndex = static_cast<GLuint>(lVertexToIndexMap.size());
+				lVertexToIndexMap.emplace(VertexEntry{lSlot0Entry, lSlot1Entry, lSlot2Entry}, lIndex);
 				mPosition_XYZ_uv_X.push_back(lSlot0Entry);
 				mNormal_XYZ_uv_Y.push_back(lSlot1Entry);
 				if (lHasTangents) mTangent_XYZ_hand.push_back(lSlot2Entry);
+			}
+			else
+			{
+				lIndex = lFindResult->second;
 			}
 			mIndices.push_back(lIndex);
 
@@ -633,8 +630,6 @@ void Mesh::buildFromFbxMesh(FbxMesh* pFbxMesh, std::map<int, GLuint>* fbxIndices
 
 			++lVertexID;
 		}
-
-		// std::cerr << "Adding triangle " << lTriangle << '\n';
 
 		const Edge e1(lTriangle[0], lTriangle[1]);
 		const Edge e2(lTriangle[1], lTriangle[2]);
@@ -646,6 +641,7 @@ void Mesh::buildFromFbxMesh(FbxMesh* pFbxMesh, std::map<int, GLuint>* fbxIndices
 	}
 
 	assert(pFbxMesh->GetPolygonVertexCount() == static_cast<int>(mIndices.size()));
+	assert(lFbxIndicesLHS == lFbxIndicesRHS);
 
 	mIndicesAdjacent.clear();
 
@@ -668,8 +664,6 @@ void Mesh::buildFromFbxMesh(FbxMesh* pFbxMesh, std::map<int, GLuint>* fbxIndices
 			mIndicesAdjacent.push_back(lOtherTriangle->getOppositeIndex(lEdge));
 		}
 	}
-
-	// buildBonesArray(pFbxMesh, lFbxIndicesToOwnMap);
 
 	if (lMoreThan2Neighbors)
 	{
@@ -697,6 +691,12 @@ void Mesh::buildFromFbxMesh(FbxMesh* pFbxMesh, std::map<int, GLuint>* fbxIndices
 		<< " (saved " << static_cast<float>(mPosition_XYZ_uv_X.size()) 
 		/ static_cast<float>(mIndices.size()) << ")\n";
 
+	pFbxMesh->ComputeBBox();
+	mLocalBoundingBox.minCorner = pFbxMesh->BBoxMin.Get();
+	mLocalBoundingBox.maxCorner = pFbxMesh->BBoxMax.Get();
+
+	std::cerr << "\tLocal bounding box min: " << mLocalBoundingBox.minCorner << '\n';
+	std::cerr << "\tLocal bounding box max: " << mLocalBoundingBox.maxCorner << '\n';
 }
 
 void Mesh::set(FbxMesh* pFbxMesh)
@@ -707,7 +707,7 @@ void Mesh::set(FbxMesh* pFbxMesh)
 
 void Mesh::set(FbxMesh* pFbxMesh, Skeleton& skeleton)
 {
-	std::map<int, GLuint> lFbxIndicesToOwnMap;
+	std::multimap<int, GLuint> lFbxIndicesToOwnMap;
 	buildFromFbxMesh(pFbxMesh, &lFbxIndicesToOwnMap);
 	buildSkinningInformation(pFbxMesh, skeleton, lFbxIndicesToOwnMap);
 	uploadData();
@@ -846,17 +846,14 @@ void Mesh::computeAdjacencyFromPositionInformation()
 	{
 		Triangle lTriangle;
 
-		// std::cerr << "Triangle: ";
-
 		for (GLuint j = 0; j < 3; ++j)
 		{
 			const Mesh::vec4f lPosition4(mPosition_XYZ_uv_X[mIndices[i + j]]);
 			const Mesh::vec3f lPosition(lPosition4.x, lPosition4.y, lPosition4.z);
-			// std::cerr << lPosition << ' ';
 
 			GLuint lIndex;
 
-			const auto lPosIter = lPositionToIndexMap.find(lPosition); // O(log n) complexity
+			const auto lPosIter = lPositionToIndexMap.find(lPosition);
 			if (lPosIter == lPositionToIndexMap.end())
 			{
 				lIndex = static_cast<GLuint>(lPositionToIndexMap.size());
@@ -870,8 +867,6 @@ void Mesh::computeAdjacencyFromPositionInformation()
 
 			lTriangle[j] = lIndex;
 		}
-
-		// std::cerr << "--> " << lTriangle << '\n';
 
 		const Edge e1(lTriangle[0], lTriangle[1]);
 		const Edge e2(lTriangle[1], lTriangle[2]);
@@ -891,7 +886,6 @@ void Mesh::computeAdjacencyFromPositionInformation()
 		{
 			break;
 		}
-		// std::cerr << "Adjacency triangle: [ ";
 		for (GLuint j = 0; j < 3; ++j)
 		{
 			const Edge lEdge(lTriangle[j], lTriangle[(j + 1) % 3]);
@@ -904,95 +898,22 @@ void Mesh::computeAdjacencyFromPositionInformation()
 			const auto* lOtherTriangle = lNeighbor.getOther(&lTriangle);
 			if (!lOtherTriangle)
 			{
-				// std::cerr << "\tFATAL ERROR: Triangle " << lTriangle << " is degenerate.\n";
 				lDegenerateTriangle = &lTriangle;
 				break;
 			}
 			mIndicesAdjacent.push_back(lTriangle[j]);
 			mIndicesAdjacent.push_back(lOtherTriangle->getOppositeIndex(lEdge));
-			// std::cerr << lTriangle[j] << ' ' << lOtherTriangle->getOppositeIndex(lEdge) << ' ';
 		}
-		// std::cerr << "]\n";
 	}
 
 	if (lDegenerateTriangle)
 	{
 		mPositions.clear();
 		mIndicesAdjacent.clear();
-		// std::cerr << "\tWARNING: Mesh \"" << this->name << "\" has holes and/or boundaries.\n"
-		// 	<< "\tSilhouette detection algorithm will not work.\n";
-	}
-	else
-	{
-		// std::cerr << "\tNumber of points: " << mPositions.size() << '\n';
-		// std::cerr << "\tNumber of adjacency indices: " << mIndicesAdjacent.size()
-		// 	<< " (saved " << static_cast<float>(mPositions.size()) 
-		// 	/ static_cast<float>(mIndicesAdjacent.size()) << ")\n";
 	}
 }
 
-// mat4f Mesh::evaluateBoneAtTime(const std::size_t boneIndex, const float timepoint) const noexcept
-// {
-// 	mat4f lResult(1.0f);
-// 	evaluateBoneAtTimeRecursive(boneIndex, timepoint, lResult);
-// 	return lResult;
-// }
-
-// void Mesh::evaluateBoneAtTimeRecursive(const std::size_t boneIndex, const float timepoint, mat4f& matrix) const noexcept
-// {
-// 	matrix = mat4f(skeleton[boneIndex].transform) * matrix;
-// 	// matrix *= mat4f(skeleton[boneIndex].transform);
-// 	if (skeleton[boneIndex].parent >= 0) evaluateBoneAtTimeRecursive(skeleton[boneIndex].parent, timepoint, matrix);
-// 	else return;
-// }
-
-// void Mesh::buildBonesRecursive(
-// 	const FbxNode* pFbxNode, 
-// 	const Bone::IndexType parentIndex, 
-// 	std::map<std::string, Bone::IndexType>& boneNameToIndexMap)
-// {
-// 	Bone::IndexType lNewBoneIndex = static_cast<Bone::IndexType>(-1);
-// 	if (pFbxNode->GetNodeAttribute() &&
-// 		pFbxNode->GetNodeAttribute()->GetAttributeType() &&
-// 		pFbxNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
-// 	{
-// 		lNewBoneIndex = static_cast<Bone::IndexType>(skeleton.size());
-// 		Bone lNewBone;
-// 		lNewBone.parent = parentIndex;
-// 		lNewBone.name = pFbxNode->GetName();
-// 		boneNameToIndexMap[lNewBone.name] = lNewBoneIndex;
-// 		skeleton.push_back(lNewBone);
-// 	}
-// 	for (int i = 0; i < pFbxNode->GetChildCount(); ++i)
-// 	{
-// 		buildBonesRecursive(pFbxNode->GetChild(i), lNewBoneIndex, boneNameToIndexMap);
-// 	}
-// }
-
-// void Mesh::buildBonesRecursive(
-// 	const FbxNode* bone, 
-// 	const Bone::IndexType parent, 
-// 	std::map<Bone::IndexType, const FbxNode*>& lIndexToBoneMap,
-// 	const std::map<const FbxNode*, const FbxCluster*>& lBoneToClusterMap)
-// {
-// 	const auto lThisIndex = static_cast<Bone::IndexType>(skeleton.size());
-// 	const auto lFindResult = lBoneToClusterMap.find(bone);
-// 	assert(lFindResult != lBoneToClusterMap.end());
-// 	const auto lCluster = lFindResult->second;
-// 	lIndexToBoneMap[lThisIndex] = bone;
-// 	FbxAMatrix lTransformLink;
-// 	FbxAMatrix lTransform;
-// 	lCluster->GetTransformLinkMatrix(lTransformLink);
-// 	lCluster->GetTransformMatrix(lTransform);
-// 	const SQT lGlobalBindposeInverse(lTransform.Inverse() * lTransform);
-// 	skeleton.emplace_back(std::string(bone->GetName()), parent, lGlobalBindposeInverse);
-// 	for (int i = 0; i < bone->GetChildCount(); ++i)
-// 	{
-// 		buildBonesRecursive(bone->GetChild(i), lThisIndex, lIndexToBoneMap, lBoneToClusterMap);
-// 	}
-// }
-
-void Mesh::buildSkinningInformation(const FbxMesh* pFbxMesh, Skeleton& mySkeleton, const std::map<int, GLuint>& fbxIndicesToOwnMap)
+void Mesh::buildSkinningInformation(const FbxMesh* pFbxMesh, Skeleton& mySkeleton, const std::multimap<int, GLuint>& fbxIndicesToOwnMap)
 {
 	mJointIndices.clear();
 	mJointWeights.clear();
@@ -1002,16 +923,37 @@ void Mesh::buildSkinningInformation(const FbxMesh* pFbxMesh, Skeleton& mySkeleto
 	{
 		std::cerr << "\tWARNING: Mesh \"" << name << "\" has more than one deformer.\n";
 	}
+	switch (pFbxMesh->GetDeformer(0)->GetDeformerType())
+	{
+		case FbxDeformer::eUnknown:
+			std::cerr << "\tUnknown deformer.\n";
+			break;
+		case FbxDeformer::eSkin:
+			std::cerr << "\tSkin deformer.\n";
+			break;
+		case FbxDeformer::eBlendShape:
+			std::cerr << "\tBlend shape deformer.\n";
+			break;
+		case FbxDeformer::eVertexCache:
+			std::cerr << "\tVertex cache deformer.\n";
+			break;
+		default:
+			std::cerr << "\tUnknown deformer.\n";
+			break;
+	}
 	const auto pFbxSkin = FbxCast<FbxSkin>(pFbxMesh->GetDeformer(0));
 	if (!pFbxSkin)
 	{
-		std::cerr << "\tWARNING: Mesh\"" << name << "\" has a deformer, but it is not an FbxSkin.\n";
+		std::cerr << "\tWARNING: Mesh \"" << name << "\" has a deformer, but it is not an FbxSkin.\n";
 		return;
 	}
 
-	// std::vector<std::vector<std::pair<GLuint, GLfloat>>> lJointToInfluenceArray;
-
 	std::map<std::string, std::vector<std::pair<GLuint, GLfloat>>> lJointNameToInfluenceMap;
+
+	const FbxAMatrix lGeometryTransform(
+		pFbxMesh->GetNode()->GetGeometricTranslation(FbxNode::eSourcePivot),
+		pFbxMesh->GetNode()->GetGeometricRotation(FbxNode::eSourcePivot),
+		pFbxMesh->GetNode()->GetGeometricScaling(FbxNode::eSourcePivot));
 
 	for (int c = 0; c < pFbxSkin->GetClusterCount(); ++c)
 	{
@@ -1032,29 +974,26 @@ void Mesh::buildSkinningInformation(const FbxMesh* pFbxMesh, Skeleton& mySkeleto
 		lCluster->GetTransformMatrix(lTransform);
 		lCluster->GetTransformLinkMatrix(lTransformLink);
 
-		lMyJoint->inverseBindPose = mat4f(lTransformLink.Inverse() * lTransform);
+		lMyJoint->inverseBindPose = mat4f(lTransformLink.Inverse() * lTransform * lGeometryTransform);
 
 		auto& lJointInfluence = lJointNameToInfluenceMap[lMyJoint->name];
 	
-		// std::vector<std::pair<GLuint, GLfloat>> lJointInfluence;
-		// lJointInfluence.reserve(lCluster->GetControlPointIndicesCount());
-
 		for (int i = 0; i < lCluster->GetControlPointIndicesCount(); ++i)
 		{
-			const auto lMyIndex = fbxIndicesToOwnMap.find(lCluster->GetControlPointIndices()[i]);
-			assert(lMyIndex != fbxIndicesToOwnMap.end());
-
-			lJointInfluence.emplace_back
-			(
-				lMyIndex->second, 
-				static_cast<GLfloat>(lCluster->GetControlPointWeights()[i])
-			);
+			const auto lMyIndexRange = fbxIndicesToOwnMap.equal_range(lCluster->GetControlPointIndices()[i]);
+			assert(lMyIndexRange.first != lMyIndexRange.second);
+			for (auto lRangeIter = lMyIndexRange.first; lRangeIter != lMyIndexRange.second; ++lRangeIter)
+			{
+				lJointInfluence.emplace_back
+				(
+					lRangeIter->second, 
+					static_cast<GLfloat>(lCluster->GetControlPointWeights()[i])
+				);
+			}
 		}
 
-		// const auto lMyJointIndex = std::distance(mySkeleton.begin(), lMyJoint);
 		std::cerr << "\tFound joint influence for joint \""  
 			<< lMyJoint->name << "\" of skeleton \"" << mySkeleton.name << "\".\n";
-		// lJointToInfluenceArray.emplace_back(std::move(lJointInfluence));
 	}
 
 	std::cerr << mySkeleton << '\n';
@@ -1065,56 +1004,54 @@ void Mesh::buildSkinningInformation(const FbxMesh* pFbxMesh, Skeleton& mySkeleto
 	std::fill(mJointIndices.begin(), mJointIndices.end(), Mesh::vec4i(static_cast<int>(GT_JOINT_NONE), static_cast<int>(GT_JOINT_NONE), static_cast<int>(GT_JOINT_NONE), static_cast<int>(GT_JOINT_NONE)));
 	std::fill(mJointWeights.begin(), mJointWeights.end(), Mesh::vec4f(0.0f, 0.0f, 0.0f, 0.0f));
 
-	for (uint8_t i = 0; i < static_cast<uint8_t>(mySkeleton.joints.size()); ++i)
+	for (uint8_t lJointIndex = 0; lJointIndex < static_cast<uint8_t>(mySkeleton.joints.size()); ++lJointIndex)
 	{
-		// const auto lFindResult = lJointToInfluenceMap.find(i);
-		// if (lFindResult == lJointToInfluenceMap.end())
-		// {
-
-		// }
-		const auto& lJointInfluence = lJointNameToInfluenceMap[mySkeleton[i].name];
+		const auto& lJointInfluence = lJointNameToInfluenceMap[mySkeleton[lJointIndex].name];
 		if (lJointInfluence.empty())
 		{
-			std::cerr << "\tJoint \"" << mySkeleton[i].name << "\" influences no vertices at all.\n";
+			std::cerr << "\tJoint \"" << mySkeleton[lJointIndex].name << "\" influences no vertices at all.\n";
 			continue;
 		}
 		for (const auto& lPair : lJointInfluence)
 		{
-			if (mJointIndices[lPair.first].x == static_cast<int>(i) ||
-				mJointIndices[lPair.first].y == static_cast<int>(i) ||
-				mJointIndices[lPair.first].z == static_cast<int>(i) ||
-				mJointIndices[lPair.first].w == static_cast<int>(i))
+			const auto lVertexIndex  = lPair.first;
+			const auto lVertexWeight = lPair.second;
+
+			if (mJointIndices[lVertexIndex].x == static_cast<int>(lJointIndex) ||
+				mJointIndices[lVertexIndex].y == static_cast<int>(lJointIndex) ||
+				mJointIndices[lVertexIndex].z == static_cast<int>(lJointIndex) ||
+				mJointIndices[lVertexIndex].w == static_cast<int>(lJointIndex))
 			{
 				continue;
 			}
-			if (mJointIndices[lPair.first].x == GT_JOINT_NONE)
+			if (mJointIndices[lVertexIndex].x == GT_JOINT_NONE)
 			{
-				mJointIndices[lPair.first].x = static_cast<int>(i);
-				mJointWeights[lPair.first].x = lPair.second;
+				mJointIndices[lVertexIndex].x = static_cast<int>(lJointIndex);
+				mJointWeights[lVertexIndex].x = lVertexWeight;
 			}
-			else if (mJointIndices[lPair.first].y == GT_JOINT_NONE)
+			else if (mJointIndices[lVertexIndex].y == GT_JOINT_NONE)
 			{
-				mJointIndices[lPair.first].y = static_cast<int>(i);
-				mJointWeights[lPair.first].y = lPair.second;
+				mJointIndices[lVertexIndex].y = static_cast<int>(lJointIndex);
+				mJointWeights[lVertexIndex].y = lVertexWeight;
 			}
-			else if (mJointIndices[lPair.first].z == GT_JOINT_NONE)
+			else if (mJointIndices[lVertexIndex].z == GT_JOINT_NONE)
 			{
-				mJointIndices[lPair.first].z = static_cast<int>(i);
-				mJointWeights[lPair.first].z = lPair.second;
+				mJointIndices[lVertexIndex].z = static_cast<int>(lJointIndex);
+				mJointWeights[lVertexIndex].z = lVertexWeight;
 			}
-			else if (mJointIndices[lPair.first].w == GT_JOINT_NONE)
+			else if (mJointIndices[lVertexIndex].w == GT_JOINT_NONE)
 			{
-				mJointIndices[lPair.first].w = static_cast<int>(i);
-				mJointWeights[lPair.first].w = lPair.second;
+				mJointIndices[lVertexIndex].w = static_cast<int>(lJointIndex);
+				mJointWeights[lVertexIndex].w = lVertexWeight;
 			}
 			else
 			{
-				std::cerr << "\tWARNING: Vertex " << lPair.first << " is influenced by more than 4 joints:\n";
-				std::cerr << "\t\t" << mySkeleton[mJointIndices[lPair.first].x].name << '\n';
-				std::cerr << "\t\t" << mySkeleton[mJointIndices[lPair.first].y].name << '\n';
-				std::cerr << "\t\t" << mySkeleton[mJointIndices[lPair.first].z].name << '\n';
-				std::cerr << "\t\t" << mySkeleton[mJointIndices[lPair.first].w].name << '\n';
-				std::cerr << "\t\t" << mySkeleton[i].name << '\n';
+				std::cerr << "\tWARNING: Vertex " << lVertexIndex << " is influenced by more than 4 joints:\n";
+				std::cerr << "\t\t" << mySkeleton[mJointIndices[lVertexIndex].x].name << '\n';
+				std::cerr << "\t\t" << mySkeleton[mJointIndices[lVertexIndex].y].name << '\n';
+				std::cerr << "\t\t" << mySkeleton[mJointIndices[lVertexIndex].z].name << '\n';
+				std::cerr << "\t\t" << mySkeleton[mJointIndices[lVertexIndex].w].name << '\n';
+				std::cerr << "\t\t" << mySkeleton[lJointIndex].name << '\n';
 			}
 		}
 	}

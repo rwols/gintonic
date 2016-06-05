@@ -237,7 +237,7 @@ private:
 	void serialize(Archive& ar, const unsigned int /*version*/)
 	{
 		ar & name;
-		if (name.empty()) throw NoNameException();
+		// if (name.empty()) throw NoNameException();
 	}
 };
 

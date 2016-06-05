@@ -237,8 +237,32 @@ protected:
 	 * @note Some OpenGL compilers will optimize away unused uniform
 	 * variables.
 	 */
-	bool getUniformLocation(const GLchar* name, GLint& location) const 
-		noexcept;
+	bool getUniformLocation(const GLchar* name, GLint& location) const noexcept;
+
+	/**
+	 * @brief Get the index of a uniform block.
+	 * @param name The name of the uniform block.
+	 * @return The index of the uniform block.
+	 * @exception Will throw an exception if the uniform block is not present with
+	 * the given name. If you don't want to catch exceptions, consider using
+	 * the other flavour of this method that doesn't throw but only returns
+	 * a boolean value indicating success or failure.
+	 * @note Some OpenGL compilers will optimize away unused uniform
+	 * blocks.
+	 */
+	GLuint getUniformBlockIndex(const GLchar* name) const;
+
+	/**
+	 * @brief Get the index of a uniform block, non-throwing version.
+	 * @param name The name of the uniform block.
+	 * @param index A mutable reference. The method will set this value
+	 * to the index of the uniform block, or to `GL_INVALID_INDEX` on failure.
+	 * @return True on success, false if no uniform with the given name
+	 * is present in the shader.
+	 * @note Some OpenGL compilers will optimize away unused uniform
+	 * blocks.
+	 */
+	bool getUniformBlockIndex(const GLchar* name, GLuint& index) const noexcept;
 
 	/**
 	 * @brief Get the number of active uniforms variables.

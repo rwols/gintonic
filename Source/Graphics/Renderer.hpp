@@ -8,6 +8,7 @@
 
 #include "../ForwardDeclarations.hpp"
 
+#include "../Foundation/allocator.hpp"
 #include "../Foundation/WriteLock.hpp"
 
 #include "../Math/vec3f.hpp"
@@ -16,7 +17,7 @@
 
 #include "../Entity.hpp"
 
-#include "OpenGL/khrplatform.hpp"
+#include "OpenGL/BufferObject.hpp"
 
 #include "Font.hpp"
 
@@ -922,6 +923,12 @@ private:
 	static mat4f sMatrixVM;
 	static mat4f sMatrixPVM;
 	static mat3f sMatrixN;
+
+	static std::vector<mat4f, allocator<mat4f>> sMatrix44Array;
+	static std::vector<vec4f, allocator<vec4f>> sMatrix33Array;
+
+	static OpenGL::BufferObject* sMatrix44UniformBuffer;
+	static OpenGL::BufferObject* sMatrix33UniformBuffer;
 
 	static std::shared_ptr<Entity> sCameraEntity;
 	static std::shared_ptr<Entity> sDebugShadowBufferEntity;

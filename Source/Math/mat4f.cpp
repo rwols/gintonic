@@ -109,23 +109,23 @@ mat4f::mat4f(const SQT& transform)
 	m22 = 1.0f - (xx + yy);
 	m32 = 0.0f;
 
-	#ifdef BOOST_MSVC
+	// #ifdef BOOST_MSVC
 
-	auto copy = data[0];
-	auto scaling = transform.scale.data;
-	data[0] = _mm_mul_ps(copy, scaling);
-	copy = data[1];
-	data[1] = _mm_mul_ps(copy, scaling);
-	copy = data[2];
-	data[2] = _mm_mul_ps(copy, scaling);
+	// auto copy = data[0];
+	// auto scaling = transform.scale.data;
+	// data[0] = _mm_mul_ps(copy, scaling);
+	// copy = data[1];
+	// data[1] = _mm_mul_ps(copy, scaling);
+	// copy = data[2];
+	// data[2] = _mm_mul_ps(copy, scaling);
 
-	#else
+	// #else
 
 	data[0] = _mm_mul_ps(data[0], transform.scale.data);
 	data[1] = _mm_mul_ps(data[1], transform.scale.data);
 	data[2] = _mm_mul_ps(data[2], transform.scale.data);
 
-	#endif
+	// #endif
 
 	data[3] = transform.translation.data;
 	m33 = 1.0f;

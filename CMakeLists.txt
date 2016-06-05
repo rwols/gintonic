@@ -23,6 +23,8 @@ set_source_files_properties(${lua_source_files} PROPERTIES LANGUAGE CXX)
 
 project(gintonic C CXX)
 
+set(CMAKE_MACOSX_RPATH ON)
+
 # use, i.e. don't skip the full RPATH for the build tree
 set(CMAKE_SKIP_BUILD_RPATH OFF)
 

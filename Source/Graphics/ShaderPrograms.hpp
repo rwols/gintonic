@@ -9,6 +9,7 @@
 #include "../Foundation/allocator.hpp"
 
 #include "OpenGL/ShaderProgram.hpp"
+#include "OpenGL/BufferObject.hpp"
 #include "OpenGL/utilities.hpp"
 
 namespace gintonic {
@@ -97,6 +98,39 @@ GT_DEFINE_UNIFORM(GLint,        withoutColorAlpha,             WithoutColorAlpha
 GT_DEFINE_UNIFORM(GLint,        hasGUITexture,                 HasGUITexture);
 GT_DEFINE_UNIFORM(GLint,        GUITexture,                    GUITexture);
 
+namespace Block {
+
+#define GT_DEFINE_UNIFORM_BLOCK(UNIFORM_NAME, UNIFORM_NAME_WITH_FIRST_CAPITAL)               \
+/** @brief Class that encapsulates a uniform block in a shader. */                           \
+class UNIFORM_NAME : virtual public OpenGL::ShaderProgram                                    \
+{                                                                                            \
+private:                                                                                     \
+	GLuint mIndex;                                                                           \
+protected:                                                                                   \
+	UNIFORM_NAME()                                                                           \
+	{                                                                                        \
+		mIndex = getUniformBlockIndex(GT_STRINGIFY(UNIFORM_NAME));                           \
+	}                                                                                        \
+	virtual ~UNIFORM_NAME() noexcept = default;                                              \
+public:                                                                                      \
+	/**                                                                                      \
+	 * @brief Set the value of the UNIFORM_NAME uniform in the shader program.               \
+	 * @param [in] value The value to set.                                                   \
+	 */                                                                                      \
+	inline GLuint GT_PASTE_TOGETHER(get, UNIFORM_NAME_WITH_FIRST_CAPITAL)() const noexcept   \
+	{                                                                                        \
+		return mIndex;                                                                       \
+	}                                                                                        \
+	inline void bindBuffer(const OpenGL::BufferObject& buffer) const noexcept                \
+	{                                                                                        \
+		glUniformBlockBinding(*this, mIndex, buffer);                                        \
+	}                                                                                        \
+};
+
+GT_DEFINE_UNIFORM_BLOCK(Joint44, Joint44);
+GT_DEFINE_UNIFORM_BLOCK(Joint33, Joint33);
+
+} // namespace Block
 } // namespace Uniform
 
 /**
@@ -174,6 +208,8 @@ class MaterialShaderProgram
 , public Uniform::materialSpecularTexture
 , public Uniform::materialNormalTexture
 , public Uniform::materialFlag
+// , public Uniform::Block::Joint44
+// , public Uniform::Block::Joint33
 // , public Uniform::debugFlag
 {
 public:

@@ -336,17 +336,7 @@ inline float distance(const SQT& a, const SQT& b) noexcept
 }
 
 /// Mix two SQTs.
-inline SQT mix(const SQT& u, const SQT& v, const float a) noexcept
-{
-	GT_PROFILE_FUNCTION;
-
-	return SQT
-	(
-		mix(u.scale, v.scale, a), 
-		mix(u.rotation, v.rotation, a), 
-		mix(u.translation, v.translation, a)
-	);
-}
+SQT mix(const SQT& u, const SQT& v, const float a) noexcept;
 
 /**
  * @brief Output an SQT to an output stream.

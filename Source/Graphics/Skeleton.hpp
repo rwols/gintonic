@@ -16,8 +16,8 @@
 #include <iosfwd>
 
 #define GT_JOINT_INDEX_TYPE uint8_t
-#define GT_JOINT_MAX_CHILDREN 4
-#define GT_SKELETON_MAX_JOINTS (sizeof(GT_JOINT_INDEX_TYPE) << 8)
+#define GT_JOINT_MAX_CHILDREN 8
+#define GT_SKELETON_MAX_JOINTS (1 << 7)
 #define GT_JOINT_NONE ((GT_SKELETON_MAX_JOINTS) - 1)
 
 namespace gintonic {

@@ -83,6 +83,20 @@ SQT& SQT::invert() noexcept
 	return *this;
 }
 
+SQT mix(const SQT& u, const SQT& v, const float a) noexcept
+{
+	GT_PROFILE_FUNCTION;
+
+	return SQT
+	(
+		mix(u.scale, v.scale, a), 
+		// u.rotation,
+		// mix(u.rotation, v.rotation, a), 
+		slerp(u.rotation, v.rotation, a),
+		mix(u.translation, v.translation, a)
+	);
+}
+
 std::ostream& operator << (std::ostream& os, const SQT& sqt)
 {
 	GT_PROFILE_FUNCTION;

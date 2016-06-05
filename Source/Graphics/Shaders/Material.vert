@@ -18,7 +18,7 @@
 #define GT_VERTEX_LAYOUT_SLOT_14 14       // boneID.x boneID.y boneID.z boneID.w
 #define GT_VERTEX_LAYOUT_SLOT_15 15       // weight.x weight.y weight.z weight.w
 
-#define GT_SKELETON_MAX_JOINTS (1 << 8)
+#define GT_SKELETON_MAX_JOINTS (1 << 7)
 #define GT_JOINT_NONE ((GT_SKELETON_MAX_JOINTS) - 1)
 
 #define HAS_DIFFUSE_TEXTURE         1
@@ -40,56 +40,106 @@ layout(location = GT_VERTEX_LAYOUT_SLOT_15)       in vec4  iBoneWeight;
 uniform mat4 matrixPVM;
 uniform mat4 matrixVM;
 uniform mat3 matrixN;
-uniform int  materialFlag;
-// uniform int  hasTangentsAndBitangents;
-// uniform int  instancedRendering;
-uniform int  debugFlag;
-
 uniform mat4 matrixB[GT_SKELETON_MAX_JOINTS];
 uniform mat3 matrixBN[GT_SKELETON_MAX_JOINTS];
+uniform int  materialFlag;
+
+// uniform Matrix44Block
+// {
+// 	mat4 projection;
+// 	mat4 view;
+// 	mat4 projectionView;
+// } matrix44;
+
+// uniform Joint44
+// {
+// 	mat4 matrix[GT_SKELETON_MAX_JOINTS];
+// } joint;
+
+// uniform Joint33
+// {
+// 	vec4 matrix[3 * GT_SKELETON_MAX_JOINTS];
+// } normalJoint;
+
+// uniform Matrix44
+// {
+// 	uniform mat4 matrixPVM;
+// 	uniform mat4 matrixVM;
+// 	uniform mat4 matrixB[GT_SKELETON_MAX_JOINTS];
+// } matrix44;
+
+// uniform Matrix33
+// {
+// 	uniform mat3 matrixN;
+// 	uniform mat3 matrixBN[GT_SKELETON_MAX_JOINTS];
+// } matrix33;
 
 out vec3 viewSpaceVertexPosition;
 out vec3 viewSpaceVertexNormal;
 out vec2 textureCoordinates;
 out mat3 tangentMatrix;
 
-vec4 fromBoneSpaceToLocalSpace(vec4 v)
+#define checkFlag(flagID) (materialFlag & flagID) == flagID
+
+vec4 fromBoneSpaceToLocalSpace(in vec4 v)
 {
-	// if (iBoneID == ivec4(GT_JOINT_NONE, GT_JOINT_NONE, GT_JOINT_NONE, GT_JOINT_NONE)) return v;
 	vec4 lTemp = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
 	lTemp += (matrixB[iBoneID.x] * v) * iBoneWeight.x;
 	lTemp += (matrixB[iBoneID.y] * v) * iBoneWeight.y;
 	lTemp += (matrixB[iBoneID.z] * v) * iBoneWeight.z;
 	lTemp += (matrixB[iBoneID.w] * v) * iBoneWeight.w;
+
+	// lTemp += (joint.matrix[iBoneID.x] * v) * iBoneWeight.x;
+	// lTemp += (joint.matrix[iBoneID.y] * v) * iBoneWeight.y;
+	// lTemp += (joint.matrix[iBoneID.z] * v) * iBoneWeight.z;
+	// lTemp += (joint.matrix[iBoneID.w] * v) * iBoneWeight.w;
+
 	return lTemp;
 }
 
-vec3 fromBoneSpaceToNormalSpace(vec3 v)
+vec3 fromBoneSpaceToNormalSpace(in vec3 v)
 {
-	// if (iBoneID == ivec4(GT_JOINT_NONE, GT_JOINT_NONE, GT_JOINT_NONE, GT_JOINT_NONE)) return v;
 	vec3 lTemp = vec3(0.0f, 0.0f, 0.0f);
+
 	lTemp += (matrixBN[iBoneID.x] * v) * iBoneWeight.x;
 	lTemp += (matrixBN[iBoneID.y] * v) * iBoneWeight.y;
 	lTemp += (matrixBN[iBoneID.z] * v) * iBoneWeight.z;
 	lTemp += (matrixBN[iBoneID.w] * v) * iBoneWeight.w;
+	
+	// mat3 lMatrixX = transpose(inverse(mat3(joint.matrix[iBoneID.x])));
+	// mat3 lMatrixY = transpose(inverse(mat3(joint.matrix[iBoneID.y])));
+	// mat3 lMatrixZ = transpose(inverse(mat3(joint.matrix[iBoneID.z])));
+	// mat3 lMatrixW = transpose(inverse(mat3(joint.matrix[iBoneID.w])));
+
+	// lTemp += (lMatrixX * v) * iBoneWeight.x;
+	// lTemp += (lMatrixY * v) * iBoneWeight.y;
+	// lTemp += (lMatrixZ * v) * iBoneWeight.z;
+	// lTemp += (lMatrixW * v) * iBoneWeight.w;
+
+	// lTemp += (normalJoint.matrix[iBoneID.x] * v) * iBoneWeight.x;
+	// lTemp += (normalJoint.matrix[iBoneID.y] * v) * iBoneWeight.y;
+	// lTemp += (normalJoint.matrix[iBoneID.z] * v) * iBoneWeight.z;
+	// lTemp += (normalJoint.matrix[iBoneID.w] * v) * iBoneWeight.w;
+
 	return lTemp;
 }
 
 void main()
 {
 	
-	bool lHasJoints     = (materialFlag & MESH_HAS_JOINTS) == MESH_HAS_JOINTS;
+	bool lHasJoints     = checkFlag(MESH_HAS_JOINTS);
 	vec4 localPosition  = lHasJoints ? fromBoneSpaceToLocalSpace(vec4(iSlot0.xyz, 1.0f)) : vec4(iSlot0.xyz, 1.0f);
 	vec3 localNormal    = lHasJoints ? fromBoneSpaceToNormalSpace(iSlot1.xyz) : iSlot1.xyz;
 	textureCoordinates  = vec2(iSlot0.w, iSlot1.w);
 
-	if ((materialFlag & INSTANCED_RENDERING) == INSTANCED_RENDERING)
+	if (checkFlag(INSTANCED_RENDERING))
 	{
 		gl_Position             =  iMatrixPVM * localPosition;
 		viewSpaceVertexPosition = (iMatrixVM  * localPosition).xyz;
 		viewSpaceVertexNormal   =  iMatrixN   * localNormal;
 
-		if ((materialFlag & HAS_TANGENTS_AND_BITANGENTS) == HAS_TANGENTS_AND_BITANGENTS)
+		if (checkFlag(HAS_TANGENTS_AND_BITANGENTS))
 		{
 			vec3 localTangent   = lHasJoints ? fromBoneSpaceToNormalSpace(iSlot2.xyz) : iSlot2.xyz;
 			vec3 localBitangent = cross(localNormal, localTangent) * iSlot2.w;
@@ -106,7 +156,7 @@ void main()
 		viewSpaceVertexPosition = (matrixVM  * localPosition).xyz;
 		viewSpaceVertexNormal   =  matrixN   * localNormal;
 		
-		if ((materialFlag & HAS_TANGENTS_AND_BITANGENTS) == HAS_TANGENTS_AND_BITANGENTS)
+		if (checkFlag(HAS_TANGENTS_AND_BITANGENTS))
 		{
 			vec3 localTangent   = lHasJoints ? fromBoneSpaceToNormalSpace(iSlot2.xyz) : iSlot2.xyz;
 			vec3 localBitangent = cross(localNormal, localTangent) * iSlot2.w;

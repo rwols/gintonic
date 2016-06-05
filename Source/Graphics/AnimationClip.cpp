@@ -146,7 +146,6 @@ private:
 	FbxCollection* mCollection;
 };
 
-
 }
 
 namespace gintonic {
@@ -155,13 +154,13 @@ AnimationClip::AnimationClip(FbxAnimStack* pStack, std::shared_ptr<Skeleton> tar
 : name(pStack->GetName())
 , skeleton(targetSkeleton)
 {
-	std::cerr << "\nProcessing AnimStack: " << name << "\n";
-
 	if (targetSkeleton == nullptr) return;
 	if (pStack->GetMemberCount<FbxAnimLayer>() == 0) return;
 
+	std::cerr << "\nProcessing animation \"" << name << "\" ...\n";
+
 	FbxTime lFrameRate;
-	lFrameRate.SetFrame(1, FbxTime::eFrames30);
+	lFrameRate.SetFrame(1, FbxTime::eFrames24);
 
 	const auto lStart = pStack->LocalStart.Get();
 	const auto lStop  = pStack->LocalStop.Get();
@@ -176,22 +175,24 @@ AnimationClip::AnimationClip(FbxAnimStack* pStack, std::shared_ptr<Skeleton> tar
 		}	
 	}
 	
-
-	// auto lAnimLayer = pStack->GetMember<FbxAnimLayer>(0);
 	const auto& lSkeleton = *skeleton;
 	for (uint8_t j = 0; j < targetSkeleton->joints.size(); ++j)
 	{
 		auto lFbxJoint = lScene->FindNodeByName(lSkeleton[j].name.c_str());
-		if (!lFbxJoint)
+		if (lFbxJoint)
 		{
-			std::cerr << "WARNING: Could not find joint \"" << lSkeleton[j].name << "\".\n";
+			std::cerr << "\t\"" << lFbxJoint->GetName() << "\"\n";
+		}
+		else
+		{
+			std::cerr << "\tWARNING: Could not find joint \"" << lSkeleton[j].name << "\".\n";
 			continue;
 		}
 		frames.emplace_back(std::vector<SQT, allocator<SQT>>());
-		for (FbxTime t = lStart; t != lStop; t += lFrameRate)
+		for (FbxTime t = lStart; t < lStop; t += lFrameRate)
 		{
 			const auto& lAffineMatrix = lEvaluator->GetNodeLocalTransform(lFbxJoint, t);
-			frames.back().emplace_back(SQT(lAffineMatrix));
+			frames.back().emplace_back(lAffineMatrix);
 		}
 	}
 }
@@ -204,30 +205,34 @@ mat4f AnimationClip::evaluate(const uint8_t jointIndex, const float startTime, c
 
 	#define FRAMECOUNTi frames[jointIndex].size()
 	#define FRAMECOUNTf static_cast<float>(FRAMECOUNTi)
+	#define FRAMES_PER_SECOND 24.0f
 	
 	if (isLooping)
 	{
-		lExactFrame = std::fmod(framesPerSecond * (currentTime - startTime), FRAMECOUNTf);
+		lExactFrame = std::fmod(FRAMES_PER_SECOND * (currentTime - startTime), FRAMECOUNTf);
 		lLowerFrame = static_cast<std::size_t>(lExactFrame);
 		lUpperFrame = (lLowerFrame + 1) % FRAMECOUNTi;
 	}
 	else
 	{
-		lExactFrame = std::min(framesPerSecond * (currentTime - startTime), FRAMECOUNTf - 1.0f);
+		lExactFrame = std::min(FRAMES_PER_SECOND * (currentTime - startTime), FRAMECOUNTf - 1.0f);
 		lLowerFrame = static_cast<std::size_t>(lExactFrame);
 		lUpperFrame = std::min(lLowerFrame + 1, static_cast<std::size_t>(FRAMECOUNTi - 1));
 	}
 
-	mat4f lResult(1.0f);
+	mat4f lResult(skeleton->joints[jointIndex].inverseBindPose);
 	const float lLambda = lExactFrame - static_cast<float>(lLowerFrame);
 	uint8_t j = jointIndex;
 	while (j != GT_JOINT_NONE)
 	{
 		const auto lCurrent = mat4f(mix(frames[j][lLowerFrame], frames[j][lUpperFrame], lLambda));
+		// const auto lCurrent = mat4f(frames[j][lLowerFrame]);
 		lResult = lCurrent * lResult;
 		j = skeleton->joints[j].parent;
 	}
-	return skeleton->joints[jointIndex].inverseBindPose * lResult;
+	// return skeleton->joints[jointIndex].inverseBindPose * lResult;
+	// return lResult * skeleton->joints[jointIndex].inverseBindPose;
+	return lResult;
 }
 
 } // namespace gintonic

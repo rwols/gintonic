@@ -47,6 +47,8 @@
 
 #define DEPTH_TEXTURE_UNIT 4
 
+#define DEBUG_DRAW_SKELETONS
+
 namespace gintonic {
 
 // Anybody want to make the Renderer a proper singleton class?
@@ -190,6 +192,12 @@ mat4f Renderer::sMatrixVM = mat4f(1.0f);
 mat4f Renderer::sMatrixPVM = mat4f(1.0f);
 mat3f Renderer::sMatrixN = mat3f(1.0f);
 
+std::vector<mat4f, allocator<mat4f>> Renderer::sMatrix44Array = std::vector<mat4f, allocator<mat4f>>(1 * GT_SKELETON_MAX_JOINTS);
+std::vector<vec4f, allocator<vec4f>> Renderer::sMatrix33Array = std::vector<vec4f, allocator<vec4f>>(3 * GT_SKELETON_MAX_JOINTS);
+
+OpenGL::BufferObject* Renderer::sMatrix44UniformBuffer = nullptr;
+OpenGL::BufferObject* Renderer::sMatrix33UniformBuffer = nullptr;
+
 std::shared_ptr<Entity> Renderer::sCameraEntity = std::shared_ptr<Entity>(nullptr);
 std::shared_ptr<Entity> Renderer::sDebugShadowBufferEntity = std::shared_ptr<Entity>(nullptr);
 const Octree* Renderer::sOctreeRoot = nullptr;
@@ -219,6 +227,14 @@ boost::signals2::signal<void(void)> Renderer::onMouseLeave;
 boost::signals2::signal<void(char[32])> Renderer::onTextInput;
 boost::signals2::signal<void(char[32], int, int)> Renderer::onTextEdit;
 boost::signals2::signal<void(void)> Renderer::onAboutToClose;
+
+bool bindUniformBlock(const OpenGL::ShaderProgram& program, const OpenGL::BufferObject& buffer, const char* uniformBlockName)
+{
+	const auto lIndex = glGetUniformBlockIndex(program, uniformBlockName);
+	if (lIndex == GL_INVALID_INDEX) return false;
+	glUniformBlockBinding(program, lIndex, buffer);
+	return true;
+}
 
 FontStream& Renderer::cerr() { return *sDebugErrorStream; }
 FontStream& Renderer::cout() { return *sDebugLogStream;   }
@@ -289,8 +305,8 @@ void Renderer::initialize(
 	//
 	SDL_GL_ResetAttributes();
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	// SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -355,8 +371,8 @@ void Renderer::initialize(
 	sDefaultCamera->name = "DefaultCamera";
 	sDefaultCamera->setWidth(static_cast<float>(sWidth));
 	sDefaultCamera->setHeight(static_cast<float>(sHeight));
-	sDefaultCamera->setNearPlane(1.0f);
-	sDefaultCamera->setFarPlane(50.0f);
+	sDefaultCamera->setNearPlane(0.5f);
+	sDefaultCamera->setFarPlane(100.0f);
 	sDefaultCamera->setProjectionType(Camera::kPerspective);
 	if (!cameraEntity) cameraEntity = Entity::create("DefaultCamera");
 	setCameraEntity(std::move(cameraEntity));
@@ -364,7 +380,16 @@ void Renderer::initialize(
 	//
 	// Initializer shaders
 	//
-	if (initializeShaderPrograms) init_shaders();	
+	if (initializeShaderPrograms)
+	{
+		init_shaders();
+
+		sMatrix44UniformBuffer = new OpenGL::BufferObject(GL_UNIFORM_BUFFER, sizeof(mat4f) * 1 * GT_SKELETON_MAX_JOINTS, nullptr, GL_STREAM_DRAW);
+		sMatrix33UniformBuffer = new OpenGL::BufferObject(GL_UNIFORM_BUFFER, sizeof(vec4f) * 3 * GT_SKELETON_MAX_JOINTS, nullptr, GL_STREAM_DRAW);
+
+		// MaterialShaderProgram::get().::gintonic::Uniform::Block::Joint44::bindBuffer(*sMatrix44UniformBuffer);
+		// MaterialShaderProgram::get().::gintonic::Uniform::Block::Joint33::bindBuffer(*sMatrix33UniformBuffer);
+	}	
 
 	//
 	// Initialize basic shapes
@@ -621,6 +646,16 @@ bool Renderer::mouseButton(const int buttoncode) noexcept
 
 void Renderer::release()
 {
+	if (sMatrix33UniformBuffer)
+	{
+		delete sMatrix33UniformBuffer;
+		sMatrix33UniformBuffer = nullptr;
+	}
+	if (sMatrix44UniformBuffer)
+	{
+		delete sMatrix44UniformBuffer;
+		sMatrix44UniformBuffer = nullptr;
+	}
 	if (sPackedQuadVBO)
 	{
 		glDeleteBuffers(1, &sPackedQuadVBO);
@@ -813,9 +848,6 @@ void Renderer::renderGeometry() noexcept
 	lMaterialShaderProgram.setMaterialDiffuseTexture(GBUFFER_TEX_DIFFUSE);
 	lMaterialShaderProgram.setMaterialSpecularTexture(GBUFFER_TEX_SPECULAR);
 	lMaterialShaderProgram.setMaterialNormalTexture(GBUFFER_TEX_NORMAL);
-	// lMaterialShaderProgram.setInstancedRendering(0);
-	// lMaterialShaderProgram.setDebugFlag(0);
-	// lMaterialShaderProgram.setDebugFlag(1);
 
 	std::vector<mat4f, allocator<mat4f>> matrixBs(GT_SKELETON_MAX_JOINTS);
 	std::vector<mat3f> matrixBNs(GT_SKELETON_MAX_JOINTS);
@@ -830,6 +862,7 @@ void Renderer::renderGeometry(
 	std::vector<mat3f>& matrixBNs) noexcept
 {
 	const auto& lMaterialShaderProgram = MaterialShaderProgram::get();
+	const auto lElapsedTime = static_cast<float>(std::chrono::duration_cast<std::chrono::milliseconds>(elapsedTime()).count()) / float(1e3);
 
 	for (const auto& lEntity : geometries)
 	{
@@ -859,24 +892,53 @@ void Renderer::renderGeometry(
 			lMaterialFlag |= HAS_TANGENTS_AND_BITANGENTS;
 			// lHasTangentsAndBitangents = 1;
 		}
-		if (lMesh->hasSkinning())
+		if (lAnimationClip && lMesh->hasSkinning())
 		{
 			lMaterialFlag |= MESH_HAS_JOINTS;
-		}
-		if (lAnimationClip)
-		{
+
+			lAnimationClip->isLooping = false;
+
 			cerr() << lEntity->name << " --> " << lAnimationClip->name << '\n';
 			const auto lStart = lEntity->activeAnimationStartTime;
 			for (uint8_t j = 0; j < lAnimationClip->jointCount(); ++j)
 			{
-				matrixBs[j] = lAnimationClip->evaluate(j, lStart, static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(elapsedTime()).count()) / double(1e9));
+				matrixBs[j] = lAnimationClip->evaluate(j, lStart, lElapsedTime);
 				matrixBNs[j] = matrixBs[j].upperLeft33().invert().transpose();
+
+				// sMatrix44Array[j] = matrixBs[j];
+				// sMatrix33Array[j] = matrixBNs[j];
+				// sMatrix44Array[j] = lAnimationClip->evaluate(j, lStart, lElapsedTime);
+				// const auto lTempNormalMatrix = sMatrix44Array[j].upperLeft33().invert().transpose();
+				// sMatrix33Array[3 * j + 0] = vec4f(lTempNormalMatrix.data[0], lTempNormalMatrix.data[1], lTempNormalMatrix.data[2], 0.0f);
+				// sMatrix33Array[3 * j + 1] = vec4f(lTempNormalMatrix.data[3], lTempNormalMatrix.data[4], lTempNormalMatrix.data[5], 0.0f);
+				// sMatrix33Array[3 * j + 2] = vec4f(lTempNormalMatrix.data[6], lTempNormalMatrix.data[7], lTempNormalMatrix.data[8], 0.0f);
+				// sMatrix33Array[j] = sMatrix44Array[j].upperLeft33().invert().transpose();
 			}
+			
 			lMaterialShaderProgram.setMatrixB(matrixBs);
 			lMaterialShaderProgram.setMatrixBN(matrixBNs);
+
+			// glBindBuffer(GL_UNIFORM_BUFFER, *sMatrix44UniformBuffer);
+			// gtBufferSubData(GL_UNIFORM_BUFFER, 0, sMatrix44Array.size(), sMatrix44Array);
+			// glBindBufferBase(GL_UNIFORM_BUFFER, lMaterialShaderProgram.getJoint44(), *sMatrix44UniformBuffer);
+			// glBindBuffer(GL_UNIFORM_BUFFER, *sMatrix33UniformBuffer);
+			// gtBufferSubData(GL_UNIFORM_BUFFER, 0, sMatrix33Array.size(), sMatrix33Array);
+			// glBindBufferBase(GL_UNIFORM_BUFFER, lMaterialShaderProgram.getJoint33(), *sMatrix33UniformBuffer);
 		}
 
 		setModelMatrix(lEntity->globalTransform());
+
+		// const auto lJointBlockIndex       = glGetUniformBlockIndex(lMaterialShaderProgram, "JointBlock44");
+		// const auto lNormalJointBlockIndex = glGetUniformBlockIndex(lMaterialShaderProgram, "JointBlock33");
+
+		// if (lJointBlockIndex == GL_INVALID_INDEX)
+		// {
+		// 	cerr() << "GL_INVALID_INDEX for joint block.\n";
+		// }
+		// if (lNormalJointBlockIndex == GL_INVALID_INDEX)
+		// {
+		// 	cerr() << "GL_INVALID_INDEX for normal joint block.\n";
+		// }
 
 		lMaterialShaderProgram.setMaterialDiffuseColor(lMaterial->diffuseColor);
 		lMaterialShaderProgram.setMaterialSpecularColor(lMaterial->specularColor);
@@ -1069,6 +1131,7 @@ void Renderer::updateMatrixVM()
 	if (sMatrixVMDirty)
 	{
 		sMatrixVM = sMatrixV * sMatrixM;
+		// sMatrix44Array[0] = sMatrixVM;
 		sMatrixVMDirty = false;
 	}
 }
@@ -1080,6 +1143,7 @@ void Renderer::updateMatrixPVM()
 	if (sMatrixPVMDirty)
 	{
 		sMatrixPVM = sCameraEntity->camera->projectionMatrix()  * sMatrixVM;
+		// sMatrix44Array[1] = sMatrixPVM;
 		sMatrixPVMDirty = false;
 	}
 }
@@ -1090,6 +1154,7 @@ void Renderer::updateMatrixN()
 	if (sMatrixNDirty)
 	{
 		sMatrixN = sMatrixVM.upperLeft33().invert().transpose();
+		// sMatrix33Array[0] = sMatrixN;
 		sMatrixNDirty = false;
 	}
 }

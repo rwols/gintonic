@@ -6,9 +6,12 @@
 #define GBUFFER_SPECULAR 2
 #define GBUFFER_NORMAL 3
 
-#define HAS_DIFFUSE_TEXTURE 1
-#define HAS_SPECULAR_TEXTURE 2
-#define HAS_NORMAL_TEXTURE 4
+#define HAS_DIFFUSE_TEXTURE         1
+#define HAS_SPECULAR_TEXTURE        2
+#define HAS_NORMAL_TEXTURE          4
+#define HAS_TANGENTS_AND_BITANGENTS 8
+#define MESH_HAS_JOINTS             16
+#define INSTANCED_RENDERING         32
 
 in vec3 viewSpaceVertexPosition;
 in vec3 viewSpaceVertexNormal;
@@ -46,7 +49,8 @@ void main()
 		outSpecular *= texture(materialSpecularTexture, textureCoordinates);
 	}
 
-	if (hasTangentsAndBitangents != 0 && (materialFlag & HAS_NORMAL_TEXTURE) == HAS_NORMAL_TEXTURE)
+	if ((materialFlag & HAS_TANGENTS_AND_BITANGENTS) == HAS_TANGENTS_AND_BITANGENTS && 
+		(materialFlag & HAS_NORMAL_TEXTURE) == HAS_NORMAL_TEXTURE)
 	{
 		vec3 lSampledNormal = texture(materialNormalTexture, textureCoordinates).xyz;
 		lSampledNormal = 2.0f * lSampledNormal - 1.0f;

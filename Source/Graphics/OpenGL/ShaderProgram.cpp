@@ -139,7 +139,7 @@ GLint ShaderProgram::getUniformLocation(const GLchar* name) const
 	const auto r = glGetUniformLocation(*this, name);
 	if (r == -1)
 	{
-		throw exception("Uniform \"" + std::string(name) + "\" not present.");
+		throw exception("Uniform \"" + std::basic_string<GLchar>(name) + "\" not present.");
 	}
 	else
 	{
@@ -151,6 +151,25 @@ bool ShaderProgram::getUniformLocation(const GLchar* name, GLint& location) cons
 {
 	location = glGetUniformLocation(*this, name);
 	return location == -1 ? false : true;
+}
+
+GLuint ShaderProgram::getUniformBlockIndex(const GLchar* name) const
+{
+	const auto r = glGetUniformBlockIndex(*this, name);
+	if (r == GL_INVALID_INDEX)
+	{
+		throw exception("Uniform block \"" + std::basic_string<GLchar>(name) + "\" not present.");
+	}
+	else
+	{
+		return r;
+	}
+}
+
+bool ShaderProgram::getUniformBlockIndex(const GLchar* name, GLuint& index) const noexcept
+{
+	index = glGetUniformBlockIndex(*this, name);
+	return index == GL_INVALID_INDEX ? false : true;
 }
 
 GLint ShaderProgram::getAttributeLocation(const GLchar* name) const
