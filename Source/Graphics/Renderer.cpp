@@ -301,28 +301,19 @@ void Renderer::initialize(
 	sWindow = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, sWidth, sHeight, flags);
 
 	//
-	// We start by trying to obtain an OpenGL 4.1 context.
+	// We want an OpenGL 3.3 core profile context.
 	//
 	SDL_GL_ResetAttributes();
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	// SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	sContext = SDL_GL_CreateContext(sWindow);
 	if (!sContext)
 	{
-		// Failed to get an OpenGL 4.1 context. Let's try an OpenGL 3.3 context.
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-		sContext = SDL_GL_CreateContext(sWindow);
-		if (!sContext)
-		{
-			// The user should update their drivers at this point...
-			release();
-			throw NoContextAvailableException(3, 3);
-		}
+		release();
+		throw NoContextAvailableException(3, 3);
 	}
 
 	if (gladLoadGL() != 1)
