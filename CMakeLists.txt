@@ -19,7 +19,7 @@ file(GLOB lua_source_files "${source_directory}/${lua_src_dir}/*.c")
 list(REMOVE_ITEM lua_source_files "${source_directory}/${lua_src_dir}/luac.c")
 file(GLOB shader_source_files "${source_directory}/Graphics/Shaders/*.vert" "${source_directory}/Graphics/Shaders/*.frag")
 set(src_files ${gintonic_source_files} ${lua_source_files})
-set_source_files_properties(${lua_source_files} PROPERTIES LANGUAGE CXX)
+set_source_files_properties(${src_files} PROPERTIES LANGUAGE CXX)
 
 project(gintonic C CXX)
 
@@ -41,7 +41,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH OFF)
 
 enable_testing()
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 
 find_package(Boost
 	COMPONENTS
@@ -72,6 +72,7 @@ string(REPLACE ".lib" ".dll" BOOST_SERIALIZATION_DLL ${BOOST_SERIALIZATION_DLL})
 string(REPLACE ".lib" ".dll" BOOST_PROGRAM_OPTIONS_DLL ${BOOST_PROGRAM_OPTIONS_DLL})
 string(REPLACE ".lib" ".dll" BOOST_UNIT_TEST_FRAMEWORK_DLL ${BOOST_UNIT_TEST_FRAMEWORK_DLL})
 
+# find_package(FFTW REQUIRED)
 find_package(OpenGL REQUIRED)
 # set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 # find_package(Threads REQUIRED)
@@ -89,6 +90,8 @@ endif ()
 option(WITH_PROFILING "Profile various math functions." OFF)
 
 option(WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
+
+option(BUILD_STATIC_LIBRARY "Build gintonic as a static library instead of a shared library." OFF)
 
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
 	option(ENABLE_DEBUG_TRACE "Enable debug tracing via the renderer." ON)
@@ -116,7 +119,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif ()
 
 if (BUILD_DOCUMENTATION)
-	configure_file(Doxyfile.cmake ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+	configure_file(${CMAKE_CURRENT_LIST_DIR}/CMakeModules/Doxyfile.cmake ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 	add_custom_target(doc ALL
 		COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -125,6 +128,7 @@ endif()
 
 include_directories(
 	${SDL2_INCLUDE_DIR}
+	# ${FFTW_INCLUDES}
 	${Boost_INCLUDE_DIR}
 	${FREETYPE_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIRS}
@@ -137,47 +141,16 @@ configure_file(Source/config.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.hpp)
 
 add_library(gintonic SHARED ${src_files})
 
-# set_target_properties(gintonic PROPERTIES INSTALL_RPATH "")
-
 if (WIN32 AND HIDE_CONSOLE)
 	set_target_properties(gintonic PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
 endif ()
 
-if (WIN32)
-	target_link_libraries(
-		gintonic 
-		${Boost_LIBRARIES} 
-		${OPENGL_LIBRARIES} 
-		${SDL2_LIBRARY} 
-		${FREETYPE_LIBRARIES}
-		${FBX_LIBRARY} 
-		${CMAKE_THREAD_LIBS_INIT})
-elseif (APPLE)
-	target_link_libraries(
-		gintonic 
-		${Boost_LIBRARIES} 
-		${OPENGL_LIBRARIES} 
-		${SDL2_LIBRARY} 
-		# ${JPEG_LIBRARIES} 
-		# ${PNG_LIBRARIES} 
-		${FREETYPE_LIBRARIES}
-		${FBX_LIBRARY} 
-		# ${CMAKE_THREAD_LIBS_INIT})
-		)
-else ()
-	target_link_libraries(
-		gintonic 
-		${Boost_LIBRARIES} 
-		${OPENGL_LIBRARIES} 
-		${SDL2_LIBRARY} 
-		# ${JPEG_LIBRARIES} 
-		# ${PNG_LIBRARIES} 
-		${FREETYPE_LIBRARIES}
-		${FBX_LIBRARY} 
-		# ${CMAKE_THREAD_LIBS_INIT}
-		# -ldl
-		)
-endif ()
+target_link_libraries(gintonic
+	${Boost_LIBRARIES}
+	${OPENGL_LIBRARIES}
+	${SDL2_LIBRARY}
+	${FREETYPE_LIBRARIES}
+	${FBX_LIBRARY})
 
 add_subdirectory (Source)
 add_subdirectory (Tools)
