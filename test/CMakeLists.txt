@@ -8,9 +8,7 @@ file(GLOB source_files ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 foreach (source_file ${source_files})
 	get_filename_component(exe ${source_file} NAME_WE)
 	add_executable(${exe} ${exe}.cpp)
-	# target_compile_definitions(${exe} PUBLIC BOOST_TEST_DYN_LINK)
 	set_target_properties(${exe} PROPERTIES CXX_STANDARD 14)
-	# get_target_property(compile_flags gintonic property)
 	target_include_directories(${exe} PUBLIC ${Boost_INCLUDE_DIR})
 	target_link_libraries(${exe} PUBLIC gintonic ${Boost_LIBRARIES})
 	add_test(NAME ${exe} COMMAND ${exe})
@@ -20,9 +18,9 @@ endforeach ()
 # Need at least one executable in this directory.
 list(GET executables 0 exe)
 
-get_filename_component(targetname ${CMAKE_CURRENT_LIST_DIR} NAME_WE)
+# get_filename_component(post_build_tests ${CMAKE_CURRENT_LIST_DIR} NAME_WE)
 
-add_custom_target(${targetname} ALL
+add_custom_target(post_build_tests ALL
 	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_SYSTEM_DLL} $<TARGET_FILE_DIR:${exe}>
 	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_FILESYSTEM_DLL} $<TARGET_FILE_DIR:${exe}> 
 	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_SERIALIZATION_DLL} $<TARGET_FILE_DIR:${exe}> 

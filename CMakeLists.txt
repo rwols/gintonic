@@ -16,8 +16,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "The build type. Can be Debug or Release or whatnot")
 
 add_subdirectory(lib)
+
 enable_testing()
-add_subdirectory(UnitTest)
+add_subdirectory(test)
+
+add_subdirectory(tools)
+
+add_subdirectory(examples)
 
 # set(SSE_VERSION 30 CACHE STRING "The SSE version.")
 
