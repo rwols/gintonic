@@ -1,4 +1,8 @@
 {
+	"cmake":
+	{
+		"build_folder": "${project_path}/build"
+	},
     "folders":
     [
     	{

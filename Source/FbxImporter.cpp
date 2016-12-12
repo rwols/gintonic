@@ -129,6 +129,7 @@ std::shared_ptr<Entity> FbxImporter::loadEntities(
 	bool setSkeletonNameAsFilename,
 	bool cleanUpEmptyNodes)
 {
+
 	ResultStructure lResult;
 	lResult.skeleton = loadSkeleton();
 	if (lResult.skeleton)

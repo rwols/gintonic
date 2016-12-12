@@ -3,8 +3,14 @@ cmake_minimum_required(VERSION 2.8)
 include_directories(${CMAKE_SOURCE_DIR}/Source)
 file(GLOB source_files ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
-add_library(Application SHARED Common/Application.cpp)
+add_library(Application Common/Application.cpp)
 target_link_libraries(Application gintonic)
+
+# if (${BUILD_SHARED_LIBS})
+# 	add_library(Application SHARED Common/Application.cpp)
+# else()
+# 	add_library(Application STATIC Common/Application.cpp)
+# endif()
 
 foreach (source_file ${source_files})
 	get_filename_component(exe ${source_file} NAME_WE)

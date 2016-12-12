@@ -6,6 +6,8 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   	Gintonic source code and call CMake from there.")
 endif()
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "The build type. Can be Debug or Release or whatnot")
 
 set(SSE_VERSION 30 CACHE STRING "The SSE version.")
@@ -43,6 +45,10 @@ enable_testing()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 
+if (NOT BUILD_SHARED_LIBS)
+	set(Boost_USE_STATIC_LIBS ON)
+endif()
+# message(FATAL_ERROR "Boost_USE_STATIC_LIBS: ${Boost_USE_STATIC_LIBS}")
 find_package(Boost
 	COMPONENTS
 		system
@@ -85,13 +91,17 @@ if (NOT DOXYGEN_FOUND)
 	message(WARNING "Doxygen is not present on this system. Documentation cannot be built.")
 else ()
 	option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
-endif ()
+endif()
+
+# if (${GINTONIC_WITH_PIC})
+# 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+# endif()
 
 option(WITH_PROFILING "Profile various math functions." OFF)
 
 option(WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
 
-option(BUILD_STATIC_LIBRARY "Build gintonic as a static library instead of a shared library." OFF)
+# option(BUILD_STATIC_LIBRARY "Build gintonic as a static library instead of a shared library." OFF)
 
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
 	option(ENABLE_DEBUG_TRACE "Enable debug tracing via the renderer." ON)
@@ -139,7 +149,15 @@ include_directories(
 
 configure_file(Source/config.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.hpp)
 
-add_library(gintonic SHARED ${src_files})
+add_library(gintonic ${src_files})
+
+# if (${BUILD_SHARED_LIBS})
+# 	add_library(gintonic SHARED ${src_files})
+# 	install(TARGETS gintonic EXPORT gintonic LIBRARY DESTINATION lib)
+# else()
+# 	add_library(gintonic STATIC ${src_files})
+# 	install(TARGETS gintonic EXPORT gintonic ARCHIVE DESTINATION lib)
+# endif()
 
 if (WIN32 AND HIDE_CONSOLE)
 	set_target_properties(gintonic PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
@@ -150,15 +168,21 @@ target_link_libraries(gintonic
 	${OPENGL_LIBRARIES}
 	${SDL2_LIBRARY}
 	${FREETYPE_LIBRARIES}
-	${FBX_LIBRARY})
+	${FBX_LIBRARY}
+	${CMAKE_DL_LIBS})
 
 add_subdirectory (Source)
 add_subdirectory (Tools)
 add_subdirectory (Examples)
 add_subdirectory (UnitTest)
 
-install(TARGETS gintonic EXPORT gintonic LIBRARY DESTINATION lib)
+
 install(EXPORT gintonic DESTINATION .)
+if (BUILD_SHARED_LIBS)
+	install(TARGETS gintonic EXPORT gintonic LIBRARY DESTINATION lib)
+else()
+	install(TARGETS gintonic EXPORT gintonic ARCHIVE DESTINATION lib)
+endif()
 if (BUILD_DOCUMENTATION)
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION doc)
 endif()
