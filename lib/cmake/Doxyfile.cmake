@@ -677,7 +677,7 @@ FILE_VERSION_FILTER    =
 # DoxygenLayout.xml, doxygen will parse it automatically even if the LAYOUT_FILE
 # tag is left empty.
 
-LAYOUT_FILE            = ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.xml
+LAYOUT_FILE            = ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Doxyfile.xml
 
 # The CITE_BIB_FILES tag can be used to specify one or more bib files containing
 # the reference definitions. This must be a list of .bib files. The .bib
@@ -758,7 +758,7 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT = ${CMAKE_CURRENT_SOURCE_DIR}/Source
+INPUT = ${CMAKE_CURRENT_SOURCE_DIR}
 INPUT += ${CMAKE_CURRENT_SOURCE_DIR}/README.md
 
 # This tag can be used to specify the character encoding of the source files
@@ -833,7 +833,7 @@ EXCLUDE_SYMBOLS        =
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = ${CMAKE_CURRENT_SOURCE_DIR}/Examples
+EXAMPLE_PATH           =
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
@@ -1092,7 +1092,7 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  = ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.css
+HTML_EXTRA_STYLESHEET  = ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Doxyfile.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
