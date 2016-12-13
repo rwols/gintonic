@@ -101,8 +101,8 @@ if (BUILD_DOCUMENTATION)
 		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/html/index.html
 		COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		# DEPENDS ${gintonic_header_files}
+		DEPENDS ${gintonic_header_files}
 		COMMENT "Generating documentation." VERBATIM)
 endif()
 
-install(DIRECTORY . DESTINATION .)
+install(DIRECTORY . DESTINATION include/gintonic)

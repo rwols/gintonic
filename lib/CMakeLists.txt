@@ -131,13 +131,23 @@ set(GLAD_PROFILE "core" CACHE STRING "OpenGL profile" FORCE)
 add_subdirectory(glad)
 
 # Configure SDL2
+
 if (BUILD_SHARED_LIBS)
-	set(SDL_SHARED ON CACHE INTERNAL "Build SDL as a shared library?" FORCE)
+	# Sigh... SDL should just respect BUILD_SHARED_LIBS
+	set(SDL_SHARED_ENABLED_BY_DEFAULT ON CACHE BOOL "Build a shared version of the library" FORCE)
+	set(SDL_STATIC OFF CACHE BOOL "Build a static version of the library" FORCE)
 	set(SDL2_LIBRARY SDL2)
 else()
-	set(SDL_STATIC ON CACHE INTERNAL "Build SDL as a static library?" FORCE)
+	set(SDL_SHARED_ENABLED_BY_DEFAULT OFF CACHE BOOL "Build a shared version of the library" FORCE)
+	set(SDL_STATIC ON CACHE BOOL "Build a static version of the library" FORCE)
 	set(SDL2_LIBRARY SDL2-static)
 endif()
+set(SDL_ATOMIC OFF CACHE BOOL "We don't need atomics" FORCE)
+set(SDL_FILESYSTEM OFF CACHE BOOL "We don't need a filesystem" FORCE)
+set(SDL_THREADS OFF CACHE BOOL "We don't need threads" FORCE)
+set(SDL_TIMERS OFF CACHE BOOL "We don't need timers" FORCE)
+set(SDL_FILE OFF CACHE BOOL "Don't need file support" FORCE)
+set(SDL_LOADSO OFF CACHE BOOL "We don't need to dynamically load libs" FORCE)
 add_subdirectory(SDL-mirror)
 target_include_directories(gintonic PRIVATE ${SDL2_SOURCE_DIR}/include)
 
@@ -156,4 +166,4 @@ target_link_libraries(gintonic PUBLIC
 	SDL2main
 	${SDL2_LIBRARY})
 
-install(TARGETS gintonic DESTINATION .)
+install(TARGETS gintonic DESTINATION lib)

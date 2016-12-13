@@ -129,10 +129,14 @@ endif ()
 
 set(FBX_LIBRARY optimized ${FBX_LIBRARY} debug ${FBX_LIBRARY_DEBUG} CACHE STRING "Fbx Library location.")
 
-if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+if (CMAKE_BUILD_TYPE)
+    if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+        set (FBX_DLL "${FBX_LIBRARY_DEBUG}")
+    else ()
+        set (FBX_DLL "${FBX_LIBRARY}")
+    endif()
+else()
     set (FBX_DLL "${FBX_LIBRARY_DEBUG}")
-else ()
-    set (FBX_DLL "${FBX_LIBRARY}")
 endif()
 
 string(REPLACE "\\" "\\\\" FBX_DLL "${FBX_DLL}")
