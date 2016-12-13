@@ -15,13 +15,12 @@ project(gintonic VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "The build type. Can be Debug or Release or whatnot")
 
+add_subdirectory(Resources)
+add_subdirectory(include)
 add_subdirectory(lib)
-
 enable_testing()
 add_subdirectory(test)
-
 add_subdirectory(tools)
-
 add_subdirectory(examples)
 
 # set(SSE_VERSION 30 CACHE STRING "The SSE version.")

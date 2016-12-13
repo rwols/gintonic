@@ -11,6 +11,10 @@
     ],
 	"settings":
 	{
+		"flags_sources": 
+		[
+			{ "file": "compile_commands.json", "search_in": "/home/raoul/dev/gintonic/build" }
+		],
 		"tab_size": 4
 	},
 	"build_systems":

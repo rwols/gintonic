@@ -29,10 +29,10 @@ add_custom_target(post_build_tests ALL
 	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FBX_DLL} $<TARGET_FILE_DIR:${exe}>
 	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SDL2_DLL} $<TARGET_FILE_DIR:${exe}>
 	COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/Resources/Inconsolata-Regular.ttf $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/lib/Graphics/Shaders $<TARGET_FILE_DIR:${exe}>/Shaders	
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/Examples/bricks.jpg $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/Examples/bricks_SPEC.png $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/Examples/bricks_NRM.png $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${GINTONIC_ASSET_DIR}/Inconsolata-Regular.ttf $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${GINTONIC_SHADER_DIR} $<TARGET_FILE_DIR:${exe}>/Shaders	
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/examples/bricks.jpg $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/examples/bricks_SPEC.png $<TARGET_FILE_DIR:${exe}>/Resources
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/examples/bricks_NRM.png $<TARGET_FILE_DIR:${exe}>/Resources
 	DEPENDS ${executables}
 	COMMENT "Performing post-build processing for ${targetname}")

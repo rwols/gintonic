@@ -35,8 +35,7 @@ constexpr GLenum sTextureType[GeometryBuffer::kCount] =
 	GL_UNSIGNED_BYTE, // kSpecular
 	GL_FLOAT,         // kNormal
 	GL_UNSIGNED_BYTE, // kPostProcessing
-	// GL_UNSIGNED_INT_24_8_EXT  // kDepth
-	GL_DEPTH24_STENCIL8 // kDepth
+	GL_UNSIGNED_INT_24_8 // kDepth
 	
 };
 

@@ -10,6 +10,8 @@ find_package(FBX REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(Doxygen)
 
+set(GINTONIC_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "The directory containing implementation files.")
+
 set(gintonic_source_files
 	Graphics/OpenGL/BufferObject.cpp
 	Graphics/OpenGL/ShaderProgram.cpp
