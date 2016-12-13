@@ -1,11 +1,6 @@
 include(CMakeParseArguments)
 
-# Always do shared, even if BUILD_SHARED_LIBS is OFF,
-# because these examples are not going to end up in
-# the wild anyway.
-# FIXME: Move this library to the lib folder? It
-# seems more fitting.
-add_library(Application SHARED Common/Application.cpp)
+add_library(Application Common/Application.cpp)
 set_target_properties(Application PROPERTIES CXX_STANDARD 14)
 target_link_libraries(Application PUBLIC gintonic)
 
