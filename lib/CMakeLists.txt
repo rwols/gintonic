@@ -8,7 +8,6 @@ find_package(OpenGL REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(FBX REQUIRED)
 find_package(SDL2 REQUIRED)
-find_package(Doxygen)
 
 set(GINTONIC_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "The directory containing implementation files.")
 
@@ -75,10 +74,8 @@ file(GLOB lua_source_files "${lua_src_dir}/*.c")
 list(REMOVE_ITEM lua_source_files "${CMAKE_CURRENT_SOURCE_DIR}/${lua_src_dir}/luac.c")
 set_source_files_properties(${lua_source_files} PROPERTIES LANGUAGE CXX)
 
-
 # file(GLOB_RECURSE gintonic_source_files "*.cpp")
 set(SSE_VERSION 30 CACHE STRING "The SSE version.")
-option(BUILD_DOCUMENTATION "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 option(WITH_PROFILING "Profile various math functions." OFF)
 option(WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
@@ -109,13 +106,7 @@ else ()
 		target_compile_options(gintonic PUBLIC -stdlib=libc++)
 	endif ()
 endif ()
-if (BUILD_DOCUMENTATION)
-	configure_file(cmake/Doxyfile.cmake ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-	add_custom_target(gintonic-doc ALL
-		COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		COMMENT "Generating documentation." VERBATIM)
-endif()
+
 set_target_properties(gintonic PROPERTIES CXX_STANDARD 14)
 
 

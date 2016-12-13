@@ -1,42 +1,84 @@
-cmake_minimum_required(VERSION 2.8)
+include(CMakeParseArguments)
 
-file(GLOB source_files ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-
-add_library(Application Common/Application.cpp)
+# Always do shared, even if BUILD_SHARED_LIBS is OFF,
+# because these examples are not going to end up in
+# the wild anyway.
+# FIXME: Move this library to the lib folder? It
+# seems more fitting.
+add_library(Application SHARED Common/Application.cpp)
 set_target_properties(Application PROPERTIES CXX_STANDARD 14)
-target_link_libraries(Application gintonic)
+target_link_libraries(Application PUBLIC gintonic)
 
-foreach (source_file ${source_files})
-	get_filename_component(exe ${source_file} NAME_WE)
-	add_executable(${exe} ${exe}.cpp)
-	set_target_properties(${exe} PROPERTIES CXX_STANDARD 14)
-	target_link_libraries(${exe} Application)
-	list(APPEND executables ${exe})
-endforeach ()
+function(add_example example_name)
+	set(options "")
+	set(oneValueArgs "")
+	set(multiValueArgs SOURCES ASSETS)
+	cmake_parse_arguments(add_example
+		"${options}"
+		"${oneValueArgs}"
+		"${multiValueArgs}"
+		${ARGN})
+	
+	if (NOT add_example_SOURCES)
+		message(FATAL_ERROR "Example ${example_name} requires SOURCES argument!")
+	elseif (NOT add_example_ASSETS)
+		message(WARNING "Example ${example_name} has no ASSETS argument!")
+	endif (NOT add_example_SOURCES)
 
-list(GET executables 0 exe)
+	add_executable(${example_name} ${add_example_SOURCES})
+	set_target_properties(${example_name} PROPERTIES CXX_STANDARD 14)
+	target_link_libraries(${example_name} PUBLIC Application)
+	gintonic_target_depends_on_assets(
+		TARGET ${example_name} 
+		SOURCE_ASSET_DIRECTORY ${GINTONIC_ASSET_DIR} 
+		ASSETS ${add_example_ASSETS})
+endfunction()
 
-get_filename_component(targetname ${CMAKE_CURRENT_LIST_DIR} NAME_WE)
+set(systemFont Inconsolata-Regular.ttf)
+set(catTexture DaVinci.jpg)
+set(ruralBrickWallTextures RuralBrickWall.jpg RuralBrickWall_SPEC.png RuralBrickWall_NRM.png)
+set(bricksTextures bricks.jpg bricks_SPEC.png bricks_NRM.png)
 
-add_custom_target(${targetname} ALL
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_SYSTEM_DLL} $<TARGET_FILE_DIR:${exe}>
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_FILESYSTEM_DLL} $<TARGET_FILE_DIR:${exe}> 
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_SERIALIZATION_DLL} $<TARGET_FILE_DIR:${exe}> 
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_PROGRAM_OPTIONS_DLL} $<TARGET_FILE_DIR:${exe}>
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_UNIT_TEST_FRAMEWORK_DLL} $<TARGET_FILE_DIR:${exe}> 
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FBX_DLL} $<TARGET_FILE_DIR:${exe}>
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SDL2_DLL} $<TARGET_FILE_DIR:${exe}>
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${GINTONIC_SHADER_DIR} $<TARGET_FILE_DIR:${exe}>/Shaders	
-	COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${GINTONIC_ASSET_DIR}/Inconsolata-Regular.ttf $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different DaVinci.jpg        $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different RuralBrickWall.jpg $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different RuralBrickWall_SPEC.png $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different RuralBrickWall_NRM.png $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different bricks.jpg         $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different bricks_SPEC.png    $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different bricks_NRM.png     $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different DaVinci.jpg        $<TARGET_FILE_DIR:${exe}>/Resources
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-	DEPENDS ${executables}
-	COMMENT "Performing post-build processing for ${targetname}" VERBATIM)
+add_example(BasicShapes 
+	SOURCES BasicShapes.cpp 
+	ASSETS ${systemFont} ${catTexture})
+
+add_example(Console 
+	SOURCES Console.cpp 
+	ASSETS ${systemFont})
+
+add_example(DirectionalLight 
+	SOURCES DirectionalLight.cpp 
+	ASSETS ${systemFont} ${ruralBrickWallTextures})
+
+add_example(FbxViewer
+	SOURCES FbxViewer.cpp
+	ASSETS ${systemFont})
+
+add_example(HelloWorldText 
+	SOURCES HelloWorldText.cpp 
+	ASSETS ${systemFont})
+
+add_example(Octree
+	SOURCES Octree.cpp
+	ASSETS ${systemFont})
+
+add_example(OrthographicProjection
+	SOURCES OrthographicProjection.cpp
+	ASSETS ${systemFont} ${catTexture})
+
+add_example(PointLights
+	SOURCES PointLights.cpp
+	ASSETS ${systemFont} ${catTexture} ${bricksTextures})
+
+add_example(Shadows
+	SOURCES Shadows.cpp
+	ASSETS ${systemFont} ${bricksTextures})
+
+add_example(SpotLights
+	SOURCES SpotLights.cpp
+	ASSETS ${systemFont} ${bricksTextures})
+
+add_example(TexturedCube
+	SOURCES TexturedCube.cpp
+	ASSETS ${systemFont} ${ruralBrickWallTextures})

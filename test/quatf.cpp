@@ -1,9 +1,9 @@
 #define BOOST_TEST_MODULE quatf test
 #include <boost/test/unit_test.hpp>
 
-#include "../Source/Math/quatf.hpp"
-#include "../Source/Math/vec2f.hpp"
-#include "../Source/Math/vec3f.hpp"
+#include "Math/quatf.hpp"
+#include "Math/vec2f.hpp"
+#include "Math/vec3f.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>

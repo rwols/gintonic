@@ -1,38 +1,52 @@
-cmake_minimum_required(VERSION 2.8)
-
-add_definitions(-DBOOST_TEST_DYN_LINK)
 set(Boost_USE_STATIC_LIBS OFF)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
-file(GLOB source_files ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
-foreach (source_file ${source_files})
-	get_filename_component(exe ${source_file} NAME_WE)
-	add_executable(${exe} ${exe}.cpp)
-	set_target_properties(${exe} PROPERTIES CXX_STANDARD 14)
-	target_include_directories(${exe} PUBLIC ${Boost_INCLUDE_DIR})
-	target_link_libraries(${exe} PUBLIC gintonic ${Boost_LIBRARIES})
-	add_test(NAME ${exe} COMMAND ${exe})
-	list(APPEND executables ${exe})
-endforeach ()
+function(gintonic_add_test test_name)
+	set(options "")
+	set(oneValueArgs "")
+	set(multiValueArgs SOURCES ASSETS)
+	cmake_parse_arguments(gintonic_add_test
+		"${options}"
+		"${oneValueArgs}"
+		"${multiValueArgs}"
+		${ARGN})
+	if (NOT gintonic_add_test_SOURCES)
+		message(FATAL_ERROR "SOURCES argument required for test case ${test_name}")
+	endif (NOT gintonic_add_test_SOURCES)
+	add_executable(${test_name} ${gintonic_add_test_SOURCES})
+	set_target_properties(${test_name} PROPERTIES CXX_STANDARD 14)
+	target_compile_definitions(${test_name} PUBLIC BOOST_TEST_DYN_LINK)
+	target_include_directories(${test_name} PUBLIC ${Boost_INCLUDE_DIR})
+	target_link_libraries(${test_name} PUBLIC gintonic ${Boost_LIBRARIES})
+	if (gintonic_add_test_ASSETS)
+		gintonic_target_depends_on_assets(
+			TARGET ${test_name} 
+			SOURCE_ASSET_DIRECTORY ${GINTONIC_ASSET_DIR} 
+			ASSETS ${gintonic_add_test_ASSETS})
+	endif (gintonic_add_test_ASSETS)
+	add_test(NAME ${test_name} COMMAND ${test_name})
+endfunction()
 
-# Need at least one executable in this directory.
-list(GET executables 0 exe)
+gintonic_add_test(Entity SOURCES Entity.cpp)
+gintonic_add_test(OctreeTest SOURCES OctreeTest.cpp)
+gintonic_add_test(Reflection SOURCES Reflection.cpp)
+gintonic_add_test(SQT SOURCES SQT.cpp)
 
-# get_filename_component(post_build_tests ${CMAKE_CURRENT_LIST_DIR} NAME_WE)
+gintonic_add_test(SerializationOfLights 
+	SOURCES SerializationOfLights.cpp)
 
-add_custom_target(post_build_tests ALL
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_SYSTEM_DLL} $<TARGET_FILE_DIR:${exe}>
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_FILESYSTEM_DLL} $<TARGET_FILE_DIR:${exe}> 
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_SERIALIZATION_DLL} $<TARGET_FILE_DIR:${exe}> 
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_PROGRAM_OPTIONS_DLL} $<TARGET_FILE_DIR:${exe}>
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BOOST_UNIT_TEST_FRAMEWORK_DLL} $<TARGET_FILE_DIR:${exe}> 
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FBX_DLL} $<TARGET_FILE_DIR:${exe}>
-	# COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SDL2_DLL} $<TARGET_FILE_DIR:${exe}>
-	COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${GINTONIC_ASSET_DIR}/Inconsolata-Regular.ttf $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${GINTONIC_SHADER_DIR} $<TARGET_FILE_DIR:${exe}>/Shaders	
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/examples/bricks.jpg $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/examples/bricks_SPEC.png $<TARGET_FILE_DIR:${exe}>/Resources
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/examples/bricks_NRM.png $<TARGET_FILE_DIR:${exe}>/Resources
-	DEPENDS ${executables}
-	COMMENT "Performing post-build processing for ${targetname}")
+gintonic_add_test(SimdTest SOURCES SimdTest.cpp)
+gintonic_add_test(box2f SOURCES box2f.cpp)
+gintonic_add_test(box3f SOURCES box3f.cpp)
+gintonic_add_test(mat2f SOURCES mat2f.cpp)
+gintonic_add_test(mat3f SOURCES mat3f.cpp)
+gintonic_add_test(mat4f SOURCES mat4f.cpp)
+
+gintonic_add_test(materials 
+	SOURCES materials.cpp 
+	ASSETS Inconsolata-Regular.ttf bricks.jpg bricks_SPEC.png bricks_NRM.png)
+
+gintonic_add_test(quatf SOURCES quatf.cpp)
+gintonic_add_test(vec2f SOURCES vec2f.cpp)
+gintonic_add_test(vec3f SOURCES vec3f.cpp)
+gintonic_add_test(vec4f SOURCES vec4f.cpp)

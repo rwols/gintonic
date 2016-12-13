@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE mat2f test
 #include <boost/test/unit_test.hpp>
 
-#include "../Source/Math/vec2f.hpp"
-#include "../Source/Math/mat2f.hpp"
+#include "Math/vec2f.hpp"
+#include "Math/mat2f.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>

@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE box3f test
 #include <boost/test/unit_test.hpp>
 
-#include "../Source/Foundation/allocator.hpp"
-#include "../Source/Math/box3f.hpp"
+#include "Foundation/allocator.hpp"
+#include "Math/box3f.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>

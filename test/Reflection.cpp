@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE Reflection test
 #include <boost/test/unit_test.hpp>
 
-#include "../Source/Entity.hpp"
-#include "../Source/Foundation/Reflection.hpp"
+#include "Entity.hpp"
+#include "Foundation/Reflection.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>

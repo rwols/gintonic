@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE Simd test
 #include <boost/test/unit_test.hpp>
 
-#include "../Source/Foundation/simd.hpp"
+#include "Foundation/simd.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>

@@ -1,10 +1,10 @@
 #define BOOST_TEST_MODULE materials test
 #include <boost/test/unit_test.hpp>
 
-#include "../Source/gintonic.hpp"
+#include "gintonic.hpp"
 
-#include "../Source/Foundation/portable_iarchive.hpp"
-#include "../Source/Foundation/portable_oarchive.hpp"
+#include "Foundation/portable_iarchive.hpp"
+#include "Foundation/portable_oarchive.hpp"
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <fstream>

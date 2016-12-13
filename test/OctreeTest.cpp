@@ -1,8 +1,8 @@
 #define BOOST_TEST_MODULE Octree test
 #include <boost/test/unit_test.hpp>
 
-#include "../Source/Entity.hpp"
-#include "../Source/Foundation/Octree.hpp"
+#include "Entity.hpp"
+#include "Foundation/Octree.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>

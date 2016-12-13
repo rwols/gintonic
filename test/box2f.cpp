@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE box2f test
 #include <boost/test/unit_test.hpp>
 
-#include "../Source/Math/box2f.hpp"
+#include "Math/box2f.hpp"
 #include <iostream>
 #include <chrono>
 #include <vector>
