@@ -78,8 +78,16 @@ set (fbx_libname "fbxsdk")
 
 if (WIN32)
     set (fbx_libname "lib${fbx_libname}.lib")
-    add_definitions(/D FBXSDK_SHARED)
-endif ()
+    if (BUILD_SHARED_LIBS)
+        add_definitions(/D FBXSDK_SHARED)
+    endif()
+else()
+    if (BUILD_SHARED_LIBS)
+        # do nothing
+    else()
+        set(fbx_libname "lib${fbx_libname}.a")
+    endif()
+endif()
 
 list(APPEND search_paths "$ENV{FBX_ROOT}")
 
