@@ -1,9 +1,26 @@
-set(GINTONIC_INCLUDE_DIR 
+#*******************************************************************************
+# gintonic/include
+#
+# The purpose of this cmake file is to define the variables gintonic_INCLUDE_DIR
+# and gintonic_SHADER_DIR, and to define the "gintonic-doc" target so that we
+# can build the documentation with "doxygen". It attemps to find the executable
+# "doxygen".
+#
+# Important variables that this cmake file defines are:
+#
+# - gintonic_INCLUDE_DIR -- This directory (containing the header files)
+# - gintonic_SHADER_DIR -- The directory containing the shader files.
+# - gintonic_BUILD_DOCUMENTATION -- Wether to build documentation. If the
+#     doxygen executable was found, defaults to ON, else it defaults to OFF.
+#
+#*******************************************************************************
+
+set(gintonic_INCLUDE_DIR 
 	${CMAKE_CURRENT_SOURCE_DIR} 
 	CACHE INTERNAL "The include directory containing all headers.")
 
-set(GINTONIC_SHADER_DIR 
-	"${GINTONIC_INCLUDE_DIR}/Graphics/Shaders" 
+set(gintonic_SHADER_DIR 
+	"${gintonic_INCLUDE_DIR}/Graphics/Shaders" 
 	CACHE INTERNAL "The shader directory.")
 
 set(gintonic_header_files
@@ -91,11 +108,11 @@ set(gintonic_header_files
 )
 
 find_package(Doxygen)
-option(BUILD_DOCUMENTATION 
+option(gintonic_BUILD_DOCUMENTATION 
 	"Create and install the HTML based API documentation (requires Doxygen)" 
 	${DOXYGEN_FOUND})
 
-if (BUILD_DOCUMENTATION)
+if (gintonic_BUILD_DOCUMENTATION)
 	configure_file(cmake/Doxyfile.cmake ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 	add_custom_command(
 		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/html/index.html

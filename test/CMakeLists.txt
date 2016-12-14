@@ -1,3 +1,26 @@
+#*******************************************************************************
+# gintonic/test
+#
+# The purpose of this cmake file is to define various unit test executables. It
+# attempts to find the Boost Unit Test Framework (as a shared library, always).
+# All the executables that are defined here are linked with the unit test
+# framework and with the "gintonic" library target. To run the unit tests,
+# simply call
+#
+#    $ ctest
+#
+# from the command line in the root build directory. You can also run the tests
+# in parallel by specifying the number of jobs to ctest. For example,
+#
+#    $ ctest -j8
+#
+# would run 8 unit tests in parallel. Some unit tests require assets from the
+# asset directory. That is taken care of by the function
+# "gintonic_target_depends_on_assets". See the cmake file in gintonic/Resources
+# for the definition of that function.
+#
+#*******************************************************************************
+
 set(Boost_USE_STATIC_LIBS OFF)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
@@ -11,7 +34,8 @@ function(gintonic_add_test test_name)
 		"${multiValueArgs}"
 		${ARGN})
 	if (NOT gintonic_add_test_SOURCES)
-		message(FATAL_ERROR "SOURCES argument required for test case ${test_name}")
+		message(FATAL_ERROR 
+			"SOURCES argument required for test case ${test_name}")
 	endif (NOT gintonic_add_test_SOURCES)
 	add_executable(${test_name} ${gintonic_add_test_SOURCES})
 	set_target_properties(${test_name} PROPERTIES CXX_STANDARD 14)

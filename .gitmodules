@@ -7,3 +7,6 @@
 [submodule "lib/freetype2"]
 	path = lib/freetype2
 	url = git://git.sv.nongnu.org/freetype/freetype2.git
+[submodule "lib/pybind11"]
+	path = lib/pybind11
+	url = https://github.com/pybind/pybind11.git

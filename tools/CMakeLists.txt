@@ -1,6 +1,13 @@
-cmake_minimum_required(VERSION 2.8)
-
-# include_directories(${CMAKE_SOURCE_DIR}/Source)
+#*******************************************************************************
+# gintonic/tools
+#
+# The purpose of this cmake file is to define various tool executables. All the 
+# executables that are defined here are linked with the "gintonic" library 
+# target. Some tools require assets from the asset  directory. That is taken 
+# care of by the function "gintonic_target_depends_on_assets". See the cmake 
+# file in gintonic/Resources for the definition of that function.
+#
+#*******************************************************************************
 
 function(add_gintonic_tool tool_name)
 	set(options "")
@@ -29,5 +36,6 @@ endfunction(add_gintonic_tool)
 
 add_gintonic_tool(ConsoleTest SOURCES ConsoleTest.cpp)
 add_gintonic_tool(DriverInfo SOURCES DriverInfo.cpp)
-add_gintonic_tool(FbxConverter SOURCES FbxConverter.cpp ASSETS Inconsolata-Regular.ttf)
+add_gintonic_tool(FbxConverter SOURCES FbxConverter.cpp 
+	ASSETS Inconsolata-Regular.ttf)
 add_gintonic_tool(LuaTest SOURCES LuaTest.cpp)

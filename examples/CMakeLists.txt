@@ -1,3 +1,16 @@
+#*******************************************************************************
+# gintonic/examples
+#
+# The purpose of this cmake file is to define various example executables. All
+# examples will link to the "Application" library target, which in turns links
+# to the "gintonic" library target. The "Application" library simplifies writing
+# examples by defining a base class from which to inherit from.
+# Most examples also depend on assets from the asset directory. That is taken
+# care of by the function "gintonic_target_depends_on_assets". See the cmake
+# file in gintonic/Resources for the definition of that function.
+#
+#*******************************************************************************
+
 include(CMakeParseArguments)
 
 add_library(Application Common/Application.cpp)
@@ -15,7 +28,8 @@ function(add_example example_name)
 		${ARGN})
 	
 	if (NOT add_example_SOURCES)
-		message(FATAL_ERROR "Example ${example_name} requires SOURCES argument!")
+		message(FATAL_ERROR 
+			"Example ${example_name} requires SOURCES argument!")
 	elseif (NOT add_example_ASSETS)
 		message(WARNING "Example ${example_name} has no ASSETS argument!")
 	endif (NOT add_example_SOURCES)
@@ -31,7 +45,8 @@ endfunction()
 
 set(systemFont Inconsolata-Regular.ttf)
 set(catTexture DaVinci.jpg)
-set(ruralBrickWallTextures RuralBrickWall.jpg RuralBrickWall_SPEC.png RuralBrickWall_NRM.png)
+set(ruralBrickWallTextures RuralBrickWall.jpg RuralBrickWall_SPEC.png 
+	RuralBrickWall_NRM.png)
 set(bricksTextures bricks.jpg bricks_SPEC.png bricks_NRM.png)
 
 add_example(BasicShapes 
