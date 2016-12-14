@@ -41,6 +41,7 @@ ShaderProgram::ShaderProgram(
 		mHandle = 0;
 		throw exception(std::move(infolog));
 	}
+	initUniforms();
 }
 
 ShaderProgram::ShaderProgram(
@@ -78,6 +79,33 @@ ShaderProgram::ShaderProgram(
 		mHandle = 0;
 		throw exception(std::move(infolog));
 	}
+	initUniforms();
+}
+
+void ShaderProgram::initUniforms()
+{
+	const auto count = numActiveUniforms();
+	mUniforms.reserve(count);
+	for (GLint i = 0; i < count; ++i)
+	{
+		mUniforms.emplace_back(getUniform(i));
+	}
+	// Sorts uniforms by their name
+	std::sort(mUniforms.begin(), mUniforms.end());
+
+	if (mUniforms.empty())
+	{
+		std::cerr << "No uniforms!\n";
+	}
+	else
+	{
+		std::cerr << "Uniforms:\n";
+		for (const auto& u : mUniforms)
+		{
+			std::cout << '\t' << u.name << '\n';
+		}	
+	}
+	
 }
 
 GLint ShaderProgram::numActiveAttributes() const noexcept
@@ -97,10 +125,16 @@ GLint ShaderProgram::numActiveUniforms() const noexcept
 ShaderProgram::Uniform ShaderProgram::getUniform(const GLint index) const
 {
 	Uniform result;
-	GLint bufsize;
-	glGetProgramiv(*this, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &bufsize);
+	GLint bufsize, length;
+	glGetProgramiv(*this, GL_ACTIVE_UNIFORM_MAX_LENGTH, &bufsize);
 	result.name.resize(bufsize);
-	glGetActiveUniform(*this, index, bufsize, nullptr, &result.size, &result.type, &result.name[0]);
+	glGetActiveUniform(*this, index, bufsize, &length, &result.size, &result.type, &result.name[0]);
+	result.name.resize(length);
+	if (result.name.length() > 3 && 
+		0 == result.name.compare(result.name.length() - 3, std::basic_string<GLchar>::npos, "[0]"))
+	{
+		result.name.resize(result.name.length() - 3);
+	}
 	result.location = glGetUniformLocation(*this, result.name.c_str());
 	return result;
 }
@@ -136,20 +170,34 @@ void ShaderProgram::deactivate() noexcept { glUseProgram(0); }
 
 GLint ShaderProgram::getUniformLocation(const GLchar* name) const
 {
-	const auto r = glGetUniformLocation(*this, name);
-	if (r == -1)
-	{
-		throw exception("Uniform \"" + std::basic_string<GLchar>(name) + "\" not present.");
-	}
-	else
-	{
-		return r;
-	}
+	const auto r = std::find_if(mUniforms.begin(), mUniforms.end(), [=](const auto& item) { return item.name == name; });
+	if (r == mUniforms.end()) throw exception("Uniform \"" + std::string(name) + "\" not present.");
+	else return r->location;
+	// Uniform temp(name);
+	// auto r = std::lower_bound(mUniforms.begin(), mUniforms.end(), temp);
+	// if (r->name == name) return r->location;
+	// else throw exception("Uniform \"" + temp.name + "\" not present.");
+
+	// if (r == mUniforms.end())
+	// {
+	// 	throw exception("Uniform \"" + std::basic_string<GLchar>(name) + "\" not present.");
+	// }
+
+	// const auto r = glGetUniformLocation(*this, name);
+	// if (r == -1)
+	// {
+	// 	throw exception("Uniform \"" + std::basic_string<GLchar>(name) + "\" not present.");
+	// }
+	// else
+	// {
+	// 	return r;
+	// }
 }
 
 bool ShaderProgram::getUniformLocation(const GLchar* name, GLint& location) const noexcept
 {
-	location = glGetUniformLocation(*this, name);
+	const auto r = std::find_if(mUniforms.begin(), mUniforms.end(), [=](const auto& item) { return item.name == name; });
+	location = r == mUniforms.end() ? -1 : r->location;
 	return location == -1 ? false : true;
 }
 

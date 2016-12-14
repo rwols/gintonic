@@ -104,7 +104,7 @@ list(REMOVE_ITEM lua_source_files
 set_source_files_properties(${lua_source_files} PROPERTIES LANGUAGE CXX)
 
 # file(GLOB_RECURSE gintonic_source_files "*.cpp")
-option(gintonic_SSE_VERSION "The SSE version." 30)
+set(gintonic_SSE_VERSION 30 CACHE STRING "The SSE version.")
 option(gintonic_WITH_PROFILING "Profile various math functions." OFF)
 option(gintonic_WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
@@ -117,7 +117,7 @@ endif ()
 option(gintonic_HIDE_CONSOLE "Hide the console on Windows." ON)
 option(gintonic_REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE 
 	"Redirect the standard output to the renderer's error stream." 
-	${gintonic_ENABLE_DEBUG_TRACE}
+	${gintonic_ENABLE_DEBUG_TRACE})
 option(gintonic_USE_LIBCXX "Use libc++ instead of stdlib." OFF)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(gintonic_ENABLE_DEBUG_TRACE ON CACHE BOOL 
@@ -177,12 +177,12 @@ else()
 	set(SDL_STATIC ON CACHE BOOL "Build a static version of the library" FORCE)
 	set(SDL2_LIBRARY SDL2-static)
 endif()
-set(SDL_ATOMIC OFF CACHE BOOL "We don't need atomics" FORCE)
-set(SDL_FILESYSTEM OFF CACHE BOOL "We don't need a filesystem" FORCE)
-set(SDL_THREADS OFF CACHE BOOL "We don't need threads" FORCE)
-set(SDL_TIMERS OFF CACHE BOOL "We don't need timers" FORCE)
-set(SDL_FILE OFF CACHE BOOL "Don't need file support" FORCE)
-set(SDL_LOADSO OFF CACHE BOOL "We don't need to dynamically load libs" FORCE)
+# set(SDL_ATOMIC OFF CACHE BOOL "We don't need atomics" FORCE)
+# set(SDL_FILESYSTEM OFF CACHE BOOL "We don't need a filesystem" FORCE)
+# set(SDL_THREADS OFF CACHE BOOL "We don't need threads" FORCE)
+# set(SDL_TIMERS OFF CACHE BOOL "We don't need timers" FORCE)
+# set(SDL_FILE OFF CACHE BOOL "Don't need file support" FORCE)
+# set(SDL_LOADSO OFF CACHE BOOL "We don't need to dynamically load libs" FORCE)
 add_subdirectory(SDL-mirror)
 target_include_directories(gintonic PRIVATE ${SDL2_SOURCE_DIR}/include)
 

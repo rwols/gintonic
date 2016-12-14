@@ -30,7 +30,7 @@
 * compile-time which SSE instructions we will use.                           *
 *****************************************************************************/
 
-#define GINTONIC_SSE_VERSION ${SSE_VERSION}
+#define gintonic_SSE_VERSION ${gintonic_SSE_VERSION}
 
 /*****************************************************************************
 * FBX                                                                        *
@@ -58,10 +58,10 @@
 #define GINTONIC_FUNC_SIGNATURE __PRETTY_FUNCTION__
 #endif
 
-#cmakedefine ENABLE_DEBUG_TRACE
-#cmakedefine WITH_PROFILING
-#cmakedefine WITH_MEMORY_PROFILING
-#cmakedefine HIDE_CONSOLE
-#cmakedefine REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE
+#cmakedefine gintonic_ENABLE_DEBUG_TRACE
+#cmakedefine gintonic_WITH_PROFILING
+#cmakedefine gintonic_WITH_MEMORY_PROFILING
+#cmakedefine gintonic_HIDE_CONSOLE
+#cmakedefine gintonic_REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE
 
 #endif

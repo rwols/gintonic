@@ -148,11 +148,11 @@ inline almost_equal(const T x, const T y, int units_in_last_place)
 inline float dot(const __m128& lhs, const __m128& rhs) 
 	noexcept
 {
-	#if GINTONIC_SSE_VERSION >= 41
+	#if gintonic_SSE_VERSION >= 41
 
 		return _mm_cvtss_f32(_mm_dp_ps(lhs, rhs, 0xffffffff));
 
-	#elif GINTONIC_SSE_VERSION >= 30
+	#elif gintonic_SSE_VERSION >= 30
 
 		const auto product = _mm_mul_ps(lhs, rhs);
 		const auto halfsum = _mm_hadd_ps(product, product);
@@ -160,7 +160,7 @@ inline float dot(const __m128& lhs, const __m128& rhs)
 
 	#else
 
-		#error Make sure to define GINTONIC_SSE_VERSION
+		#error Make sure to define gintonic_SSE_VERSION
 
 	#endif
 }

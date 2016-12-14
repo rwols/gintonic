@@ -29,7 +29,7 @@ function(add_gintonic_tool tool_name)
 	if (add_gintonic_tool_ASSETS)
 		gintonic_target_depends_on_assets(
 			TARGET ${tool_name} 
-			SOURCE_ASSET_DIRECTORY ${GINTONIC_ASSET_DIR} 
+			SOURCE_ASSET_DIRECTORY ${gintonic_ASSET_DIR} 
 			ASSETS ${add_gintonic_tool_ASSETS})
 	endif (add_gintonic_tool_ASSETS)
 endfunction(add_gintonic_tool)

@@ -45,7 +45,7 @@ function(gintonic_add_test test_name)
 	if (gintonic_add_test_ASSETS)
 		gintonic_target_depends_on_assets(
 			TARGET ${test_name} 
-			SOURCE_ASSET_DIRECTORY ${GINTONIC_ASSET_DIR} 
+			SOURCE_ASSET_DIRECTORY ${gintonic_ASSET_DIR} 
 			ASSETS ${gintonic_add_test_ASSETS})
 	endif (gintonic_add_test_ASSETS)
 	add_test(NAME ${test_name} COMMAND ${test_name})

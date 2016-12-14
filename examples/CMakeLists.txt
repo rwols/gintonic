@@ -39,7 +39,7 @@ function(add_example example_name)
 	target_link_libraries(${example_name} PUBLIC Application)
 	gintonic_target_depends_on_assets(
 		TARGET ${example_name} 
-		SOURCE_ASSET_DIRECTORY ${GINTONIC_ASSET_DIR} 
+		SOURCE_ASSET_DIRECTORY ${gintonic_ASSET_DIR} 
 		ASSETS ${add_example_ASSETS})
 endfunction()
 

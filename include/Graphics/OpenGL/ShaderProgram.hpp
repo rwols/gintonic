@@ -54,32 +54,41 @@ public:
 		/// The type of the Uniform variable.
 		GLenum type;
 
+		Uniform() = default;
+		Uniform(const GLchar* name) : name(name) {}
+
 		/// Compares the names lexicographically.
-		inline bool operator <  (const Uniform& other) const 
-			noexcept
+		inline bool operator <  (const Uniform& other) const noexcept
 		{
 			return name < other.name;
 		}
 		
 		/// Compares the names lexicographically.
-		inline bool operator >= (const Uniform& other) const 
-			noexcept
+		inline bool operator >= (const Uniform& other) const noexcept
 		{
 			return !operator<(other); 
 		}
 
 		/// Compares the names lexicographically.
-		inline bool operator >  (const Uniform& other) const 
-			noexcept
+		inline bool operator >  (const Uniform& other) const noexcept
 		{
 			return name > other.name;
 		}
 
 		/// Compares the names lexicographically.
-		inline bool operator <= (const Uniform& other) const 
-			noexcept
+		inline bool operator <= (const Uniform& other) const noexcept
 		{
 			return !operator>(other);
+		}
+
+		inline bool operator == (const Uniform& other) const noexcept
+		{
+			return name == other.name;
+		}
+
+		inline bool operator != (const Uniform& other) const noexcept
+		{
+			return !operator==(other);
 		}
 	};
 
@@ -145,7 +154,10 @@ protected:
 
 private:
 
+	void initUniforms();
+
 	GLuint mHandle;
+	std::vector<Uniform> mUniforms;
 
 protected:
 
