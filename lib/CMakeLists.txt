@@ -91,7 +91,9 @@ set(gintonic_source_files
 	Math/SQT.cpp
 	Math/vec4f.cpp
 	Math/box3f.cpp
+	Asset.cpp
 	Camera.cpp
+	Component.cpp
 	FbxImporter.cpp
 	gintonic.cpp
 	Entity.cpp

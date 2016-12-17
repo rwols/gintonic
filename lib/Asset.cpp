@@ -4,6 +4,11 @@
 
 using namespace gintonic;
 
+std::string Asset::sAssetFolder = std::string();
+
+std::unordered_map<std::string, std::weak_ptr<Asset>> sAssetMap 
+	= std::unordered_map<std::string, std::weak_ptr<Asset>>();
+
 Asset::Asset(const std::string& relativeFilename) 
 : mName(relativeFilename)
 {

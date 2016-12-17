@@ -26,4 +26,7 @@ BOOST_AUTO_TEST_CASE( parents_and_children )
 	BOOST_CHECK(lUpperEnt == lEnt1);
 	BOOST_CHECK(lEnt4->parent().lock()->parent().lock()->parent().lock() == lEnt1);
 	BOOST_CHECK(lEnt4->parent().lock()->parent().lock()->parent().lock().get() == lEnt1.get());
+
+	auto comp = lEnt1->add<Component>();
+	BOOST_CHECK_EQUAL(&comp->getEntity(), lEnt1.get());
 }
