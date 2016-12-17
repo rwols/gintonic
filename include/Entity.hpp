@@ -46,6 +46,8 @@ public:
 
 private:
 
+	std::vector<std::unique_ptr<Component>> mComponents;
+
 	SQT mLocalTransform;
 	mat4f mGlobalTransform;
 
