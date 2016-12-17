@@ -31,25 +31,65 @@ public:
 	Asset& operator = (const Asset&) = delete;
 	Asset& operator = (Asset&&)      = delete;
 
+
+	/**
+	 * @brief      The name of this Asset.
+	 *
+	 * @return     The name of this Asset.
+	 */
 	inline const std::string& name() const noexcept
 	{
 		return mName;
 	}
 
+
+	/**
+	 * @brief      Sets the global absolute asset folder.
+	 *
+	 * @param[in]  folder      The absolute path to the asset folder.
+	 *
+	 * @tparam     StringType  A string-like type that is convertible to 
+	 *                         std::string.
+	 */
 	template <class StringType>
 	inline static void setAssetFolder(StringType&& folder)
 	{
 		sAssetFolder = std::forward<StringType>(folder);
 	}
 
+	/**
+	 * @brief      Gets the asset folder.
+	 *
+	 * @return     The asset folder.
+	 */
 	inline static const std::string& getAssetFolder() noexcept
 	{
 		return sAssetFolder;
 	}
 
+	/**
+	 * @brief      Request a new Asset of type DerivedType with the given name.
+	 *             If no such asset exists, nullptr is returned.
+	 *
+	 * @param[in]  name         The name of the asset, not including the prefix
+	 *                          folder nor including the extension. That is all
+	 *                          handled implicitly.
+	 *
+	 * @tparam     DerivedType  The type of the Asset (e.g. Material)
+	 * @tparam     StringType   A string-like type that is convertible to
+	 *                          std::string. Automatically deduced.
+	 *
+	 * @return     A shared pointer to the asset, or nullptr if something went
+	 *             wrong.
+	 */
 	template <class DerivedType, class StringType>
-	static std::shared_ptr<DerivedType> request(StringType&& relativeFilename);
+	static std::shared_ptr<DerivedType> request(StringType&& name);
 
+	/**
+	 * @brief      The absolute path for this asset.
+	 *
+	 * @return     The absolute path for this asset.
+	 */
 	virtual std::string absolutePath() const noexcept = 0;
 
 	static std::string getFullPathFor(const char* relativeFilename);
@@ -70,7 +110,7 @@ protected:
 	Asset(const char* relativeFilename);
 
 	template <class StringType>
-	inline void setRelativeFilename(StringType&& relativeFilename)
+	inline void setName(StringType&& relativeFilename)
 	{
 		mName = std::forward<StringType>(relativeFilename);
 	}
