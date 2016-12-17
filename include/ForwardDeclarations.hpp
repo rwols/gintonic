@@ -82,5 +82,6 @@ class FlatTextShaderProgram;
 class Entity;
 class FbxImporter;
 class Camera;
+class Component;
 
 } // namespace gintonic
