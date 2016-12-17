@@ -7,6 +7,7 @@
 #pragma once
 
 #include "ForwardDeclarations.hpp"
+#include "Component.hpp"
 
 #include "Foundation/Object.hpp"
 
@@ -58,6 +59,50 @@ private:
 	void updateGlobalInfo() noexcept;
 
 public:
+
+	template <class TComp> TComp* get() noexcept
+	{
+		for (auto& comp : mComponents)
+		{
+			if (auto* ptr = dynamic_cast<TComp*>(comp.get()))
+			{
+				return ptr;
+			}
+		}
+		return nullptr;
+	}
+
+	template <class TComp> const TComp* get() const noexcept
+	{
+		for (const auto& comp : mComponents)
+		{
+			if (const auto* ptr = dynamic_cast<TComp*>(comp.get()))
+			{
+				return ptr;
+			}
+		}
+		return nullptr;
+	}
+
+	template <class TComp> TComp* add()
+	{
+		auto comp = new TComp(*this);
+		mComponents.emplace_back(comp);
+		return comp;
+	}
+
+	template <class TComp> bool remove()
+	{
+		for (auto iter = mComponents.begin(); iter != mComponents.end(); ++iter)
+		{
+			if (dynamic_cast<TComp*>(iter->get()))
+			{
+				mComponents.erase(iter);
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * @name Constructors and destructor
