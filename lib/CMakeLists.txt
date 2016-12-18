@@ -109,7 +109,7 @@ set_source_files_properties(${lua_source_files} PROPERTIES LANGUAGE CXX)
 set(gintonic_SSE_VERSION 30 CACHE STRING "The SSE version.")
 option(gintonic_WITH_PROFILING "Profile various math functions." OFF)
 option(gintonic_WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
-if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	option(gintonic_ENABLE_DEBUG_TRACE 
 		"Enable debug tracing via the renderer." ON)
 else ()
