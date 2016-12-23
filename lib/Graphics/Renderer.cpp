@@ -25,7 +25,9 @@
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif // __clang__
 #include "SDL.h"
+#ifdef __clang__
 #pragma clang diagnostic pop
 #endif // __clang__
 
