@@ -54,11 +54,11 @@ public:
 		const char* what() const noexcept override { return "UnknownImageFormatException"; }
 	};
 
-	template <class ...Args>
-	inline static SharedPtr create(Args&&... args)
-	{
-		return SharedPtr(new Texture2D(std::forward<Args>(args)...));
-	}
+	// template <class ...Args>
+	// inline static SharedPtr create(Args&&... args)
+	// {
+	// 	return SharedPtr(new Texture2D(std::forward<Args>(args)...));
+	// }
 
 	struct ImageLoadOptions
 	{
