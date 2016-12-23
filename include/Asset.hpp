@@ -37,7 +37,7 @@ public:
 	 *
 	 * @return     The name of this Asset.
 	 */
-	inline const std::string& name() const noexcept
+	inline const std::string& shortName() const noexcept
 	{
 		return mName;
 	}
@@ -203,8 +203,8 @@ public:                                                                        \
     static const char* prefixFolder() { return prefix_folder_string; }         \
     std::string absolutePath() const noexcept override                         \
     {                                                                          \
-        return Asset::getAssetFolder() + "/" + std::to_string(prefixFolder()) +\
-            "/" + name() + extension();                                        \
+        return Asset::getAssetFolder() + "/" + std::string(prefixFolder()) +   \
+            "/" + shortName() + extension();                                   \
     }                                                                          \
     void saveToDisk() const { saveToDiskInternal<class_name>(); }              \
     class_name(const char* name) : Asset(name) {}                              \

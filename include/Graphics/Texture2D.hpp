@@ -8,6 +8,8 @@
 
 #include "config.hpp"
 
+#include "Asset.hpp"
+
 #include "Foundation/filesystem.hpp"
 #include "Foundation/Object.hpp"
 
@@ -22,8 +24,12 @@ namespace gintonic {
 /**
  * @brief Simple two-dimensional texture. You can bind it to a texture unit.
  */
-class Texture2D : public Object<Texture2D, boost::filesystem::path>
+class Texture2D 
+: public Object<Texture2D, boost::filesystem::path>
+, public Asset
 {
+	GINTONIC_ASSET(Texture2D, "textures", ".tex")
+
 public:
 
 	/**
