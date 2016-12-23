@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# TODO: install these:
+# libasound2-dev libdbus-1-dev libdrm-dev libegl1-mesa-dev libgl1-mesa-dev libgles2-mesa-dev libglib2.0-dev libglu1-mesa-dev libice-dev libmirclient-dev libmircommon-dev libmircookie-dev libmircookie2 libpcre3-dev libpcre32-3 libpcrecpp0v5 libprotobuf-dev libpulse-dev libsm-dev libsndio-dev libudev-dev libwayland-dev libx11-xcb-dev libxcb-dri2-0-dev libxcb-glx0-dev libxcb-present-dev libxcb-randr0-dev libxcb-render0-dev libxcb-shape0-dev libxcb-sync-dev libxcb-xfixes0-dev libxcursor-dev libxdamage-dev libxext-dev libxfixes-dev libxi-dev libxinerama-dev libxkbcommon-dev libxrandr-dev libxrender-dev libxshmfence-dev libxss-dev libxt-dev libxv-dev libxxf86vm-dev mesa-common-dev x11proto-damage-dev x11proto-dri2-dev x11proto-fixes-dev x11proto-gl-dev x11proto-randr-dev x11proto-render-dev x11proto-scrnsaver-dev x11proto-video-dev x11proto-xext-dev x11proto-xf86vidmode-dev x11proto-xinerama-dev
+
+# TODO: Turn this into a python script
+
 SUCCESS=0
 PACKAGE_MANAGER_FAILED=1
 FBX_INSTALLATION_FAILED=2
