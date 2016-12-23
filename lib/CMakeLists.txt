@@ -54,7 +54,6 @@ set(gintonic_source_files
 	Graphics/AmbientLight.cpp
 	Graphics/Renderer.cpp
 	Graphics/GUI/Base.cpp
-	Graphics/GUI/ConsoleView.cpp
 	Graphics/GUI/Panel.cpp
 	Graphics/GUI/StringView.cpp
 	Graphics/GUI/StringPointerView.cpp
@@ -77,7 +76,6 @@ set(gintonic_source_files
 	Foundation/Profiler.cpp
 	Foundation/WriteLock.cpp
 	Foundation/simd.cpp
-	Foundation/Console.cpp
 	Foundation/filesystem.cpp
 	Foundation/Octree.cpp
 	Math/vec3f.cpp

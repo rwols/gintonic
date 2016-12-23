@@ -1,5 +1,4 @@
 #include "Common/Application.hpp"
-#include "Foundation/Console.hpp"
 #include <iomanip>
 
 #define APPNAME "DirectionalLight"

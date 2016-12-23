@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include "Foundation/Console.hpp"
 #include "Foundation/scancodes.hpp"
 #include "Foundation/exception.hpp"
 #include "Foundation/Octree.hpp"

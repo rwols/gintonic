@@ -17,8 +17,8 @@ public:
 	virtual void update() {}
 	virtual void lateUpdate() {}
 
-	inline       Entity& getEntity()       noexcept { return *mHolder; }
-	inline const Entity& getEntity() const noexcept { return *mHolder; }
+	inline       Entity& entity()       noexcept { return *mHolder; }
+	inline const Entity& entity() const noexcept { return *mHolder; }
 
 private:
 	Component() = default;

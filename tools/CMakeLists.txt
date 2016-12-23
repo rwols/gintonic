@@ -46,8 +46,6 @@ function(add_gintonic_tool tool_name)
 	endif (add_gintonic_tool_ASSETS)
 endfunction(add_gintonic_tool)
 
-add_gintonic_tool(ConsoleTest SOURCES ConsoleTest.cpp)
 add_gintonic_tool(DriverInfo SOURCES DriverInfo.cpp)
 add_gintonic_tool(FbxConverter SOURCES FbxConverter.cpp 
 	ASSETS Inconsolata-Regular.ttf)
-add_gintonic_tool(LuaTest SOURCES LuaTest.cpp)

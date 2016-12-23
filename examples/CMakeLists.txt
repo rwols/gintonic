@@ -53,10 +53,6 @@ add_example(BasicShapes
 	SOURCES BasicShapes.cpp 
 	ASSETS ${systemFont} ${catTexture})
 
-add_example(Console 
-	SOURCES Console.cpp 
-	ASSETS ${systemFont})
-
 add_example(DirectionalLight 
 	SOURCES DirectionalLight.cpp 
 	ASSETS ${systemFont} ${ruralBrickWallTextures})
