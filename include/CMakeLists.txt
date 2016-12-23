@@ -56,7 +56,6 @@ set(gintonic_header_files
 	${CMAKE_CURRENT_SOURCE_DIR}/Graphics/Font.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Graphics/GUI/Base.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Graphics/GUI/StringView.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Graphics/GUI/ConsoleView.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Graphics/GUI/StringPointerView.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Graphics/GUI/Panel.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Graphics/Texture2D.hpp
@@ -72,7 +71,6 @@ set(gintonic_header_files
 	${CMAKE_CURRENT_SOURCE_DIR}/Foundation/filesystem.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Foundation/Profiler.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Foundation/WeakPointerCache.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Foundation/Console.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Foundation/Reflection.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Foundation/scancodes.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Foundation/flyweights.hpp
@@ -101,7 +99,6 @@ set(gintonic_header_files
 	${CMAKE_CURRENT_SOURCE_DIR}/Math/SQT.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Math/mat3f.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Math/Interpolator.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/luabindings.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/EntityVisitor.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Entity.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Camera.hpp

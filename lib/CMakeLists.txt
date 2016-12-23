@@ -70,7 +70,6 @@ set(gintonic_source_files
 	Graphics/ShaderPrograms.cpp
 	Graphics/DirectionalShadowBuffer.cpp
 	EntityVisitor.cpp
-	luabindings.cpp
 	Foundation/ReadWriteLock.cpp
 	Foundation/exception.cpp
 	Foundation/Profiler.cpp

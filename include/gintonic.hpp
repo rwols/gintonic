@@ -28,7 +28,6 @@
 #include "EntityVisitor.hpp"
 #include "Camera.hpp"
 #include "FbxImporter.hpp"
-#include "luabindings.hpp"
 
 namespace gintonic {
 
