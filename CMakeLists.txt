@@ -30,7 +30,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 		Gintonic source code and call CMake from there.")
 endif()
 
-project(Gintonic VERSION 0.1 LANGUAGES C CXX)
+project(Gintonic VERSION 0.1 LANGUAGES CXX)
 
 set(gintonic_WE_ARE_ROOT OFF CACHE INTERNAL "")
 

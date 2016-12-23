@@ -160,3 +160,17 @@ find_package_handle_standard_args(FBX
     FOUND_VAR FBX_FOUND 
     REQUIRED_VARS FBX_LIBRARIES FBX_INCLUDE_DIRS 
     VERSION_VAR FBX_VERSION)
+
+if (FBX_FOUND)
+    add_library(FBX INTERFACE)
+    if (WIN32)
+        target_compile_definitions(FBX INTERFACE FBX_SHARED)
+    endif ()
+    target_include_directories(FBX INTERFACE ${FBX_INCLUDE_DIRS})
+    target_link_libraries(FBX INTERFACE ${FBX_LIBRARIES})
+endif ()
+
+mark_as_advanced(FBX_FOUND)
+mark_as_advanced(FBX_VERSION)
+mark_as_advanced(FBX_INCLUDE_DIRS)
+mark_as_advanced(FBX_LIBRARIES)
