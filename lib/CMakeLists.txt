@@ -188,7 +188,6 @@ target_include_directories(gintonic PUBLIC
 	freetype2/include
 	${Boost_INCLUDE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR} # For the config file
-	../include/${lua_src_dir} # For Lua
 	SDL-mirror/include
 	)
 
