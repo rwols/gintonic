@@ -22,14 +22,14 @@
 #include "Entity.hpp"
 #include "EntityVisitor.hpp"
 
-#include <iostream>
-
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#include <SDL.h>
+#include "SDL.h"
 #pragma clang diagnostic pop
 #endif // __clang__
+
+#include <iostream>
 
 #ifdef BOOST_MSVC
 	#include <Objbase.h> // for CoInitializeEx

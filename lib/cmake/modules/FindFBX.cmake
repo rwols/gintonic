@@ -98,11 +98,18 @@ endif (WIN32)
 list(APPEND search_paths "${FBX_ROOT}")
 list(APPEND search_paths "$ENV{FBX_ROOT}")
 
-foreach (search_path_prefix ${search_path_prefixes})
-    foreach (version ${versions})
-        list(APPEND search_paths "${search_path_prefix}/${version}")
-    endforeach (version)
-endforeach (search_path_prefix)
+if (APPLE OR WIN32)
+    foreach (search_path_prefix ${search_path_prefixes})
+        foreach (version ${versions})
+            list(APPEND search_paths "${search_path_prefix}/${version}")
+        endforeach (version)
+    endforeach (search_path_prefix)
+else ()
+    message(STATUS "${search_path_prefixes}")
+    foreach (search_path_prefix ${search_path_prefixes})
+        list(APPEND search_paths "${search_path_prefix}")
+    endforeach (search_path_prefix)
+endif ()
 
 find_path(FBX_INCLUDE_DIRS 
     NAMES fbxsdk.h
