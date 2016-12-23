@@ -42,6 +42,12 @@ public:
 		return mName;
 	}
 
+	template <class StringType>
+	inline void setName(StringType&& relativeFilename)
+	{
+		mName = std::forward<StringType>(relativeFilename);
+	}
+
 
 	/**
 	 * @brief      Sets the global absolute asset folder.
@@ -108,12 +114,6 @@ protected:
 	Asset(const std::string& relativeFilename);
 	Asset(std::string&& relativeFilename);
 	Asset(const char* relativeFilename);
-
-	template <class StringType>
-	inline void setName(StringType&& relativeFilename)
-	{
-		mName = std::forward<StringType>(relativeFilename);
-	}
 
 	std::string getFullPath() const;
 	std::ifstream openForReading() const;

@@ -6,8 +6,21 @@
 
 namespace gintonic {
 
-Texture2D::Texture2D(const FbxTexture* pFbxTexture)
+std::shared_ptr<Texture2D> Texture2D::fromImage(const ImageLoadOptions& options)
 {
+	using namespace boost::filesystem;
+	path p(Asset::getAssetFolder() / path(options.relativeFilename));
+	auto tex = std::make_shared<Texture2D>(p.stem().string());
+	if (tex)
+	{
+		tex->loadFromFile(p);
+	}
+	return tex;
+}
+
+std::shared_ptr<Texture2D> Texture2D::fromFbxTexture(const FbxTexture* pFbxTexture)
+{
+	using namespace boost::filesystem;
 	const auto pFbxFileTexture = FbxCast<FbxFileTexture>(pFbxTexture);
 	if (!pFbxFileTexture)
 	{
@@ -15,9 +28,12 @@ Texture2D::Texture2D(const FbxTexture* pFbxTexture)
 		lException.append(" is not a file texture.");
 		throw lException;
 	}
+	path p(pFbxFileTexture->GetFileName());
+	auto tex = std::make_shared<Texture2D>(p.stem().string());
+	if (!tex) return nullptr;
 	try
 	{
-		loadFromFile(pFbxFileTexture->GetFileName());	
+		tex->loadFromFile(p);
 	}
 	catch (const std::exception& /*lException*/)
 	{
@@ -27,24 +43,24 @@ Texture2D::Texture2D(const FbxTexture* pFbxTexture)
 		// we go home.
 
 		// Sometimes this actually works.
-		
 		auto lFilename = boost::filesystem::path(
 			pFbxTexture->GetScene()->GetSceneInfo()->Url.Get().Buffer()).parent_path() 
 			/ pFbxFileTexture->GetFileName();
 
-		loadFromFile(std::move(lFilename));
+		tex->setName(lFilename.stem().string());
+		tex->loadFromFile(std::move(lFilename));
 	}
-
+	return tex;
 }
 
-Texture2D::Texture2D(const char* pathToImageFile) : Texture2D(boost::filesystem::path(pathToImageFile)) {}
+// Texture2D::Texture2D(const char* pathToImageFile) : Texture2D(boost::filesystem::path(pathToImageFile)) {}
 
-Texture2D::Texture2D(const std::string& pathToImageFile) : Texture2D(boost::filesystem::path(pathToImageFile)) {}
+// Texture2D::Texture2D(const std::string& pathToImageFile) : Texture2D(boost::filesystem::path(pathToImageFile)) {}
 
-Texture2D::Texture2D(boost::filesystem::path pathToImageFile)
-{
-	loadFromFile(std::move(pathToImageFile));
-}
+// Texture2D::Texture2D(boost::filesystem::path pathToImageFile)
+// {
+// 	loadFromFile(std::move(pathToImageFile));
+// }
 
 void Texture2D::bind(const GLint textureUnit) const noexcept
 {
