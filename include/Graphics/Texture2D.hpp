@@ -8,19 +8,14 @@
 
 #include "config.hpp"
 
-#include "../Foundation/filesystem.hpp"
-#include "../Foundation/Object.hpp"
+#include "Foundation/filesystem.hpp"
+#include "Foundation/Object.hpp"
 
 #include "OpenGL/TextureObject.hpp"
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/base_object.hpp>
-
-// namespace FBX
-// {
-// 	class FbxTexture; // Forward declaration.
-// }
 
 namespace gintonic {
 
