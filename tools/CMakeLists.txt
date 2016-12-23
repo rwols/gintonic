@@ -9,6 +9,18 @@
 #
 #*******************************************************************************
 
+file(GLOB directories
+	LIST_DIRECTORIES ON
+	RELATIVE "${CMAKE_CURRENT_LIST_DIR}"
+	*)
+
+foreach(directory "${directories}")
+	if(IS_DIRECTORY "${directory}" AND EXISTS "${directory}/CMakeLists.txt")
+		add_subdirectory("${directory}")
+	endif()
+endforeach()
+
+# TODO: Remove all this and do it "llvm-style"
 function(add_gintonic_tool tool_name)
 	set(options "")
 	set(oneValueArgs "")

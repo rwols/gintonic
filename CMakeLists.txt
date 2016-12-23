@@ -22,7 +22,7 @@
 #
 #*******************************************************************************
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.3)
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 	message(FATAL_ERROR "Prevented in-source build. \
@@ -30,9 +30,9 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
 		Gintonic source code and call CMake from there.")
 endif()
 
-project(Gintonic VERSION 0.1 LANGUAGES CXX)
+project(Gintonic VERSION 0.1 LANGUAGES C CXX)
 
-set(gintonic_MASTER_PROJECT OFF)
+set(gintonic_WE_ARE_ROOT OFF CACHE INTERNAL "")
 
 # If the current source directory equals the root source directory, then we're
 # building gintonic as a "master" project. Otherwise, we must have been included
@@ -40,7 +40,7 @@ set(gintonic_MASTER_PROJECT OFF)
 # the case, we disable a few options by default like unit tests, examples, and
 # tools. They can be enabled again though, if so desired.
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-	set(gintonic_MASTER_PROJECT ON)
+	set(gintonic_WE_ARE_ROOT ON CACHE INTERNAL "")
 	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 	if (NOT CMAKE_BUILD_TYPE)
 		set(CMAKE_BUILD_TYPE Debug CACHE STRING 
@@ -48,23 +48,28 @@ if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 		set(BUILD_SHARED_LIBS ON CACHE BOOL 
 			"Wether to build shared or static libraries.")
 	endif()
+	if (CMAKE_BUILD_TYPE STREQUAL Release)
+		set(CMAKE_C_VISIBILITY_PRESET hidden CACHE INTERNAL "")
+		set(CMAKE_CXX_VISIBILITY_PRESET hidden CACHE INTERNAL "")
+		set(CMAKE_VISIBILITY_INLINES_HIDDEN 1 CACHE INTERNAL "")
+	endif()
 endif()
 
 option(gintonic_BUILD_UNIT_TESTS 
-	"Wether to build the unit tests." ${gintonic_MASTER_PROJECT})
+	"Wether to build the unit tests." ${gintonic_WE_ARE_ROOT})
 option(gintonic_BUILD_EXAMPLES 
-	"Wether to build the examples." ${gintonic_MASTER_PROJECT})
+	"Wether to build the examples." ${gintonic_WE_ARE_ROOT})
 option(gintonic_BUILD_TOOLS 
-	"Wether to build the tools." ${gintonic_MASTER_PROJECT})
+	"Wether to build the tools." ${gintonic_WE_ARE_ROOT})
 
 add_subdirectory(Resources)
 add_subdirectory(include)
 add_subdirectory(lib)
 
 if (gintonic_BUILD_UNIT_TESTS)
-	if (gintonic_MASTER_PROJECT)
+	if (gintonic_WE_ARE_ROOT)
 		enable_testing()
-	endif (gintonic_MASTER_PROJECT)
+	endif (gintonic_WE_ARE_ROOT)
 	add_subdirectory(test)
 endif (gintonic_BUILD_UNIT_TESTS)
 
@@ -76,7 +81,7 @@ if (gintonic_BUILD_EXAMPLES)
 	add_subdirectory(examples)
 endif (gintonic_BUILD_EXAMPLES)
 
-if (gintonic_MASTER_PROJECT)
+if (gintonic_WE_ARE_ROOT)
 	include(InstallRequiredSystemLibraries)
 	set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Game Engine")
 	set(CPACK_PACKAGE_VENDOR "Raoul Wols")
@@ -104,4 +109,4 @@ if (gintonic_MASTER_PROJECT)
 	endif (WIN32 AND NOT UNIX)
 	# set(CPACK_PACKAGE_EXECUTABLES "MyExecutable" "My Executable")
 	include(CPack)
-endif (gintonic_MASTER_PROJECT)
+endif (gintonic_WE_ARE_ROOT)

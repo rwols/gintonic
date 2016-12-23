@@ -1,34 +1,227 @@
 {
-	"cmake":
-	{
-		"build_folder": "${project_path}/build"
-	},
-    "folders":
-    [
-    	{
-        	"path": "."
-        }
-    ],
-	"settings":
-	{
-		"flags_sources": 
-		[
-			{ "file": "compile_commands.json", "search_in": "/home/raoul/dev/gintonic/build" }
-		],
-		"tab_size": 4
-	},
 	"build_systems":
 	[
 		{
-			"name": "Gintonic",
-			"working_dir": "${project_path}/build",
-			"shell_cmd": "cmake --build .",
-			"file_regex": "^(/.[^:]*):(\\d+):(\\d+): error: (.*)$",
-			"selector": "source.c++",
-			"windows":
-			{
-				"file_regex": "^\\s*(.+?)\\(([0-9]+),?([0-9]+)?\\):\\s*(.*) \\["
-			}
+			"file_regex": "^(/.[^:]*):(\\d+):(\\d+): (?:fatal )?(?:error|warning): (.*)$",
+			"name": "gintonic",
+			"shell_cmd": "make -j4",
+			"variants":
+			[
+				{
+					"name": "clean",
+					"shell_cmd": "make clean -j4"
+				},
+				{
+					"name": "install/strip",
+					"shell_cmd": "make install/strip -j4"
+				},
+				{
+					"name": "install",
+					"shell_cmd": "make install -j4"
+				},
+				{
+					"name": "list_install_components",
+					"shell_cmd": "make list_install_components -j4"
+				},
+				{
+					"name": "install/local",
+					"shell_cmd": "make install/local -j4"
+				},
+				{
+					"name": "test",
+					"shell_cmd": "make test -j4"
+				},
+				{
+					"name": "package_source",
+					"shell_cmd": "make package_source -j4"
+				},
+				{
+					"name": "rebuild_cache",
+					"shell_cmd": "make rebuild_cache -j4"
+				},
+				{
+					"name": "package",
+					"shell_cmd": "make package -j4"
+				},
+				{
+					"name": "gintonic",
+					"shell_cmd": "make gintonic -j4"
+				},
+				{
+					"name": "glad",
+					"shell_cmd": "make glad -j4"
+				},
+				{
+					"name": "SDL2main",
+					"shell_cmd": "make SDL2main -j4"
+				},
+				{
+					"name": "uninstall",
+					"shell_cmd": "make uninstall -j4"
+				},
+				{
+					"name": "SDL2",
+					"shell_cmd": "make SDL2 -j4"
+				},
+				{
+					"name": "dist",
+					"shell_cmd": "make dist -j4"
+				},
+				{
+					"name": "freetype",
+					"shell_cmd": "make freetype -j4"
+				},
+				{
+					"name": "box3f",
+					"shell_cmd": "make box3f -j4"
+				},
+				{
+					"name": "vec4f",
+					"shell_cmd": "make vec4f -j4"
+				},
+				{
+					"name": "Entity",
+					"shell_cmd": "make Entity -j4"
+				},
+				{
+					"name": "vec2f",
+					"shell_cmd": "make vec2f -j4"
+				},
+				{
+					"name": "vec3f",
+					"shell_cmd": "make vec3f -j4"
+				},
+				{
+					"name": "quatf",
+					"shell_cmd": "make quatf -j4"
+				},
+				{
+					"name": "Reflection",
+					"shell_cmd": "make Reflection -j4"
+				},
+				{
+					"name": "mat3f",
+					"shell_cmd": "make mat3f -j4"
+				},
+				{
+					"name": "OctreeTest",
+					"shell_cmd": "make OctreeTest -j4"
+				},
+				{
+					"name": "SimdTest",
+					"shell_cmd": "make SimdTest -j4"
+				},
+				{
+					"name": "mat4f",
+					"shell_cmd": "make mat4f -j4"
+				},
+				{
+					"name": "mat2f",
+					"shell_cmd": "make mat2f -j4"
+				},
+				{
+					"name": "SerializationOfLights",
+					"shell_cmd": "make SerializationOfLights -j4"
+				},
+				{
+					"name": "SQT",
+					"shell_cmd": "make SQT -j4"
+				},
+				{
+					"name": "box2f",
+					"shell_cmd": "make box2f -j4"
+				},
+				{
+					"name": "materials",
+					"shell_cmd": "make materials -j4"
+				},
+				{
+					"name": "DriverInfo",
+					"shell_cmd": "make DriverInfo -j4"
+				},
+				{
+					"name": "LuaTest",
+					"shell_cmd": "make LuaTest -j4"
+				},
+				{
+					"name": "FbxConverter",
+					"shell_cmd": "make FbxConverter -j4"
+				},
+				{
+					"name": "ConsoleTest",
+					"shell_cmd": "make ConsoleTest -j4"
+				},
+				{
+					"name": "TexturedCube",
+					"shell_cmd": "make TexturedCube -j4"
+				},
+				{
+					"name": "PointLights",
+					"shell_cmd": "make PointLights -j4"
+				},
+				{
+					"name": "OrthographicProjection",
+					"shell_cmd": "make OrthographicProjection -j4"
+				},
+				{
+					"name": "Octree",
+					"shell_cmd": "make Octree -j4"
+				},
+				{
+					"name": "SpotLights",
+					"shell_cmd": "make SpotLights -j4"
+				},
+				{
+					"name": "BasicShapes",
+					"shell_cmd": "make BasicShapes -j4"
+				},
+				{
+					"name": "FbxViewer",
+					"shell_cmd": "make FbxViewer -j4"
+				},
+				{
+					"name": "DirectionalLight",
+					"shell_cmd": "make DirectionalLight -j4"
+				},
+				{
+					"name": "Console",
+					"shell_cmd": "make Console -j4"
+				},
+				{
+					"name": "HelloWorldText",
+					"shell_cmd": "make HelloWorldText -j4"
+				},
+				{
+					"name": "Shadows",
+					"shell_cmd": "make Shadows -j4"
+				},
+				{
+					"name": "Application",
+					"shell_cmd": "make Application -j4"
+				}
+			],
+			"working_dir": "${project_path}/../builds/gintonic/debug"
 		}
-	]
+	],
+	"cmake":
+	{
+		"build_folder": "${project_path}/../builds/gintonic/debug"
+	},
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"flags_sources":
+		[
+			{
+				"file": "compile_commands.json",
+				"search_in": "/home/raoul/dev/gintonic/build"
+			}
+		],
+		"tab_size": 4
+	}
 }
