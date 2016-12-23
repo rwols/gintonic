@@ -205,7 +205,7 @@
 	],
 	"cmake":
 	{
-		"build_folder": "${project_path}/../builds/gintonic/debug"
+		"build_folder": "${project_path}/build"
 	},
 	"folders":
 	[
