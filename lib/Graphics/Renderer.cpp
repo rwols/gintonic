@@ -40,7 +40,7 @@
 #define NUM_SUBDIVISIONS 2
 #define PREFERRED_LINE_WIDTH 4
 
-#define FONT_FILE_LOCATION "Resources/Inconsolata-Regular.ttf"
+#define FONT_FILE_LOCATION "Resources/fonts/Inconsolata-Regular.ttf"
 
 #define HAS_DIFFUSE_TEXTURE         1
 #define HAS_SPECULAR_TEXTURE        2

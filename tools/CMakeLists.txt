@@ -48,4 +48,4 @@ endfunction(add_gintonic_tool)
 
 add_gintonic_tool(DriverInfo SOURCES DriverInfo.cpp)
 add_gintonic_tool(FbxConverter SOURCES FbxConverter.cpp 
-	ASSETS Inconsolata-Regular.ttf)
+	ASSETS fonts/Inconsolata-Regular.ttf)

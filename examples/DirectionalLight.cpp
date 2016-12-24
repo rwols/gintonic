@@ -19,9 +19,13 @@ public:
 		mCubeEntity->material->name = "RuralBrickWall";
 		mCubeEntity->material->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
 		mCubeEntity->material->specularColor = vec4f(1.0f, 1.0f, 1.0f, 20.0f);
-		mCubeEntity->material->diffuseTexture = Texture2D::create("Resources/RuralBrickWall.jpg");
-		mCubeEntity->material->specularTexture = Texture2D::create("Resources/RuralBrickWall_SPEC.png");
-		mCubeEntity->material->normalTexture = Texture2D::create("Resources/RuralBrickWall_NRM.png");
+		Texture2D::ImageLoadOptions imageOptions;
+		imageOptions.relativeFilename = "Resources/images/RuralBrickWall.jpg";
+		mCubeEntity->material->diffuseTexture = Texture2D::fromImage(imageOptions);
+		imageOptions.relativeFilename = "Resources/images/RuralBrickWall_SPEC.png";
+		mCubeEntity->material->specularTexture = Texture2D::fromImage(imageOptions);
+		imageOptions.relativeFilename = "Resources/images/RuralBrickWall_NRM.png";
+		mCubeEntity->material->normalTexture = Texture2D::fromImage(imageOptions);
 		mCubeEntity->mesh = Renderer::getUnitCubeWithTangents();
 
 		Renderer::getCameraEntity()->setTranslation(vec3f(2.0f, 1.0f, 4.0f));

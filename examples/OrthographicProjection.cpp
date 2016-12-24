@@ -25,7 +25,9 @@ public:
 		Renderer::setFreeformCursor(true);
 		Renderer::show();
 
-		auto lTexture = Texture2D::create("Resources/DaVinci.jpg");
+		Texture2D::ImageLoadOptions imageOpts;
+		imageOpts.relativeFilename = "Resources/images/DaVinci.jpg";
+		auto lTexture = Texture2D::fromImage(imageOpts);
 		auto lMaterial = Material::create();
 		lMaterial->name = "DaVinci";
 		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.0f);

@@ -43,11 +43,18 @@ function(add_example example_name)
 		ASSETS ${add_example_ASSETS})
 endfunction()
 
-set(systemFont Inconsolata-Regular.ttf)
-set(catTexture DaVinci.jpg)
-set(ruralBrickWallTextures RuralBrickWall.jpg RuralBrickWall_SPEC.png 
-	RuralBrickWall_NRM.png)
-set(bricksTextures bricks.jpg bricks_SPEC.png bricks_NRM.png)
+set(systemFont fonts/Inconsolata-Regular.ttf)
+set(catTexture images/DaVinci.jpg)
+
+set(ruralBrickWallTextures 
+	images/RuralBrickWall.jpg 
+	images/RuralBrickWall_SPEC.png 
+	images/RuralBrickWall_NRM.png)
+
+set(bricksTextures 
+	images/bricks.jpg 
+	images/bricks_SPEC.png 
+	images/bricks_NRM.png)
 
 add_example(BasicShapes 
 	SOURCES BasicShapes.cpp 

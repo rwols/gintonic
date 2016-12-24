@@ -152,10 +152,15 @@ private:
 		lTransform.scale = 1.0f;
 		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 
-		auto lDaVinciTexture       = Texture2D::create("Resources/DaVinci.jpg");
-		auto lBrickDiffuseTexture  = Texture2D::create("Resources/bricks.jpg");
-		auto lBrickSpecularTexture = Texture2D::create("Resources/bricks_SPEC.png");
-		auto lBrickNormalTexture   = Texture2D::create("Resources/bricks_NRM.png");
+		Texture2D::ImageLoadOptions imageOpts;
+		imageOpts.relativeFilename = "Resources/images/DaVinci.jpg";
+		auto lDaVinciTexture       = Texture2D::fromImage(imageOpts);
+		imageOpts.relativeFilename = "Resources/images/bricks.jpg";
+		auto lBrickDiffuseTexture = Texture2D::fromImage(imageOpts);
+		imageOpts.relativeFilename = "Resources/bricks_SPEC.png";
+		auto lBrickSpecularTexture = Texture2D::fromImage(imageOpts);
+		imageOpts.relativeFilename = "Resources/bricks_NRM.png";		
+		auto lBrickNormalTexture   = Texture2D::fromImage(imageOpts);
 
 		auto lDaVinciMaterial            = Material::create();
 		lDaVinciMaterial->name           = "DaVinci";

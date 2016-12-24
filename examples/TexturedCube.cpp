@@ -15,7 +15,9 @@ public:
 		lMaterial->name = "RuralBrickWall";
 		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.0f);
 		lMaterial->specularColor = vec4f(1.0f, 1.0f, 1.0f, 8.0f);
-		lMaterial->diffuseTexture = Texture2D::create("Resources/RuralBrickWall.jpg");
+		Texture2D::ImageLoadOptions imageOpts;
+		imageOpts.relativeFilename = "Resources/images/RuralBrickWall.jpg";
+		lMaterial->diffuseTexture = Texture2D::fromImage(imageOpts);
 		mCubeEntity = Entity::create("Cube");
 		mCubeEntity->material = lMaterial;
 		mCubeEntity->mesh = Renderer::getUnitCube();

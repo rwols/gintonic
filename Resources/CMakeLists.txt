@@ -38,9 +38,14 @@ function(gintonic_target_depends_on_assets)
 			${targetAssetDir})
 
 	foreach (asset ${gintonic_target_depends_on_assets_ASSETS})
+		if (NOT EXISTS ${sourceAssetDir}/${asset})
+			message(FATAL_ERROR	 "While processing asset dependencies of target\
+ \"${gintonic_target_depends_on_assets_TARGET}\" it was determined that the \
+asset \"${sourceAssetDir}/${asset}\" does not exist.")
+		endif ()
 		list(APPEND args 
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-				${sourceAssetDir}/${asset} ${targetAssetDir})
+				${sourceAssetDir}/${asset} ${targetAssetDir}/${asset})
 	endforeach()
 
 	add_custom_command(
@@ -49,4 +54,4 @@ function(gintonic_target_depends_on_assets)
 
 endfunction()
 
-install(FILES Inconsolata-Regular.ttf DESTINATION assets)
+install(FILES fonts/Inconsolata-Regular.ttf DESTINATION assets/fonts)

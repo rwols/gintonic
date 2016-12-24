@@ -114,6 +114,7 @@ protected:
 	Asset(const std::string& relativeFilename);
 	Asset(std::string&& relativeFilename);
 	Asset(const char* relativeFilename);
+	Asset() = default;
 
 	std::string getFullPath() const;
 	std::ifstream openForReading() const;
@@ -184,8 +185,7 @@ template <class Archive>
 void Asset::serialize(Archive& ar, const unsigned /*version*/)
 {
 	GT_PROFILE_FUNCTION;
-	return;
-	// ar & BOOST_SERIALIZATION_NVP(mName);
+	ar & mName;
 }
 
 } // namespace gintonic
