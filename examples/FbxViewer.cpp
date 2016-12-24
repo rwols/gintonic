@@ -192,7 +192,7 @@ public:
 			mModel = lImporter.loadEntities();
 
 			// Serialize the model for caching
-			std::ofstream lOutput("Resources/" + mModel->name + ".entity", std::ios::binary);
+			std::ofstream lOutput("assets/" + mModel->name + ".entity", std::ios::binary);
 			OutputArchiveType lOutputArchive(lOutput);
 			lOutputArchive << mModel;
 		}

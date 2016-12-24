@@ -26,7 +26,7 @@ public:
 		Renderer::show();
 
 		Texture2D::ImageLoadOptions imageOpts;
-		imageOpts.relativeFilename = "Resources/images/DaVinci.jpg";
+		imageOpts.relativeFilename = "assets/images/DaVinci.jpg";
 		auto lTexture = Texture2D::fromImage(imageOpts);
 		auto lMaterial = Material::create();
 		lMaterial->name = "DaVinci";

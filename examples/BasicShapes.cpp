@@ -39,7 +39,7 @@ public:
 		lMaterial->diffuseColor   = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
 		lMaterial->specularColor  = vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 		Texture2D::ImageLoadOptions imageOptions;
-		imageOptions.relativeFilename = "Resources/images/DaVinci.jpg";
+		imageOptions.relativeFilename = "assets/images/DaVinci.jpg";
 		lMaterial->diffuseTexture = Texture2D::fromImage(imageOptions);
 
 		auto lGizmo = Renderer::createGizmo();

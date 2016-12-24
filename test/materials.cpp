@@ -48,9 +48,9 @@ BOOST_AUTO_TEST_CASE( catch_memory_leak )
 	(
 		vec4f(randf(), randf(), randf(), randf()),
 		vec4f(randf(), randf(), randf(), randf()),
-		"Resources/images/bricks.jpg", 
-		"Resources/images/bricks_SPEC.png", 
-		"Resources/images/bricks_NRM.png"
+		"assets/images/bricks.jpg", 
+		"assets/images/bricks_SPEC.png", 
+		"assets/images/bricks_NRM.png"
 	);
 }
 
@@ -68,9 +68,9 @@ BOOST_AUTO_TEST_CASE( serialization_of_materials )
 		(
 			vec4f(randf(), randf(), randf(), randf()),
 			vec4f(randf(), randf(), randf(), randf()),
-			"Resources/images/bricks.jpg", 
-			"Resources/images/bricks_SPEC.png", 
-			"Resources/images/bricks_NRM.png"
+			"assets/images/bricks.jpg", 
+			"assets/images/bricks_SPEC.png", 
+			"assets/images/bricks_NRM.png"
 		);
 		lMaterial->name = "JustSomeRandomMaterial";
 		{
@@ -113,9 +113,9 @@ BOOST_AUTO_TEST_CASE( reference_counting_of_textures )
 	std::vector<std::shared_ptr<Material>> materials;
 	{
 		auto mat1 = Material::create(diffcolor, speccolor, 
-			"Resources/images/bricks.jpg", 
-			"Resources/images/bricks_SPEC.png", 
-			"Resources/images/bricks_NRM.png");
+			"assets/images/bricks.jpg", 
+			"assets/images/bricks_SPEC.png", 
+			"assets/images/bricks_NRM.png");
 
 		materials.push_back(mat1);
 		{

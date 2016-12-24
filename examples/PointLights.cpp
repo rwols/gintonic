@@ -153,13 +153,13 @@ private:
 		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 
 		Texture2D::ImageLoadOptions imageOpts;
-		imageOpts.relativeFilename = "Resources/images/DaVinci.jpg";
+		imageOpts.relativeFilename = "assets/images/DaVinci.jpg";
 		auto lDaVinciTexture       = Texture2D::fromImage(imageOpts);
-		imageOpts.relativeFilename = "Resources/images/bricks.jpg";
+		imageOpts.relativeFilename = "assets/images/bricks.jpg";
 		auto lBrickDiffuseTexture = Texture2D::fromImage(imageOpts);
-		imageOpts.relativeFilename = "Resources/bricks_SPEC.png";
+		imageOpts.relativeFilename = "assets/images/bricks_SPEC.png";
 		auto lBrickSpecularTexture = Texture2D::fromImage(imageOpts);
-		imageOpts.relativeFilename = "Resources/bricks_NRM.png";		
+		imageOpts.relativeFilename = "assets/images/bricks_NRM.png";		
 		auto lBrickNormalTexture   = Texture2D::fromImage(imageOpts);
 
 		auto lDaVinciMaterial            = Material::create();
