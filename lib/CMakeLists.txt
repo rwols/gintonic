@@ -95,13 +95,6 @@ set(gintonic_source_files
 	Entity.cpp
 	)
 
-set(lua_src_dir lua-5.3.1/src)
-file(GLOB lua_source_files "${lua_src_dir}/*.c")
-list(REMOVE_ITEM lua_source_files 
-	"${CMAKE_CURRENT_SOURCE_DIR}/${lua_src_dir}/luac.c")
-set_source_files_properties(${lua_source_files} PROPERTIES LANGUAGE CXX)
-
-# file(GLOB_RECURSE gintonic_source_files "*.cpp")
 set(gintonic_SSE_VERSION 30 CACHE STRING "The SSE version.")
 option(gintonic_WITH_PROFILING "Profile various math functions." OFF)
 option(gintonic_WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
