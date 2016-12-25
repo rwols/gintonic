@@ -206,7 +206,7 @@ public:                                                                        \
         return Asset::getAssetFolder() + "/" + std::string(prefixFolder()) +   \
             "/" + shortName() + extension();                                   \
     }                                                                          \
-    void saveToDisk() const { saveToDiskInternal<class_name>(); }              \
+    void saveToDisk() const override { saveToDiskInternal<class_name>(); }     \
     class_name(const char* name) : Asset(name) {}                              \
     class_name(const std::string& name) : Asset(name) {}                       \
     class_name(std::string&& name) : Asset(std::move(name)) {}                 \
