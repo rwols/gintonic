@@ -39,6 +39,17 @@ set(gintonic_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL
 	"The directory containing implementation files.")
 
 set(gintonic_source_files
+
+	# Foundation
+	Foundation/ReadWriteLock.cpp
+	Foundation/exception.cpp
+	Foundation/Profiler.cpp
+	Foundation/WriteLock.cpp
+	Foundation/simd.cpp
+	Foundation/filesystem.cpp
+	Foundation/Octree.cpp
+
+	# Graphics/OpenGL
 	Graphics/OpenGL/BufferObject.cpp
 	Graphics/OpenGL/ShaderProgram.cpp
 	Graphics/OpenGL/VertexArrayObject.cpp
@@ -47,6 +58,8 @@ set(gintonic_source_files
 	Graphics/OpenGL/TextureObject.cpp
 	Graphics/OpenGL/SourceCode.cpp
 	Graphics/OpenGL/Framebuffer.cpp
+
+	# Graphics
 	Graphics/PointShadowBuffer.cpp
 	Graphics/skybox.cpp
 	Graphics/AnimationClip.cpp
@@ -69,14 +82,8 @@ set(gintonic_source_files
 	Graphics/Font.cpp
 	Graphics/ShaderPrograms.cpp
 	Graphics/DirectionalShadowBuffer.cpp
-	EntityVisitor.cpp
-	Foundation/ReadWriteLock.cpp
-	Foundation/exception.cpp
-	Foundation/Profiler.cpp
-	Foundation/WriteLock.cpp
-	Foundation/simd.cpp
-	Foundation/filesystem.cpp
-	Foundation/Octree.cpp
+
+	# Math
 	Math/vec3f.cpp
 	Math/mat3f.cpp
 	Math/mat2f.cpp
@@ -87,12 +94,20 @@ set(gintonic_source_files
 	Math/SQT.cpp
 	Math/vec4f.cpp
 	Math/box3f.cpp
+
+	# ???
+	EntityVisitor.cpp
 	Asset.cpp
 	Camera.cpp
 	Component.cpp
 	FbxImporter.cpp
 	gintonic.cpp
 	Entity.cpp
+
+	# imgui
+	imgui/imgui.cpp
+	imgui/imgui_demo.cpp
+	imgui/imgui_draw.cpp
 	)
 
 set(gintonic_SSE_VERSION 30 CACHE STRING "The SSE version.")
@@ -181,6 +196,7 @@ target_include_directories(gintonic PUBLIC
 	${Boost_INCLUDE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR} # For the config file
 	SDL-mirror/include
+	imgui # For including imgui.h
 	)
 
 target_link_libraries(gintonic PUBLIC

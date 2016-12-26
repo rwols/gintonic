@@ -22,6 +22,8 @@
 #include "Entity.hpp"
 #include "EntityVisitor.hpp"
 
+#include "imgui.h"
+
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -410,7 +412,6 @@ void Renderer::initialize(
 	new (sDebugLogStream)   FontStream(); // placement new
 	sDebugErrorStream->open(sDebugFont);
 	sDebugLogStream->open(sDebugFont);
-	// #endif
 
 	//
 	// Check various values.
