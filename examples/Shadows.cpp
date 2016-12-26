@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include "cxxopts.hpp"
 
 #define APPNAME "Shadows"
 
@@ -36,10 +37,12 @@ public:
 		});
 	}
 	
-	ShadowsApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	ShadowsApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
+
+		
 
 		Texture2D::ImageLoadOptions imageOpts;
 		imageOpts.relativeFilename = "assets/images/DaVinci.jpg";
@@ -236,4 +239,4 @@ private:
 
 };
 
-DEFINE_MAIN(ShadowsApplication);
+DEFINE_MAIN(ShadowsApplication, "Shadows", "Draws a rotating cube with two lights shining on it casting a shadow, one is a point light and the other is a spot light.");

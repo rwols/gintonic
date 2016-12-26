@@ -102,6 +102,7 @@ set(gintonic_header_files
 	${CMAKE_CURRENT_SOURCE_DIR}/EntityVisitor.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Entity.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Camera.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Application.hpp
 )
 
 find_package(Doxygen)

@@ -1,11 +1,20 @@
 #pragma once
 #include "gintonic.hpp"
 #include "Foundation/Profiler.hpp"
+#include "cxxopts.hpp"
+
+namespace cxxopts
+{
+	class Options;
+}
 
 class Application
 {
 public:
-	Application(const char* windowTitle, int argc, char** argv);
+	Application(
+		int argc, 
+		char** argv, 
+		cxxopts::Options& options);
 
 	virtual ~Application() noexcept = default;
 
@@ -50,20 +59,27 @@ private:
 
 };
 
-#define DEFINE_MAIN(DerivedApplicationName)                         \
+#define DEFINE_MAIN(DerivedApplicationName, programName, shortDescription) \
 int main(int argc, char* argv[])                                    \
 {                                                                   \
+	cxxopts::Options options(programName, shortDescription);        \
+	options.add_options()("help", "produce this help message");     \
 	try                                                             \
 	{                                                               \
-		DerivedApplicationName lDerivedApplicationName(argc, argv); \
-		while (lDerivedApplicationName.shouldClose() == false)      \
+		DerivedApplicationName app(argc, argv, options);            \
+		if (options.count("help"))                                  \
 		{                                                           \
-			lDerivedApplicationName.renderUpdate();                 \
+			std::cout << options.help() << '\n';                    \
+			return EXIT_SUCCESS;                                    \
+		}                                                           \
+		while (app.shouldClose() == false)                          \
+		{                                                           \
+			app.renderUpdate();                                     \
 		}                                                           \
 	}                                                               \
-	catch (const std::exception& lException)                        \
+	catch (const std::exception& ex)                                \
 	{                                                               \
-		std::cerr << lException.what() << '\n';                     \
+		std::cerr << ex.what() << '\n';                             \
 		GT_FINALIZE_PROFILING;                                      \
 		return EXIT_FAILURE;                                        \
 	}                                                               \

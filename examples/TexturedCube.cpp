@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include "cxxopts.hpp"
 
 #define APPNAME "TexturedCube"
 
@@ -6,8 +7,8 @@ class TexturedCubeApplication : public Application
 {
 public:
 
-	TexturedCubeApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	TexturedCubeApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 
@@ -49,4 +50,4 @@ private:
 	}
 };
 
-DEFINE_MAIN(TexturedCubeApplication)
+DEFINE_MAIN(TexturedCubeApplication, "TexturedCube", "Draws a rotating textured cube.")

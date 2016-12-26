@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include "cxxopts.hpp"
 
 #define APPNAME "BasicShapes"
 
@@ -8,8 +9,8 @@ public:
 
 	std::shared_ptr<gintonic::Entity> mRootOfSolidShapes;
 
-	BasicShapesApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	BasicShapesApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 
@@ -114,4 +115,4 @@ private:
 	}
 };
 
-DEFINE_MAIN(BasicShapesApplication)
+DEFINE_MAIN(BasicShapesApplication, "BasicShapes", "Draws basic shapes")

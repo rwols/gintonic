@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include "cxxopts.hpp"
 
 #include <iomanip>
 
@@ -8,8 +9,8 @@ class OrthographicApplication : public Application
 {
 public:
 
-	OrthographicApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	OrthographicApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 		auto lCamera = Camera::create();
@@ -56,4 +57,4 @@ private:
 
 };
 
-DEFINE_MAIN(OrthographicApplication);
+DEFINE_MAIN(OrthographicApplication, "Orthographic", "Displays a cube with an orthographic camera projection.");

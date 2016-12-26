@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include <boost/program_options.hpp>
 #include <iomanip>
 
 #define APPNAME "DirectionalLight"
@@ -9,8 +10,8 @@ public:
 
 	std::shared_ptr<gintonic::Entity> mCubeEntity;
 
-	DirectionalLightApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	DirectionalLightApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 
@@ -69,4 +70,4 @@ private:
 
 };
 
-DEFINE_MAIN(DirectionalLightApplication)
+DEFINE_MAIN(DirectionalLightApplication, "DirectionalLight", "Draws a cube with a directional light shining on it.")

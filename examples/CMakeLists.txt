@@ -13,10 +13,6 @@
 
 include(CMakeParseArguments)
 
-add_library(Application Common/Application.cpp)
-set_target_properties(Application PROPERTIES CXX_STANDARD 14)
-target_link_libraries(Application PUBLIC gintonic)
-
 function(add_example example_name)
 	set(options "")
 	set(oneValueArgs "")
@@ -36,7 +32,7 @@ function(add_example example_name)
 
 	add_executable(${example_name} ${add_example_SOURCES})
 	set_target_properties(${example_name} PROPERTIES CXX_STANDARD 14)
-	target_link_libraries(${example_name} PUBLIC Application)
+	target_link_libraries(${example_name} PUBLIC gintonic)
 	gintonic_target_depends_on_assets(
 		TARGET ${example_name} 
 		SOURCE_ASSET_DIRECTORY ${gintonic_ASSET_DIR} 
