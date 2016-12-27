@@ -16,3 +16,6 @@
 [submodule "lib/cxxopts"]
 	path = lib/cxxopts
 	url = https://github.com/jarro2783/cxxopts.git
+[submodule "lib/cereal"]
+	path = lib/cereal
+	url = https://github.com/rwols/cereal.git
