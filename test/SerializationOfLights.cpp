@@ -27,8 +27,10 @@ using namespace gintonic;
 
 BOOST_AUTO_TEST_CASE( Serialization )
 {
+	std::cout << "Initializing renderer.\n";
 	Renderer::initialize("Dummy Context", nullptr, false, 1, 1, false, false, false);
 	boost::filesystem::current_path(get_executable_path());
+	std::cout << "Done.\n";
 
 	std::srand((int)std::clock());
 	for (int i = 0; i < 10; ++i)

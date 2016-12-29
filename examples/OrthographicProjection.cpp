@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include "cxxopts.hpp"
 
 #include <iomanip>
 
@@ -8,8 +9,8 @@ class OrthographicApplication : public Application
 {
 public:
 
-	OrthographicApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	OrthographicApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 		auto lCamera = Camera::create();
@@ -25,7 +26,9 @@ public:
 		Renderer::setFreeformCursor(true);
 		Renderer::show();
 
-		auto lTexture = Texture2D::create("Resources/DaVinci.jpg");
+		Texture2D::ImageLoadOptions imageOpts;
+		imageOpts.relativeFilename = "assets/images/DaVinci.jpg";
+		auto lTexture = Texture2D::fromImage(imageOpts);
 		auto lMaterial = Material::create();
 		lMaterial->name = "DaVinci";
 		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.0f);
@@ -54,4 +57,4 @@ private:
 
 };
 
-DEFINE_MAIN(OrthographicApplication);
+DEFINE_MAIN(OrthographicApplication, "Orthographic", "Displays a cube with an orthographic camera projection.");

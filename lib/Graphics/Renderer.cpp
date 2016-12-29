@@ -22,14 +22,18 @@
 #include "Entity.hpp"
 #include "EntityVisitor.hpp"
 
-#include <iostream>
+#include "imgui.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#include <SDL.h>
+#endif // __clang__
+#include "SDL.h"
+#ifdef __clang__
 #pragma clang diagnostic pop
 #endif // __clang__
+
+#include <iostream>
 
 #ifdef BOOST_MSVC
 	#include <Objbase.h> // for CoInitializeEx
@@ -38,7 +42,7 @@
 #define NUM_SUBDIVISIONS 2
 #define PREFERRED_LINE_WIDTH 4
 
-#define FONT_FILE_LOCATION "Resources/Inconsolata-Regular.ttf"
+#define FONT_FILE_LOCATION "assets/fonts/Inconsolata-Regular.ttf"
 
 #define HAS_DIFFUSE_TEXTURE         1
 #define HAS_SPECULAR_TEXTURE        2
@@ -408,7 +412,6 @@ void Renderer::initialize(
 	new (sDebugLogStream)   FontStream(); // placement new
 	sDebugErrorStream->open(sDebugFont);
 	sDebugLogStream->open(sDebugFont);
-	// #endif
 
 	//
 	// Check various values.

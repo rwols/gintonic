@@ -1,5 +1,5 @@
-#include "Common/Application.hpp"
-#include "Foundation/Console.hpp"
+#include "Application.hpp"
+#include <boost/program_options.hpp>
 #include <iomanip>
 
 #define APPNAME "DirectionalLight"
@@ -10,8 +10,8 @@ public:
 
 	std::shared_ptr<gintonic::Entity> mCubeEntity;
 
-	DirectionalLightApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	DirectionalLightApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 
@@ -20,9 +20,13 @@ public:
 		mCubeEntity->material->name = "RuralBrickWall";
 		mCubeEntity->material->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
 		mCubeEntity->material->specularColor = vec4f(1.0f, 1.0f, 1.0f, 20.0f);
-		mCubeEntity->material->diffuseTexture = Texture2D::create("Resources/RuralBrickWall.jpg");
-		mCubeEntity->material->specularTexture = Texture2D::create("Resources/RuralBrickWall_SPEC.png");
-		mCubeEntity->material->normalTexture = Texture2D::create("Resources/RuralBrickWall_NRM.png");
+		Texture2D::ImageLoadOptions imageOptions;
+		imageOptions.relativeFilename = "assets/images/RuralBrickWall.jpg";
+		mCubeEntity->material->diffuseTexture = Texture2D::fromImage(imageOptions);
+		imageOptions.relativeFilename = "assets/images/RuralBrickWall_SPEC.png";
+		mCubeEntity->material->specularTexture = Texture2D::fromImage(imageOptions);
+		imageOptions.relativeFilename = "assets/images/RuralBrickWall_NRM.png";
+		mCubeEntity->material->normalTexture = Texture2D::fromImage(imageOptions);
 		mCubeEntity->mesh = Renderer::getUnitCubeWithTangents();
 
 		Renderer::getCameraEntity()->setTranslation(vec3f(2.0f, 1.0f, 4.0f));
@@ -66,4 +70,4 @@ private:
 
 };
 
-DEFINE_MAIN(DirectionalLightApplication)
+DEFINE_MAIN(DirectionalLightApplication, "DirectionalLight", "Draws a cube with a directional light shining on it.")

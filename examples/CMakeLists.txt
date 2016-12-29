@@ -13,10 +13,6 @@
 
 include(CMakeParseArguments)
 
-add_library(Application Common/Application.cpp)
-set_target_properties(Application PROPERTIES CXX_STANDARD 14)
-target_link_libraries(Application PUBLIC gintonic)
-
 function(add_example example_name)
 	set(options "")
 	set(oneValueArgs "")
@@ -36,26 +32,29 @@ function(add_example example_name)
 
 	add_executable(${example_name} ${add_example_SOURCES})
 	set_target_properties(${example_name} PROPERTIES CXX_STANDARD 14)
-	target_link_libraries(${example_name} PUBLIC Application)
+	target_link_libraries(${example_name} PUBLIC gintonic)
 	gintonic_target_depends_on_assets(
 		TARGET ${example_name} 
 		SOURCE_ASSET_DIRECTORY ${gintonic_ASSET_DIR} 
 		ASSETS ${add_example_ASSETS})
 endfunction()
 
-set(systemFont Inconsolata-Regular.ttf)
-set(catTexture DaVinci.jpg)
-set(ruralBrickWallTextures RuralBrickWall.jpg RuralBrickWall_SPEC.png 
-	RuralBrickWall_NRM.png)
-set(bricksTextures bricks.jpg bricks_SPEC.png bricks_NRM.png)
+set(systemFont fonts/Inconsolata-Regular.ttf)
+set(catTexture images/DaVinci.jpg)
+
+set(ruralBrickWallTextures 
+	images/RuralBrickWall.jpg 
+	images/RuralBrickWall_SPEC.png 
+	images/RuralBrickWall_NRM.png)
+
+set(bricksTextures 
+	images/bricks.jpg 
+	images/bricks_SPEC.png 
+	images/bricks_NRM.png)
 
 add_example(BasicShapes 
 	SOURCES BasicShapes.cpp 
 	ASSETS ${systemFont} ${catTexture})
-
-add_example(Console 
-	SOURCES Console.cpp 
-	ASSETS ${systemFont})
 
 add_example(DirectionalLight 
 	SOURCES DirectionalLight.cpp 

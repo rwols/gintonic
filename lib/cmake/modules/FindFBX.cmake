@@ -105,11 +105,18 @@ if (DEFINED $ENV{FBX_ROOT})
     list(APPEND search_paths "$ENV{FBX_ROOT}")
 endif()
 
-foreach (search_path_prefix ${search_path_prefixes})
-    foreach (version ${versions})
-        list(APPEND search_paths "${search_path_prefix}/${version}")
-    endforeach (version)
-endforeach (search_path_prefix)
+if (APPLE OR WIN32)
+    foreach (search_path_prefix ${search_path_prefixes})
+        foreach (version ${versions})
+            list(APPEND search_paths "${search_path_prefix}/${version}")
+        endforeach (version)
+    endforeach (search_path_prefix)
+else ()
+    message(STATUS "${search_path_prefixes}")
+    foreach (search_path_prefix ${search_path_prefixes})
+        list(APPEND search_paths "${search_path_prefix}")
+    endforeach (search_path_prefix)
+endif ()
 
 find_path(FBX_INCLUDE_DIRS 
     NAMES fbxsdk.h
@@ -160,3 +167,17 @@ find_package_handle_standard_args(FBX
     FOUND_VAR FBX_FOUND 
     REQUIRED_VARS FBX_LIBRARIES FBX_INCLUDE_DIRS 
     VERSION_VAR FBX_VERSION)
+
+if (FBX_FOUND)
+    add_library(FBX INTERFACE)
+    if (WIN32)
+        target_compile_definitions(FBX INTERFACE FBX_SHARED)
+    endif ()
+    target_include_directories(FBX INTERFACE ${FBX_INCLUDE_DIRS})
+    target_link_libraries(FBX INTERFACE ${FBX_LIBRARIES})
+endif ()
+
+mark_as_advanced(FBX_FOUND)
+mark_as_advanced(FBX_VERSION)
+mark_as_advanced(FBX_INCLUDE_DIRS)
+mark_as_advanced(FBX_LIBRARIES)

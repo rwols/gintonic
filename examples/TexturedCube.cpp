@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include "cxxopts.hpp"
 
 #define APPNAME "TexturedCube"
 
@@ -6,8 +7,8 @@ class TexturedCubeApplication : public Application
 {
 public:
 
-	TexturedCubeApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	TexturedCubeApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 
@@ -15,7 +16,9 @@ public:
 		lMaterial->name = "RuralBrickWall";
 		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.0f);
 		lMaterial->specularColor = vec4f(1.0f, 1.0f, 1.0f, 8.0f);
-		lMaterial->diffuseTexture = Texture2D::create("Resources/RuralBrickWall.jpg");
+		Texture2D::ImageLoadOptions imageOpts;
+		imageOpts.relativeFilename = "assets/images/RuralBrickWall.jpg";
+		lMaterial->diffuseTexture = Texture2D::fromImage(imageOpts);
 		mCubeEntity = Entity::create("Cube");
 		mCubeEntity->material = lMaterial;
 		mCubeEntity->mesh = Renderer::getUnitCube();
@@ -47,4 +50,4 @@ private:
 	}
 };
 
-DEFINE_MAIN(TexturedCubeApplication)
+DEFINE_MAIN(TexturedCubeApplication, "TexturedCube", "Draws a rotating textured cube.")

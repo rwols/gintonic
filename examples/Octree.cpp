@@ -1,5 +1,5 @@
-
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include "cxxopts.hpp"
 
 #define APPNAME "Octree"
 
@@ -7,8 +7,8 @@ class OctreeApplication : public Application
 {
 public:
 
-	OctreeApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	OctreeApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 
@@ -71,4 +71,4 @@ private:
 	}
 };
 
-DEFINE_MAIN(OctreeApplication)
+DEFINE_MAIN(OctreeApplication, "Octree", "Vizualizes the octree datastructure.")

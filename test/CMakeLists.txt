@@ -68,7 +68,8 @@ gintonic_add_test(mat4f SOURCES mat4f.cpp)
 
 gintonic_add_test(materials 
 	SOURCES materials.cpp 
-	ASSETS Inconsolata-Regular.ttf bricks.jpg bricks_SPEC.png bricks_NRM.png)
+	ASSETS fonts/Inconsolata-Regular.ttf 
+		images/bricks.jpg images/bricks_SPEC.png images/bricks_NRM.png)
 
 gintonic_add_test(quatf SOURCES quatf.cpp)
 gintonic_add_test(vec2f SOURCES vec2f.cpp)

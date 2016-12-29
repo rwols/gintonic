@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include <boost/program_options.hpp>
 
 #include <iomanip>
 #include <fstream>
@@ -141,8 +142,8 @@ public:
 
 	std::vector<gintonic::Entity::SharedPtr> mLights;
 
-	FbxViewerApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	FbxViewerApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 		if (argc <= 2)
@@ -192,7 +193,7 @@ public:
 			mModel = lImporter.loadEntities();
 
 			// Serialize the model for caching
-			std::ofstream lOutput("Resources/" + mModel->name + ".entity", std::ios::binary);
+			std::ofstream lOutput("assets/" + mModel->name + ".entity", std::ios::binary);
 			OutputArchiveType lOutputArchive(lOutput);
 			lOutputArchive << mModel;
 		}
@@ -284,4 +285,4 @@ private:
 	}
 };
 
-DEFINE_MAIN(FbxViewerApplication)
+DEFINE_MAIN(FbxViewerApplication, "FbxViewer", "Displays FBX files.")

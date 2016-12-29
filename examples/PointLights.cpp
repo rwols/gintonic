@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include "cxxopts.hpp"
 
 #define APPNAME "PointLights"
 
@@ -8,8 +9,8 @@ class PointLightsApplication : public Application
 {
 public:
 
-	PointLightsApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	PointLightsApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 		if (argc < 4)
@@ -152,10 +153,15 @@ private:
 		lTransform.scale = 1.0f;
 		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 
-		auto lDaVinciTexture       = Texture2D::create("Resources/DaVinci.jpg");
-		auto lBrickDiffuseTexture  = Texture2D::create("Resources/bricks.jpg");
-		auto lBrickSpecularTexture = Texture2D::create("Resources/bricks_SPEC.png");
-		auto lBrickNormalTexture   = Texture2D::create("Resources/bricks_NRM.png");
+		Texture2D::ImageLoadOptions imageOpts;
+		imageOpts.relativeFilename = "assets/images/DaVinci.jpg";
+		auto lDaVinciTexture       = Texture2D::fromImage(imageOpts);
+		imageOpts.relativeFilename = "assets/images/bricks.jpg";
+		auto lBrickDiffuseTexture = Texture2D::fromImage(imageOpts);
+		imageOpts.relativeFilename = "assets/images/bricks_SPEC.png";
+		auto lBrickSpecularTexture = Texture2D::fromImage(imageOpts);
+		imageOpts.relativeFilename = "assets/images/bricks_NRM.png";		
+		auto lBrickNormalTexture   = Texture2D::fromImage(imageOpts);
 
 		auto lDaVinciMaterial            = Material::create();
 		lDaVinciMaterial->name           = "DaVinci";
@@ -206,4 +212,4 @@ private:
 
 };
 
-DEFINE_MAIN(PointLightsApplication)
+DEFINE_MAIN(PointLightsApplication, "PointLights", "Renders point lights in a circle.")

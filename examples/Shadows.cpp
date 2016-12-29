@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include "cxxopts.hpp"
 
 #define APPNAME "Shadows"
 
@@ -36,22 +37,30 @@ public:
 		});
 	}
 	
-	ShadowsApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	ShadowsApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 
-		auto lBricksDiffuseTexture = Texture2D::create("Resources/bricks.jpg");
-		auto lBricksSpecularTexture = Texture2D::create("Resources/bricks_SPEC.png");
-		auto lBricksNormalTexture = Texture2D::create("Resources/bricks_NRM.png");
+		
+
+		Texture2D::ImageLoadOptions imageOpts;
+		imageOpts.relativeFilename = "assets/images/DaVinci.jpg";
+		auto lDaVinciTexture       = Texture2D::fromImage(imageOpts);
+		imageOpts.relativeFilename = "assets/images/bricks.jpg";
+		auto lBrickDiffuseTexture = Texture2D::fromImage(imageOpts);
+		imageOpts.relativeFilename = "assets/images/bricks_SPEC.png";
+		auto lBrickSpecularTexture = Texture2D::fromImage(imageOpts);
+		imageOpts.relativeFilename = "assets/images/bricks_NRM.png";		
+		auto lBrickNormalTexture   = Texture2D::fromImage(imageOpts);
 
 		auto lMaterial = Material::create();
 		lMaterial->name = "Bricks";
 		lMaterial->diffuseColor = vec4f(1.0f, 1.0f, 1.0f, 0.9f);
 		lMaterial->specularColor = vec4f(0.3f, 0.3f, 0.3f, 20.0f);
-		lMaterial->diffuseTexture = lBricksDiffuseTexture;
-		lMaterial->specularTexture = lBricksSpecularTexture;
-		lMaterial->normalTexture = lBricksNormalTexture;
+		lMaterial->diffuseTexture = lBrickDiffuseTexture;
+		lMaterial->specularTexture = lBrickSpecularTexture;
+		lMaterial->normalTexture = lBrickNormalTexture;
 
 		auto lFloor = Entity::create();
 		lFloor->material = lMaterial;
@@ -230,4 +239,4 @@ private:
 
 };
 
-DEFINE_MAIN(ShadowsApplication);
+DEFINE_MAIN(ShadowsApplication, "Shadows", "Draws a rotating cube with two lights shining on it casting a shadow, one is a point light and the other is a spot light.");

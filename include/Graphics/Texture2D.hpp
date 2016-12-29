@@ -8,8 +8,10 @@
 
 #include "config.hpp"
 
-#include "../Foundation/filesystem.hpp"
-#include "../Foundation/Object.hpp"
+#include "Asset.hpp"
+
+#include "Foundation/filesystem.hpp"
+#include "Foundation/Object.hpp"
 
 #include "OpenGL/TextureObject.hpp"
 
@@ -17,18 +19,17 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/base_object.hpp>
 
-// namespace FBX
-// {
-// 	class FbxTexture; // Forward declaration.
-// }
-
 namespace gintonic {
 
 /**
  * @brief Simple two-dimensional texture. You can bind it to a texture unit.
  */
-class Texture2D : public Object<Texture2D, boost::filesystem::path>
+class Texture2D 
+: public Object<Texture2D, boost::filesystem::path>
+, public Asset
 {
+	GINTONIC_ASSET(Texture2D, "textures", ".tex")
+
 public:
 
 	/**
@@ -38,8 +39,8 @@ public:
 	{
 	public:
 		inline NoImageDataException() noexcept {};
-		virtual ~NoImageDataException() noexcept = default;
-		virtual const char* what() const noexcept { return "NoImageDataException"; }
+		~NoImageDataException() noexcept override = default;
+		const char* what() const noexcept override { return "NoImageDataException"; }
 	};
 
 	/**
@@ -49,55 +50,64 @@ public:
 	{
 	public:
 		inline UnknownImageFormatException() noexcept {};
-		virtual ~UnknownImageFormatException() noexcept = default;
-		virtual const char* what() const noexcept { return "UnknownImageFormatException"; }
+		~UnknownImageFormatException() noexcept override = default;
+		const char* what() const noexcept override { return "UnknownImageFormatException"; }
 	};
 
-	template <class ...Args>
-	inline static SharedPtr create(Args&&... args)
+	// template <class ...Args>
+	// inline static SharedPtr create(Args&&... args)
+	// {
+	// 	return SharedPtr(new Texture2D(std::forward<Args>(args)...));
+	// }
+
+	struct ImageLoadOptions
 	{
-		return SharedPtr(new Texture2D(std::forward<Args>(args)...));
-	}
+		std::string relativeFilename;
+	};
+
+	static std::shared_ptr<Texture2D> fromImage(const ImageLoadOptions& options);
+	static std::shared_ptr<Texture2D> fromFbxTexture(
+		const FBXSDK_NAMESPACE::FbxTexture* texture);
 
 private:
 
-	/**
-	 * @brief Construct from an FbxTexture.
-	 * @param pFbxTexture Pointer to an FbxTexture.
-	 * @throws NoImageDataException if the image contains no data.
-	 * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
-	 */
-	Texture2D(
-		const FBXSDK_NAMESPACE::FbxTexture* pFbxTexture);
+	// /**
+	//  * @brief Construct from an FbxTexture.
+	//  * @param pFbxTexture Pointer to an FbxTexture.
+	//  * @throws NoImageDataException if the image contains no data.
+	//  * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
+	//  */
+	// Texture2D(
+	// 	const FBXSDK_NAMESPACE::FbxTexture* pFbxTexture);
 
-	/**
-	 * @brief Construct from a filepath.
-	 * @param pathToImageFile Path to an image.
-	 * @throws NoImageDataException if the image contains no data.
-	 * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
-	 */
-	Texture2D(const char* pathToImageFile);
+	// /**
+	//  * @brief Construct from a filepath.
+	//  * @param pathToImageFile Path to an image.
+	//  * @throws NoImageDataException if the image contains no data.
+	//  * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
+	//  */
+	// Texture2D(const char* pathToImageFile);
 
-	/**
-	 * @brief Construct from a filepath.
-	 * @param pathToImageFile Path to an image.
-	 * @throws NoImageDataException if the image contains no data.
-	 * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
-	 */
-	Texture2D(const std::string& pathToImageFile);
+	// /**
+	//  * @brief Construct from a filepath.
+	//  * @param pathToImageFile Path to an image.
+	//  * @throws NoImageDataException if the image contains no data.
+	//  * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
+	//  */
+	// Texture2D(const std::string& pathToImageFile);
 
-	/**
-	 * @brief Construct from a filepath.
-	 * @param pathToImageFile Path to an image.
-	 * @throws NoImageDataException if the image contains no data.
-	 * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
-	 */
-	Texture2D(boost::filesystem::path pathToImageFile);
+	// /**
+	//  * @brief Construct from a filepath.
+	//  * @param pathToImageFile Path to an image.
+	//  * @throws NoImageDataException if the image contains no data.
+	//  * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
+	//  */
+	// Texture2D(boost::filesystem::path pathToImageFile);
 
 public:
 
 	/// Defaulted destructor.
-	virtual ~Texture2D() noexcept = default;
+	~Texture2D() noexcept override = default;
 
 	/**
 	 * @brief Bind this texture to the given OpenGL texture unit.
@@ -112,6 +122,7 @@ private:
 	Texture2D() = default;
 
 	OpenGL::TextureObject mTextureObject;
+	std::string imageFile;
 
 	void loadFromFile(boost::filesystem::path);
 
@@ -120,14 +131,22 @@ private:
 	template <class Archive>
 	void save(Archive& archive, const unsigned int /*version*/) const
 	{
-		archive & boost::serialization::base_object<Object<Texture2D, boost::filesystem::path>>(*this);
+		using namespace boost::serialization;
+		using namespace boost::filesystem;
+		archive & base_object<Object<Texture2D, path>>(*this);
+		archive & base_object<Asset>(*this);
+		archive & imageFile;
 	}
 
 	template <class Archive>
 	void load(Archive& archive, const unsigned int /*version*/)
 	{
-		archive & boost::serialization::base_object<Object<Texture2D, boost::filesystem::path>>(*this);
-		loadFromFile(name);
+		using namespace boost::serialization;
+		using namespace boost::filesystem;
+		archive & base_object<Object<Texture2D, path>>(*this);
+		archive & base_object<Asset>(*this);
+		archive & imageFile;
+		loadFromFile(path(Asset::getAssetFolder()) / path(imageFile));
 	}
 
 	BOOST_SERIALIZATION_SPLIT_MEMBER();

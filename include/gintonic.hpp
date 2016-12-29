@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include "Foundation/Console.hpp"
 #include "Foundation/scancodes.hpp"
 #include "Foundation/exception.hpp"
 #include "Foundation/Octree.hpp"
@@ -29,7 +28,6 @@
 #include "EntityVisitor.hpp"
 #include "Camera.hpp"
 #include "FbxImporter.hpp"
-#include "luabindings.hpp"
 
 namespace gintonic {
 
