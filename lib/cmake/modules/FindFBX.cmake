@@ -49,7 +49,7 @@ else ()
 endif ()
 
 if (WIN32) # FIXME!
-    set(compiler_id vs2005 vs2008 vs2010 vs2012 vs2013 vs2015)
+    set(compiler_ids vs2005 vs2008 vs2010 vs2012 vs2013 vs2015)
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(arch x64)
     else ()
@@ -59,8 +59,11 @@ if (WIN32) # FIXME!
         "$ENV{ProgramW6432}/Autodesk/FBX/FBX\ SDK"
         "$ENV{programfiles}/Autodesk/FBX/FBX\ SDK"
         )
-    set(libdir_suffix lib/${compiler_id}/${arch}/release)
-    set(libdir_suffix_debug lib/${compiler_id}/${arch}/debug)
+    foreach(compiler_id ${compiler_ids})
+        set(libdir lib/${compiler_id}/${arch})
+        list(APPEND libdir_suffix ${libdir}/release)
+        list(APPEND libdir_suffix_debug ${libdir}/debug)
+    endforeach()
     set(fbx_libname libfbxsdk.lib)
 elseif (APPLE)
     set(compiler_id clang)
@@ -95,8 +98,12 @@ else (WIN32)
     message(FATAL_ERROR "Could not determine platform!")
 endif (WIN32)
 
-list(APPEND search_paths "${FBX_ROOT}")
-list(APPEND search_paths "$ENV{FBX_ROOT}")
+if (DEFINED FBX_ROOT)
+    list(APPEND search_paths "${FBX_ROOT}")
+endif()
+if (DEFINED $ENV{FBX_ROOT})
+    list(APPEND search_paths "$ENV{FBX_ROOT}")
+endif()
 
 foreach (search_path_prefix ${search_path_prefixes})
     foreach (version ${versions})
