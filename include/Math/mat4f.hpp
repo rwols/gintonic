@@ -195,6 +195,9 @@ public:
 	/// Assuming this matrix is an affine transformation, decompose it into its scale, rotation and translation components.
 	void decompose(SQT& sqt) const;
 
+	static mat4f zero;
+	static mat4f identity;
+
 	/// Add-and-assign operator.
 	inline mat4f& operator += (const mat4f& other)
 	{

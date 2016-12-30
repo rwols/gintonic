@@ -12,6 +12,9 @@
 
 namespace gintonic {
 
+mat4f mat4f::zero     = mat4f(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+mat4f mat4f::identity = mat4f(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
+
 #ifdef BOOST_MSVC // NOTE: Consider removing this when on MSVC2015
 
 mat4f::mat4f(const vec3f& translation)

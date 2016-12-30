@@ -6,20 +6,29 @@
 
 #pragma once
 
-#include "../ForwardDeclarations.hpp"
+#include "ForwardDeclarations.hpp"
 
-#include "../Foundation/Object.hpp"
+#include "Foundation/Object.hpp"
 
-#include "../Math/vec4f.hpp"
+#include "Math/vec2f.hpp"
+#include "Math/vec3f.hpp"
+#include "Math/vec4f.hpp"
+#include "Math/mat4f.hpp"
 
 #include "Texture2D.hpp"
  
 #include <list>
+#include <unordered_map>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/base_object.hpp>
 
 namespace gintonic {
+
+namespace OpenGL 
+{
+	class ShaderProgram;
+}
 
 /**
  * @brief A material describes the look of a rendered mesh.
@@ -36,11 +45,17 @@ namespace gintonic {
  * a value of true. Otherwise the default value of false is used to signal
  * that we are not rendering an instanced mesh.
  */
-class Material : public Object<Material, std::string>
+class Material 
+: public Object<Material, std::string>
+, public Asset
 {
+	GINTONIC_ASSET(Material, "materials", ".mat")
+
 public:
 
 	using Super = Object<Material, std::string>;
+
+	std::shared_ptr<OpenGL::ShaderProgram> program;
 
 	/**
 	 * @name Constructors and destructor
@@ -57,7 +72,94 @@ public:
 	/// Destructor.
 	virtual ~Material() noexcept = default;
 
+	template <class StringType> 
+	inline void set(StringType&& name, const float value)
+	{
+		mFloats[std::forward<StringType>(name)] = value;
+	}
+
+	template <class StringType> 
+	inline void set(StringType&& name, const GLint textureUnit, std::shared_ptr<Texture2D> texture)
+	{
+		mTextures[std::forward<StringType>(name)] = std::make_pair(textureUnit, std::move(texture));
+	}
+
+	template <class StringType> 
+	inline void set(StringType&& name, const vec2f& value)
+	{
+		mVec2s[std::forward<StringType>(name)] = value;
+	}
+
+	template <class StringType> 
+	inline void set(StringType&& name, const vec3f& value)
+	{
+		mVec3s[std::forward<StringType>(name)] = value;
+	}
+
+	template <class StringType> 
+	inline void set(StringType&& name, const vec4f& value)
+	{
+		mVec4s[std::forward<StringType>(name)] = value;
+	}
+
+	template <class StringType> 
+	inline void set(StringType&& name, const mat4f& value)
+	{
+		mMat4s[std::forward<StringType>(name)] = value;
+	}
+
+	template <class StringType, class T>
+	std::enable_if_t<std::is_same<T, float>::value, T> get(StringType&& name) const noexcept
+	{
+		const auto iter = mFloats.find(std::forward<StringType>(name));
+		return iter == mFloats.end() ? 0.0f : iter->second;
+	}
+
+	template <class StringType, class T>
+	std::enable_if_t<std::is_same<T, Texture2D>::value, std::pair<GLint, std::shared_ptr<Texture2D>>> get(StringType&& name) const noexcept
+	{
+		const auto iter = mTextures.find(std::forward<StringType>(name));
+		return iter == mTextures.end() ? std::make_pair(0, nullptr) : iter->second;
+	}
+
+	template <class StringType, class T>
+	std::enable_if_t<std::is_same<T, vec2f>::value, T> get(StringType&& name) const noexcept
+	{
+		const auto iter = mVec2s.find(std::forward<StringType>(name));
+		return iter == mVec2s.end() ? vec2f(0.0f, 0.0f) : iter->second;
+	}
+
+	template <class StringType, class T>
+	std::enable_if_t<std::is_same<T, vec3f>::value, T> get(StringType&& name) const noexcept
+	{
+		const auto iter = mVec3s.find(std::forward<StringType>(name));
+		return iter == mVec3s.end() ? vec3f(0.0f, 0.0f, 0.0f) : iter->second;
+	}
+
+	template <class StringType, class T>
+	std::enable_if_t<std::is_same<T, vec4f>::value, T> get(StringType&& name) const noexcept
+	{
+		const auto iter = mVec4s.find(std::forward<StringType>(name));
+		return iter == mVec4s.end() ? vec4f(0.0f, 0.0f, 0.0f, 0.0f) : iter->second;
+	}
+
+	template <class StringType, class T>
+	std::enable_if_t<std::is_same<T, mat4f>::value, T> get(StringType&& name) const noexcept
+	{
+		const auto iter = mMat4s.find(std::forward<StringType>(name));
+		return iter == mMat4s.end() ? mat4f::zero : iter->second;
+	}
+
+	void bind() const;
+
 private:
+
+	std::unordered_map<std::string, float> mFloats;
+	std::unordered_map<std::string, std::pair<GLint, std::shared_ptr<Texture2D>>> mTextures;
+	std::unordered_map<std::string, vec2f> mVec2s;
+	std::unordered_map<std::string, vec3f> mVec3s;
+	std::unordered_map<std::string, vec4f> mVec4s;
+	std::unordered_map<std::string, mat4f> mMat4s;
 
 	/**
 	 * @brief Default constructor.

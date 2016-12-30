@@ -4,7 +4,7 @@
 #include "Foundation/portable_iarchive.hpp"
 #include "Foundation/portable_oarchive.hpp"
 
-#include "Math/vec3f.hpp"
+#include "Graphics/OpenGL/ShaderProgram.hpp"
 
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -54,6 +54,39 @@ gintonic::vec3f getMaterialColor(
 } // anonymous namespace
 
 namespace gintonic {
+
+void Material::bind() const
+{
+	if (!program) return;
+	program->activate();
+	for (const auto& pair : mTextures)
+	{
+		const auto textureUnit = pair.second.first;
+		const auto& texture = pair.second.second;
+		texture->bind(textureUnit);
+		program->setUniform(pair.first.c_str(), textureUnit);
+	}
+	for (const auto& pair : mFloats)
+	{
+		program->setUniform(pair.first.c_str(), pair.second);
+	}
+	for (const auto& pair : mVec2s)
+	{
+		program->setUniform(pair.first.c_str(), pair.second);
+	}
+	for (const auto& pair : mVec3s)
+	{
+		program->setUniform(pair.first.c_str(), pair.second);
+	}
+	for (const auto& pair : mVec4s)
+	{
+		program->setUniform(pair.first.c_str(), pair.second);
+	}
+	for (const auto& pair : mMat4s)
+	{
+		program->setUniform(pair.first.c_str(), pair.second);
+	}
+}
 
 Material::Material(
 	const vec4f& diffuseColor)
