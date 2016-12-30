@@ -17,16 +17,9 @@ file(GLOB directories
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 foreach (directory ${directories})
-	message(STATUS "Discovered ${directory}")
-	if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${directory}")
-		message(STATUS "${directory} is a directory")
-	endif()
-	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${directory}/CMakeLists.txt")
-		message(STATUS "CMakeLists.txt file found in ${directory}")
-	endif()
 	if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${directory}" AND 
 		EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${directory}/CMakeLists.txt")
-		message(STATUS "Adding tool directory ${directory}")
+		message(STATUS "Configuring tool ${directory}")
 		add_subdirectory(${directory})
 	endif()
 endforeach()

@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include <boost/program_options.hpp>
 
 #include <iomanip>
 #include <fstream>
@@ -141,8 +142,8 @@ public:
 
 	std::vector<gintonic::Entity::SharedPtr> mLights;
 
-	FbxViewerApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	FbxViewerApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 		if (argc <= 2)
@@ -284,4 +285,4 @@ private:
 	}
 };
 
-DEFINE_MAIN(FbxViewerApplication)
+DEFINE_MAIN(FbxViewerApplication, "FbxViewer", "Displays FBX files.")

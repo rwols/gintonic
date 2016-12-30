@@ -1,4 +1,5 @@
-#include "Common/Application.hpp"
+#include "Application.hpp"
+#include "cxxopts.hpp"
 
 #define APPNAME "Spot Lights"
 
@@ -19,8 +20,8 @@ class SpotLightsApplication : public Application
 {
 public:
 
-	SpotLightsApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	SpotLightsApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 		if (argc < 4)
@@ -301,4 +302,4 @@ private:
 	}
 };
 
-DEFINE_MAIN(SpotLightsApplication)
+DEFINE_MAIN(SpotLightsApplication, "SpotLights", "Draws spot lights in a circle.")

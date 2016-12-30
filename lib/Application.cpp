@@ -1,15 +1,29 @@
 #include "Application.hpp"
+#include "cxxopts.hpp"
 
-Application::Application(const char* windowTitle, int argc, char** argv)
+Application::Application(
+	int argc, 
+	char** argv, 
+	cxxopts::Options& options)
 {
-	bool lFullscreen = true;
-	if (argc > 1)
+	options.add_options()
+		("fullscreen", "fullscreen or windowed", cxxopts::value<bool>())
+		("title", "window title", cxxopts::value<std::string>())
+	;
+	options.parse(argc, argv);
+	bool lFullscreen = false;
+	if (options.count("fullscreen"))
 	{
-		lFullscreen = std::atoi(argv[1]) != 0;
+		lFullscreen = options["fullscreen"].as<bool>();
+	}
+	std::string windowTitle = "gintonic app";
+	if (options.count("title"))
+	{
+		windowTitle = options["title"].as<std::string>();
 	}
 	auto lCameraEntity = gintonic::Entity::create("DefaultCamera");
 	boost::filesystem::current_path(gintonic::get_executable_path());
-	gintonic::Renderer::initialize(windowTitle, std::move(lCameraEntity), lFullscreen, 800, 640);
+	gintonic::Renderer::initialize(windowTitle.c_str(), std::move(lCameraEntity), lFullscreen, 800, 640);
 }
 
 void Application::renderUpdate()

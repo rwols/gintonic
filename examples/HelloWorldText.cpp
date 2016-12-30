@@ -1,5 +1,5 @@
-#include "Common/Application.hpp"
-
+#include "Application.hpp"
+#include "cxxopts.hpp"
 #include <iomanip>
 
 #define APPNAME "Hello World!"
@@ -8,8 +8,8 @@ class HelloWorldTextApplication : public Application
 {
 public:
 
-	HelloWorldTextApplication(int argc, char** argv)
-	: Application(APPNAME, argc, argv)
+	HelloWorldTextApplication(int argc, char** argv, cxxopts::Options& options)
+	: Application(argc, argv, options)
 	{
 		using namespace gintonic;
 		Renderer::setFreeformCursor(true);
@@ -31,4 +31,4 @@ private:
 
 };
 
-DEFINE_MAIN(HelloWorldTextApplication);
+DEFINE_MAIN(HelloWorldTextApplication, "HelloWorldText", "Displays \"hello world\" with our fonts and the renderer.");
