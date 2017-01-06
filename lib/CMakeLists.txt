@@ -27,8 +27,7 @@
 #
 #*******************************************************************************
 
-set(CMAKE_MODULE_PATH 
-	"${CMAKE_CURRENT_LIST_DIR}/cmake/modules;${CMAKE_MODULE_PATH}")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 if (NOT BUILD_SHARED_LIBS)
 	set(Boost_USE_STATIC_LIBS ON)
 endif()
@@ -155,7 +154,6 @@ else ()
 endif ()
 
 set_target_properties(gintonic PROPERTIES CXX_STANDARD 14)
-
 
 if (WIN32 AND gintonic_HIDE_CONSOLE)
 	set_target_properties(gintonic PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
