@@ -159,7 +159,7 @@ private:
 	GLuint mHandle;
 	std::vector<Uniform> mUniforms;
 
-protected:
+public:
 
 	/**
 	 * @name Attribute Management
