@@ -8,184 +8,36 @@
 			"variants":
 			[
 				{
-					"name": "clean",
-					"shell_cmd": "make clean -j8"
+					"name": "examples/install/local",
+					"shell_cmd": "cmake --build . --target examples/install/local"
 				},
 				{
-					"name": "test",
-					"shell_cmd": "make test -j8"
+					"name": "examples/install",
+					"shell_cmd": "cmake --build . --target examples/install"
 				},
 				{
-					"name": "package",
-					"shell_cmd": "make package -j8"
+					"name": "examples/list_install_components",
+					"shell_cmd": "cmake --build . --target examples/list_install_components"
 				},
 				{
-					"name": "package_source",
-					"shell_cmd": "make package_source -j8"
+					"name": "examples/test",
+					"shell_cmd": "cmake --build . --target examples/test"
 				},
 				{
-					"name": "rebuild_cache",
-					"shell_cmd": "make rebuild_cache -j8"
+					"name": "examples/rebuild_cache",
+					"shell_cmd": "cmake --build . --target examples/rebuild_cache"
 				},
 				{
-					"name": "install/strip",
-					"shell_cmd": "make install/strip -j8"
+					"name": "examples/package_source",
+					"shell_cmd": "cmake --build . --target examples/package_source"
 				},
 				{
-					"name": "install/local",
-					"shell_cmd": "make install/local -j8"
+					"name": "examples/package",
+					"shell_cmd": "cmake --build . --target examples/package"
 				},
 				{
-					"name": "list_install_components",
-					"shell_cmd": "make list_install_components -j8"
-				},
-				{
-					"name": "install",
-					"shell_cmd": "make install -j8"
-				},
-				{
-					"name": "gintonic",
-					"shell_cmd": "make gintonic -j8"
-				},
-				{
-					"name": "glad",
-					"shell_cmd": "make glad -j8"
-				},
-				{
-					"name": "SDL2",
-					"shell_cmd": "make SDL2 -j8"
-				},
-				{
-					"name": "SDL2main",
-					"shell_cmd": "make SDL2main -j8"
-				},
-				{
-					"name": "uninstall",
-					"shell_cmd": "make uninstall -j8"
-				},
-				{
-					"name": "dist",
-					"shell_cmd": "make dist -j8"
-				},
-				{
-					"name": "freetype",
-					"shell_cmd": "make freetype -j8"
-				},
-				{
-					"name": "mat3f",
-					"shell_cmd": "make mat3f -j8"
-				},
-				{
-					"name": "Entity",
-					"shell_cmd": "make Entity -j8"
-				},
-				{
-					"name": "box3f",
-					"shell_cmd": "make box3f -j8"
-				},
-				{
-					"name": "SimdTest",
-					"shell_cmd": "make SimdTest -j8"
-				},
-				{
-					"name": "Reflection",
-					"shell_cmd": "make Reflection -j8"
-				},
-				{
-					"name": "SQT",
-					"shell_cmd": "make SQT -j8"
-				},
-				{
-					"name": "SerializationOfLights",
-					"shell_cmd": "make SerializationOfLights -j8"
-				},
-				{
-					"name": "OctreeTest",
-					"shell_cmd": "make OctreeTest -j8"
-				},
-				{
-					"name": "mat2f",
-					"shell_cmd": "make mat2f -j8"
-				},
-				{
-					"name": "quatf",
-					"shell_cmd": "make quatf -j8"
-				},
-				{
-					"name": "vec4f",
-					"shell_cmd": "make vec4f -j8"
-				},
-				{
-					"name": "mat4f",
-					"shell_cmd": "make mat4f -j8"
-				},
-				{
-					"name": "vec2f",
-					"shell_cmd": "make vec2f -j8"
-				},
-				{
-					"name": "box2f",
-					"shell_cmd": "make box2f -j8"
-				},
-				{
-					"name": "materials",
-					"shell_cmd": "make materials -j8"
-				},
-				{
-					"name": "vec3f",
-					"shell_cmd": "make vec3f -j8"
-				},
-				{
-					"name": "DriverInfo",
-					"shell_cmd": "make DriverInfo -j8"
-				},
-				{
-					"name": "FbxConverter",
-					"shell_cmd": "make FbxConverter -j8"
-				},
-				{
-					"name": "FbxViewer",
-					"shell_cmd": "make FbxViewer -j8"
-				},
-				{
-					"name": "Octree",
-					"shell_cmd": "make Octree -j8"
-				},
-				{
-					"name": "DirectionalLight",
-					"shell_cmd": "make DirectionalLight -j8"
-				},
-				{
-					"name": "BasicShapes",
-					"shell_cmd": "make BasicShapes -j8"
-				},
-				{
-					"name": "Application",
-					"shell_cmd": "make Application -j8"
-				},
-				{
-					"name": "HelloWorldText",
-					"shell_cmd": "make HelloWorldText -j8"
-				},
-				{
-					"name": "OrthographicProjection",
-					"shell_cmd": "make OrthographicProjection -j8"
-				},
-				{
-					"name": "PointLights",
-					"shell_cmd": "make PointLights -j8"
-				},
-				{
-					"name": "Shadows",
-					"shell_cmd": "make Shadows -j8"
-				},
-				{
-					"name": "TexturedCube",
-					"shell_cmd": "make TexturedCube -j8"
-				},
-				{
-					"name": "SpotLights",
-					"shell_cmd": "make SpotLights -j8"
+					"name": "libgintonic",
+					"shell_cmd": "cmake --build . --target libgintonic.dylib"
 				}
 			],
 			"working_dir": "${project_path}/build"
@@ -193,7 +45,15 @@
 	],
 	"cmake":
 	{
-		"build_folder": "${project_path}/build"
+		"build_folder": "${project_path}/build",
+		"filter_targets":
+		[
+			"gintonic",
+			"examples",
+			"PointLights",
+			"Shadows"
+		],
+		"generator": "Ninja"
 	},
 	"folders":
 	[
