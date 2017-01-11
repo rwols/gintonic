@@ -12,6 +12,7 @@
 - Refactor the Renderer god-class.
 - Supply a "main loop" from the library?
 - Implement an #include statement for GLSL.
+- Normalize #include paths in all headers.
 
 <!-- \f$\newcommand{\AffMat}{\mathop{\rm AffMat}\nolimits}\f$
 \f$\newcommand{\GL}{\mathop{\rm GL}\nolimits}\f$
