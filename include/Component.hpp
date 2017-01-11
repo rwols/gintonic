@@ -29,7 +29,7 @@ private:
 	template <class Archive> 
 	void serialize(Archive& ar, const unsigned /*version*/)
 	{
-		ar & mHolder;
+		
 	}
 };
 

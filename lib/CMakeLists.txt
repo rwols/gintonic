@@ -40,6 +40,7 @@ set(gintonic_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL
 set(gintonic_source_files
 
 	# Foundation
+	Foundation/Clock.cpp
 	Foundation/ReadWriteLock.cpp
 	Foundation/exception.cpp
 	Foundation/Profiler.cpp

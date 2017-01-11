@@ -179,7 +179,7 @@ find_package_handle_standard_args(FBX
     REQUIRED_VARS FBX_LIBRARIES FBX_INCLUDE_DIRS 
     VERSION_VAR FBX_VERSION)
 
-if (FBX_FOUND)
+if (FBX_FOUND AND NOT CMAKE_VERSION LESS 3.0) # CMake version >= 3.0
     add_library(FBX INTERFACE)
     if (WIN32)
         target_compile_definitions(FBX INTERFACE FBX_SHARED)
