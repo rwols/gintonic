@@ -1,4 +1,19 @@
-\f$\newcommand{\AffMat}{\mathop{\rm AffMat}\nolimits}\f$
+# Roadmap
+
+- Refactor Material to derive from Asset.
+- Refactor ShaderProgram to derive from Asset.
+- Refactor Mesh to derive from Asset.
+- Refactor Light to derive from Asset.
+- Refactor Boost.Filesystem away (and use a fileystem library on github).
+- Refactor Boost.Serialization away (use cereal instead).
+- Think about embedding Python or ChaiScript. Which one? Both? Others?
+- Create a Transform class, derived from Component.
+- Get ImGui to work nicely with the Renderer.
+- Refactor the Renderer god-class.
+- Supply a "main loop" from the library?
+- Implement an #include statement for GLSL.
+
+<!-- \f$\newcommand{\AffMat}{\mathop{\rm AffMat}\nolimits}\f$
 \f$\newcommand{\GL}{\mathop{\rm GL}\nolimits}\f$
 \f$\newcommand{\Mat}{\mathop{\rm Mat}\nolimits}\f$
 \f$\newcommand{\intercal}{T}\f$
@@ -638,4 +653,4 @@ public:
 }
 ~~~~~~~~~~~~~~~
 
-**TO BE CONTINUED.**
+**TO BE CONTINUED.** -->
