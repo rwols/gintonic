@@ -57,7 +57,7 @@ class Material : public Object<Material, std::string>, public Asset
 
     //@{
 
-    template <class... Args> inline static SharedPtr create(Args &&... args)
+    template <class... Args> inline static SharedPtr create(Args&&... args)
     {
         return SharedPtr(new Material(std::forward<Args>(args)...));
     }
@@ -66,13 +66,13 @@ class Material : public Object<Material, std::string>, public Asset
     virtual ~Material() noexcept = default;
 
     template <class StringType>
-    inline void set(StringType &&name, const float value)
+    inline void set(StringType&& name, const float value)
     {
         mFloats[std::forward<StringType>(name)] = value;
     }
 
     template <class StringType>
-    inline void set(StringType &&name, const GLint textureUnit,
+    inline void set(StringType&& name, const GLint textureUnit,
                     std::shared_ptr<Texture2D> texture)
     {
         mTextures[std::forward<StringType>(name)] =
@@ -80,32 +80,32 @@ class Material : public Object<Material, std::string>, public Asset
     }
 
     template <class StringType>
-    inline void set(StringType &&name, const vec2f &value)
+    inline void set(StringType&& name, const vec2f& value)
     {
         mVec2s[std::forward<StringType>(name)] = value;
     }
 
     template <class StringType>
-    inline void set(StringType &&name, const vec3f &value)
+    inline void set(StringType&& name, const vec3f& value)
     {
         mVec3s[std::forward<StringType>(name)] = value;
     }
 
     template <class StringType>
-    inline void set(StringType &&name, const vec4f &value)
+    inline void set(StringType&& name, const vec4f& value)
     {
         mVec4s[std::forward<StringType>(name)] = value;
     }
 
     template <class StringType>
-    inline void set(StringType &&name, const mat4f &value)
+    inline void set(StringType&& name, const mat4f& value)
     {
         mMat4s[std::forward<StringType>(name)] = value;
     }
 
     template <class StringType, class T>
     std::enable_if_t<std::is_same<T, float>::value, T>
-    get(StringType &&name) const noexcept
+    get(StringType&& name) const noexcept
     {
         const auto iter = mFloats.find(std::forward<StringType>(name));
         return iter == mFloats.end() ? 0.0f : iter->second;
@@ -114,7 +114,7 @@ class Material : public Object<Material, std::string>, public Asset
     template <class StringType, class T>
     std::enable_if_t<std::is_same<T, Texture2D>::value,
                      std::pair<GLint, std::shared_ptr<Texture2D>>>
-    get(StringType &&name) const noexcept
+    get(StringType&& name) const noexcept
     {
         const auto iter = mTextures.find(std::forward<StringType>(name));
         return iter == mTextures.end() ? std::make_pair(0, nullptr)
@@ -123,7 +123,7 @@ class Material : public Object<Material, std::string>, public Asset
 
     template <class StringType, class T>
     std::enable_if_t<std::is_same<T, vec2f>::value, T>
-    get(StringType &&name) const noexcept
+    get(StringType&& name) const noexcept
     {
         const auto iter = mVec2s.find(std::forward<StringType>(name));
         return iter == mVec2s.end() ? vec2f(0.0f, 0.0f) : iter->second;
@@ -131,7 +131,7 @@ class Material : public Object<Material, std::string>, public Asset
 
     template <class StringType, class T>
     std::enable_if_t<std::is_same<T, vec3f>::value, T>
-    get(StringType &&name) const noexcept
+    get(StringType&& name) const noexcept
     {
         const auto iter = mVec3s.find(std::forward<StringType>(name));
         return iter == mVec3s.end() ? vec3f(0.0f, 0.0f, 0.0f) : iter->second;
@@ -139,7 +139,7 @@ class Material : public Object<Material, std::string>, public Asset
 
     template <class StringType, class T>
     std::enable_if_t<std::is_same<T, vec4f>::value, T>
-    get(StringType &&name) const noexcept
+    get(StringType&& name) const noexcept
     {
         const auto iter = mVec4s.find(std::forward<StringType>(name));
         return iter == mVec4s.end() ? vec4f(0.0f, 0.0f, 0.0f, 0.0f)
@@ -148,7 +148,7 @@ class Material : public Object<Material, std::string>, public Asset
 
     template <class StringType, class T>
     std::enable_if_t<std::is_same<T, mat4f>::value, T>
-    get(StringType &&name) const noexcept
+    get(StringType&& name) const noexcept
     {
         const auto iter = mMat4s.find(std::forward<StringType>(name));
         return iter == mMat4s.end() ? mat4f::zero : iter->second;
@@ -176,7 +176,7 @@ class Material : public Object<Material, std::string>, public Asset
      *
      * @param diffuseColor The base diffuse color property.
      */
-    Material(const vec4f &diffuseColor);
+    Material(const vec4f& diffuseColor);
 
     /**
      * @brief Constructor.
@@ -184,7 +184,7 @@ class Material : public Object<Material, std::string>, public Asset
      * @param diffuseColor The base diffuse color property.
      * @param specularColor The base specular color property.
      */
-    Material(const vec4f &diffuseColor, const vec4f &specularColor);
+    Material(const vec4f& diffuseColor, const vec4f& specularColor);
 
     /**
      * @brief Constructor.
@@ -193,8 +193,8 @@ class Material : public Object<Material, std::string>, public Asset
      * @param specularColor The base specular color property.
      * @param diffuseTexture The filepath to the diffuse texture.
      */
-    Material(const vec4f &diffuseColor, const vec4f &specularColor,
-             const boost::filesystem::path &diffuseTexture);
+    Material(const vec4f& diffuseColor, const vec4f& specularColor,
+             const boost::filesystem::path& diffuseTexture);
 
     /**
      * @brief Constructor.
@@ -204,9 +204,9 @@ class Material : public Object<Material, std::string>, public Asset
      * @param diffuseTexture The filepath to the diffuse texture.
      * @param specularTexture The filepath to the specular texture.
      */
-    Material(const vec4f &diffuseColor, const vec4f &specularColor,
-             const boost::filesystem::path &diffuseTexture,
-             const boost::filesystem::path &specularTexture);
+    Material(const vec4f& diffuseColor, const vec4f& specularColor,
+             const boost::filesystem::path& diffuseTexture,
+             const boost::filesystem::path& specularTexture);
 
     /**
      * @brief Constructor.
@@ -217,10 +217,10 @@ class Material : public Object<Material, std::string>, public Asset
      * @param specularTexture The filepath to the specular texture.
      * @param normalTexture The filepath to the normal texture.
      */
-    Material(const vec4f &diffuseColor, const vec4f &specularColor,
-             const boost::filesystem::path &diffuseTexture,
-             const boost::filesystem::path &specularTexture,
-             const boost::filesystem::path &normalTexture);
+    Material(const vec4f& diffuseColor, const vec4f& specularColor,
+             const boost::filesystem::path& diffuseTexture,
+             const boost::filesystem::path& specularTexture,
+             const boost::filesystem::path& normalTexture);
 
     /**
      * @brief Constructor.
@@ -231,7 +231,7 @@ class Material : public Object<Material, std::string>, public Asset
      * @param specularTexture Shared pointer to the specular texture.
      * @param normalTexture Shared pointer to the normal texture.
      */
-    Material(const vec4f &diffuseColor, const vec4f &specularColor,
+    Material(const vec4f& diffuseColor, const vec4f& specularColor,
              std::shared_ptr<Texture2D> diffuseTexture,
              std::shared_ptr<Texture2D> specularTexture,
              std::shared_ptr<Texture2D> normalTexture);
@@ -245,7 +245,7 @@ class Material : public Object<Material, std::string>, public Asset
      *
      * @param fbxmat The FBX material.
      */
-    Material(const FBXSDK_NAMESPACE::FbxSurfaceMaterial *fbxmat);
+    Material(const FBXSDK_NAMESPACE::FbxSurfaceMaterial* fbxmat);
 
   public:
     //@}
@@ -276,7 +276,7 @@ class Material : public Object<Material, std::string>, public Asset
      * @param os The output stream.
      * @param m The material.
      */
-    friend std::ostream &operator<<(std::ostream &os, const Material &m);
+    friend std::ostream& operator<<(std::ostream& os, const Material& m);
 
     GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
@@ -284,14 +284,14 @@ class Material : public Object<Material, std::string>, public Asset
     friend class boost::serialization::access;
 
     template <class Archive>
-    void serialize(Archive &archive, const unsigned int /*version*/)
+    void serialize(Archive& archive, const unsigned int /*version*/)
     {
-        archive &BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
-        archive &diffuseColor;
-        archive &specularColor;
-        archive &diffuseTexture;
-        archive &specularTexture;
-        archive &normalTexture;
+        archive& BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
+        archive& diffuseColor;
+        archive& specularColor;
+        archive& diffuseTexture;
+        archive& specularTexture;
+        archive& normalTexture;
     }
 };
 

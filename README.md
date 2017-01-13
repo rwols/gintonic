@@ -1,6 +1,6 @@
 # Roadmap
 
-- Refactor Material to derive from Asset.
+- Refactor Material to NOT derive from Asset.
 - Refactor ShaderProgram to derive from Asset.
 - Refactor Mesh to derive from Asset.
 - Refactor Light to derive from Asset.
@@ -13,6 +13,7 @@
 - Supply a "main loop" from the library?
 - Implement an #include statement for GLSL.
 - Normalize #include paths in all headers.
+- Write a "shader editor".
 
 <!-- \f$\newcommand{\AffMat}{\mathop{\rm AffMat}\nolimits}\f$
 \f$\newcommand{\GL}{\mathop{\rm GL}\nolimits}\f$
