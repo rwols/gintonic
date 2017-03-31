@@ -1,8 +1,8 @@
-#include "Math/mat2f.hpp"
-#include "Math/vec2f.hpp"
+#include <gintonic/Math/mat2f.hpp>
+#include <gintonic/Math/vec2f.hpp>
 #include <array>
 
-namespace gintonic {
+using namespace gintonic;
 
 mat2f::mat2f(const vec2f& column0, const vec2f& column1)
 : data(pack(column0, column1))
@@ -42,5 +42,3 @@ vec2f operator * (const mat2f& m, const vec2f& v)
 	const auto product = _mm_mul_ps(m.data, pack(v,v));
 	return _mm_hadd_ps(product, product);
 }
-
-} // namespace gintonic

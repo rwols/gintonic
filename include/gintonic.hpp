@@ -1,49 +1,48 @@
 /**
  * @file gintonic.hpp
- * @brief The mother-of-all includes. Also defines the mother-of-all init
- * functions to initialize every subsystem.
+ * @brief Includes everything.
  * @author Raoul Wols
  */
 
 #pragma once
 
-#include "Foundation/scancodes.hpp"
-#include "Foundation/exception.hpp"
-#include "Foundation/Octree.hpp"
+#include <gintonic/Camera.hpp>
+#include <gintonic/Entity.hpp>
+#include <gintonic/EntityVisitor.hpp>
+#include <gintonic/FbxImporter.hpp>
+#include <gintonic/Foundation/Octree.hpp>
+#include <gintonic/Foundation/exception.hpp>
+#include <gintonic/Foundation/scancodes.hpp>
+#include <gintonic/Graphics/AmbientLight.hpp>
+#include <gintonic/Graphics/AnimationClip.hpp>
+#include <gintonic/Graphics/DirectionalLight.hpp>
+#include <gintonic/Graphics/Font.hpp>
+#include <gintonic/Graphics/Material.hpp>
+#include <gintonic/Graphics/Mesh.hpp>
+#include <gintonic/Graphics/PointLight.hpp>
+#include <gintonic/Graphics/Renderer.hpp>
+#include <gintonic/Graphics/ShaderPrograms.hpp>
+#include <gintonic/Graphics/Skeleton.hpp>
+#include <gintonic/Graphics/SpotLight.hpp>
+#include <gintonic/Graphics/skybox.hpp>
 
-#include "Graphics/AnimationClip.hpp"
-#include "Graphics/Renderer.hpp"
-#include "Graphics/Material.hpp"
-#include "Graphics/ShaderPrograms.hpp"
-#include "Graphics/Font.hpp"
-#include "Graphics/AmbientLight.hpp"
-#include "Graphics/DirectionalLight.hpp"
-#include "Graphics/PointLight.hpp"
-#include "Graphics/SpotLight.hpp"
-#include "Graphics/Mesh.hpp"
-#include "Graphics/Skeleton.hpp"
-#include "Graphics/skybox.hpp"
+// namespace gintonic
+// {
 
-#include "Entity.hpp"
-#include "EntityVisitor.hpp"
-#include "Camera.hpp"
-#include "FbxImporter.hpp"
+// /**
+//  * @brief Initialize all systems of the engine with a default camera.
+//  *
+//  * @param windowTitle The title of the window.
+//  */
+// void initializeEverything(const char* windowTitle);
 
-namespace gintonic {
+// *
+//  * @brief Initialize all systems of the engine.
+//  *
+//  * @param windowTitle The title of the window.
+//  * @param entityWithCamera The entity to view the world through.
 
-/**
- * @brief Initialize all systems of the engine with a default camera.
- * 
- * @param windowTitle The title of the window.
- */
-void initializeEverything(const char* windowTitle);
+// void initializeEverything(const char* windowTitle,
+//                           std::shared_ptr<Entity> entityWithCamera);
 
-/**
- * @brief Initialize all systems of the engine.
- * 
- * @param windowTitle The title of the window.
- * @param entityWithCamera The entity to view the world through.
- */
-void initializeEverything(const char* windowTitle, std::shared_ptr<Entity> entityWithCamera);
-
-} // namespace gintonic
+// } // namespace gintonic

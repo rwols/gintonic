@@ -1,11 +1,11 @@
-#include "Math/vec3f.hpp"
-#include "Math/vec2f.hpp"
-#include "Math/quatf.hpp"
-#define FBXSDK_NEW_API
+#include <gintonic/Math/vec3f.hpp>
+
+#include <gintonic/Math/vec2f.hpp>
+#include <gintonic/Math/quatf.hpp>
 #include <fbxsdk/core/math/fbxvector4.h>
 #include <array>
 
-namespace gintonic {
+using namespace gintonic;
 
 vec3f::vec3f(std::initializer_list<float> init) noexcept
 {
@@ -70,5 +70,3 @@ vec3f::operator FBXSDK_NAMESPACE::FbxVector4() const noexcept
 	
 	return FBXSDK_NAMESPACE::FbxVector4(x, y, z, 0.0);
 }
-
-} // namespace gintonic

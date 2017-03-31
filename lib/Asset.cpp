@@ -1,13 +1,9 @@
 #include "Asset.hpp"
-#include "Foundation/filesystem.hpp"
-#include "Foundation/portable_oarchive.hpp"
+#include <gintonic/Foundation/filesystem.hpp>
 
 using namespace gintonic;
 
-std::string Asset::sAssetFolder = std::string();
-
-std::unordered_map<std::string, std::weak_ptr<Asset>> sAssetMap 
-	= std::unordered_map<std::string, std::weak_ptr<Asset>>();
+std::string Asset::sAssetFolder = (getExecutablePath() / "assets").string();
 
 Asset::Asset(const std::string& relativeFilename) 
 : mName(relativeFilename)
@@ -51,12 +47,12 @@ std::string Asset::getFullPath() const
 	return getFullPathFor(mName);
 }
 
-std::ifstream Asset::openForReading() const
+std::ifstream Asset::openForReading(const std::ios_base::openmode mode) const
 {
-	return std::ifstream(getFullPath(), std::ios::binary);
+	return std::ifstream(getFullPath(), mode);
 }
 
-std::ofstream Asset::openForWriting() const
+std::ofstream Asset::openForWriting(const std::ios_base::openmode mode) const
 {
-	return std::ofstream(getFullPath(), std::ios::binary);
+	return std::ofstream(getFullPath(), mode);
 }

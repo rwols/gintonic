@@ -1,5 +1,4 @@
-#include <Foundation/Clock.hpp>
-
+#include <gintonic/Foundation/Clock.hpp>
 #include <iostream>
 
 #ifdef __APPLE__
@@ -58,34 +57,34 @@ void Clock::update() noexcept
 #endif
 }
 
-std::ostream &gintonic::operator<<(std::ostream &os, const Clock &clock)
+std::ostream& gintonic::operator<<(std::ostream& os, const Clock& clock)
 {
     os << "<gintonic::Clock " << &clock << " with now scaled at " << clock.now()
        << " and unscaled at " << clock.nowUnscaled()
        << ", current timeScale is " << clock.timeScale << ">";
     return os;
 }
-std::ostream &gintonic::operator<<(std::ostream &os,
-                                   const Clock::time_point &timePoint)
+std::ostream& gintonic::operator<<(std::ostream& os,
+                                   const Clock::time_point& timePoint)
 {
     return os << timePoint.time_since_epoch();
 }
-std::ostream &gintonic::operator<<(std::ostream &os,
-                                   const Clock::duration &duration)
+std::ostream& gintonic::operator<<(std::ostream& os,
+                                   const Clock::duration& duration)
 {
     return os << duration.count() << "s";
 }
-std::ostream &gintonic::operator<<(std::ostream &os,
-                                   const MilliSeconds &duration)
+std::ostream& gintonic::operator<<(std::ostream& os,
+                                   const MilliSeconds& duration)
 {
     return os << duration.count() << "ms";
 }
-std::ostream &gintonic::operator<<(std::ostream &os,
-                                   const MicroSeconds &duration)
+std::ostream& gintonic::operator<<(std::ostream& os,
+                                   const MicroSeconds& duration)
 {
     return os << duration.count() << "us";
 }
-std::ostream &gintonic::operator<<(std::ostream &os, const Minutes &duration)
+std::ostream& gintonic::operator<<(std::ostream& os, const Minutes& duration)
 {
     return os << duration.count() << " minutes";
 }

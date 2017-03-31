@@ -1,7 +1,7 @@
-#include "Foundation/exception.hpp"
+#include <gintonic/Foundation/exception.hpp>
 #include <string>
 
-namespace gintonic {
+using namespace gintonic;
 
 exception::exception(const std::string& message) : m_message(message) {}
 exception::exception(std::string&& message) : m_message(std::move(message)) {}
@@ -43,5 +43,3 @@ exception& exception::prepend(std::string message)
 	m_message.insert(m_message.begin(), message.begin(), message.end());
 	return *this;
 }
-
-} // namespace gintonic

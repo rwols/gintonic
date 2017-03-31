@@ -1,12 +1,10 @@
 # Roadmap
 
-- Refactor Material to NOT derive from Asset.
+- Refactor Material to NOT derive from Object.
 - Refactor ShaderProgram to derive from Asset.
 - Refactor Mesh to derive from Asset.
 - Refactor Light to derive from Asset.
-- Refactor Boost.Filesystem away (and use a fileystem library on github).
-- Refactor Boost.Serialization away (use cereal instead).
-- Think about embedding Python or ChaiScript. Which one? Both? Others?
+- Embed Python3, see Behaviour class.
 - Create a Transform class, derived from Component.
 - Get ImGui to work nicely with the Renderer.
 - Refactor the Renderer god-class.
@@ -14,6 +12,8 @@
 - Implement an #include statement for GLSL.
 - Normalize #include paths in all headers.
 - Write a "shader editor".
+- Write a "texture editor".
+- Write an exporter plugin for Blender and Maya.
 
 <!-- \f$\newcommand{\AffMat}{\mathop{\rm AffMat}\nolimits}\f$
 \f$\newcommand{\GL}{\mathop{\rm GL}\nolimits}\f$

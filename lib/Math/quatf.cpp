@@ -1,14 +1,13 @@
-#include "Math/quatf.hpp"
-#include "Math/vec2f.hpp"
-#include "Math/vec3f.hpp"
-#include "Math/vec4f.hpp"
-#define FBXSDK_NEW_API
+#include <gintonic/Math/quatf.hpp>
+
+#include <gintonic/Math/vec2f.hpp>
+#include <gintonic/Math/vec3f.hpp>
+#include <gintonic/Math/vec4f.hpp>
 #include <fbxsdk/core/math/fbxvector4.h>
 #include <fbxsdk/core/math/fbxquaternion.h>
-
 #include <cassert>
 
-namespace gintonic {
+using namespace gintonic;
 
 quatf::quatf(const float realpart, const vec3f& imaginarypart)
 {
@@ -430,5 +429,3 @@ quatf quatf::mouse(const vec2f& angles)
 	const auto rot = axis_angle(vec3f(0.0f, 1.0f, 0.0f), angles.x);
 	return axis_angle(rot.right_direction(), angles.y) * rot;
 }
-
-} // namespace gintonic

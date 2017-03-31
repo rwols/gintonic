@@ -1,7 +1,8 @@
-#include "Math/SQT.hpp"
+#include <gintonic/Math/SQT.hpp>
+
 #include <fbxsdk.h>
 
-namespace gintonic {
+using namespace gintonic;
 
 SQT::SQT(const mat4f& affineMatrix)
 {
@@ -114,5 +115,3 @@ std::istream& operator >> (std::istream& is, SQT& sqt)
 	is >> sqt.scale >> sqt.rotation >> sqt.translation;
 	return is;
 }
-
-} // namespace gintonic

@@ -1,22 +1,19 @@
-#include "Graphics/OpenGL/VertexArrayObject.hpp"
+#include <gintonic/Graphics/OpenGL/VertexArrayObject.hpp>
 
-namespace gintonic {
-namespace OpenGL {
+using namespace gintonic;
+using namespace gintonic::OpenGL;
 
 VertexArrayObject::VertexArrayObject() : mHandle(0)
 {
-	glGenVertexArrays(1, &mHandle);
-	if (!mHandle) throw std::bad_alloc();
+    glGenVertexArrays(1, &mHandle);
+    if (!mHandle) throw std::bad_alloc();
 }
 
-VertexArrayObject& VertexArrayObject::operator = (VertexArrayObject&& other)
-	noexcept
+VertexArrayObject& VertexArrayObject::
+operator=(VertexArrayObject&& other) noexcept
 {
-	glDeleteVertexArrays(1, &mHandle);
-	mHandle = other.mHandle;
-	other.mHandle = 0;
-	return *this;
+    glDeleteVertexArrays(1, &mHandle);
+    mHandle = other.mHandle;
+    other.mHandle = 0;
+    return *this;
 }
-
-} // namespace OpenGL
-} // namespace gintonic

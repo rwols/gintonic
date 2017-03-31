@@ -1,7 +1,7 @@
-#include "Math/mat3f.hpp"
-#include "Math/vec3f.hpp"
+#include <gintonic/Math/mat3f.hpp>
+#include <gintonic/Math/vec3f.hpp>
 
-namespace gintonic {
+using namespace gintonic;
 
 #ifdef BOOST_MSVC // NOTE: Consider removing this when on MSVC2015
 
@@ -128,6 +128,3 @@ mat3f& mat3f::transpose() noexcept
 	std::swap(m12, m21);
 	return *this;
 }
-
-} // namespace gintonic
-

@@ -1,9 +1,9 @@
-#include "Math/vec2f.hpp"
-#define FBXSDK_NEW_API
+#include <gintonic/Math/vec2f.hpp>
+
 #include <fbxsdk/core/math/fbxvector2.h>
 #include <array>
 
-namespace gintonic {
+using namespace gintonic;
 
 vec2f::vec2f(std::initializer_list<float> init) noexcept
 {
@@ -48,5 +48,3 @@ vec2f::operator FBXSDK_NAMESPACE::FbxVector2() const noexcept
 	
 	return FBXSDK_NAMESPACE::FbxVector2(x, y);
 }
-
-} // namespace gintonic

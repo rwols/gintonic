@@ -1,66 +1,45 @@
 {
-	"build_systems":
-	[
-		{
-			"file_regex": "^(/.[^:]*):(\\d+):(\\d+): (?:fatal )?(?:error|warning): (.*)$",
-			"name": "gintonic",
-			"shell_cmd": "cmake --build .",
-			"variants":
-			[
-				{
-					"name": "examples/install/local",
-					"shell_cmd": "cmake --build . --target examples/install/local"
-				},
-				{
-					"name": "examples/install",
-					"shell_cmd": "cmake --build . --target examples/install"
-				},
-				{
-					"name": "examples/list_install_components",
-					"shell_cmd": "cmake --build . --target examples/list_install_components"
-				},
-				{
-					"name": "examples/test",
-					"shell_cmd": "cmake --build . --target examples/test"
-				},
-				{
-					"name": "examples/rebuild_cache",
-					"shell_cmd": "cmake --build . --target examples/rebuild_cache"
-				},
-				{
-					"name": "examples/package_source",
-					"shell_cmd": "cmake --build . --target examples/package_source"
-				},
-				{
-					"name": "examples/package",
-					"shell_cmd": "cmake --build . --target examples/package"
-				},
-				{
-					"name": "libgintonic",
-					"shell_cmd": "cmake --build . --target libgintonic.dylib"
-				}
-			],
-			"working_dir": "${project_path}/build"
-		}
-	],
-	"cmake":
-	{
-		"build_folder": "${project_path}/build",
-		"command_line_overrides":
-		{
-			"BUILD_SHARED_LIBS": true,
-			"CMAKE_BUILD_TYPE": "Debug",
-			"CMAKE_EXPORT_COMPILE_COMMANDS": true
-		},
-		"filter_targets":
-		[
-			"gintonic",
-			"examples",
-			"PointLights",
-			"Shadows"
-		],
-		"generator": "Ninja"
-	},
+	// "build_systems":
+	// [
+	// 	{
+	// 		"file_regex": "(.+[^:]):(\\d+):(\\d+): (?:fatal )?((?:error|warning): .+)$",
+	// 		"name": "gintonic",
+	// 		"shell_cmd": "cmake --build .",
+	// 		"variants":
+	// 		[
+	// 			{
+	// 				"name": "gintonic",
+	// 				"shell_cmd": "make gintonic -j4"
+	// 			},
+	// 			{
+	// 				"name": "Shadows",
+	// 				"shell_cmd": "make Shadows -j4"
+	// 			},
+	// 			{
+	// 				"name": "PointLights",
+	// 				"shell_cmd": "make PointLights -j4"
+	// 			}
+	// 		],
+	// 		"working_dir": "${project_path}/build"
+	// 	}
+	// ],
+	// "cmake":
+	// {
+	// 	"build_folder": "${project_path}/build",
+	// 	"command_line_overrides":
+	// 	{
+	// 		"BUILD_SHARED_LIBS": true,
+	// 		"CMAKE_BUILD_TYPE": "Debug",
+	// 		"CMAKE_EXPORT_COMPILE_COMMANDS": true
+	// 	},
+	// 	"filter_targets":
+	// 	[
+	// 		"gintonic",
+	// 		"examples",
+	// 		"PointLights",
+	// 		"Shadows"
+	// 	]
+	// },
 	"folders":
 	[
 		{
@@ -69,6 +48,11 @@
 	],
 	"settings":
 	{
+		"ClangFormat":
+		{
+			"based_on_style": "File",
+			"format_on_save": true
+		},
 		"flags_sources":
 		[
 			{
@@ -76,11 +60,6 @@
 				"search_in": "/home/raoul/dev/gintonic/build"
 			}
 		],
-		"ClangFormat": 
-		{
-			"based_on_style": "File",
-			"format_on_save": true
-		},
 		"tab_size": 4
 	}
 }

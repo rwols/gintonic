@@ -43,11 +43,20 @@ set(gintonic_source_files
 	Foundation/Clock.cpp
 	Foundation/ReadWriteLock.cpp
 	Foundation/exception.cpp
+	Foundation/getExecutablePath.cpp
 	Foundation/Profiler.cpp
 	Foundation/WriteLock.cpp
 	Foundation/simd.cpp
-	Foundation/filesystem.cpp
-	Foundation/Octree.cpp
+	# Foundation/Octree.cpp
+
+	# Component
+	Component/Behaviour.cpp
+	Component/BoxCollider.cpp
+	Component/Collider.cpp
+	Component/MeshRenderer.cpp
+	Component/OctreeComp.cpp
+	Component/Renderer.cpp
+	Component/Transform.cpp
 
 	# Graphics/OpenGL
 	Graphics/OpenGL/BufferObject.cpp
@@ -66,10 +75,6 @@ set(gintonic_source_files
 	Graphics/Skeleton.cpp
 	Graphics/AmbientLight.cpp
 	Graphics/Renderer.cpp
-	Graphics/GUI/Base.cpp
-	Graphics/GUI/Panel.cpp
-	Graphics/GUI/StringView.cpp
-	Graphics/GUI/StringPointerView.cpp
 	Graphics/Texture2D.cpp
 	Graphics/Light.cpp
 	Graphics/PointLight.cpp
@@ -95,7 +100,12 @@ set(gintonic_source_files
 	Math/vec4f.cpp
 	Math/box3f.cpp
 
-	# ???
+	# imgui
+	imgui/imgui.cpp
+	# imgui/imgui_demo.cpp
+	# imgui/imgui_draw.cpp
+
+	# Various other classes
 	EntityVisitor.cpp
 	Asset.cpp
 	Camera.cpp
@@ -104,11 +114,6 @@ set(gintonic_source_files
 	gintonic.cpp
 	Entity.cpp
 	Application.cpp
-
-	# imgui
-	imgui/imgui.cpp
-	imgui/imgui_demo.cpp
-	imgui/imgui_draw.cpp
 	)
 
 set(gintonic_SSE_VERSION 30 CACHE STRING "The SSE version.")
