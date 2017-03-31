@@ -5,7 +5,8 @@
 
 #define GT_IDEAL_FRAMES_PER_SECOND 1.0f / 60.0f
 
-#include <gintonic/nsbegin.hpp>
+namespace gintonic
+{
 
 /**
  * @brief      A floating point clock with an update function for use in a
@@ -104,7 +105,7 @@ class Clock
     /**
      * @brief      Debug print to an ostream.
      */
-    friend std::ostream &operator<<(std::ostream &os, const Clock &clock);
+    friend std::ostream& operator<<(std::ostream& os, const Clock& clock);
 
   private:
 #ifdef __APPLE__
@@ -133,36 +134,36 @@ using Minutes = std::chrono::duration<Clock::rep, std::ratio<60, 1>>;
 /**
  * @brief      Debug print to an ostream.
  */
-std::ostream &operator<<(std::ostream &os, const Clock::time_point &timePoint);
+std::ostream& operator<<(std::ostream& os, const Clock::time_point& timePoint);
 
 /**
  * @brief      Debug print to an ostream.
  */
-std::ostream &operator<<(std::ostream &os, const Clock::duration &duration);
+std::ostream& operator<<(std::ostream& os, const Clock::duration& duration);
 
 /**
  * @brief      Debug print to an ostream.
  */
-std::ostream &operator<<(std::ostream &os, const TimePoint &timePoint);
+std::ostream& operator<<(std::ostream& os, const TimePoint& timePoint);
 
 /**
  * @brief      Debug print to an ostream.
  */
-std::ostream &operator<<(std::ostream &os, const Seconds &duration);
+std::ostream& operator<<(std::ostream& os, const Seconds& duration);
 
 /**
  * @brief      Debug print to an ostream.
  */
-std::ostream &operator<<(std::ostream &os, const MilliSeconds &duration);
+std::ostream& operator<<(std::ostream& os, const MilliSeconds& duration);
 
 /**
  * @brief      Debug print to an ostream.
  */
-std::ostream &operator<<(std::ostream &os, const MicroSeconds &duration);
+std::ostream& operator<<(std::ostream& os, const MicroSeconds& duration);
 
 /**
  * @brief      Debug print to an ostream.
  */
-std::ostream &operator<<(std::ostream &os, const Minutes &duration);
+std::ostream& operator<<(std::ostream& os, const Minutes& duration);
 
-#include <gintonic/nsend.hpp>
+} // namespace gintonic
