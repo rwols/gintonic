@@ -96,14 +96,15 @@ set(gintonic_source_files
 	Math/box3f.cpp
 
 	# ???
-	EntityVisitor.cpp
+	Application.cpp
 	Asset.cpp
 	Camera.cpp
 	Component.cpp
+	Entity.cpp
+	EntityVisitor.cpp
 	FbxImporter.cpp
 	gintonic.cpp
-	Entity.cpp
-	Application.cpp
+	GraphicsContext.cpp
 
 	# imgui
 	imgui/imgui.cpp
@@ -149,7 +150,8 @@ else ()
 	target_compile_options(gintonic PUBLIC -msse3)
 	target_compile_options(gintonic PRIVATE -Wall)
 	# if (NOT BUILD_SHARED_LIBS AND CMAKE_BUILD_TYPE STREQUAL "Release")
-	# 	target_compile_options(gintonic PRIVATE -fvisibility=hidden)
+	target_compile_options(gintonic PRIVATE -fvisibility=hidden)
+	target_compile_options(gintonic PRIVATE -fvisibility-inlines-hidden)
 	# 	if (CMAKE_STRIP)
 	# 		add_custom_command(TARGET gintonic POST_BUILD COMMAND ${CMAKE_STRIP} -u -r $<TARGET_FILE:gintonic>)
 	# 	endif ()

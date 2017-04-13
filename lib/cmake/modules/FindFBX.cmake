@@ -186,6 +186,9 @@ if (FBX_FOUND AND NOT CMAKE_VERSION LESS 3.0) # CMake version >= 3.0
     endif ()
     target_include_directories(FBX INTERFACE ${FBX_INCLUDE_DIRS})
     target_link_libraries(FBX INTERFACE ${FBX_LIBRARIES})
+    if(CMAKE_CXX_COMPILER_ID MATCHES Clang)
+        target_compile_options(FBX INTERFACE -Wno-null-dereference)
+    endif(CMAKE_CXX_COMPILER_ID MATCHES Clang)
 endif ()
 
 mark_as_advanced(FBX_FOUND)
