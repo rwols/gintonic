@@ -1,4 +1,680 @@
 {
+	"build_systems":
+	[
+		{
+			"name": "Run Shadows Example",
+			"shell_cmd": "./Shadows",
+			"working_dir": "${project_path}/build/examples"
+		},
+		{
+			"file_regex": "(.+[^:]):(\\d+):(\\d+): (?:fatal )?((?:error|warning): .+)$",
+			"name": "gintonic (OSX)",
+			"shell_cmd": "cmake --build .",
+			"syntax": "Packages/CMakeBuilder/Syntax/Ninja.sublime-syntax",
+			"variants":
+			[
+				{
+					"name": "install/strip",
+					"shell_cmd": "cmake --build . --target install/strip"
+				},
+				{
+					"name": "install",
+					"shell_cmd": "cmake --build . --target install"
+				},
+				{
+					"name": "list_install_components",
+					"shell_cmd": "cmake --build . --target list_install_components"
+				},
+				{
+					"name": "install/local",
+					"shell_cmd": "cmake --build . --target install/local"
+				},
+				{
+					"name": "test",
+					"shell_cmd": "cmake --build . --target test"
+				},
+				{
+					"name": "package_source",
+					"shell_cmd": "cmake --build . --target package_source"
+				},
+				{
+					"name": "rebuild_cache",
+					"shell_cmd": "cmake --build . --target rebuild_cache"
+				},
+				{
+					"name": "package",
+					"shell_cmd": "cmake --build . --target package"
+				},
+				{
+					"name": "assets/install/strip",
+					"shell_cmd": "cmake --build . --target assets/install/strip"
+				},
+				{
+					"name": "assets/install",
+					"shell_cmd": "cmake --build . --target assets/install"
+				},
+				{
+					"name": "assets/list_install_components",
+					"shell_cmd": "cmake --build . --target assets/list_install_components"
+				},
+				{
+					"name": "assets/install/local",
+					"shell_cmd": "cmake --build . --target assets/install/local"
+				},
+				{
+					"name": "assets/test",
+					"shell_cmd": "cmake --build . --target assets/test"
+				},
+				{
+					"name": "assets/package_source",
+					"shell_cmd": "cmake --build . --target assets/package_source"
+				},
+				{
+					"name": "assets/rebuild_cache",
+					"shell_cmd": "cmake --build . --target assets/rebuild_cache"
+				},
+				{
+					"name": "assets/package",
+					"shell_cmd": "cmake --build . --target assets/package"
+				},
+				{
+					"name": "include/install/strip",
+					"shell_cmd": "cmake --build . --target include/install/strip"
+				},
+				{
+					"name": "include/install",
+					"shell_cmd": "cmake --build . --target include/install"
+				},
+				{
+					"name": "include/list_install_components",
+					"shell_cmd": "cmake --build . --target include/list_install_components"
+				},
+				{
+					"name": "include/install/local",
+					"shell_cmd": "cmake --build . --target include/install/local"
+				},
+				{
+					"name": "include/test",
+					"shell_cmd": "cmake --build . --target include/test"
+				},
+				{
+					"name": "include/package_source",
+					"shell_cmd": "cmake --build . --target include/package_source"
+				},
+				{
+					"name": "include/rebuild_cache",
+					"shell_cmd": "cmake --build . --target include/rebuild_cache"
+				},
+				{
+					"name": "include/package",
+					"shell_cmd": "cmake --build . --target include/package"
+				},
+				{
+					"name": "lib/install/strip",
+					"shell_cmd": "cmake --build . --target lib/install/strip"
+				},
+				{
+					"name": "lib/install",
+					"shell_cmd": "cmake --build . --target lib/install"
+				},
+				{
+					"name": "lib/list_install_components",
+					"shell_cmd": "cmake --build . --target lib/list_install_components"
+				},
+				{
+					"name": "lib/install/local",
+					"shell_cmd": "cmake --build . --target lib/install/local"
+				},
+				{
+					"name": "lib/test",
+					"shell_cmd": "cmake --build . --target lib/test"
+				},
+				{
+					"name": "lib/rebuild_cache",
+					"shell_cmd": "cmake --build . --target lib/rebuild_cache"
+				},
+				{
+					"name": "lib/package_source",
+					"shell_cmd": "cmake --build . --target lib/package_source"
+				},
+				{
+					"name": "lib/package",
+					"shell_cmd": "cmake --build . --target lib/package"
+				},
+				{
+					"name": "lib/glad/list_install_components",
+					"shell_cmd": "cmake --build . --target lib/glad/list_install_components"
+				},
+				{
+					"name": "lib/glad/install/local",
+					"shell_cmd": "cmake --build . --target lib/glad/install/local"
+				},
+				{
+					"name": "lib/glad/test",
+					"shell_cmd": "cmake --build . --target lib/glad/test"
+				},
+				{
+					"name": "lib/glad/rebuild_cache",
+					"shell_cmd": "cmake --build . --target lib/glad/rebuild_cache"
+				},
+				{
+					"name": "lib/glad/package_source",
+					"shell_cmd": "cmake --build . --target lib/glad/package_source"
+				},
+				{
+					"name": "lib/glad/package",
+					"shell_cmd": "cmake --build . --target lib/glad/package"
+				},
+				{
+					"name": "lib/glad/install/strip",
+					"shell_cmd": "cmake --build . --target lib/glad/install/strip"
+				},
+				{
+					"name": "lib/glad/install",
+					"shell_cmd": "cmake --build . --target lib/glad/install"
+				},
+				{
+					"name": "lib/SDL-mirror/list_install_components",
+					"shell_cmd": "cmake --build . --target lib/SDL-mirror/list_install_components"
+				},
+				{
+					"name": "lib/SDL-mirror/rebuild_cache",
+					"shell_cmd": "cmake --build . --target lib/SDL-mirror/rebuild_cache"
+				},
+				{
+					"name": "lib/SDL-mirror/package_source",
+					"shell_cmd": "cmake --build . --target lib/SDL-mirror/package_source"
+				},
+				{
+					"name": "lib/SDL-mirror/test",
+					"shell_cmd": "cmake --build . --target lib/SDL-mirror/test"
+				},
+				{
+					"name": "lib/SDL-mirror/install/strip",
+					"shell_cmd": "cmake --build . --target lib/SDL-mirror/install/strip"
+				},
+				{
+					"name": "lib/SDL-mirror/package",
+					"shell_cmd": "cmake --build . --target lib/SDL-mirror/package"
+				},
+				{
+					"name": "lib/SDL-mirror/install",
+					"shell_cmd": "cmake --build . --target lib/SDL-mirror/install"
+				},
+				{
+					"name": "lib/SDL-mirror/install/local",
+					"shell_cmd": "cmake --build . --target lib/SDL-mirror/install/local"
+				},
+				{
+					"name": "lib/freetype2/list_install_components",
+					"shell_cmd": "cmake --build . --target lib/freetype2/list_install_components"
+				},
+				{
+					"name": "lib/freetype2/install/local",
+					"shell_cmd": "cmake --build . --target lib/freetype2/install/local"
+				},
+				{
+					"name": "lib/freetype2/test",
+					"shell_cmd": "cmake --build . --target lib/freetype2/test"
+				},
+				{
+					"name": "lib/freetype2/rebuild_cache",
+					"shell_cmd": "cmake --build . --target lib/freetype2/rebuild_cache"
+				},
+				{
+					"name": "lib/freetype2/package_source",
+					"shell_cmd": "cmake --build . --target lib/freetype2/package_source"
+				},
+				{
+					"name": "lib/freetype2/package",
+					"shell_cmd": "cmake --build . --target lib/freetype2/package"
+				},
+				{
+					"name": "lib/freetype2/install/strip",
+					"shell_cmd": "cmake --build . --target lib/freetype2/install/strip"
+				},
+				{
+					"name": "lib/freetype2/install",
+					"shell_cmd": "cmake --build . --target lib/freetype2/install"
+				},
+				{
+					"name": "lib/pybind11/install/strip",
+					"shell_cmd": "cmake --build . --target lib/pybind11/install/strip"
+				},
+				{
+					"name": "lib/pybind11/install",
+					"shell_cmd": "cmake --build . --target lib/pybind11/install"
+				},
+				{
+					"name": "lib/pybind11/list_install_components",
+					"shell_cmd": "cmake --build . --target lib/pybind11/list_install_components"
+				},
+				{
+					"name": "lib/pybind11/install/local",
+					"shell_cmd": "cmake --build . --target lib/pybind11/install/local"
+				},
+				{
+					"name": "lib/pybind11/test",
+					"shell_cmd": "cmake --build . --target lib/pybind11/test"
+				},
+				{
+					"name": "lib/pybind11/rebuild_cache",
+					"shell_cmd": "cmake --build . --target lib/pybind11/rebuild_cache"
+				},
+				{
+					"name": "lib/pybind11/package_source",
+					"shell_cmd": "cmake --build . --target lib/pybind11/package_source"
+				},
+				{
+					"name": "lib/pybind11/package",
+					"shell_cmd": "cmake --build . --target lib/pybind11/package"
+				},
+				{
+					"name": "lib/cxxopts/install/strip",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/install/strip"
+				},
+				{
+					"name": "lib/cxxopts/install",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/install"
+				},
+				{
+					"name": "lib/cxxopts/list_install_components",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/list_install_components"
+				},
+				{
+					"name": "lib/cxxopts/rebuild_cache",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/rebuild_cache"
+				},
+				{
+					"name": "lib/cxxopts/package_source",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/package_source"
+				},
+				{
+					"name": "lib/cxxopts/package",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/package"
+				},
+				{
+					"name": "lib/cxxopts/install/local",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/install/local"
+				},
+				{
+					"name": "lib/cxxopts/test",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/test"
+				},
+				{
+					"name": "lib/cxxopts/src/install/strip",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/src/install/strip"
+				},
+				{
+					"name": "lib/cxxopts/src/install",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/src/install"
+				},
+				{
+					"name": "lib/cxxopts/src/list_install_components",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/src/list_install_components"
+				},
+				{
+					"name": "lib/cxxopts/src/install/local",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/src/install/local"
+				},
+				{
+					"name": "lib/cxxopts/src/test",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/src/test"
+				},
+				{
+					"name": "lib/cxxopts/src/rebuild_cache",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/src/rebuild_cache"
+				},
+				{
+					"name": "lib/cxxopts/src/package_source",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/src/package_source"
+				},
+				{
+					"name": "lib/cxxopts/src/package",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/src/package"
+				},
+				{
+					"name": "lib/cxxopts/test/install/strip",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/test/install/strip"
+				},
+				{
+					"name": "lib/cxxopts/test/install",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/test/install"
+				},
+				{
+					"name": "lib/cxxopts/test/list_install_components",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/test/list_install_components"
+				},
+				{
+					"name": "lib/cxxopts/test/install/local",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/test/install/local"
+				},
+				{
+					"name": "lib/cxxopts/test/test",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/test/test"
+				},
+				{
+					"name": "lib/cxxopts/test/package_source",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/test/package_source"
+				},
+				{
+					"name": "lib/cxxopts/test/rebuild_cache",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/test/rebuild_cache"
+				},
+				{
+					"name": "lib/cxxopts/test/package",
+					"shell_cmd": "cmake --build . --target lib/cxxopts/test/package"
+				},
+				{
+					"name": "lib/cereal/list_install_components",
+					"shell_cmd": "cmake --build . --target lib/cereal/list_install_components"
+				},
+				{
+					"name": "lib/cereal/install/strip",
+					"shell_cmd": "cmake --build . --target lib/cereal/install/strip"
+				},
+				{
+					"name": "lib/cereal/package",
+					"shell_cmd": "cmake --build . --target lib/cereal/package"
+				},
+				{
+					"name": "lib/cereal/rebuild_cache",
+					"shell_cmd": "cmake --build . --target lib/cereal/rebuild_cache"
+				},
+				{
+					"name": "lib/cereal/package_source",
+					"shell_cmd": "cmake --build . --target lib/cereal/package_source"
+				},
+				{
+					"name": "lib/cereal/install/local",
+					"shell_cmd": "cmake --build . --target lib/cereal/install/local"
+				},
+				{
+					"name": "lib/cereal/test",
+					"shell_cmd": "cmake --build . --target lib/cereal/test"
+				},
+				{
+					"name": "lib/cereal/install",
+					"shell_cmd": "cmake --build . --target lib/cereal/install"
+				},
+				{
+					"name": "test/install",
+					"shell_cmd": "cmake --build . --target test/install"
+				},
+				{
+					"name": "test/list_install_components",
+					"shell_cmd": "cmake --build . --target test/list_install_components"
+				},
+				{
+					"name": "test/test",
+					"shell_cmd": "cmake --build . --target test/test"
+				},
+				{
+					"name": "test/package",
+					"shell_cmd": "cmake --build . --target test/package"
+				},
+				{
+					"name": "test/install/local",
+					"shell_cmd": "cmake --build . --target test/install/local"
+				},
+				{
+					"name": "test/package_source",
+					"shell_cmd": "cmake --build . --target test/package_source"
+				},
+				{
+					"name": "test/rebuild_cache",
+					"shell_cmd": "cmake --build . --target test/rebuild_cache"
+				},
+				{
+					"name": "test/install/strip",
+					"shell_cmd": "cmake --build . --target test/install/strip"
+				},
+				{
+					"name": "tools/install/strip",
+					"shell_cmd": "cmake --build . --target tools/install/strip"
+				},
+				{
+					"name": "tools/install",
+					"shell_cmd": "cmake --build . --target tools/install"
+				},
+				{
+					"name": "tools/list_install_components",
+					"shell_cmd": "cmake --build . --target tools/list_install_components"
+				},
+				{
+					"name": "tools/install/local",
+					"shell_cmd": "cmake --build . --target tools/install/local"
+				},
+				{
+					"name": "tools/test",
+					"shell_cmd": "cmake --build . --target tools/test"
+				},
+				{
+					"name": "tools/package_source",
+					"shell_cmd": "cmake --build . --target tools/package_source"
+				},
+				{
+					"name": "tools/rebuild_cache",
+					"shell_cmd": "cmake --build . --target tools/rebuild_cache"
+				},
+				{
+					"name": "tools/package",
+					"shell_cmd": "cmake --build . --target tools/package"
+				},
+				{
+					"name": "tools/DriverInfo/install/strip",
+					"shell_cmd": "cmake --build . --target tools/DriverInfo/install/strip"
+				},
+				{
+					"name": "tools/DriverInfo/install",
+					"shell_cmd": "cmake --build . --target tools/DriverInfo/install"
+				},
+				{
+					"name": "tools/DriverInfo/list_install_components",
+					"shell_cmd": "cmake --build . --target tools/DriverInfo/list_install_components"
+				},
+				{
+					"name": "tools/DriverInfo/install/local",
+					"shell_cmd": "cmake --build . --target tools/DriverInfo/install/local"
+				},
+				{
+					"name": "tools/DriverInfo/test",
+					"shell_cmd": "cmake --build . --target tools/DriverInfo/test"
+				},
+				{
+					"name": "tools/DriverInfo/package",
+					"shell_cmd": "cmake --build . --target tools/DriverInfo/package"
+				},
+				{
+					"name": "tools/DriverInfo/rebuild_cache",
+					"shell_cmd": "cmake --build . --target tools/DriverInfo/rebuild_cache"
+				},
+				{
+					"name": "tools/DriverInfo/package_source",
+					"shell_cmd": "cmake --build . --target tools/DriverInfo/package_source"
+				},
+				{
+					"name": "tools/FbxConverter/install/strip",
+					"shell_cmd": "cmake --build . --target tools/FbxConverter/install/strip"
+				},
+				{
+					"name": "tools/FbxConverter/install",
+					"shell_cmd": "cmake --build . --target tools/FbxConverter/install"
+				},
+				{
+					"name": "tools/FbxConverter/list_install_components",
+					"shell_cmd": "cmake --build . --target tools/FbxConverter/list_install_components"
+				},
+				{
+					"name": "tools/FbxConverter/install/local",
+					"shell_cmd": "cmake --build . --target tools/FbxConverter/install/local"
+				},
+				{
+					"name": "tools/FbxConverter/test",
+					"shell_cmd": "cmake --build . --target tools/FbxConverter/test"
+				},
+				{
+					"name": "tools/FbxConverter/package",
+					"shell_cmd": "cmake --build . --target tools/FbxConverter/package"
+				},
+				{
+					"name": "tools/FbxConverter/rebuild_cache",
+					"shell_cmd": "cmake --build . --target tools/FbxConverter/rebuild_cache"
+				},
+				{
+					"name": "tools/FbxConverter/package_source",
+					"shell_cmd": "cmake --build . --target tools/FbxConverter/package_source"
+				},
+				{
+					"name": "tools/ShaderEditor/install/strip",
+					"shell_cmd": "cmake --build . --target tools/ShaderEditor/install/strip"
+				},
+				{
+					"name": "tools/ShaderEditor/install",
+					"shell_cmd": "cmake --build . --target tools/ShaderEditor/install"
+				},
+				{
+					"name": "tools/ShaderEditor/list_install_components",
+					"shell_cmd": "cmake --build . --target tools/ShaderEditor/list_install_components"
+				},
+				{
+					"name": "tools/ShaderEditor/install/local",
+					"shell_cmd": "cmake --build . --target tools/ShaderEditor/install/local"
+				},
+				{
+					"name": "tools/ShaderEditor/test",
+					"shell_cmd": "cmake --build . --target tools/ShaderEditor/test"
+				},
+				{
+					"name": "tools/ShaderEditor/rebuild_cache",
+					"shell_cmd": "cmake --build . --target tools/ShaderEditor/rebuild_cache"
+				},
+				{
+					"name": "tools/ShaderEditor/package_source",
+					"shell_cmd": "cmake --build . --target tools/ShaderEditor/package_source"
+				},
+				{
+					"name": "tools/ShaderEditor/package",
+					"shell_cmd": "cmake --build . --target tools/ShaderEditor/package"
+				},
+				{
+					"name": "tools/TextureEditor/install/strip",
+					"shell_cmd": "cmake --build . --target tools/TextureEditor/install/strip"
+				},
+				{
+					"name": "tools/TextureEditor/install",
+					"shell_cmd": "cmake --build . --target tools/TextureEditor/install"
+				},
+				{
+					"name": "tools/TextureEditor/list_install_components",
+					"shell_cmd": "cmake --build . --target tools/TextureEditor/list_install_components"
+				},
+				{
+					"name": "tools/TextureEditor/install/local",
+					"shell_cmd": "cmake --build . --target tools/TextureEditor/install/local"
+				},
+				{
+					"name": "tools/TextureEditor/test",
+					"shell_cmd": "cmake --build . --target tools/TextureEditor/test"
+				},
+				{
+					"name": "tools/TextureEditor/rebuild_cache",
+					"shell_cmd": "cmake --build . --target tools/TextureEditor/rebuild_cache"
+				},
+				{
+					"name": "tools/TextureEditor/package_source",
+					"shell_cmd": "cmake --build . --target tools/TextureEditor/package_source"
+				},
+				{
+					"name": "tools/TextureEditor/package",
+					"shell_cmd": "cmake --build . --target tools/TextureEditor/package"
+				},
+				{
+					"name": "examples/install/local",
+					"shell_cmd": "cmake --build . --target examples/install/local"
+				},
+				{
+					"name": "examples/install",
+					"shell_cmd": "cmake --build . --target examples/install"
+				},
+				{
+					"name": "examples/list_install_components",
+					"shell_cmd": "cmake --build . --target examples/list_install_components"
+				},
+				{
+					"name": "examples/test",
+					"shell_cmd": "cmake --build . --target examples/test"
+				},
+				{
+					"name": "examples/rebuild_cache",
+					"shell_cmd": "cmake --build . --target examples/rebuild_cache"
+				},
+				{
+					"name": "examples/package_source",
+					"shell_cmd": "cmake --build . --target examples/package_source"
+				},
+				{
+					"name": "examples/install/strip",
+					"shell_cmd": "cmake --build . --target examples/install/strip"
+				},
+				{
+					"name": "examples/package",
+					"shell_cmd": "cmake --build . --target examples/package"
+				},
+				{
+					"name": "dist",
+					"shell_cmd": "cmake --build . --target dist"
+				},
+				{
+					"name": "doc",
+					"shell_cmd": "cmake --build . --target doc"
+				},
+				{
+					"name": "libSDL2.a",
+					"shell_cmd": "cmake --build . --target libSDL2.a"
+				},
+				{
+					"name": "libSDL2main.a",
+					"shell_cmd": "cmake --build . --target libSDL2main.a"
+				},
+				{
+					"name": "libfreetyped.a",
+					"shell_cmd": "cmake --build . --target libfreetyped.a"
+				},
+				{
+					"name": "libgintonic.a",
+					"shell_cmd": "cmake --build . --target libgintonic.a"
+				},
+				{
+					"name": "libglad.a",
+					"shell_cmd": "cmake --build . --target libglad.a"
+				},
+				{
+					"name": "uninstall",
+					"shell_cmd": "cmake --build . --target uninstall"
+				},
+				{
+					"name": "update-doc",
+					"shell_cmd": "cmake --build . --target update-doc"
+				},
+				{
+					"name": "clean",
+					"shell_cmd": "cmake --build . --target clean"
+				}
+			],
+			"working_dir": "${project_path}/build"
+		}
+	],
+	"cmake":
+	{
+		"build_folder": "${project_path}/build",
+		"command_line_overrides":
+		{
+			"BUILD_SHARED_LIBS": false,
+			"CMAKE_BUILD_TYPE": "Debug"
+		},
+		"generator": "Ninja"
+	},
 	"folders":
 	[
 		{
@@ -7,6 +683,12 @@
 	],
 	"settings":
 	{
+		"ClangFormat":
+		{
+			"based_on_style": "File",
+			"format_on_save": true
+		},
+		"compile_commands": "${project_path}/build",
 		"flags_sources":
 		[
 			{
@@ -14,11 +696,6 @@
 				"search_in": "/home/raoul/dev/gintonic/build"
 			}
 		],
-		"ClangFormat": 
-		{
-			"based_on_style": "File",
-			"format_on_save": true
-		},
 		"tab_size": 4
 	}
 }
