@@ -110,14 +110,6 @@
 					"shell_cmd": "cmake --build . --target include/package"
 				},
 				{
-					"name": "lib/install/strip",
-					"shell_cmd": "cmake --build . --target lib/install/strip"
-				},
-				{
-					"name": "lib/install",
-					"shell_cmd": "cmake --build . --target lib/install"
-				},
-				{
 					"name": "lib/list_install_components",
 					"shell_cmd": "cmake --build . --target lib/list_install_components"
 				},
@@ -138,8 +130,16 @@
 					"shell_cmd": "cmake --build . --target lib/package_source"
 				},
 				{
+					"name": "lib/install/strip",
+					"shell_cmd": "cmake --build . --target lib/install/strip"
+				},
+				{
 					"name": "lib/package",
 					"shell_cmd": "cmake --build . --target lib/package"
+				},
+				{
+					"name": "lib/install",
+					"shell_cmd": "cmake --build . --target lib/install"
 				},
 				{
 					"name": "lib/glad/list_install_components",
@@ -406,6 +406,10 @@
 					"shell_cmd": "cmake --build . --target test/list_install_components"
 				},
 				{
+					"name": "test/rebuild_cache",
+					"shell_cmd": "cmake --build . --target test/rebuild_cache"
+				},
+				{
 					"name": "test/test",
 					"shell_cmd": "cmake --build . --target test/test"
 				},
@@ -420,10 +424,6 @@
 				{
 					"name": "test/package_source",
 					"shell_cmd": "cmake --build . --target test/package_source"
-				},
-				{
-					"name": "test/rebuild_cache",
-					"shell_cmd": "cmake --build . --target test/rebuild_cache"
 				},
 				{
 					"name": "test/install/strip",

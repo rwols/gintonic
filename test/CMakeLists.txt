@@ -51,6 +51,7 @@ function(gintonic_add_test test_name)
 	add_test(NAME ${test_name} COMMAND ${test_name})
 endfunction()
 
+gintonic_add_test(SDLRenderContext SOURCES SDLRenderContext.cpp)
 gintonic_add_test(Casting SOURCES Casting.cpp)
 gintonic_add_test(Clock SOURCES Clock.cpp)
 gintonic_add_test(Entity SOURCES Entity.cpp)

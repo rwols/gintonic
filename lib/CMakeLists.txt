@@ -104,7 +104,11 @@ set(gintonic_source_files
 	EntityVisitor.cpp
 	FbxImporter.cpp
 	gintonic.cpp
-	GraphicsContext.cpp
+	RunLoop.cpp
+	SDLRenderContext.cpp
+	SDLRunLoop.cpp
+	SDLWindow.cpp
+	Window.cpp
 
 	# imgui
 	imgui/imgui.cpp
@@ -149,13 +153,15 @@ else ()
 	target_compile_definitions(gintonic PUBLIC LUA_USE_POSIX)
 	target_compile_options(gintonic PUBLIC -msse3)
 	target_compile_options(gintonic PRIVATE -Wall)
-	# if (NOT BUILD_SHARED_LIBS AND CMAKE_BUILD_TYPE STREQUAL "Release")
-	target_compile_options(gintonic PRIVATE -fvisibility=hidden)
+	target_compile_options(gintonic PRIVATE -fvisibility=default)
 	target_compile_options(gintonic PRIVATE -fvisibility-inlines-hidden)
-	# 	if (CMAKE_STRIP)
-	# 		add_custom_command(TARGET gintonic POST_BUILD COMMAND ${CMAKE_STRIP} -u -r $<TARGET_FILE:gintonic>)
-	# 	endif ()
-	# endif ()
+	if (CMAKE_STRIP AND CMAKE_BUILD_TYPE STREQUAL Release)
+		if (APPLE)
+			add_custom_command(TARGET gintonic POST_BUILD COMMAND ${CMAKE_STRIP} -x $<TARGET_FILE:gintonic>)
+		else ()
+			add_custom_command(TARGET gintonic POST_BUILD COMMAND ${CMAKE_STRIP} -u -r $<TARGET_FILE:gintonic>)
+		endif()
+	endif ()
 	if (gintonic_USE_LIBCXX)
 		target_compile_options(gintonic PUBLIC -stdlib=libc++)
 	endif ()
@@ -229,3 +235,8 @@ target_link_libraries(gintonic PUBLIC
 	)
 
 install(TARGETS gintonic DESTINATION lib)
+
+add_executable(maintest main.cpp)
+target_link_libraries(maintest PRIVATE gintonic)
+set_target_properties(maintest PROPERTIES CXX_STANDARD 14)
+
