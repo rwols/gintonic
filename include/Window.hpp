@@ -17,6 +17,12 @@ class Window
     Signal<void()> onEnter;
     Signal<void()> onLeave;
 
+    /// \brief Show the window.
+    virtual void show() noexcept = 0;
+
+    /// \brief Hide the window (if it wasn't already hidden).
+    virtual void hide() noexcept = 0;
+
     /// \brief Calls present of the current \c RenderContext.
     void present();
 

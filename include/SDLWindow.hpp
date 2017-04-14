@@ -16,19 +16,19 @@ class SDLWindow : public Window
 
     void resize(const int newWidth, const int newHeight) override final;
 
-    /// \brief Get the current width.
+    void show() noexcept override final;
+
+    void hide() noexcept override final;
+
     int getWidth() const noexcept override final { return mWidth; }
 
-    /// \brief Get the current height.
     int getHeight() const noexcept override final { return mHeight; }
 
-    /// \brief Get the current aspect ratio.
     float getAspectRatio() const noexcept override final
     {
         return mAspectRatio;
     }
 
-    /// \brief Get the current dimensions (the width and height).
     vec2f getDimensions() const noexcept override final
     {
         return vec2f(static_cast<float>(mWidth), static_cast<float>(mHeight));

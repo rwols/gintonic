@@ -40,8 +40,8 @@ SDLWindow::SDLWindow(const char* title, const int width, const int height)
     {
         throw std::runtime_error(SDL_GetError());
     }
-    const Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
-                         SDL_WINDOW_HIDDEN | SDL_WINDOW_FULLSCREEN_DESKTOP;
+    const Uint32 flags =
+        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
     mHandle = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED,
                                SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, flags);
     if (!mHandle)
@@ -64,5 +64,9 @@ void SDLWindow::resize(const int newWidth, const int newHeight)
     mAspectRatio = static_cast<float>(mWidth) / static_cast<float>(mHeight);
     context->resize();
 }
+
+void SDLWindow::show() noexcept { SDL_ShowWindow(mHandle); }
+
+void SDLWindow::hide() noexcept { SDL_HideWindow(mHandle); }
 
 int SDLWindow::getID() const noexcept { return SDL_GetWindowID(mHandle); }
