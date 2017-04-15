@@ -1,16 +1,14 @@
 #include "SDLWindow.hpp"
 #include "QuitApplication.hpp"
 #include "RenderContext.hpp"
+#include <../src/video/SDL_sysvideo.h>
 #include <SDL.h>
 
 using namespace gintonic;
 
 SDLWindow::SDLWindow(const char* title)
 {
-    if (SDL_InitSubSystem(SDL_INIT_VIDEO))
-    {
-        throw std::runtime_error(SDL_GetError());
-    }
+    preInit();
     const auto numDisplays = SDL_GetNumVideoDisplays();
     if (numDisplays <= 0)
     {
@@ -18,37 +16,37 @@ SDLWindow::SDLWindow(const char* title)
     }
     SDL_Rect rect;
     SDL_GetDisplayBounds(0, &rect);
-    mWidth = rect.w;
-    mHeight = rect.h;
-    mAspectRatio = static_cast<float>(mWidth) / static_cast<float>(mHeight);
-    const Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
-                         SDL_WINDOW_HIDDEN | SDL_WINDOW_FULLSCREEN_DESKTOP;
-    mHandle = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED,
-                               SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, flags);
-    if (!mHandle)
-    {
-        SDL_QuitSubSystem(SDL_INIT_VIDEO);
-        throw std::bad_alloc();
-    }
+    postInit(title, rect.w, rect.h,
+             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN |
+                 SDL_WINDOW_FULLSCREEN_DESKTOP);
 }
 
 SDLWindow::SDLWindow(const char* title, const int width, const int height)
-    : mWidth(width), mHeight(height),
-      mAspectRatio(static_cast<float>(mWidth) / static_cast<float>(mHeight))
+{
+    preInit();
+    postInit(title, width, height,
+             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
+}
+
+void SDLWindow::preInit()
 {
     if (SDL_InitSubSystem(SDL_INIT_VIDEO))
     {
         throw std::runtime_error(SDL_GetError());
     }
-    const Uint32 flags =
-        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
+}
+
+void SDLWindow::postInit(const char* title, const int width, const int height,
+                         const uint32_t flags)
+{
     mHandle = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED,
-                               SDL_WINDOWPOS_UNDEFINED, mWidth, mHeight, flags);
+                               SDL_WINDOWPOS_UNDEFINED, width, height, flags);
     if (!mHandle)
     {
         SDL_QuitSubSystem(SDL_INIT_VIDEO);
         throw std::bad_alloc();
     }
+    updateAspectRatio();
 }
 
 SDLWindow::~SDLWindow()
@@ -57,12 +55,20 @@ SDLWindow::~SDLWindow()
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
-void SDLWindow::resize(const int newWidth, const int newHeight)
+int SDLWindow::getWidth() const noexcept { return mHandle->w; }
+
+int SDLWindow::getHeight() const noexcept { return mHandle->h; }
+
+void SDLWindow::updateAspectRatio() noexcept
 {
-    mWidth = newWidth;
-    mHeight = newHeight;
-    mAspectRatio = static_cast<float>(mWidth) / static_cast<float>(mHeight);
-    context->resize();
+    mAspectRatio =
+        static_cast<float>(getWidth()) / static_cast<float>(getHeight());
+}
+
+void SDLWindow::resize(const int /*newWidth*/, const int /*newHeight*/)
+{
+    updateAspectRatio();
+    if (context) context->resize();
 }
 
 void SDLWindow::show() noexcept { SDL_ShowWindow(mHandle); }

@@ -97,6 +97,7 @@ set(gintonic_source_files
 
 	# ???
 	Application.cpp
+	ApplicationStateMachine.cpp
 	Asset.cpp
 	Camera.cpp
 	Component.cpp

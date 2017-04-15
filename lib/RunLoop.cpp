@@ -1,4 +1,5 @@
 #include "RunLoop.hpp"
+#include "ApplicationStateMachine.hpp"
 #include "Window.hpp"
 #include <chrono>
 
@@ -10,9 +11,11 @@ RunLoop::~RunLoop() {}
 
 void RunLoop::run()
 {
+    if (machine) machine->initiate();
     while (true)
     {
         updateTime();
+        if (machine) machine->process_event(EvUpdate());
         runOneFrame();
     }
 }

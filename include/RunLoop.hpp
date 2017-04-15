@@ -10,6 +10,7 @@ namespace gintonic
 {
 
 class Window;
+struct ApplicationStateMachine;
 
 class RunLoop
 {
@@ -21,6 +22,7 @@ class RunLoop
     Signal<void(int, unsigned short)> onKeyRelease;
 
     std::vector<std::unique_ptr<Window>> windows;
+    std::unique_ptr<ApplicationStateMachine> machine;
 
     RunLoop();
 

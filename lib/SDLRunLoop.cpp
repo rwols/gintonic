@@ -66,7 +66,7 @@ void SDLRunLoop::runOneFrame()
 
         case SDL_KEYDOWN:
             if (event.key.repeat) break;
-            onKeyPress((int)event.key.keysym.scancode,
+            onKeyPress((int)event.key.keysym.sym,
                        (unsigned short)event.key.keysym.mod);
             break;
         case SDL_KEYUP:
