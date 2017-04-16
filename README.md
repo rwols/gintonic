@@ -1,4 +1,19 @@
-# Roadmap
+# gintonic
+
+Yet another render engine.
+
+# Building
+
+We use CMake.
+
+# Dependencies
+
+A recent version of Boost is required. All versions >= 1.60 should work. Other
+dependencies are brought in via git submodules, and so should be present in the
+source tree.
+
+<!-- 
+This is where assets live.
 
 - Refactor Material to NOT derive from Asset.
 - Refactor ShaderProgram to derive from Asset.
@@ -13,7 +28,7 @@
 - Supply a "main loop" from the library?
 - Implement an #include statement for GLSL.
 - Normalize #include paths in all headers.
-- Write a "shader editor".
+- Write a "shader editor". -->
 
 <!-- \f$\newcommand{\AffMat}{\mathop{\rm AffMat}\nolimits}\f$
 \f$\newcommand{\GL}{\mathop{\rm GL}\nolimits}\f$
