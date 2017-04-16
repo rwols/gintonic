@@ -107,6 +107,7 @@ set(gintonic_source_files
 	gintonic.cpp
 	RenderStrategy.cpp
 	RunLoop.cpp
+	Scene.cpp
 	SDLRenderContext.cpp
 	SDLRunLoop.cpp
 	SDLWindow.cpp

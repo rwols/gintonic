@@ -69,3 +69,9 @@ MainMenuState::MainMenuState(my_context ctx)
               << " * [o]ptions\n"
               << " * [q]uit\n";
 }
+
+boost::statechart::result MainMenuState::react(const EvUpdate&)
+{
+    scene.update();
+    return discard_event();
+}

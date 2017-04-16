@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Scene.hpp"
 #include "Signal.hpp"
 #include "State.hpp"
 #include "StateEvent.hpp"
@@ -49,7 +50,13 @@ struct MainMenuState : State<MainMenuState, ApplicationStateMachine>
 {
     MainMenuState(my_context ctx);
     boost::signals2::scoped_connection keyHandler;
-    using reactions = boost::statechart::transition<EvContinue, MainMenuState>;
+    using reactions = boost::mpl::list<
+        boost::statechart::custom_reaction<EvUpdate>,
+        boost::statechart::transition<EvContinue, MainMenuState>>;
+
+    boost::statechart::result react(const EvUpdate&);
+
+    Scene scene;
 };
 
 } // gintonic
