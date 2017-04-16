@@ -105,6 +105,7 @@ set(gintonic_source_files
 	EntityVisitor.cpp
 	FbxImporter.cpp
 	gintonic.cpp
+	RenderStrategy.cpp
 	RunLoop.cpp
 	SDLRenderContext.cpp
 	SDLRunLoop.cpp

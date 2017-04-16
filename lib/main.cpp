@@ -1,5 +1,6 @@
 #include "ApplicationStateMachine.hpp"
 #include "QuitApplication.hpp"
+#include "RenderStrategy.hpp"
 #include "SDLRenderContext.hpp"
 #include "SDLRunLoop.hpp"
 #include "SDLWindow.hpp"
@@ -25,6 +26,7 @@ int main(int argc, char** argv)
             window->context.reset(new gt::SDLRenderContext(
                 static_cast<gt::SDLWindow&>(*window), 3, 3));
         }
+        loop.strategy.reset(new gt::RenderStrategy(*window->context));
         window->show();
         loop.windows.push_back(std::move(window));
     }

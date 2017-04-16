@@ -10,6 +10,7 @@ namespace gintonic
 {
 
 class Window;
+class RenderStrategy;
 struct ApplicationStateMachine;
 
 class RunLoop
@@ -23,6 +24,7 @@ class RunLoop
 
     std::vector<std::unique_ptr<Window>> windows;
     std::unique_ptr<ApplicationStateMachine> machine;
+    std::unique_ptr<RenderStrategy> strategy;
 
     RunLoop();
 

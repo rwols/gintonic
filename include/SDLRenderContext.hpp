@@ -13,6 +13,12 @@ class SDLRenderContext : public RenderContext
     SDLRenderContext(SDLWindow& owner, const int major, const int minor);
     ~SDLRenderContext() override;
 
+    void clear() override final;
+
+    void setClearColor(const vec4f& color) override final;
+
+    void setVirtualSynchronization(const bool yesOrNo) override final;
+
     void present() override final;
 
     void resize() override final;

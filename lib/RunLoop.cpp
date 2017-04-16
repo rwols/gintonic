@@ -1,5 +1,6 @@
 #include "RunLoop.hpp"
 #include "ApplicationStateMachine.hpp"
+#include "RenderStrategy.hpp"
 #include "Window.hpp"
 #include <chrono>
 
@@ -16,6 +17,7 @@ void RunLoop::run()
     {
         updateTime();
         if (machine) machine->process_event(EvUpdate());
+        if (strategy) strategy->drawFrame();
         runOneFrame();
     }
 }

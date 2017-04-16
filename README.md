@@ -46,13 +46,13 @@ The project is ongoing.
 
 Gintonic depends on the following software:
 
-* CMake -- For building
-* Boost libraries -- Cross-platform filesystem, serialization, iostreams, etc.
-* Freetype -- For rendering fonts
-* libjpeg -- If on OSX/Linux, for texture loading
-* libpng -- If on OSX/Linux, for texture loading
-* SDL2 -- For a cross-platform windowing system
-* FBX SDK -- For importing meshes, materials, light, etc.
+* CMake, For building
+* Boost libraries, Cross-platform filesystem, serialization, iostreams, etc.
+* Freetype, For rendering fonts
+* libjpeg, If on OSX/Linux, for texture loading
+* libpng, If on OSX/Linux, for texture loading
+* SDL2, For a cross-platform windowing system
+* FBX SDK, For importing meshes, materials, light, etc.
 
 ## <a name="installing-windows-dependencies"></a>Installing Windows Dependencies
 

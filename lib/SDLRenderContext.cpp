@@ -1,4 +1,5 @@
 #include "SDLRenderContext.hpp"
+#include "Math/vec4f.hpp"
 #include "SDLWindow.hpp"
 #include "glad/glad.h"
 #include <SDL.h>
@@ -28,7 +29,7 @@ SDLRenderContext::SDLRenderContext(SDLWindow& owner, const int major,
         throw std::bad_alloc();
     }
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     resize();
 }
 
@@ -36,7 +37,6 @@ SDLRenderContext::~SDLRenderContext() { SDL_GL_DeleteContext(mHandle); }
 
 void SDLRenderContext::present()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     SDL_GL_SwapWindow(static_cast<SDLWindow&>(getWindow()).mHandle);
 }
 
@@ -59,4 +59,19 @@ const char* SDLRenderContext::getName() const noexcept
 const char* SDLRenderContext::getVersion() const noexcept
 {
     return reinterpret_cast<const char*>(glGetString(GL_VERSION));
+}
+
+void SDLRenderContext::clear()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+void SDLRenderContext::setClearColor(const vec4f& color)
+{
+    glClearColor(color.x, color.y, color.z, color.w);
+}
+
+void SDLRenderContext::setVirtualSynchronization(const bool yesOrNo)
+{
+    SDL_GL_SetSwapInterval(yesOrNo ? 1 : 0);
 }
