@@ -99,18 +99,25 @@ set(gintonic_source_files
 	Application.cpp
 	ApplicationStateMachine.cpp
 	Asset.cpp
+	Behaviour.cpp
+	BoxCollider.cpp
 	Camera.cpp
+	Collider.cpp
+	Component.cpp
 	Component.cpp
 	Entity.cpp
 	EntityVisitor.cpp
 	FbxImporter.cpp
 	gintonic.cpp
+	MeshRenderer.cpp
+	Renderer.cpp
 	RenderStrategy.cpp
 	RunLoop.cpp
 	Scene.cpp
 	SDLRenderContext.cpp
 	SDLRunLoop.cpp
 	SDLWindow.cpp
+	Transform.cpp
 	Window.cpp
 
 	# imgui

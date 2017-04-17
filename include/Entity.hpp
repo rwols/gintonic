@@ -68,9 +68,16 @@ class Entity : public Object<Entity, std::string>
      * @return A pointer to the component, or nullptr if no such component is
      *         present.
      */
-    template <class TComp> TComp* get() noexcept
+    template <class TComp> const TComp* get() noexcept
     {
-        return const_cast<TComp*>(get<TComp>());
+        for (auto& comp : mComponents)
+        {
+            if (auto ptr = dynCast<TComp>(comp.get()))
+            {
+                return ptr;
+            }
+        }
+        return nullptr;
     }
 
     /**
@@ -83,7 +90,7 @@ class Entity : public Object<Entity, std::string>
     {
         for (const auto& comp : mComponents)
         {
-            if (const auto ptr = dynCast<TComp>(comp.get()))
+            if (const auto ptr = dynCast<const TComp>(comp.get()))
             {
                 return ptr;
             }
