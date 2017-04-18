@@ -24,7 +24,7 @@ class BoxCollider : public Collider
         archive& BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collider) &
             BOOST_SERIALIZATION_NVP(localBounds);
     }
-    std::unique_ptr<Component> clone(Entity& newOwner) const override;
+    std::unique_ptr<Component> clone(EntityBase* newOwner) const override;
 };
 
 } // namespace gintonic

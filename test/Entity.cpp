@@ -24,10 +24,11 @@ BOOST_AUTO_TEST_CASE(parents_and_children)
     BOOST_CHECK(
         lEnt4->parent().lock()->parent().lock()->parent().lock().get() ==
         lEnt1.get());
+}
 
-    auto comp = lEnt1->add<Transform>();
-    BOOST_CHECK_EQUAL(&comp->entity, lEnt1.get());
-
-    auto c1 = lEnt1->get<Transform>();
-    BOOST_CHECK_EQUAL(c1, comp);
+BOOST_AUTO_TEST_CASE(exp_entity)
+{
+    experimental::Entity ent;
+    auto comp = ent.add<Transform>();
+    BOOST_CHECK(comp == ent.get<Transform>());
 }

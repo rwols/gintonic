@@ -8,6 +8,7 @@
 
 #include "Casting.hpp"
 #include "Component.hpp"
+#include "EntityBase.hpp"
 #include "ForwardDeclarations.hpp"
 #include "Foundation/Object.hpp"
 #include "Math/SQT.hpp"
@@ -20,6 +21,49 @@
 
 namespace gintonic
 {
+
+namespace experimental
+{
+
+class Entity : public EntityBase
+{
+  public:
+    std::string name;
+
+    Entity();
+    ~Entity() override final;
+
+    /// \brief Get the Prefab that spawned this Entity, if any.
+    std::shared_ptr<Prefab> getPrefabOriginal() noexcept
+    {
+        return mPrefabOriginal;
+    }
+
+    /// \brief Get the Prefab that spawned this Entity, if any.
+    std::shared_ptr<const Prefab> getPrefabOriginal() const noexcept
+    {
+        return mPrefabOriginal;
+    }
+
+    Entity* getParent() noexcept { return mParent; }
+
+    const Entity* getParent() const noexcept { return mParent; }
+
+    static bool classOf(const EntityBase* ent)
+    {
+        return ent->getKind() == Kind::Entity;
+    }
+
+    /// \brief Create a new Prefab from the current state of this Entity.
+    std::shared_ptr<Prefab> makePrefab() const;
+
+  private:
+    std::shared_ptr<Prefab> mPrefabOriginal;
+    std::vector<Entity> mChildren;
+    Entity* mParent = nullptr;
+};
+
+} // experimental
 
 /**
  * @brief Represents an Entity in the world. An Entity can only be

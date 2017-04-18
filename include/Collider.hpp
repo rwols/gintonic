@@ -11,7 +11,7 @@ class Transform;
 class Collider : public Component
 {
   protected:
-    Collider(const Kind kind, Entity& entity);
+    Collider(const Kind kind, EntityBase* owner);
 
   public:
     ~Collider() noexcept override = default;

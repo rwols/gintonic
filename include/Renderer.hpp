@@ -17,7 +17,8 @@ class RendererComp : public Component
     std::vector<std::shared_ptr<Material>> materials;
 
   protected:
-    inline RendererComp(const Kind kind, Entity& owner) : Component(kind, owner)
+    inline RendererComp(const Kind kind, EntityBase* owner)
+        : Component(kind, owner)
     {
     }
 

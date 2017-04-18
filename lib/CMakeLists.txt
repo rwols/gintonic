@@ -106,10 +106,12 @@ set(gintonic_source_files
 	Component.cpp
 	Component.cpp
 	Entity.cpp
+	EntityBase.cpp
 	EntityVisitor.cpp
 	FbxImporter.cpp
 	gintonic.cpp
 	MeshRenderer.cpp
+	Prefab.cpp
 	Renderer.cpp
 	RenderStrategy.cpp
 	RunLoop.cpp

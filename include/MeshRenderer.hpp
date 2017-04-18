@@ -17,7 +17,7 @@ class MeshRenderer : public RendererComp
     void lateUpdate() override;
 
   private:
-    std::unique_ptr<Component> clone(Entity& newOwner) const override;
+    std::unique_ptr<Component> clone(EntityBase* newOwner) const override;
 
     template <class Archive>
     void serialize(Archive& archive, const unsigned /*version*/)

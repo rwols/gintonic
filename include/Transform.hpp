@@ -43,7 +43,7 @@ class Transform : public Component
     mutable bool mIsUpdated = false;
     void updateImpl() const noexcept;
 
-    std::unique_ptr<Component> clone(Entity& newOwner) const override;
+    std::unique_ptr<Component> clone(EntityBase* newOwner) const override;
 
     template <class Archive>
     void serialize(Archive& archive, const unsigned /*version*/)

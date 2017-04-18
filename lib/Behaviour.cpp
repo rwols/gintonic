@@ -2,7 +2,7 @@
 
 using namespace gintonic;
 
-std::unique_ptr<Component> Behaviour::clone(Entity& newOwner) const
+std::unique_ptr<Component> Behaviour::clone(EntityBase* newOwner) const
 {
     auto behaviour = std::make_unique<Behaviour>(newOwner);
     behaviour->script = script;

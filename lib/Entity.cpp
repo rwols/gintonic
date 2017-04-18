@@ -14,6 +14,17 @@
 namespace gintonic
 {
 
+namespace experimental
+{
+
+Entity::Entity() : gintonic::EntityBase(Kind::Entity) {}
+
+Entity::~Entity() {}
+
+std::shared_ptr<Prefab> Entity::makePrefab() const { return nullptr; }
+
+} // experimental
+
 Entity::Entity()
     : Entity("UntitledEntity",
              SQT(vec3f(1.0f, 1.0f, 1.0f), quatf(1.0f, 0.0f, 0.0f, 0.0f),

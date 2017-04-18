@@ -3,7 +3,7 @@
 
 using namespace gintonic;
 
-std::unique_ptr<Component> Transform::clone(Entity& newOwner) const
+std::unique_ptr<Component> Transform::clone(EntityBase* newOwner) const
 {
     auto transform = std::make_unique<Transform>(newOwner);
     transform->local() = local();
@@ -74,7 +74,7 @@ void Transform::updateImpl() const noexcept
     {
         return;
     }
-    else if (auto ptr = entity.parent().lock())
+    else if (auto ptr = getEntity().getParent())
     {
         if (const auto parentTransform = ptr->get<Transform>())
         {
