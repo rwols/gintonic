@@ -18,6 +18,12 @@ class Collider : public Component
     virtual box3f getGlobalBounds() const noexcept = 0;
     vec3f localOffset;
 
+    static bool classOf(const Component* comp)
+    {
+        return Kind::Collider <= comp->getKind() &&
+               comp->getKind() <= Kind::BoxCollider;
+    }
+
     GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
   protected:

@@ -14,6 +14,11 @@ class BoxCollider : public Collider
 
     GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
+    static bool classOf(const Component* comp)
+    {
+        return comp->getKind() == Kind::BoxCollider;
+    }
+
   protected:
     void onEnable() override;
 

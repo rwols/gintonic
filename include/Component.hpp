@@ -61,21 +61,40 @@ class Component
   public:
     enum class Kind : unsigned
     {
-        Camera = 0,
-        OctreeComp,
-        Collider,
-        BoxCollider,
-        RendererComp,
-        MeshRenderer,
-        Transform,
-        Light,
-        AmbientLight,
-        DirectionalLight,
-        PointLight,
-        SpotLight,
-        Behaviour,
+        // These enums must be placed in such a way that the order defines a
+        // valid topological sorting of the graph that represents the class
+        // hierarchy.
+        Camera = 0,       // *
+        OctreeComp,       // *
+        Collider,         // *
+        BoxCollider,      // **
+        RendererComp,     // *
+        MeshRenderer,     // **
+        Transform,        // *
+        Light,            // *
+        AmbientLight,     // **
+        DirectionalLight, // ***
+        PointLight,       // **
+        SpotLight,        // ***
+        Behaviour,        // *
         Count
     };
+
+    // entity:
+    //   name: "asdf"
+    //   parent: ~
+    //   children:
+    //     - "asdf1"
+    //     - "asdf2"
+    //   modifications:
+    //     - index: 0
+    //       modification:
+    //         - name: "mLocalOffset"
+    //         - value:
+    //             x: 5.0
+    //             y: 3.0
+    //             z: 0.0
+    //
 
     /// \brief Get a reference to the Entity that owns this Component.
     experimental::Entity& getEntity();

@@ -4,6 +4,7 @@ namespace gintonic
 {
 
 class RenderContext;
+class Scene;
 
 class RenderStrategy
 {
@@ -12,6 +13,7 @@ class RenderStrategy
     virtual ~RenderStrategy() = default;
     virtual void drawFrame();
     RenderContext& context;
+    Scene* scene;
 };
 
 } // gintonic

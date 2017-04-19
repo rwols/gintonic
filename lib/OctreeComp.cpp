@@ -1,17 +1,17 @@
+#include "OctreeComp.hpp"
+#include "Collider.hpp"
+#include "Entity.hpp"
+#include "Transform.hpp"
 #include <cassert>
-#include <gintonic/Component/Collider.hpp>
-#include <gintonic/Component/OctreeComp.hpp>
-#include <gintonic/Component/Transform.hpp>
-#include <gintonic/Entity.hpp>
 
 #define GT_OCTREE_SUBDIV_THRESHOLD 1.0f
 
 using namespace gintonic;
 
-OctreeComp::OctreeComp(Entity& owner) : Component(owner)
+OctreeComp::OctreeComp(EntityBase* owner) : Component(Kind::OctreeComp, owner)
 {
-    mTransform = entity.add<Transform>();
-    mCollider = entity.get<Collider>();
+    mTransform = mEntityBase->add<Transform>();
+    mCollider = mEntityBase->get<Collider>();
     if (!mCollider) throw std::runtime_error("Missing component: Collider");
 }
 
@@ -37,7 +37,7 @@ box3f OctreeComp::getBounds() const noexcept
     return mCollider->getGlobalBounds();
 }
 
-std::unique_ptr<Component> OctreeComp::clone(Entity& newOwner) const
+std::unique_ptr<Component> OctreeComp::clone(EntityBase* newOwner) const
 {
     auto octree = std::make_unique<OctreeComp>(newOwner);
     octree->mNode = mNode;

@@ -111,6 +111,7 @@ set(gintonic_source_files
 	FbxImporter.cpp
 	gintonic.cpp
 	MeshRenderer.cpp
+	OctreeComp.cpp
 	Prefab.cpp
 	Renderer.cpp
 	RenderStrategy.cpp

@@ -45,3 +45,12 @@ void EntityBase::assertSameType(const EntityBase& other) const
         throw std::logic_error("Copying entities of different derived types.");
     }
 }
+
+void EntityBase::update()
+{
+    for (const auto& comp : mComponents) comp->update();
+}
+void EntityBase::lateUpdate()
+{
+    for (const auto& comp : mComponents) comp->lateUpdate();
+}

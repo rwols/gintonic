@@ -76,22 +76,18 @@ class OctreeComp : public Component
         template <class F> void apply(F f) const;
     };
 
-    OctreeComp(Entity& owner);
+    OctreeComp(EntityBase* owner);
     ~OctreeComp() noexcept override;
-
-    inline Component::Kind getKind() const noexcept override
-    {
-        return Component::Kind::OctreeComp;
-    }
-    inline const char* getKindAsString() const noexcept override
-    {
-        return "OctreeComp";
-    }
 
     Node& getRoot() noexcept;
     const Node& getRoot() const noexcept;
 
     void setNode(Node& node);
+
+    static bool classOf(const Component* comp)
+    {
+        return comp->getKind() == Kind::OctreeComp;
+    }
 
   protected:
     void update() override;
@@ -102,7 +98,7 @@ class OctreeComp : public Component
     Transform* mTransform = nullptr;
     Collider* mCollider = nullptr;
 
-    std::unique_ptr<Component> clone(Entity& newOwner) const override;
+    std::unique_ptr<Component> clone(EntityBase* newOwner) const override;
 
     box3f getBounds() const noexcept;
 

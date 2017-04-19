@@ -23,6 +23,9 @@ Entity::~Entity() {}
 
 std::shared_ptr<Prefab> Entity::makePrefab() const { return nullptr; }
 
+void Entity::update() { EntityBase::update(); }
+void Entity::lateUpdate() { EntityBase::lateUpdate(); }
+
 } // experimental
 
 Entity::Entity()

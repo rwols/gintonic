@@ -57,6 +57,9 @@ class EntityBase
     EntityBase& operator=(const EntityBase&);
     EntityBase& operator=(EntityBase&&);
 
+    void update();
+    void lateUpdate();
+
   private:
     const Kind mKind;
     std::vector<std::unique_ptr<Component>> mComponents;
