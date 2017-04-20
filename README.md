@@ -76,6 +76,12 @@ gintonic:
   - README.md # <-- You are here.
 ```
 
+# Example Executables
+
+The example executables are located in `examples`. Each `.cpp` file is a single
+example. When building has finished, and assuming the project was built in the
+`build` folder, the example executables are located in `build/examples`.
+
 # Roadmap
 
 I'm currently in the process of refactoring a lot of code. Most notably, the
