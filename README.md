@@ -1,6 +1,7 @@
 # gintonic
 
-Welcome to gintonic! This is a personal render engine of me.
+Welcome to gintonic! This is a personal render engine of me. The current render
+strategy is deferred rendering.
 
 # Building
 
