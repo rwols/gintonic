@@ -1,6 +1,6 @@
 # gintonic
 
-Welcome to gintonic!
+Welcome to gintonic! This is a personal render engine of me.
 
 # Building
 
