@@ -6,18 +6,6 @@
 namespace gintonic
 {
 
-class PrefabScene : public experimental::Asset<PrefabScene>
-{
-  public:
-    PrefabScene(std::string name);
-    static const char* extension() { return ".scene"; }
-    static const char* prefixFolder() { return "scenes"; }
-
-    Scene instantiate();
-
-    std::vector<std::unique_ptr<EntityBase>> entities;
-};
-
 class Scene : public experimental::Asset<Scene>
 {
   public:

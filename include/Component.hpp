@@ -81,7 +81,7 @@ class Component
     };
 
     // entity:
-    //   name: "asdf"
+    //   prefab_original: "asdf"
     //   parent: ~
     //   children:
     //     - "asdf1"

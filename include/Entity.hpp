@@ -64,26 +64,6 @@ class Entity : public EntityBase
     std::shared_ptr<Prefab> mPrefabOriginal;
     std::vector<Entity> mChildren;
     Entity* mParent = nullptr;
-
-    friend class boost::serialization::access;
-    template <class Archive>
-    void save(Archive& archive, const unsigned /*version*/) const
-    {
-        for (const auto& child : *this)
-        {
-            if (const auto prefab = child.getPrefabOriginal())
-            {
-                const auto diff = gatherDifferences(prefab, child);
-            }
-        }
-    }
-
-    template <class Archive>
-    void load(Archive& archive, const unsigned /*version*/)
-    {
-    }
-
-    BOOST_SERIALIZATION_MEMBER_SPLIT_FREE();
 };
 
 } // experimental

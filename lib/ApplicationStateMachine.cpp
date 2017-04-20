@@ -61,7 +61,8 @@ MainMenuState::MainMenuState(my_context ctx)
               case SDLK_q:
                   throw gintonic::QuitApplication();
               }
-          }))
+          })),
+      scene("none")
 {
     std::cout << "\nMain Menu:\n"
               << " * [c]ontinue\n"
