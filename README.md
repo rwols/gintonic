@@ -1,16 +1,78 @@
 # gintonic
 
-Yet another render engine.
+Welcome to gintonic!
 
 # Building
 
-We use CMake.
+We use CMake in the most standard way possible, no surprises. That means that
+you should execute the following commands on the command line in order to build
+the project:
+
+    $ cd path/to/gintonic
+    $ mkdir build
+    $ cd build
+    $ cmake ..
+    $ cmake --build .
+
+It's recommended to build with Ninja:
+
+    $ cmake .. -G "Ninja"
 
 # Dependencies
 
-A recent version of Boost is required. All versions >= 1.60 should work. Other
-dependencies are brought in via git submodules, and so should be present in the
-source tree.
+A recent version of Boost is required. All versions greater than or equal to
+1.60 should work. Other dependencies are brought in via git submodules, and so
+should be present in the source tree. If you're on Windows, you probably need to
+set the environment variable `BOOST_ROOT` to the directory where Boost lives.
+You can also specify this value in the cmake invocation, like so:
+
+    $ cmake .. -DBOOST_ROOT=C:\Boost_1_63_0\
+
+If you haven't cloned the repository with the `--recursive` option of `git`, you
+can bring in the git submodules like so:
+
+    $ cd path/to/gintonic
+    $ git submodule update --init --recursive
+
+# Structure of This Project
+
+In graphical form, the directory structure looks like this:
+
+```yaml
+gintonic:
+  - assets:
+    - CMakeLists.txt
+    - <more directories>
+  - examples:
+    - CMakeLists.txt
+    - <cpp files, each of which is a separate example executable>
+  - include:
+    - CMakeLists.txt
+    - cmake:
+      - <Doxygen related files>
+    - Foundation:
+      - <header files>
+    - Graphics:
+      - GUI:
+        - <header files, deprecated>
+      - OpenGL:
+        - <header files>
+      - Shaders:
+        - <glsl shader files>
+      - <header files>
+    - Math:
+      - <header files>
+  - lib:
+    - <third party git submodules live here>
+    - CMakeLists.txt
+    - <implementation files, mirrors the include directory structure>
+  - test:
+    - CMakeLists.txt
+    - <various unit test cpp files>
+  - tools:
+    - <various subprojects for tools development>
+```
+
 
 <!-- 
 This is where assets live.
