@@ -62,6 +62,7 @@ gintonic:
       - <header files>
     - Math:
       - <header files>
+    - <header files>
   - lib:
     - <third party git submodules live here>
     - CMakeLists.txt
@@ -71,8 +72,21 @@ gintonic:
     - <various unit test cpp files>
   - tools:
     - <various subprojects for tools development>
+  - CMakeLists.txt # The root cmake file.
+  - README.md # <-- You are here.
 ```
 
+# Roadmap
+
+I'm currently in the process of refactoring a lot of code. Most notably, the
+Renderer object (located in `include/Graphics/Renderer.hpp` and
+`lib/Graphics/Renderer.cpp`) has become so large that it has become infeasible
+to move the project forward. Moreover, Entities are in the process of getting a
+facelift. The current implementation has a bunch of hard-coded pointers to
+component objects; this should just be a vector. Dynamic casting will then be
+handled via `dynCast` in `include/Casting.hpp`. Next, a general Asset system is
+needed to make this engine data-driven. Take a look at the issues page to see
+what is being worked on.
 
 <!-- 
 This is where assets live.
