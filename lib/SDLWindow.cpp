@@ -1,8 +1,8 @@
 #include "SDLWindow.hpp"
 #include "QuitApplication.hpp"
 #include "RenderContext.hpp"
-#include <../src/video/SDL_sysvideo.h>
-#include <SDL.h>
+// #include <../src/video/SDL_sysvideo.h>
+// #include <SDL.h>
 
 using namespace gintonic;
 
@@ -55,9 +55,19 @@ SDLWindow::~SDLWindow()
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
-int SDLWindow::getWidth() const noexcept { return mHandle->w; }
+int SDLWindow::getWidth() const noexcept
+{
+    int w, h;
+    SDL_GL_GetDrawableSize(mHandle, &w, &h);
+    return w;
+}
 
-int SDLWindow::getHeight() const noexcept { return mHandle->h; }
+int SDLWindow::getHeight() const noexcept
+{
+    int w, h;
+    SDL_GL_GetDrawableSize(mHandle, &w, &h);
+    return h;
+}
 
 void SDLWindow::updateAspectRatio() noexcept
 {

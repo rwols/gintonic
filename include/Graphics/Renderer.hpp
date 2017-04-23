@@ -67,7 +67,7 @@ class Renderer
     class InitException : public std::exception
     {
       public:
-        inline InitException(const char *errorMessage) noexcept
+        inline InitException(const char* errorMessage) noexcept
             : mErrorMessage(errorMessage)
         {
         }
@@ -77,13 +77,13 @@ class Renderer
          * @brief Contains a descriptive text of what went wrong.
          * @return A description of the error.
          */
-        inline virtual const char *what() const noexcept
+        inline virtual const char* what() const noexcept
         {
             return mErrorMessage;
         }
 
       private:
-        const char *mErrorMessage;
+        const char* mErrorMessage;
     };
 
     /**
@@ -100,7 +100,7 @@ class Renderer
          * @brief Returns the literal string "No displays".
          * @return The literal string "No displays".
          */
-        inline virtual const char *what() const noexcept
+        inline virtual const char* what() const noexcept
         {
             return "No displays";
         }
@@ -130,7 +130,7 @@ class Renderer
          * @brief Returns the literal string "No context available".
          * @return The literal string "No context available".
          */
-        inline virtual const char *what() const noexcept
+        inline virtual const char* what() const noexcept
         {
             return "No context available";
         }
@@ -159,7 +159,7 @@ class Renderer
          * @brief Returns the literal string "Failed to load OpenGL functions".
          * @return The literal string "Failed to load OpenGL functions".
          */
-        inline virtual const char *what() const noexcept
+        inline virtual const char* what() const noexcept
         {
             return "Failed to load OpenGL functions";
         }
@@ -207,7 +207,7 @@ class Renderer
      * @throws Font::InitException when the debug font is not present.
      */
     static void
-    initialize(const char *windowTitle,
+    initialize(const char* windowTitle,
                Entity::SharedPtr cameraEntity = Entity::create("DefaultCamera"),
                const bool fullscreen = true, const int preferredWidth = 800,
                const int preferredHeight = 640,
@@ -306,7 +306,7 @@ class Renderer
      * @param [out] deltaTime This variable is set to the delta time of the
      * previous frame.
      */
-    static void getElapsedAndDeltaTime(double &elapsedTime, double &deltaTime);
+    static void getElapsedAndDeltaTime(double& elapsedTime, double& deltaTime);
 
     ///@}
 
@@ -386,7 +386,7 @@ class Renderer
      * @brief Get the `VIEW->CLIP` matrix.
      * @return A constant reference to the `VIEW->CLIP` matrix.
      */
-    inline static const mat4f &matrix_P() noexcept
+    inline static const mat4f& matrix_P() noexcept
     {
         updateMatrixP();
         return sMatrixP;
@@ -396,19 +396,19 @@ class Renderer
      * @brief Get the `WORLD->VIEW` matrix.
      * @return A constant reference to the `WORLD->VIEW` matrix.
      */
-    inline static const mat4f &matrix_V() noexcept { return sMatrixV; }
+    inline static const mat4f& matrix_V() noexcept { return sMatrixV; }
 
     /**
      * @brief Get the `MODEL->WORLD` matrix.
      * @return A constant reference to the `MODEL->WORLD` matrix.
      */
-    inline static const mat4f &matrix_M() noexcept { return sMatrixM; }
+    inline static const mat4f& matrix_M() noexcept { return sMatrixM; }
 
     /**
      * @brief Get the `MODEL->VIEW` matrix.
      * @return A constant reference to the `MODEL->VIEW` matrix.
      */
-    inline static const mat4f &matrix_VM() noexcept
+    inline static const mat4f& matrix_VM() noexcept
     {
         updateMatrixVM();
         return sMatrixVM;
@@ -418,7 +418,7 @@ class Renderer
      * @brief Get `MODEL->CLIP` matrix.
      * @return A constant reference to the `MODEL->CLIP` matrix.
      */
-    inline static const mat4f &matrix_PVM() noexcept
+    inline static const mat4f& matrix_PVM() noexcept
     {
         updateMatrixPVM();
         return sMatrixPVM;
@@ -428,7 +428,7 @@ class Renderer
      * @brief Get the `NORMAL` matrix.
      * @return A constant reference to the `NORMAL` matrix.
      */
-    inline static const mat3f &matrix_N() noexcept
+    inline static const mat3f& matrix_N() noexcept
     {
         updateMatrixN();
         return sMatrixN;
@@ -441,7 +441,7 @@ class Renderer
      * @tparam Args Template parameter pack.
      * @param args Constructor arguments for a mat4f.
      */
-    template <class... Args> static void setModelMatrix(Args &&... args)
+    template <class... Args> static void setModelMatrix(Args&&... args)
     {
         sMatrixVMDirty = true;
         sMatrixPVMDirty = true;
@@ -538,19 +538,19 @@ class Renderer
      * @brief Get the previous frame's mouse delta.
      * @return The previous frame's mouse delta.
      */
-    inline static const vec2f &mouseDelta() noexcept { return sMouseDelta; }
+    inline static const vec2f& mouseDelta() noexcept { return sMouseDelta; }
 
     /**
      * @brief Get the previous frame's mouse wheel.
      * @return The previous frame's mouse wheel.
      */
-    inline static const vec2f &mouseWheel() noexcept { return sMouseWheel; }
+    inline static const vec2f& mouseWheel() noexcept { return sMouseWheel; }
 
     /**
      * @brief Get the previous frame's finger motion.
      * @return The previous frame's finger motion.
      */
-    inline static const vec4f &fingerMotion() noexcept { return sFingerMotion; }
+    inline static const vec4f& fingerMotion() noexcept { return sFingerMotion; }
 
     ///@}
 
@@ -598,13 +598,13 @@ class Renderer
      * so be sure to handle ownership yourself.
      * @param root The new root of the GUI to draw.
      */
-    static void setGUIRoot(GUI::Base *root) noexcept;
+    static void setGUIRoot(GUI::Base* root) noexcept;
 
     /**
      * @brief Get the root GUI::Base.
      * @return The root GUI::Base.
      */
-    static GUI::Base *getGUIRoot() noexcept;
+    static GUI::Base* getGUIRoot() noexcept;
 
     /**
      * @brief Enable or disable wireframe mode.
@@ -659,7 +659,7 @@ class Renderer
         return sDebugShadowBufferEntity;
     }
 
-    inline static void debugDrawOctree(const Octree *root) noexcept
+    inline static void debugDrawOctree(const Octree* root) noexcept
     {
         sOctreeRoot = root;
     }
@@ -675,14 +675,14 @@ class Renderer
      * red.
      * @return A reference to a FontStream.
      */
-    static FontStream &cerr();
+    static FontStream& cerr();
 
     /**
      * @brief Output to a debug stream on the Renderer's viewport. The color is
      * white.
      * @return A reference to a FontStream.
      */
-    static FontStream &cout();
+    static FontStream& cout();
 
     /**
      * @brief Update the Renderer.
@@ -714,13 +714,13 @@ class Renderer
      * @brief Get the name of the hardware (or software) Renderer.
      * @return The name of the hardware (or software) Renderer.
      */
-    static const char *name();
+    static const char* name();
 
     /**
      * @brief Get the version of the Renderer.
      * @return The version of the Renderer.
      */
-    static const char *version();
+    static const char* version();
 
     /**
      * @brief The geometry buffers.
@@ -763,13 +763,13 @@ class Renderer
     static boost::signals2::signal<void(double, double)> onMouseScroll;
 
     /// Event that fires when the mouse has moved.
-    static boost::signals2::signal<void(const vec2f &)> onMouseMove;
+    static boost::signals2::signal<void(const vec2f&)> onMouseMove;
 
     /// Event that fires when the mouse wheel has been used.
-    static boost::signals2::signal<void(const vec2f &)> onMouseWheel;
+    static boost::signals2::signal<void(const vec2f&)> onMouseWheel;
 
     /// Even that fires when a finger motion event has occured.
-    static boost::signals2::signal<void(const vec4f &)> onFingerMotion;
+    static boost::signals2::signal<void(const vec4f&)> onFingerMotion;
 
     /// Event that fires when a key is pressed.
     static boost::signals2::signal<void(int, int, int)> onKeyPress;
@@ -896,12 +896,12 @@ class Renderer
     static std::vector<mat4f, allocator<mat4f>> sMatrix44Array;
     static std::vector<vec4f, allocator<vec4f>> sMatrix33Array;
 
-    static OpenGL::BufferObject *sMatrix44UniformBuffer;
-    static OpenGL::BufferObject *sMatrix33UniformBuffer;
+    static OpenGL::BufferObject* sMatrix44UniformBuffer;
+    static OpenGL::BufferObject* sMatrix33UniformBuffer;
 
     static std::shared_ptr<Entity> sCameraEntity;
     static std::shared_ptr<Entity> sDebugShadowBufferEntity;
-    static const Octree *sOctreeRoot;
+    static const Octree* sOctreeRoot;
     static vec3f sCameraPosition;
 
     static std::shared_ptr<Mesh> sUnitQuadPUN;
@@ -915,9 +915,9 @@ class Renderer
     static void prepareRendering() noexcept;
     static void renderGeometry() noexcept;
 
-    static void renderGeometry(const std::vector<std::shared_ptr<Entity>> &,
-                               std::vector<mat4f, allocator<mat4f>> &,
-                               std::vector<mat3f> &) noexcept;
+    static void renderGeometry(const std::vector<std::shared_ptr<Entity>>&,
+                               std::vector<mat4f, allocator<mat4f>>&,
+                               std::vector<mat3f>&) noexcept;
 
     static void renderShadows() noexcept;
     static void renderPointLights() noexcept;

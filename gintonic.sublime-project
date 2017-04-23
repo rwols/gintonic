@@ -110,12 +110,12 @@
 					"shell_cmd": "cmake --build . --target include/package"
 				},
 				{
-					"name": "lib/list_install_components",
-					"shell_cmd": "cmake --build . --target lib/list_install_components"
-				},
-				{
 					"name": "lib/install/local",
 					"shell_cmd": "cmake --build . --target lib/install/local"
+				},
+				{
+					"name": "lib/list_install_components",
+					"shell_cmd": "cmake --build . --target lib/list_install_components"
 				},
 				{
 					"name": "lib/test",
@@ -630,6 +630,10 @@
 					"shell_cmd": "cmake --build . --target doc"
 				},
 				{
+					"name": "gintonic-precompiled",
+					"shell_cmd": "cmake --build . --target gintonic-precompiled"
+				},
+				{
 					"name": "libSDL2.a",
 					"shell_cmd": "cmake --build . --target libSDL2.a"
 				},
@@ -671,7 +675,8 @@
 		"command_line_overrides":
 		{
 			"BUILD_SHARED_LIBS": false,
-			"CMAKE_BUILD_TYPE": "Debug"
+			"CMAKE_BUILD_TYPE": "Debug",
+			"CMAKE_VERBOSE": true
 		},
 		"generator": "Ninja"
 	},
