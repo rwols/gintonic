@@ -1,21 +1,15 @@
-[submodule "lib/glad"]
-	path = lib/glad
+[submodule "thirdparty/glad"]
+	path = thirdparty/glad
 	url = https://github.com/Dav1dde/glad.git
-[submodule "lib/SDL-mirror"]
-	path = lib/SDL-mirror
+[submodule "thirdparty/SDL-mirror"]
+	path = thirdparty/SDL-mirror
 	url = https://github.com/spurious/SDL-mirror.git
-[submodule "lib/freetype2"]
-	path = lib/freetype2
+[submodule "thirdparty/freetype2"]
+	path = thirdparty/freetype2
 	url = git://git.sv.nongnu.org/freetype/freetype2.git
-[submodule "lib/pybind11"]
-	path = lib/pybind11
+[submodule "thirdparty/pybind11"]
+	path = thirdparty/pybind11
 	url = https://github.com/pybind/pybind11.git
-[submodule "lib/imgui"]
-	path = lib/imgui
+[submodule "thirdparty/imgui"]
+	path = thirdparty/imgui
 	url = https://github.com/ocornut/imgui.git
-[submodule "lib/cxxopts"]
-	path = lib/cxxopts
-	url = https://github.com/jarro2783/cxxopts.git
-[submodule "lib/cereal"]
-	path = lib/cereal
-	url = https://github.com/rwols/cereal.git

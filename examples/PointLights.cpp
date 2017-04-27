@@ -1,215 +1,214 @@
 #include "Application.hpp"
-#include "cxxopts.hpp"
+#include "Graphics/Material.hpp"
+#include "Graphics/PointLight.hpp"
+#include "Graphics/Texture2D.hpp"
 
 #define APPNAME "PointLights"
 
 // #define ALSO_ADD_DIRECTIONAL_LIGHT
 
-class PointLightsApplication : public Application
+class PointLightsApplication : public gintonic::Application
 {
-public:
+  public:
+    PointLightsApplication(int argc, char** argv)
+        : gintonic::Application(argc, argv)
+    {
+        using namespace gintonic;
+        if (argc < 4)
+        {
+            exception lException("Usage: ");
+            lException.append(argv[0]);
+            lException.append(
+                "<fullscreen?> <grid-size> <number-of-point-lights>");
+            throw lException;
+        }
 
-	PointLightsApplication(int argc, char** argv, cxxopts::Options& options)
-	: Application(argc, argv, options)
-	{
-		using namespace gintonic;
-		if (argc < 4)
-		{
-			exception lException("Usage: ");
-			lException.append(argv[0]);
-			lException.append("<fullscreen?> <grid-size> <number-of-point-lights>");
-			throw lException;
-		}
+        mNumObjects = std::atoi(argv[2]);
+        mNumLights = std::atoi(argv[3]);
 
-		mNumObjects = std::atoi(argv[2]);
-		mNumLights = std::atoi(argv[3]);
+        if (mNumObjects <= 0)
+        {
+            exception lException("You cannot have ");
+            lException.append(std::to_string(mNumObjects));
+            lException.append(" objects in the scene.");
+            throw lException;
+        }
 
-		if (mNumObjects <= 0)
-		{
-			exception lException("You cannot have ");
-			lException.append(std::to_string(mNumObjects));
-			lException.append(" objects in the scene.");
-			throw lException;
-		}
+        if (mNumLights <= 0)
+        {
+            exception lException("You cannot have ");
+            lException.append(std::to_string(mNumLights));
+            lException.append(" lights in the scene.");
+            throw lException;
+        }
 
-		if (mNumLights <= 0)
-		{
-			exception lException("You cannot have ");
-			lException.append(std::to_string(mNumLights));
-			lException.append(" lights in the scene.");
-			throw lException;
-		}
+        std::srand((int)std::clock()); // random number generator seed
 
-		std::srand((int)std::clock()); // random number generator seed
+        initializeLights();
 
-		initializeLights();
+        initializeGeometry();
 
-		initializeGeometry();
+        auto lCameraEntity = Renderer::getCameraEntity();
+        lCameraEntity->setTranslation(vec3f(4.0f, 5.0f, 4.0f));
+        lCameraEntity->setRotation(
+            quatf::mouse(vec2f(0.0f, -static_cast<float>(M_PI) / 4.0f)));
 
-		auto lCameraEntity = Renderer::getCameraEntity();
-		lCameraEntity->setTranslation(vec3f(4.0f, 5.0f, 4.0f));
-		lCameraEntity->setRotation(quatf::mouse(vec2f(0.0f, -static_cast<float>(M_PI) / 4.0f)));
+        mMoveSpeed = static_cast<float>(mNumObjects);
 
-		mMoveSpeed = static_cast<float>(mNumObjects);
+        Renderer::setFreeformCursor(true);
+        Renderer::show();
+    }
 
-		Renderer::setFreeformCursor(true);
-		Renderer::show();
-	}
+  private:
+    std::shared_ptr<gintonic::Entity> mRootOfLights;
 
-private:
+    int mNumObjects, mNumLights;
 
-	std::shared_ptr<gintonic::Entity> mRootOfLights;
+    void initializeLights()
+    {
+        using namespace gintonic;
 
-	int mNumObjects, mNumLights;
+        const float lNumLights = static_cast<float>(mNumLights);
+        const float lPi = static_cast<float>(M_PI);
+        SQT lTransform;
+        lTransform.scale = 0.1f;
+        lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
+        lTransform.translation = vec3f(0.0f, 0.0f, 0.0f);
 
-	void initializeLights()
-	{
-		using namespace gintonic;
+        mRootOfLights = Entity::create("RootOfLights");
+        mRootOfLights->setTranslationY(3.0f);
 
-		const float lNumLights = static_cast<float>(mNumLights);
-		const float lPi = static_cast<float>(M_PI);
-		SQT lTransform;
-		lTransform.scale = 0.1f;
-		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
-		lTransform.translation = vec3f(0.0f, 0.0f, 0.0f);
+        mRootEntity->addChild(mRootOfLights);
 
-		mRootOfLights = Entity::create("RootOfLights");
-		mRootOfLights->setTranslationY(3.0f);
+        for (int i = 0; i < mNumLights; ++i)
+        {
+            const auto lSpecularity = vec4f(0.2f, 0.2f, 0.2f, 4.0f);
+            const auto lAttenuation = this->getRandomLightAttenuation(0.0f);
+            auto lIntensity = this->getRandomColor(4.0f);
+            const auto lUp = vec3f(0.0f, 1.0f, 0.0f);
+            const auto lAngle = 2.0f * static_cast<float>(i) * lPi / lNumLights;
 
-		mRootEntity->addChild(mRootOfLights);
+            lTransform.translation.x = lNumLights * std::cos(lAngle);
+            lTransform.translation.z = lNumLights * std::sin(lAngle);
 
-		for (int i = 0; i < mNumLights; ++i)
-		{
-			const auto lSpecularity  = vec4f(0.2f, 0.2f, 0.2f, 4.0f);
-			const auto lAttenuation  = this->getRandomLightAttenuation(0.0f);
-			      auto lIntensity    = this->getRandomColor(4.0f);
-			const auto lUp           = vec3f(0.0f, 1.0f, 0.0f);
-			const auto lAngle        = 2.0f * static_cast<float>(i) * lPi / lNumLights;
+            lTransform.rotation = quatf::axis_angle(lUp, -lAngle);
 
-			lTransform.translation.x = lNumLights * std::cos(lAngle);
-			lTransform.translation.z = lNumLights * std::sin(lAngle);
+            auto lLight = PointLight::create(lIntensity, lAttenuation);
 
-			lTransform.rotation      = quatf::axis_angle(lUp, -lAngle);
+            lIntensity.w = 0.0f;
 
-			auto lLight = PointLight::create(lIntensity, lAttenuation);
+            auto lMaterial = Material::create();
+            lMaterial->name = "Light" + std::to_string(i);
+            lMaterial->diffuseColor = lIntensity;
+            lMaterial->specularColor = lSpecularity;
 
-			lIntensity.w = 0.0f;
+            auto lLightEntity = Entity::create();
+            lLightEntity->name = "Light" + std::to_string(i);
+            lLightEntity->light = lLight;
+            lLightEntity->material = lMaterial;
+            lLightEntity->mesh = Renderer::getUnitSphere();
+            lLightEntity->castShadow = false;
+            lLightEntity->setLocalTransform(lTransform);
 
-			auto lMaterial           = Material::create();
-			lMaterial->name          = "Light" + std::to_string(i);
-			lMaterial->diffuseColor  = lIntensity;
-			lMaterial->specularColor = lSpecularity;
+            mRootOfLights->addChild(lLightEntity);
+        }
 
-			auto lLightEntity        = Entity::create();
-			lLightEntity->name       = "Light" + std::to_string(i);
-			lLightEntity->light      = lLight;
-			lLightEntity->material   = lMaterial;
-			lLightEntity->mesh       = Renderer::getUnitSphere();
-			lLightEntity->castShadow = false;
-			lLightEntity->setLocalTransform(lTransform);
+#ifdef ALSO_ADD_DIRECTIONAL_LIGHT
+        auto lLight = DirectionalLight::create();
+        lLight->intensity = 0.3f;
+        lLight->name = "DefaultDirectionalLight";
 
-			mRootOfLights->addChild(lLightEntity);
-		}
+        auto lLightEntity = Entity::create(
+            "DefaultDirectionalLight",
+            SQT(vec3f(1.0f, 1.0f, 1.0f),
+                quatf::axis_angle(vec3f(1.0f, 0.0f, 0.0f), -M_PI / 2.0f + 1.0f),
+                vec3f(0.0f, 0.0f, 0.0f)));
+        lLightEntity->light = lLight;
+        mRootEntity->addChild(lLightEntity);
+#endif
+    }
 
-		#ifdef ALSO_ADD_DIRECTIONAL_LIGHT
-		auto lLight = DirectionalLight::create();
-		lLight->intensity = 0.3f;
-		lLight->name = "DefaultDirectionalLight";
+    void initializeGeometry()
+    {
+        using namespace gintonic;
 
-		auto lLightEntity = Entity::create
-		(
-			"DefaultDirectionalLight", 
-			SQT
-			(
-				vec3f(1.0f, 1.0f, 1.0f), 
-				quatf::axis_angle
-				(
-					vec3f(1.0f, 0.0f, 0.0f), 
-					-M_PI / 2.0f + 1.0f
-				), 
-				vec3f(0.0f, 0.0f, 0.0f)
-			)
-		);
-		lLightEntity->light = lLight;
-		mRootEntity->addChild(lLightEntity);
-		#endif
-	}
+        std::vector<std::vector<bool>>
+            lBoolMatrix; // Generate a random boolean matrix
+        for (int i = -mNumObjects; i <= mNumObjects; ++i)
+        {
+            lBoolMatrix.push_back(std::vector<bool>(2 * mNumObjects + 1));
+            for (int j = -mNumObjects; j <= mNumObjects; ++j)
+            {
+                lBoolMatrix[i + mNumObjects][j + mNumObjects] =
+                    (std::rand() % 2) == 0;
+            }
+        }
 
-	void initializeGeometry()
-	{
-		using namespace gintonic;
+        SQT lTransform;
+        lTransform.scale = 1.0f;
+        lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
 
-		std::vector<std::vector<bool>> lBoolMatrix; // Generate a random boolean matrix
-		for (int i = -mNumObjects; i <= mNumObjects; ++i)
-		{
-			lBoolMatrix.push_back(std::vector<bool>(2 * mNumObjects + 1));
-			for (int j  = -mNumObjects; j <= mNumObjects; ++j)
-			{
-				lBoolMatrix[i + mNumObjects][j + mNumObjects] = (std::rand() % 2) == 0;
-			}
-		}
+        Texture2D::ImageLoadOptions imageOpts;
+        imageOpts.relativeFilename = "assets/images/DaVinci.jpg";
+        auto lDaVinciTexture = Texture2D::fromImage(imageOpts);
+        imageOpts.relativeFilename = "assets/images/bricks.jpg";
+        auto lBrickDiffuseTexture = Texture2D::fromImage(imageOpts);
+        imageOpts.relativeFilename = "assets/images/bricks_SPEC.png";
+        auto lBrickSpecularTexture = Texture2D::fromImage(imageOpts);
+        imageOpts.relativeFilename = "assets/images/bricks_NRM.png";
+        auto lBrickNormalTexture = Texture2D::fromImage(imageOpts);
 
-		SQT lTransform;
-		lTransform.scale = 1.0f;
-		lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
+        auto lDaVinciMaterial = Material::create();
+        lDaVinciMaterial->name = "DaVinci";
+        lDaVinciMaterial->diffuseColor = vec4f(0.7f, 0.7f, 0.7f, 1.0f);
+        lDaVinciMaterial->specularColor = vec4f(0.3f, 0.3f, 0.3f, 80.0f);
+        lDaVinciMaterial->diffuseTexture = lDaVinciTexture;
 
-		Texture2D::ImageLoadOptions imageOpts;
-		imageOpts.relativeFilename = "assets/images/DaVinci.jpg";
-		auto lDaVinciTexture       = Texture2D::fromImage(imageOpts);
-		imageOpts.relativeFilename = "assets/images/bricks.jpg";
-		auto lBrickDiffuseTexture = Texture2D::fromImage(imageOpts);
-		imageOpts.relativeFilename = "assets/images/bricks_SPEC.png";
-		auto lBrickSpecularTexture = Texture2D::fromImage(imageOpts);
-		imageOpts.relativeFilename = "assets/images/bricks_NRM.png";		
-		auto lBrickNormalTexture   = Texture2D::fromImage(imageOpts);
+        auto lBrickMaterialWithNormalMap = Material::create();
+        lBrickMaterialWithNormalMap->name = "BricksWithNormalMap";
+        lBrickMaterialWithNormalMap->diffuseColor =
+            vec4f(0.8f, 0.8f, 0.8f, 1.0f);
+        lBrickMaterialWithNormalMap->specularColor =
+            vec4f(0.2f, 0.2f, 0.2f, 20.0f);
+        lBrickMaterialWithNormalMap->diffuseTexture = lBrickDiffuseTexture;
+        lBrickMaterialWithNormalMap->specularTexture = lBrickSpecularTexture;
+        lBrickMaterialWithNormalMap->normalTexture = lBrickNormalTexture;
 
-		auto lDaVinciMaterial            = Material::create();
-		lDaVinciMaterial->name           = "DaVinci";
-		lDaVinciMaterial->diffuseColor   = vec4f(0.7f, 0.7f, 0.7f, 1.0f);
-		lDaVinciMaterial->specularColor  = vec4f(0.3f, 0.3f, 0.3f, 80.0f);
-		lDaVinciMaterial->diffuseTexture = lDaVinciTexture;
+        for (int i = -mNumObjects; i <= mNumObjects; ++i)
+        {
+            for (int j = -mNumObjects; j <= mNumObjects; ++j)
+            {
+                lTransform.translation.x = 3.0f * static_cast<float>(i);
+                lTransform.translation.y = 0.0f;
+                lTransform.translation.z = 3.0f * static_cast<float>(j);
 
-		auto lBrickMaterialWithNormalMap             = Material::create();
-		lBrickMaterialWithNormalMap->name            = "BricksWithNormalMap";
-		lBrickMaterialWithNormalMap->diffuseColor    = vec4f(0.8f, 0.8f, 0.8f,  1.0f);
-		lBrickMaterialWithNormalMap->specularColor   = vec4f(0.2f, 0.2f, 0.2f, 20.0f);
-		lBrickMaterialWithNormalMap->diffuseTexture  = lBrickDiffuseTexture;
-		lBrickMaterialWithNormalMap->specularTexture = lBrickSpecularTexture;
-		lBrickMaterialWithNormalMap->normalTexture   = lBrickNormalTexture;
+                auto lEntity = Entity::create();
+                lEntity->name = "Geometry(" + std::to_string(i) + "," +
+                                std::to_string(j) + ")";
+                lEntity->setLocalTransform(lTransform);
+                if (lBoolMatrix[i + mNumObjects][j + mNumObjects])
+                {
+                    lEntity->material = lBrickMaterialWithNormalMap;
+                    lEntity->mesh = Renderer::getUnitCubeWithTangents();
+                }
+                else
+                {
+                    lEntity->material = lDaVinciMaterial;
+                    lEntity->mesh = Renderer::getUnitSphere();
+                }
 
-		for (int i = -mNumObjects; i <= mNumObjects; ++i)
-		{
-			for (int j = -mNumObjects; j <= mNumObjects; ++j)
-			{
-				lTransform.translation.x = 3.0f * static_cast<float>(i);
-				lTransform.translation.y = 0.0f;
-				lTransform.translation.z = 3.0f * static_cast<float>(j);
+                mRootEntity->addChild(lEntity);
+            }
+        }
+    }
 
-				auto lEntity = Entity::create();
-				lEntity->name = "Geometry(" + std::to_string(i) + "," + std::to_string(j) + ")";
-				lEntity->setLocalTransform(lTransform);
-				if (lBoolMatrix[i + mNumObjects][j + mNumObjects])
-				{
-					lEntity->material = lBrickMaterialWithNormalMap;
-					lEntity->mesh = Renderer::getUnitCubeWithTangents();
-				}
-				else
-				{
-					lEntity->material = lDaVinciMaterial;
-					lEntity->mesh = Renderer::getUnitSphere();
-				}
-
-				mRootEntity->addChild(lEntity);
-			}
-		}
-	}
-
-	virtual void onRenderUpdate() final
-	{
-		using namespace gintonic;
-		mRootOfLights->postMultiplyRotation(quatf::axis_angle(vec3f(0.0f, 1.0f, 0.0f), static_cast<float>(mDeltaTime)));
-	}
-
+    virtual void onRenderUpdate() final
+    {
+        using namespace gintonic;
+        mRootOfLights->postMultiplyRotation(quatf::axis_angle(
+            vec3f(0.0f, 1.0f, 0.0f), static_cast<float>(mDeltaTime)));
+    }
 };
 
-DEFINE_MAIN(PointLightsApplication, "PointLights", "Renders point lights in a circle.")
+DEFINE_MAIN(PointLightsApplication, "PointLights",
+            "Renders point lights in a circle.")

@@ -46,6 +46,166 @@
 					"shell_cmd": "cmake --build . --target package"
 				},
 				{
+					"name": "thirdparty/install/strip",
+					"shell_cmd": "cmake --build . --target thirdparty/install/strip"
+				},
+				{
+					"name": "thirdparty/install",
+					"shell_cmd": "cmake --build . --target thirdparty/install"
+				},
+				{
+					"name": "thirdparty/list_install_components",
+					"shell_cmd": "cmake --build . --target thirdparty/list_install_components"
+				},
+				{
+					"name": "thirdparty/install/local",
+					"shell_cmd": "cmake --build . --target thirdparty/install/local"
+				},
+				{
+					"name": "thirdparty/test",
+					"shell_cmd": "cmake --build . --target thirdparty/test"
+				},
+				{
+					"name": "thirdparty/package_source",
+					"shell_cmd": "cmake --build . --target thirdparty/package_source"
+				},
+				{
+					"name": "thirdparty/rebuild_cache",
+					"shell_cmd": "cmake --build . --target thirdparty/rebuild_cache"
+				},
+				{
+					"name": "thirdparty/package",
+					"shell_cmd": "cmake --build . --target thirdparty/package"
+				},
+				{
+					"name": "thirdparty/glad/list_install_components",
+					"shell_cmd": "cmake --build . --target thirdparty/glad/list_install_components"
+				},
+				{
+					"name": "thirdparty/glad/install/local",
+					"shell_cmd": "cmake --build . --target thirdparty/glad/install/local"
+				},
+				{
+					"name": "thirdparty/glad/test",
+					"shell_cmd": "cmake --build . --target thirdparty/glad/test"
+				},
+				{
+					"name": "thirdparty/glad/rebuild_cache",
+					"shell_cmd": "cmake --build . --target thirdparty/glad/rebuild_cache"
+				},
+				{
+					"name": "thirdparty/glad/package_source",
+					"shell_cmd": "cmake --build . --target thirdparty/glad/package_source"
+				},
+				{
+					"name": "thirdparty/glad/package",
+					"shell_cmd": "cmake --build . --target thirdparty/glad/package"
+				},
+				{
+					"name": "thirdparty/glad/install/strip",
+					"shell_cmd": "cmake --build . --target thirdparty/glad/install/strip"
+				},
+				{
+					"name": "thirdparty/glad/install",
+					"shell_cmd": "cmake --build . --target thirdparty/glad/install"
+				},
+				{
+					"name": "thirdparty/SDL-mirror/list_install_components",
+					"shell_cmd": "cmake --build . --target thirdparty/SDL-mirror/list_install_components"
+				},
+				{
+					"name": "thirdparty/SDL-mirror/rebuild_cache",
+					"shell_cmd": "cmake --build . --target thirdparty/SDL-mirror/rebuild_cache"
+				},
+				{
+					"name": "thirdparty/SDL-mirror/package_source",
+					"shell_cmd": "cmake --build . --target thirdparty/SDL-mirror/package_source"
+				},
+				{
+					"name": "thirdparty/SDL-mirror/test",
+					"shell_cmd": "cmake --build . --target thirdparty/SDL-mirror/test"
+				},
+				{
+					"name": "thirdparty/SDL-mirror/install/strip",
+					"shell_cmd": "cmake --build . --target thirdparty/SDL-mirror/install/strip"
+				},
+				{
+					"name": "thirdparty/SDL-mirror/package",
+					"shell_cmd": "cmake --build . --target thirdparty/SDL-mirror/package"
+				},
+				{
+					"name": "thirdparty/SDL-mirror/install",
+					"shell_cmd": "cmake --build . --target thirdparty/SDL-mirror/install"
+				},
+				{
+					"name": "thirdparty/SDL-mirror/install/local",
+					"shell_cmd": "cmake --build . --target thirdparty/SDL-mirror/install/local"
+				},
+				{
+					"name": "thirdparty/freetype2/list_install_components",
+					"shell_cmd": "cmake --build . --target thirdparty/freetype2/list_install_components"
+				},
+				{
+					"name": "thirdparty/freetype2/install/local",
+					"shell_cmd": "cmake --build . --target thirdparty/freetype2/install/local"
+				},
+				{
+					"name": "thirdparty/freetype2/test",
+					"shell_cmd": "cmake --build . --target thirdparty/freetype2/test"
+				},
+				{
+					"name": "thirdparty/freetype2/rebuild_cache",
+					"shell_cmd": "cmake --build . --target thirdparty/freetype2/rebuild_cache"
+				},
+				{
+					"name": "thirdparty/freetype2/package_source",
+					"shell_cmd": "cmake --build . --target thirdparty/freetype2/package_source"
+				},
+				{
+					"name": "thirdparty/freetype2/package",
+					"shell_cmd": "cmake --build . --target thirdparty/freetype2/package"
+				},
+				{
+					"name": "thirdparty/freetype2/install/strip",
+					"shell_cmd": "cmake --build . --target thirdparty/freetype2/install/strip"
+				},
+				{
+					"name": "thirdparty/freetype2/install",
+					"shell_cmd": "cmake --build . --target thirdparty/freetype2/install"
+				},
+				{
+					"name": "thirdparty/pybind11/install/strip",
+					"shell_cmd": "cmake --build . --target thirdparty/pybind11/install/strip"
+				},
+				{
+					"name": "thirdparty/pybind11/install",
+					"shell_cmd": "cmake --build . --target thirdparty/pybind11/install"
+				},
+				{
+					"name": "thirdparty/pybind11/list_install_components",
+					"shell_cmd": "cmake --build . --target thirdparty/pybind11/list_install_components"
+				},
+				{
+					"name": "thirdparty/pybind11/install/local",
+					"shell_cmd": "cmake --build . --target thirdparty/pybind11/install/local"
+				},
+				{
+					"name": "thirdparty/pybind11/test",
+					"shell_cmd": "cmake --build . --target thirdparty/pybind11/test"
+				},
+				{
+					"name": "thirdparty/pybind11/rebuild_cache",
+					"shell_cmd": "cmake --build . --target thirdparty/pybind11/rebuild_cache"
+				},
+				{
+					"name": "thirdparty/pybind11/package_source",
+					"shell_cmd": "cmake --build . --target thirdparty/pybind11/package_source"
+				},
+				{
+					"name": "thirdparty/pybind11/package",
+					"shell_cmd": "cmake --build . --target thirdparty/pybind11/package"
+				},
+				{
 					"name": "assets/install/strip",
 					"shell_cmd": "cmake --build . --target assets/install/strip"
 				},
@@ -140,262 +300,6 @@
 				{
 					"name": "lib/install",
 					"shell_cmd": "cmake --build . --target lib/install"
-				},
-				{
-					"name": "lib/glad/list_install_components",
-					"shell_cmd": "cmake --build . --target lib/glad/list_install_components"
-				},
-				{
-					"name": "lib/glad/install/local",
-					"shell_cmd": "cmake --build . --target lib/glad/install/local"
-				},
-				{
-					"name": "lib/glad/test",
-					"shell_cmd": "cmake --build . --target lib/glad/test"
-				},
-				{
-					"name": "lib/glad/rebuild_cache",
-					"shell_cmd": "cmake --build . --target lib/glad/rebuild_cache"
-				},
-				{
-					"name": "lib/glad/package_source",
-					"shell_cmd": "cmake --build . --target lib/glad/package_source"
-				},
-				{
-					"name": "lib/glad/package",
-					"shell_cmd": "cmake --build . --target lib/glad/package"
-				},
-				{
-					"name": "lib/glad/install/strip",
-					"shell_cmd": "cmake --build . --target lib/glad/install/strip"
-				},
-				{
-					"name": "lib/glad/install",
-					"shell_cmd": "cmake --build . --target lib/glad/install"
-				},
-				{
-					"name": "lib/SDL-mirror/list_install_components",
-					"shell_cmd": "cmake --build . --target lib/SDL-mirror/list_install_components"
-				},
-				{
-					"name": "lib/SDL-mirror/rebuild_cache",
-					"shell_cmd": "cmake --build . --target lib/SDL-mirror/rebuild_cache"
-				},
-				{
-					"name": "lib/SDL-mirror/package_source",
-					"shell_cmd": "cmake --build . --target lib/SDL-mirror/package_source"
-				},
-				{
-					"name": "lib/SDL-mirror/test",
-					"shell_cmd": "cmake --build . --target lib/SDL-mirror/test"
-				},
-				{
-					"name": "lib/SDL-mirror/install/strip",
-					"shell_cmd": "cmake --build . --target lib/SDL-mirror/install/strip"
-				},
-				{
-					"name": "lib/SDL-mirror/package",
-					"shell_cmd": "cmake --build . --target lib/SDL-mirror/package"
-				},
-				{
-					"name": "lib/SDL-mirror/install",
-					"shell_cmd": "cmake --build . --target lib/SDL-mirror/install"
-				},
-				{
-					"name": "lib/SDL-mirror/install/local",
-					"shell_cmd": "cmake --build . --target lib/SDL-mirror/install/local"
-				},
-				{
-					"name": "lib/freetype2/list_install_components",
-					"shell_cmd": "cmake --build . --target lib/freetype2/list_install_components"
-				},
-				{
-					"name": "lib/freetype2/install/local",
-					"shell_cmd": "cmake --build . --target lib/freetype2/install/local"
-				},
-				{
-					"name": "lib/freetype2/test",
-					"shell_cmd": "cmake --build . --target lib/freetype2/test"
-				},
-				{
-					"name": "lib/freetype2/rebuild_cache",
-					"shell_cmd": "cmake --build . --target lib/freetype2/rebuild_cache"
-				},
-				{
-					"name": "lib/freetype2/package_source",
-					"shell_cmd": "cmake --build . --target lib/freetype2/package_source"
-				},
-				{
-					"name": "lib/freetype2/package",
-					"shell_cmd": "cmake --build . --target lib/freetype2/package"
-				},
-				{
-					"name": "lib/freetype2/install/strip",
-					"shell_cmd": "cmake --build . --target lib/freetype2/install/strip"
-				},
-				{
-					"name": "lib/freetype2/install",
-					"shell_cmd": "cmake --build . --target lib/freetype2/install"
-				},
-				{
-					"name": "lib/pybind11/install/strip",
-					"shell_cmd": "cmake --build . --target lib/pybind11/install/strip"
-				},
-				{
-					"name": "lib/pybind11/install",
-					"shell_cmd": "cmake --build . --target lib/pybind11/install"
-				},
-				{
-					"name": "lib/pybind11/list_install_components",
-					"shell_cmd": "cmake --build . --target lib/pybind11/list_install_components"
-				},
-				{
-					"name": "lib/pybind11/install/local",
-					"shell_cmd": "cmake --build . --target lib/pybind11/install/local"
-				},
-				{
-					"name": "lib/pybind11/test",
-					"shell_cmd": "cmake --build . --target lib/pybind11/test"
-				},
-				{
-					"name": "lib/pybind11/rebuild_cache",
-					"shell_cmd": "cmake --build . --target lib/pybind11/rebuild_cache"
-				},
-				{
-					"name": "lib/pybind11/package_source",
-					"shell_cmd": "cmake --build . --target lib/pybind11/package_source"
-				},
-				{
-					"name": "lib/pybind11/package",
-					"shell_cmd": "cmake --build . --target lib/pybind11/package"
-				},
-				{
-					"name": "lib/cxxopts/install/strip",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/install/strip"
-				},
-				{
-					"name": "lib/cxxopts/install",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/install"
-				},
-				{
-					"name": "lib/cxxopts/list_install_components",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/list_install_components"
-				},
-				{
-					"name": "lib/cxxopts/rebuild_cache",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/rebuild_cache"
-				},
-				{
-					"name": "lib/cxxopts/package_source",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/package_source"
-				},
-				{
-					"name": "lib/cxxopts/package",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/package"
-				},
-				{
-					"name": "lib/cxxopts/install/local",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/install/local"
-				},
-				{
-					"name": "lib/cxxopts/test",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/test"
-				},
-				{
-					"name": "lib/cxxopts/src/install/strip",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/src/install/strip"
-				},
-				{
-					"name": "lib/cxxopts/src/install",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/src/install"
-				},
-				{
-					"name": "lib/cxxopts/src/list_install_components",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/src/list_install_components"
-				},
-				{
-					"name": "lib/cxxopts/src/install/local",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/src/install/local"
-				},
-				{
-					"name": "lib/cxxopts/src/test",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/src/test"
-				},
-				{
-					"name": "lib/cxxopts/src/rebuild_cache",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/src/rebuild_cache"
-				},
-				{
-					"name": "lib/cxxopts/src/package_source",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/src/package_source"
-				},
-				{
-					"name": "lib/cxxopts/src/package",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/src/package"
-				},
-				{
-					"name": "lib/cxxopts/test/install/strip",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/test/install/strip"
-				},
-				{
-					"name": "lib/cxxopts/test/install",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/test/install"
-				},
-				{
-					"name": "lib/cxxopts/test/list_install_components",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/test/list_install_components"
-				},
-				{
-					"name": "lib/cxxopts/test/install/local",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/test/install/local"
-				},
-				{
-					"name": "lib/cxxopts/test/test",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/test/test"
-				},
-				{
-					"name": "lib/cxxopts/test/package_source",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/test/package_source"
-				},
-				{
-					"name": "lib/cxxopts/test/rebuild_cache",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/test/rebuild_cache"
-				},
-				{
-					"name": "lib/cxxopts/test/package",
-					"shell_cmd": "cmake --build . --target lib/cxxopts/test/package"
-				},
-				{
-					"name": "lib/cereal/list_install_components",
-					"shell_cmd": "cmake --build . --target lib/cereal/list_install_components"
-				},
-				{
-					"name": "lib/cereal/install/strip",
-					"shell_cmd": "cmake --build . --target lib/cereal/install/strip"
-				},
-				{
-					"name": "lib/cereal/package",
-					"shell_cmd": "cmake --build . --target lib/cereal/package"
-				},
-				{
-					"name": "lib/cereal/rebuild_cache",
-					"shell_cmd": "cmake --build . --target lib/cereal/rebuild_cache"
-				},
-				{
-					"name": "lib/cereal/package_source",
-					"shell_cmd": "cmake --build . --target lib/cereal/package_source"
-				},
-				{
-					"name": "lib/cereal/install/local",
-					"shell_cmd": "cmake --build . --target lib/cereal/install/local"
-				},
-				{
-					"name": "lib/cereal/test",
-					"shell_cmd": "cmake --build . --target lib/cereal/test"
-				},
-				{
-					"name": "lib/cereal/install",
-					"shell_cmd": "cmake --build . --target lib/cereal/install"
 				},
 				{
 					"name": "test/install",
@@ -626,10 +530,6 @@
 					"shell_cmd": "cmake --build . --target dist"
 				},
 				{
-					"name": "doc",
-					"shell_cmd": "cmake --build . --target doc"
-				},
-				{
 					"name": "gintonic-precompiled",
 					"shell_cmd": "cmake --build . --target gintonic-precompiled"
 				},
@@ -656,10 +556,6 @@
 				{
 					"name": "uninstall",
 					"shell_cmd": "cmake --build . --target uninstall"
-				},
-				{
-					"name": "update-doc",
-					"shell_cmd": "cmake --build . --target update-doc"
 				},
 				{
 					"name": "clean",

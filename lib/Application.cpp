@@ -1,26 +1,19 @@
 #include "Application.hpp"
-#include "cxxopts.hpp"
+#include "Camera.hpp"
 
-Application::Application(int argc, char** argv, cxxopts::Options& options)
+using namespace gintonic;
+
+Application::Application(int argc, char** argv)
+    : mArgCount(argc), mArgVariable((const char**)argv)
 {
-    options.add_options()("fullscreen", "fullscreen or windowed",
-                          cxxopts::value<bool>())(
-        "title", "window title", cxxopts::value<std::string>());
-    options.parse(argc, argv);
-    bool lFullscreen = false;
-    if (options.count("fullscreen"))
-    {
-        lFullscreen = options["fullscreen"].as<bool>();
-    }
-    std::string windowTitle = "gintonic app";
-    if (options.count("title"))
-    {
-        windowTitle = options["title"].as<std::string>();
-    }
-    auto lCameraEntity = gintonic::Entity::create("DefaultCamera");
+    bool fullScreen = false;
+    const char* windowTitle = "gintonic";
+    auto cameraEntity = gintonic::Entity::create("DefaultCamera");
+
     boost::filesystem::current_path(gintonic::get_executable_path());
-    gintonic::Renderer::initialize(
-        windowTitle.c_str(), std::move(lCameraEntity), lFullscreen, 800, 640);
+
+    gintonic::Renderer::initialize(windowTitle, std::move(cameraEntity),
+                                   fullScreen, 800, 640);
 }
 
 void Application::renderUpdate()
@@ -36,7 +29,7 @@ void Application::processCameraInput()
 {
     using namespace gintonic;
 
-    auto lCameraEntity = Renderer::getCameraEntity();
+    auto cameraEntity = Renderer::getCameraEntity();
     const float lDeltaTime = static_cast<float>(mDeltaTime);
 
     if (Renderer::key(SDL_SCANCODE_Q))
@@ -60,27 +53,27 @@ void Application::processCameraInput()
     {
         if (Renderer::key(SDL_SCANCODE_W))
         {
-            lCameraEntity->moveForward(mMoveSpeed * lDeltaTime);
+            cameraEntity->moveForward(mMoveSpeed * lDeltaTime);
         }
         if (Renderer::key(SDL_SCANCODE_A))
         {
-            lCameraEntity->moveLeft(mMoveSpeed * lDeltaTime);
+            cameraEntity->moveLeft(mMoveSpeed * lDeltaTime);
         }
         if (Renderer::key(SDL_SCANCODE_S))
         {
-            lCameraEntity->moveBackward(mMoveSpeed * lDeltaTime);
+            cameraEntity->moveBackward(mMoveSpeed * lDeltaTime);
         }
         if (Renderer::key(SDL_SCANCODE_D))
         {
-            lCameraEntity->moveRight(mMoveSpeed * lDeltaTime);
+            cameraEntity->moveRight(mMoveSpeed * lDeltaTime);
         }
         if (Renderer::key(SDL_SCANCODE_SPACE))
         {
-            lCameraEntity->moveUp(mMoveSpeed * lDeltaTime);
+            cameraEntity->moveUp(mMoveSpeed * lDeltaTime);
         }
         if (Renderer::key(SDL_SCANCODE_C))
         {
-            lCameraEntity->moveDown(mMoveSpeed * lDeltaTime);
+            cameraEntity->moveDown(mMoveSpeed * lDeltaTime);
         }
     }
     if (mCameraRespondsToMouse)
@@ -89,9 +82,8 @@ void Application::processCameraInput()
 
         lMouseDelta += -deg2rad(Renderer::mouseDelta()) / 10.0f;
 
-        lCameraEntity->camera->addMouse(lMouseDelta);
-        lCameraEntity->setRotation(
-            quatf::mouse(lCameraEntity->camera->angles()));
+        cameraEntity->camera->addMouse(lMouseDelta);
+        cameraEntity->setRotation(quatf::mouse(cameraEntity->camera->angles()));
     }
 }
 

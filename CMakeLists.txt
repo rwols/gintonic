@@ -62,6 +62,7 @@ option(gintonic_BUILD_EXAMPLES
 option(gintonic_BUILD_TOOLS 
 	"Wether to build the tools." ${gintonic_WE_ARE_ROOT})
 
+add_subdirectory(thirdparty)
 add_subdirectory(assets)
 add_subdirectory(include)
 add_subdirectory(lib)
