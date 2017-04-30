@@ -1,4 +1,5 @@
 #include "Application.hpp"
+#include "Foundation/exception.hpp"
 #include "Graphics/Material.hpp"
 #include "Graphics/PointLight.hpp"
 #include "Graphics/Texture2D.hpp"

@@ -2,7 +2,7 @@
 #include "QuitApplication.hpp"
 #include "RenderContext.hpp"
 // #include <../src/video/SDL_sysvideo.h>
-// #include <SDL.h>
+#include <SDL.h>
 
 using namespace gintonic;
 

@@ -14,8 +14,10 @@
 #include <fstream>
 #include <iomanip>
 
+#include "Foundation/exception.hpp"
 #include "Foundation/portable_iarchive.hpp"
 #include "Foundation/portable_oarchive.hpp"
+#include "Foundation/scancodes.hpp"
 
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/list.hpp>

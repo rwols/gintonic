@@ -1,4 +1,6 @@
 #include "Application.hpp"
+#include "Foundation/exception.hpp"
+#include "Foundation/scancodes.hpp"
 #include "Graphics/Material.hpp"
 #include "Graphics/SpotLight.hpp"
 

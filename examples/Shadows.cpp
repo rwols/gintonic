@@ -6,6 +6,7 @@
 #include "Graphics/PointLight.hpp"
 #include "Graphics/SpotLight.hpp"
 #include "Graphics/Texture2D.hpp"
+#include "Foundation/scancodes.hpp"
 
 #define APPNAME "Shadows"
 

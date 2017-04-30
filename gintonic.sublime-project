@@ -7,7 +7,7 @@
 			"working_dir": "${project_path}/build/examples"
 		},
 		{
-			"file_regex": "(.+[^:]):(\\d+):(\\d+): (?:fatal )?((?:error|warning): .+)$",
+			"file_regex": "^(.+)\\((\\d+)\\):() (.+)$",
 			"name": "gintonic (OSX)",
 			"shell_cmd": "cmake --build .",
 			"syntax": "Packages/CMakeBuilder/Syntax/Ninja.sublime-syntax",
@@ -563,6 +563,207 @@
 				}
 			],
 			"working_dir": "${project_path}/build"
+		},
+		{
+			"env":
+			{
+				"include": "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\INCLUDE;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\INCLUDE;C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.10150.0\\ucrt;C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6\\include\\um;C:\\Program Files (x86)\\Windows Kits\\8.1\\include\\shared;C:\\Program Files (x86)\\Windows Kits\\8.1\\include\\um;C:\\Program Files (x86)\\Windows Kits\\8.1\\include\\winrt",
+				"lib": "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\LIB;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\LIB;C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.10150.0\\ucrt\\x86;C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6\\lib\\um\\x86;C:\\Program Files (x86)\\Windows Kits\\8.1\\lib\\winv6.3\\um\\x86",
+				"libpath": "C:\\WINDOWS\\Microsoft.NET\\Framework\\v4.0.30319;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\LIB;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\LIB;References\\CommonConfiguration\\Neutral;\\Microsoft.VCLibs\\14.0\\References\\CommonConfiguration\\neutral",
+				"path": "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow;C:\\Program Files (x86)\\MSBuild\\14.0\\bin;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\BIN;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\Tools;C:\\WINDOWS\\Microsoft.NET\\Framework\\v4.0.30319;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\VCPackages;C:\\Program Files (x86)\\HTML Help Workshop;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Team Tools\\Performance Tools;C:\\Program Files (x86)\\Windows Kits\\8.1\\bin\\x86;C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.6 Tools\\;c:\\Users\\Raoul\\bin;.;C:\\Program Files (x86)\\Git\\local\\bin;C:\\Program Files (x86)\\Git\\mingw\\bin;C:\\Program Files (x86)\\Git\\bin;c:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;c:\\Perl64\\site\\bin;c:\\Perl64\\bin;c:\\ProgramData\\Oracle\\Java\\javapath;c:\\Windows\\system32;c:\\Windows;c:\\Windows\\System32\\Wbem;c:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;c:\\Program Files (x86)\\AMD\\ATI.ACE\\Core-Static;c:\\Program Files (x86)\\Windows Kits\\8.1\\Windows Performance Toolkit\\;c:\\Program Files\\Microsoft SQL Server\\110\\Tools\\Binn\\;c:\\Program Files\\MiKTeX 2.9\\miktex\\bin\\x64\\;c:\\Program Files (x86)\\Microsoft SDKs\\TypeScript\\1.0\\;c:\\Program Files\\Microsoft SQL Server\\120\\Tools\\Binn\\;c:\\Program Files\\doxygen\\bin;C:\\Program Files (x86)\\Git\\cmd;c:\\WINDOWS\\system32;c:\\WINDOWS;c:\\WINDOWS\\System32\\Wbem;c:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;c:\\Program Files (x86)\\ATI Technologies\\ATI.ACE\\Core-Static;c:\\Users\\Raoul\\.dnx\\bin;c:\\Program Files\\Microsoft DNX\\Dnvm\\;c:\\Program Files (x86)\\Lua\\5.1;c:\\Program Files (x86)\\Lua\\5.1\\clibs;c:\\Program Files (x86)\\Skype\\Phone\\;c:\\Program Files (x86)\\CMake\\bin;c:\\Program Files (x86)\\GtkSharp\\2.12\\bin;c:\\Program Files\\LLVM\\bin;c:\\Program Files (x86)\\MSBuild\\14.0\\bin;c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\;c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\BIN;c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\Tools;c:\\WINDOWS\\Microsoft.NET\\Framework\\v4.0.30319;c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\VCPackages;c:\\Program Files (x86)\\HTML Help Workshop;c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Team Tools\\Performance Tools;c:\\Program Files (x86)\\Windows Kits\\8.1\\bin\\x86;c:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.6 Tools\\;c:\\WINDOWS\\system32\\config\\systemprofile\\.dnx\\bin;c:\\svn;c:\\Program Files (x86)\\SumatraPDF;c:\\Program Files (x86)\\Graphviz2.38\\bin;c:\\glew-1.12.0;c:\\SDL2-2.0.3;c:\\Python27;c:\\boost_1_59_0;c:\\Users\\Raoul\\AppData\\Local\\Microsoft\\WindowsApps;c:\\Program Files\\Sublime Text 3;c:\\boost_1_59_0\\stage\\lib"
+			},
+			"file_regex": "^(.+)\\((\\d+)\\):() (.+)$",
+			"name": "gintonic (Windows)",
+			"shell_cmd": "cmake --build .",
+			"syntax": "Packages/CMakeBuilder/Syntax/Make.sublime-syntax",
+			"variants":
+			[
+				{
+					"name": "clean",
+					"shell_cmd": "cmake --build . --target clean"
+				},
+				{
+					"name": "package",
+					"shell_cmd": "cmake --build . --target package"
+				},
+				{
+					"name": "package_source",
+					"shell_cmd": "cmake --build . --target package_source"
+				},
+				{
+					"name": "test",
+					"shell_cmd": "cmake --build . --target test"
+				},
+				{
+					"name": "rebuild_cache",
+					"shell_cmd": "cmake --build . --target rebuild_cache"
+				},
+				{
+					"name": "install",
+					"shell_cmd": "cmake --build . --target install"
+				},
+				{
+					"name": "install/local",
+					"shell_cmd": "cmake --build . --target install/local"
+				},
+				{
+					"name": "list_install_components",
+					"shell_cmd": "cmake --build . --target list_install_components"
+				},
+				{
+					"name": "glad",
+					"shell_cmd": "cmake --build . --target glad"
+				},
+				{
+					"name": "SDL2-static",
+					"shell_cmd": "cmake --build . --target SDL2-static"
+				},
+				{
+					"name": "SDL2main",
+					"shell_cmd": "cmake --build . --target SDL2main"
+				},
+				{
+					"name": "uninstall",
+					"shell_cmd": "cmake --build . --target uninstall"
+				},
+				{
+					"name": "freetype",
+					"shell_cmd": "cmake --build . --target freetype"
+				},
+				{
+					"name": "dist",
+					"shell_cmd": "cmake --build . --target dist"
+				},
+				{
+					"name": "gintonic",
+					"shell_cmd": "cmake --build . --target gintonic"
+				},
+				{
+					"name": "SDLRenderContext",
+					"shell_cmd": "cmake --build . --target SDLRenderContext"
+				},
+				{
+					"name": "Entity",
+					"shell_cmd": "cmake --build . --target Entity"
+				},
+				{
+					"name": "Casting",
+					"shell_cmd": "cmake --build . --target Casting"
+				},
+				{
+					"name": "Clock",
+					"shell_cmd": "cmake --build . --target Clock"
+				},
+				{
+					"name": "vec4f",
+					"shell_cmd": "cmake --build . --target vec4f"
+				},
+				{
+					"name": "SerializationOfLights",
+					"shell_cmd": "cmake --build . --target SerializationOfLights"
+				},
+				{
+					"name": "SQT",
+					"shell_cmd": "cmake --build . --target SQT"
+				},
+				{
+					"name": "OctreeTest",
+					"shell_cmd": "cmake --build . --target OctreeTest"
+				},
+				{
+					"name": "SimdTest",
+					"shell_cmd": "cmake --build . --target SimdTest"
+				},
+				{
+					"name": "mat3f",
+					"shell_cmd": "cmake --build . --target mat3f"
+				},
+				{
+					"name": "Reflection",
+					"shell_cmd": "cmake --build . --target Reflection"
+				},
+				{
+					"name": "box2f",
+					"shell_cmd": "cmake --build . --target box2f"
+				},
+				{
+					"name": "box3f",
+					"shell_cmd": "cmake --build . --target box3f"
+				},
+				{
+					"name": "mat2f",
+					"shell_cmd": "cmake --build . --target mat2f"
+				},
+				{
+					"name": "mat4f",
+					"shell_cmd": "cmake --build . --target mat4f"
+				},
+				{
+					"name": "vec2f",
+					"shell_cmd": "cmake --build . --target vec2f"
+				},
+				{
+					"name": "materials",
+					"shell_cmd": "cmake --build . --target materials"
+				},
+				{
+					"name": "quatf",
+					"shell_cmd": "cmake --build . --target quatf"
+				},
+				{
+					"name": "vec3f",
+					"shell_cmd": "cmake --build . --target vec3f"
+				},
+				{
+					"name": "DriverInfo",
+					"shell_cmd": "cmake --build . --target DriverInfo"
+				},
+				{
+					"name": "FbxConverter",
+					"shell_cmd": "cmake --build . --target FbxConverter"
+				},
+				{
+					"name": "BasicShapes",
+					"shell_cmd": "cmake --build . --target BasicShapes"
+				},
+				{
+					"name": "FbxViewer",
+					"shell_cmd": "cmake --build . --target FbxViewer"
+				},
+				{
+					"name": "DirectionalLight",
+					"shell_cmd": "cmake --build . --target DirectionalLight"
+				},
+				{
+					"name": "HelloWorldText",
+					"shell_cmd": "cmake --build . --target HelloWorldText"
+				},
+				{
+					"name": "Octree",
+					"shell_cmd": "cmake --build . --target Octree"
+				},
+				{
+					"name": "Shadows",
+					"shell_cmd": "cmake --build . --target Shadows"
+				},
+				{
+					"name": "OrthographicProjection",
+					"shell_cmd": "cmake --build . --target OrthographicProjection"
+				},
+				{
+					"name": "PointLights",
+					"shell_cmd": "cmake --build . --target PointLights"
+				},
+				{
+					"name": "SpotLights",
+					"shell_cmd": "cmake --build . --target SpotLights"
+				},
+				{
+					"name": "TexturedCube",
+					"shell_cmd": "cmake --build . --target TexturedCube"
+				}
+			],
+			"working_dir": "${project_path}/build"
 		}
 	],
 	"cmake":
@@ -571,10 +772,19 @@
 		"command_line_overrides":
 		{
 			"BUILD_SHARED_LIBS": false,
-			"CMAKE_BUILD_TYPE": "Debug",
-			"CMAKE_VERBOSE": true
+			"CMAKE_BUILD_TYPE": "Debug"
 		},
-		"generator": "Ninja"
+		"generator": "Ninja",
+		"windows":
+		{
+			"command_line_overrides":
+			{
+				"BUILD_SHARED_LIBS": false,
+				"CMAKE_BUILD_TYPE": "Debug",
+				"CMAKE_COLOR_MAKEFILE": false
+			},
+			"generator": "NMake Makefiles"
+		}
 	},
 	"folders":
 	[

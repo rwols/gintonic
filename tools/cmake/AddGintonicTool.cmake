@@ -16,7 +16,7 @@ function(add_gintonic_tool tool_name)
 	set_target_properties(${tool_name} PROPERTIES CXX_STANDARD 14)
 	target_link_libraries(${tool_name} PUBLIC gintonic)
 	if (add_gintonic_tool_ASSETS)
-		gintonic_target_depends_on_assets(kll
+		gintonic_target_depends_on_assets(
 			TARGET ${tool_name} 
 			SOURCE_ASSET_DIRECTORY ${gintonic_ASSET_DIR} 
 			ASSETS ${add_gintonic_tool_ASSETS})

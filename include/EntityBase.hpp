@@ -2,6 +2,7 @@
 
 #include "Casting.hpp"
 #include <vector>
+#include <memory>
 
 namespace gintonic
 {

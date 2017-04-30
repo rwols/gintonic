@@ -13,7 +13,7 @@ class A
   public:
     enum class Kind
     {
-        A,
+        Ax,
         B,
         C,
         D

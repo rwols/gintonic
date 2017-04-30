@@ -45,13 +45,3 @@ int main(int argc, char** argv)
     }
     return EXIT_SUCCESS;
 }
-
-// int main()
-// {
-
-//     statemachine.process_event(EvStartStop());
-//     statemachine.process_event(EvStartStop());
-//     statemachine.process_event(EvStartStop());
-//     statemachine.process_event(EvReset());
-//     return 0;
-// }

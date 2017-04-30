@@ -258,7 +258,12 @@ endfunction(target_precompiled_header)
 target_precompiled_header(gintonic Precompiled.hpp)
 
 install(TARGETS gintonic DESTINATION lib)
-add_executable(maintest main.cpp)
-target_link_libraries(maintest PRIVATE gintonic)
-set_target_properties(maintest PROPERTIES CXX_STANDARD 14)
+if (WIN32)
+    # add_executable(maintest main.cpp)
+else()
+    add_executable(maintest main.cpp)
+    target_link_libraries(maintest PRIVATE gintonic)
+    set_target_properties(maintest PROPERTIES CXX_STANDARD 14)
+endif()
+
 

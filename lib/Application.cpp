@@ -1,5 +1,6 @@
 #include "Application.hpp"
 #include "Camera.hpp"
+#include "Foundation/scancodes.hpp"
 
 using namespace gintonic;
 

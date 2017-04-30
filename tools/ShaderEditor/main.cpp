@@ -2,6 +2,6 @@
 
 int main(int argc, char** argv)
 {
-    std::cout << "Hello, world!\n";
+    std::cout << "TODO\n";
     return 0;
 }
