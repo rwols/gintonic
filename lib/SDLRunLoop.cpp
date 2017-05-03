@@ -49,12 +49,14 @@ void SDLRunLoop::runOneFrame()
                 2.f * event.motion.x / mWindowInFocus->getWidth() - 1.f,
                 2.f * (1.f - event.motion.y / mWindowInFocus->getHeight()) -
                     1.f);
-            const vec2f delta(event.motion.xrel, event.motion.yrel);
+            const vec2f delta(static_cast<float>(event.motion.xrel),
+                              static_cast<float>(event.motion.yrel));
             onMouseMove(pos, delta);
             break;
         }
         case SDL_MOUSEWHEEL:
-            onMouseWheel(vec2f(event.wheel.x, event.wheel.y));
+            onMouseWheel(vec2f(static_cast<float>(event.wheel.x),
+                               static_cast<float>(event.wheel.y)));
             break;
         case SDL_FINGERMOTION:
         {

@@ -567,200 +567,1296 @@
 		{
 			"env":
 			{
-				"include": "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\INCLUDE;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\INCLUDE;C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.10150.0\\ucrt;C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6\\include\\um;C:\\Program Files (x86)\\Windows Kits\\8.1\\include\\shared;C:\\Program Files (x86)\\Windows Kits\\8.1\\include\\um;C:\\Program Files (x86)\\Windows Kits\\8.1\\include\\winrt",
-				"lib": "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\LIB;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\LIB;C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.10150.0\\ucrt\\x86;C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6\\lib\\um\\x86;C:\\Program Files (x86)\\Windows Kits\\8.1\\lib\\winv6.3\\um\\x86",
-				"libpath": "C:\\WINDOWS\\Microsoft.NET\\Framework\\v4.0.30319;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\LIB;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\LIB;References\\CommonConfiguration\\Neutral;\\Microsoft.VCLibs\\14.0\\References\\CommonConfiguration\\neutral",
-				"path": "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow;C:\\Program Files (x86)\\MSBuild\\14.0\\bin;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\BIN;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\Tools;C:\\WINDOWS\\Microsoft.NET\\Framework\\v4.0.30319;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\VCPackages;C:\\Program Files (x86)\\HTML Help Workshop;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Team Tools\\Performance Tools;C:\\Program Files (x86)\\Windows Kits\\8.1\\bin\\x86;C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.6 Tools\\;c:\\Users\\Raoul\\bin;.;C:\\Program Files (x86)\\Git\\local\\bin;C:\\Program Files (x86)\\Git\\mingw\\bin;C:\\Program Files (x86)\\Git\\bin;c:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;c:\\Perl64\\site\\bin;c:\\Perl64\\bin;c:\\ProgramData\\Oracle\\Java\\javapath;c:\\Windows\\system32;c:\\Windows;c:\\Windows\\System32\\Wbem;c:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;c:\\Program Files (x86)\\AMD\\ATI.ACE\\Core-Static;c:\\Program Files (x86)\\Windows Kits\\8.1\\Windows Performance Toolkit\\;c:\\Program Files\\Microsoft SQL Server\\110\\Tools\\Binn\\;c:\\Program Files\\MiKTeX 2.9\\miktex\\bin\\x64\\;c:\\Program Files (x86)\\Microsoft SDKs\\TypeScript\\1.0\\;c:\\Program Files\\Microsoft SQL Server\\120\\Tools\\Binn\\;c:\\Program Files\\doxygen\\bin;C:\\Program Files (x86)\\Git\\cmd;c:\\WINDOWS\\system32;c:\\WINDOWS;c:\\WINDOWS\\System32\\Wbem;c:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;c:\\Program Files (x86)\\ATI Technologies\\ATI.ACE\\Core-Static;c:\\Users\\Raoul\\.dnx\\bin;c:\\Program Files\\Microsoft DNX\\Dnvm\\;c:\\Program Files (x86)\\Lua\\5.1;c:\\Program Files (x86)\\Lua\\5.1\\clibs;c:\\Program Files (x86)\\Skype\\Phone\\;c:\\Program Files (x86)\\CMake\\bin;c:\\Program Files (x86)\\GtkSharp\\2.12\\bin;c:\\Program Files\\LLVM\\bin;c:\\Program Files (x86)\\MSBuild\\14.0\\bin;c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\;c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\BIN;c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\Tools;c:\\WINDOWS\\Microsoft.NET\\Framework\\v4.0.30319;c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\VCPackages;c:\\Program Files (x86)\\HTML Help Workshop;c:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Team Tools\\Performance Tools;c:\\Program Files (x86)\\Windows Kits\\8.1\\bin\\x86;c:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.6 Tools\\;c:\\WINDOWS\\system32\\config\\systemprofile\\.dnx\\bin;c:\\svn;c:\\Program Files (x86)\\SumatraPDF;c:\\Program Files (x86)\\Graphviz2.38\\bin;c:\\glew-1.12.0;c:\\SDL2-2.0.3;c:\\Python27;c:\\boost_1_59_0;c:\\Users\\Raoul\\AppData\\Local\\Microsoft\\WindowsApps;c:\\Program Files\\Sublime Text 3;c:\\boost_1_59_0\\stage\\lib"
+				"include": "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\INCLUDE;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\INCLUDE;C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.15063.0\\ucrt;C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.1\\include\\um;C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.15063.0\\shared;C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.15063.0\\um;C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.15063.0\\winrt",
+				"lib": "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\LIB\\amd64;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\LIB\\amd64;C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.15063.0\\ucrt\\x64;C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.1\\lib\\um\\x64;C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.15063.0\\um\\x64",
+				"libpath": "C:\\WINDOWS\\Microsoft.NET\\Framework64\\v4.0.30319;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\LIB\\amd64;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\LIB\\amd64;C:\\Program Files (x86)\\Windows Kits\\10\\UnionMetadata;C:\\Program Files (x86)\\Windows Kits\\10\\References;C:\\Program Files (x86)\\Microsoft SDKs\\Windows Kits\\10\\ExtensionSDKs\\Microsoft.VCLibs\\14.0\\References\\CommonConfiguration\\neutral",
+				"path": "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow;C:\\Program Files (x86)\\MSBuild\\14.0\\bin\\amd64;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\BIN\\amd64;C:\\WINDOWS\\Microsoft.NET\\Framework64\\v4.0.30319;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\VCPackages;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\Tools;C:\\Program Files (x86)\\HTML Help Workshop;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Team Tools\\Performance Tools\\x64;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Team Tools\\Performance Tools;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x64;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x86;C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.6.1 Tools\\x64\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Perl64\\site\\bin;C:\\Perl64\\bin;C:\\ProgramData\\Oracle\\Java\\javapath;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Program Files (x86)\\AMD\\ATI.ACE\\Core-Static;C:\\Program Files\\Microsoft SQL Server\\110\\Tools\\Binn\\;C:\\Program Files\\MiKTeX 2.9\\miktex\\bin\\x64\\;C:\\Program Files (x86)\\Microsoft SDKs\\TypeScript\\1.0\\;C:\\Program Files\\Microsoft SQL Server\\120\\Tools\\Binn\\;C:\\Program Files\\doxygen\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\Program Files (x86)\\ATI Technologies\\ATI.ACE\\Core-Static;C:\\Program Files (x86)\\Lua\\5.1;C:\\Program Files (x86)\\Lua\\5.1\\clibs;C:\\Program Files (x86)\\Skype\\Phone\\;C:\\Program Files (x86)\\GtkSharp\\2.12\\bin;C:\\Program Files\\LLVM\\bin;C:\\Program Files\\Microsoft SQL Server\\130\\Tools\\Binn\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\CMake\\bin;C:\\Users\\Raoul\\.dnx\\bin;C:\\Program Files (x86)\\MSBuild\\14.0\\bin;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\BIN;C:\\WINDOWS\\Microsoft.NET\\Framework\\v4.0.30319;C:\\Program Files (x86)\\Windows Kits\\8.1\\bin\\x86;C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.6 Tools\\;C:\\Program Files (x86)\\Windows Kits\\8.1\\Windows Performance Toolkit\\;C:\\Program Files (x86)\\CMake\\bin;C:\\Program Files (x86)\\Git\\cmd;C:\\Program Files (x86)\\Git\\bin;C:\\WINDOWS\\system32\\config\\systemprofile\\.dnx\\bin;C:\\Program Files\\Microsoft DNX\\Dnvm\\;C:\\svn;C:\\Program Files (x86)\\SumatraPDF;C:\\Program Files (x86)\\Graphviz2.38\\bin;C:\\glew-1.12.0;C:\\SDL2-2.0.3;C:\\boost_1_64_0;C:\\Users\\Raoul\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Program Files\\Sublime Text 3;C:\\ninja;C:\\Python33"
 			},
 			"file_regex": "^(.+)\\((\\d+)\\):() (.+)$",
 			"name": "gintonic (Windows)",
 			"shell_cmd": "cmake --build .",
-			"syntax": "Packages/CMakeBuilder/Syntax/Make.sublime-syntax",
+			"syntax": "Packages/CMakeBuilder/Syntax/Ninja+CL.sublime-syntax",
 			"variants":
 			[
 				{
-					"name": "clean",
-					"shell_cmd": "cmake --build . --target clean"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "package",
-					"shell_cmd": "cmake --build . --target package"
+					"name": "age_source: phony",
+					"shell_cmd": "cmake --build . --target age_source: phony"
 				},
 				{
-					"name": "package_source",
-					"shell_cmd": "cmake --build . --target package_source"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "test",
-					"shell_cmd": "cmake --build . --target test"
+					"name": "age: phony",
+					"shell_cmd": "cmake --build . --target age: phony"
 				},
 				{
-					"name": "rebuild_cache",
-					"shell_cmd": "cmake --build . --target rebuild_cache"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "install",
-					"shell_cmd": "cmake --build . --target install"
+					"name": "_install_components: phony",
+					"shell_cmd": "cmake --build . --target _install_components: phony"
 				},
 				{
-					"name": "install/local",
-					"shell_cmd": "cmake --build . --target install/local"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "list_install_components",
-					"shell_cmd": "cmake --build . --target list_install_components"
+					"name": ": phony",
+					"shell_cmd": "cmake --build . --target : phony"
 				},
 				{
-					"name": "glad",
-					"shell_cmd": "cmake --build . --target glad"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "SDL2-static",
-					"shell_cmd": "cmake --build . --target SDL2-static"
+					"name": "all: phony",
+					"shell_cmd": "cmake --build . --target all: phony"
 				},
 				{
-					"name": "SDL2main",
-					"shell_cmd": "cmake --build . --target SDL2main"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "uninstall",
-					"shell_cmd": "cmake --build . --target uninstall"
+					"name": "ild_cache: phony",
+					"shell_cmd": "cmake --build . --target ild_cache: phony"
 				},
 				{
-					"name": "freetype",
-					"shell_cmd": "cmake --build . --target freetype"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "dist",
-					"shell_cmd": "cmake --build . --target dist"
+					"name": "all/local: phony",
+					"shell_cmd": "cmake --build . --target all/local: phony"
 				},
 				{
-					"name": "gintonic",
-					"shell_cmd": "cmake --build . --target gintonic"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "SDLRenderContext",
-					"shell_cmd": "cmake --build . --target SDLRenderContext"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "Entity",
-					"shell_cmd": "cmake --build . --target Entity"
+					"name": "dparty/package_source: phony",
+					"shell_cmd": "cmake --build . --target dparty/package_source: phony"
 				},
 				{
-					"name": "Casting",
-					"shell_cmd": "cmake --build . --target Casting"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "Clock",
-					"shell_cmd": "cmake --build . --target Clock"
+					"name": "dparty/package: phony",
+					"shell_cmd": "cmake --build . --target dparty/package: phony"
 				},
 				{
-					"name": "vec4f",
-					"shell_cmd": "cmake --build . --target vec4f"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "SerializationOfLights",
-					"shell_cmd": "cmake --build . --target SerializationOfLights"
+					"name": "dparty/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target dparty/list_install_components: phony"
 				},
 				{
-					"name": "SQT",
-					"shell_cmd": "cmake --build . --target SQT"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "OctreeTest",
-					"shell_cmd": "cmake --build . --target OctreeTest"
+					"name": "dparty/test: phony",
+					"shell_cmd": "cmake --build . --target dparty/test: phony"
 				},
 				{
-					"name": "SimdTest",
-					"shell_cmd": "cmake --build . --target SimdTest"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "mat3f",
-					"shell_cmd": "cmake --build . --target mat3f"
+					"name": "dparty/install: phony",
+					"shell_cmd": "cmake --build . --target dparty/install: phony"
 				},
 				{
-					"name": "Reflection",
-					"shell_cmd": "cmake --build . --target Reflection"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "box2f",
-					"shell_cmd": "cmake --build . --target box2f"
+					"name": "dparty/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target dparty/rebuild_cache: phony"
 				},
 				{
-					"name": "box3f",
-					"shell_cmd": "cmake --build . --target box3f"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "mat2f",
-					"shell_cmd": "cmake --build . --target mat2f"
+					"name": "dparty/install/local: phony",
+					"shell_cmd": "cmake --build . --target dparty/install/local: phony"
 				},
 				{
-					"name": "mat4f",
-					"shell_cmd": "cmake --build . --target mat4f"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "vec2f",
-					"shell_cmd": "cmake --build . --target vec2f"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "materials",
-					"shell_cmd": "cmake --build . --target materials"
+					"name": "dparty/glad/package_source: phony",
+					"shell_cmd": "cmake --build . --target dparty/glad/package_source: phony"
 				},
 				{
-					"name": "quatf",
-					"shell_cmd": "cmake --build . --target quatf"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "vec3f",
-					"shell_cmd": "cmake --build . --target vec3f"
+					"name": "dparty/glad/package: phony",
+					"shell_cmd": "cmake --build . --target dparty/glad/package: phony"
 				},
 				{
-					"name": "DriverInfo",
-					"shell_cmd": "cmake --build . --target DriverInfo"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "FbxConverter",
-					"shell_cmd": "cmake --build . --target FbxConverter"
+					"name": "dparty/glad/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target dparty/glad/list_install_components: phony"
 				},
 				{
-					"name": "BasicShapes",
-					"shell_cmd": "cmake --build . --target BasicShapes"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "FbxViewer",
-					"shell_cmd": "cmake --build . --target FbxViewer"
+					"name": "dparty/glad/test: phony",
+					"shell_cmd": "cmake --build . --target dparty/glad/test: phony"
 				},
 				{
-					"name": "DirectionalLight",
-					"shell_cmd": "cmake --build . --target DirectionalLight"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "HelloWorldText",
-					"shell_cmd": "cmake --build . --target HelloWorldText"
+					"name": "dparty/glad/install: phony",
+					"shell_cmd": "cmake --build . --target dparty/glad/install: phony"
 				},
 				{
-					"name": "Octree",
-					"shell_cmd": "cmake --build . --target Octree"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "Shadows",
-					"shell_cmd": "cmake --build . --target Shadows"
+					"name": "dparty/glad/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target dparty/glad/rebuild_cache: phony"
 				},
 				{
-					"name": "OrthographicProjection",
-					"shell_cmd": "cmake --build . --target OrthographicProjection"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "PointLights",
-					"shell_cmd": "cmake --build . --target PointLights"
+					"name": "dparty/glad/install/local: phony",
+					"shell_cmd": "cmake --build . --target dparty/glad/install/local: phony"
 				},
 				{
-					"name": "SpotLights",
-					"shell_cmd": "cmake --build . --target SpotLights"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				},
 				{
-					"name": "TexturedCube",
-					"shell_cmd": "cmake --build . --target TexturedCube"
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/SDL-mirror/package_source: phony",
+					"shell_cmd": "cmake --build . --target dparty/SDL-mirror/package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/SDL-mirror/package: phony",
+					"shell_cmd": "cmake --build . --target dparty/SDL-mirror/package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/SDL-mirror/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target dparty/SDL-mirror/list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/SDL-mirror/test: phony",
+					"shell_cmd": "cmake --build . --target dparty/SDL-mirror/test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/SDL-mirror/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target dparty/SDL-mirror/rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/SDL-mirror/install: phony",
+					"shell_cmd": "cmake --build . --target dparty/SDL-mirror/install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/SDL-mirror/install/local: phony",
+					"shell_cmd": "cmake --build . --target dparty/SDL-mirror/install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/freetype2/package_source: phony",
+					"shell_cmd": "cmake --build . --target dparty/freetype2/package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/freetype2/package: phony",
+					"shell_cmd": "cmake --build . --target dparty/freetype2/package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/freetype2/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target dparty/freetype2/list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/freetype2/test: phony",
+					"shell_cmd": "cmake --build . --target dparty/freetype2/test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/freetype2/install: phony",
+					"shell_cmd": "cmake --build . --target dparty/freetype2/install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/freetype2/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target dparty/freetype2/rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/freetype2/install/local: phony",
+					"shell_cmd": "cmake --build . --target dparty/freetype2/install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/pybind11/package_source: phony",
+					"shell_cmd": "cmake --build . --target dparty/pybind11/package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/pybind11/package: phony",
+					"shell_cmd": "cmake --build . --target dparty/pybind11/package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/pybind11/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target dparty/pybind11/list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/pybind11/test: phony",
+					"shell_cmd": "cmake --build . --target dparty/pybind11/test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/pybind11/install: phony",
+					"shell_cmd": "cmake --build . --target dparty/pybind11/install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/pybind11/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target dparty/pybind11/rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "dparty/pybind11/install/local: phony",
+					"shell_cmd": "cmake --build . --target dparty/pybind11/install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ts/package_source: phony",
+					"shell_cmd": "cmake --build . --target ts/package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ts/package: phony",
+					"shell_cmd": "cmake --build . --target ts/package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ts/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target ts/list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ts/test: phony",
+					"shell_cmd": "cmake --build . --target ts/test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ts/install: phony",
+					"shell_cmd": "cmake --build . --target ts/install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ts/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target ts/rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ts/install/local: phony",
+					"shell_cmd": "cmake --build . --target ts/install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ude/package_source: phony",
+					"shell_cmd": "cmake --build . --target ude/package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ude/package: phony",
+					"shell_cmd": "cmake --build . --target ude/package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ude/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target ude/list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ude/test: phony",
+					"shell_cmd": "cmake --build . --target ude/test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ude/install: phony",
+					"shell_cmd": "cmake --build . --target ude/install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ude/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target ude/rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ude/install/local: phony",
+					"shell_cmd": "cmake --build . --target ude/install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "list_install_components: phony",
+					"shell_cmd": "cmake --build . --target list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "test: phony",
+					"shell_cmd": "cmake --build . --target test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "package_source: phony",
+					"shell_cmd": "cmake --build . --target package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "package: phony",
+					"shell_cmd": "cmake --build . --target package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "install: phony",
+					"shell_cmd": "cmake --build . --target install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "install/local: phony",
+					"shell_cmd": "cmake --build . --target install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "/package_source: phony",
+					"shell_cmd": "cmake --build . --target /package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target /rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "/install: phony",
+					"shell_cmd": "cmake --build . --target /install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "/package: phony",
+					"shell_cmd": "cmake --build . --target /package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "/test: phony",
+					"shell_cmd": "cmake --build . --target /test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target /list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "/install/local: phony",
+					"shell_cmd": "cmake --build . --target /install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/package_source: phony",
+					"shell_cmd": "cmake --build . --target s/package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/package: phony",
+					"shell_cmd": "cmake --build . --target s/package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target s/list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/test: phony",
+					"shell_cmd": "cmake --build . --target s/test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/install: phony",
+					"shell_cmd": "cmake --build . --target s/install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target s/rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/install/local: phony",
+					"shell_cmd": "cmake --build . --target s/install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/DriverInfo/package_source: phony",
+					"shell_cmd": "cmake --build . --target s/DriverInfo/package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/DriverInfo/package: phony",
+					"shell_cmd": "cmake --build . --target s/DriverInfo/package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/DriverInfo/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target s/DriverInfo/list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/DriverInfo/test: phony",
+					"shell_cmd": "cmake --build . --target s/DriverInfo/test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/DriverInfo/install: phony",
+					"shell_cmd": "cmake --build . --target s/DriverInfo/install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/DriverInfo/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target s/DriverInfo/rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/DriverInfo/install/local: phony",
+					"shell_cmd": "cmake --build . --target s/DriverInfo/install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/FbxConverter/install/local: phony",
+					"shell_cmd": "cmake --build . --target s/FbxConverter/install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/FbxConverter/package_source: phony",
+					"shell_cmd": "cmake --build . --target s/FbxConverter/package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/FbxConverter/package: phony",
+					"shell_cmd": "cmake --build . --target s/FbxConverter/package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/FbxConverter/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target s/FbxConverter/list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/FbxConverter/test: phony",
+					"shell_cmd": "cmake --build . --target s/FbxConverter/test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/FbxConverter/install: phony",
+					"shell_cmd": "cmake --build . --target s/FbxConverter/install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/FbxConverter/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target s/FbxConverter/rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/ShaderEditor/package_source: phony",
+					"shell_cmd": "cmake --build . --target s/ShaderEditor/package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/ShaderEditor/package: phony",
+					"shell_cmd": "cmake --build . --target s/ShaderEditor/package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/ShaderEditor/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target s/ShaderEditor/list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/ShaderEditor/test: phony",
+					"shell_cmd": "cmake --build . --target s/ShaderEditor/test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/ShaderEditor/install: phony",
+					"shell_cmd": "cmake --build . --target s/ShaderEditor/install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/ShaderEditor/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target s/ShaderEditor/rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/ShaderEditor/install/local: phony",
+					"shell_cmd": "cmake --build . --target s/ShaderEditor/install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/TextureEditor/package_source: phony",
+					"shell_cmd": "cmake --build . --target s/TextureEditor/package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/TextureEditor/package: phony",
+					"shell_cmd": "cmake --build . --target s/TextureEditor/package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/TextureEditor/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target s/TextureEditor/list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/TextureEditor/test: phony",
+					"shell_cmd": "cmake --build . --target s/TextureEditor/test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/TextureEditor/install: phony",
+					"shell_cmd": "cmake --build . --target s/TextureEditor/install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/TextureEditor/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target s/TextureEditor/rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "s/TextureEditor/install/local: phony",
+					"shell_cmd": "cmake --build . --target s/TextureEditor/install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ples/rebuild_cache: phony",
+					"shell_cmd": "cmake --build . --target ples/rebuild_cache: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ples/package: phony",
+					"shell_cmd": "cmake --build . --target ples/package: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ples/package_source: phony",
+					"shell_cmd": "cmake --build . --target ples/package_source: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ples/test: phony",
+					"shell_cmd": "cmake --build . --target ples/test: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ples/list_install_components: phony",
+					"shell_cmd": "cmake --build . --target ples/list_install_components: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ples/install: phony",
+					"shell_cmd": "cmake --build . --target ples/install: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ples/install/local: phony",
+					"shell_cmd": "cmake --build . --target ples/install/local: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "cShapes.exe: phony",
+					"shell_cmd": "cmake --build . --target cShapes.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ing.exe: phony",
+					"shell_cmd": "cmake --build . --target ing.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "k.exe: phony",
+					"shell_cmd": "cmake --build . --target k.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ctionalLight.exe: phony",
+					"shell_cmd": "cmake --build . --target ctionalLight.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "erInfo.exe: phony",
+					"shell_cmd": "cmake --build . --target erInfo.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ty.exe: phony",
+					"shell_cmd": "cmake --build . --target ty.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "onverter.exe: phony",
+					"shell_cmd": "cmake --build . --target onverter.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "iewer.exe: phony",
+					"shell_cmd": "cmake --build . --target iewer.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "oWorldText.exe: phony",
+					"shell_cmd": "cmake --build . --target oWorldText.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ee.exe: phony",
+					"shell_cmd": "cmake --build . --target ee.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "eeTest.exe: phony",
+					"shell_cmd": "cmake --build . --target eeTest.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ographicProjection.exe: phony",
+					"shell_cmd": "cmake --build . --target ographicProjection.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "tLights.exe: phony",
+					"shell_cmd": "cmake --build . --target tLights.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ection.exe: phony",
+					"shell_cmd": "cmake --build . --target ection.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": ".lib: phony",
+					"shell_cmd": "cmake --build . --target .lib: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "main.lib: phony",
+					"shell_cmd": "cmake --build . --target main.lib: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "enderContext.exe: phony",
+					"shell_cmd": "cmake --build . --target enderContext.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "exe: phony",
+					"shell_cmd": "cmake --build . --target exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "alizationOfLights.exe: phony",
+					"shell_cmd": "cmake --build . --target alizationOfLights.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "ows.exe: phony",
+					"shell_cmd": "cmake --build . --target ows.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "Test.exe: phony",
+					"shell_cmd": "cmake --build . --target Test.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "Lights.exe: phony",
+					"shell_cmd": "cmake --build . --target Lights.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "uredCube.exe: phony",
+					"shell_cmd": "cmake --build . --target uredCube.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "f.exe: phony",
+					"shell_cmd": "cmake --build . --target f.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "f.exe: phony",
+					"shell_cmd": "cmake --build . --target f.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": ": phony",
+					"shell_cmd": "cmake --build . --target : phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "typed.lib: phony",
+					"shell_cmd": "cmake --build . --target typed.lib: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "onic.lib: phony",
+					"shell_cmd": "cmake --build . --target onic.lib: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": ".lib: phony",
+					"shell_cmd": "cmake --build . --target .lib: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "f.exe: phony",
+					"shell_cmd": "cmake --build . --target f.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "f.exe: phony",
+					"shell_cmd": "cmake --build . --target f.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "f.exe: phony",
+					"shell_cmd": "cmake --build . --target f.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "rials.exe: phony",
+					"shell_cmd": "cmake --build . --target rials.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "f.exe: phony",
+					"shell_cmd": "cmake --build . --target f.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "stall: phony",
+					"shell_cmd": "cmake --build . --target stall: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "f.exe: phony",
+					"shell_cmd": "cmake --build . --target f.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "f.exe: phony",
+					"shell_cmd": "cmake --build . --target f.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "f.exe: phony",
+					"shell_cmd": "cmake --build . --target f.exe: phony"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "n: CLEAN",
+					"shell_cmd": "cmake --build . --target n: CLEAN"
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
+				},
+				{
+					"name": "",
+					"shell_cmd": "cmake --build . --target "
 				}
 			],
 			"working_dir": "${project_path}/build"
@@ -775,6 +1871,7 @@
 			"CMAKE_BUILD_TYPE": "Debug"
 		},
 		"generator": "Ninja",
+		"toolchains": "${project_path}/toolchains/iOS.cmake",
 		"windows":
 		{
 			"command_line_overrides":
@@ -783,12 +1880,21 @@
 				"CMAKE_BUILD_TYPE": "Debug",
 				"CMAKE_COLOR_MAKEFILE": false
 			},
-			"generator": "NMake Makefiles"
+			"generator": "Ninja",
+			"target_architecture": "amd64",
+			"visual_studio_version":
+			[
+				15
+			]
 		}
 	},
 	"folders":
 	[
 		{
+			"binary_file_patterns":
+			[
+				"build/*"
+			],
 			"path": "."
 		}
 	],
@@ -804,7 +1910,7 @@
 		[
 			{
 				"file": "compile_commands.json",
-				"search_in": "/home/raoul/dev/gintonic/build"
+				"search_in": "$project_path/build"
 			}
 		],
 		"tab_size": 4
