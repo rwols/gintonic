@@ -7,7 +7,7 @@
 			"working_dir": "${project_path}/build/examples"
 		},
 		{
-			"file_regex": "^(.+)\\((\\d+)\\):() (.+)$",
+			"file_regex": "(.+[^:]):(\\d+):(\\d+): (?:fatal )?((?:error|warning): .+)$",
 			"name": "gintonic (OSX)",
 			"shell_cmd": "cmake --build .",
 			"syntax": "Packages/CMakeBuilder/Syntax/Ninja.sublime-syntax",

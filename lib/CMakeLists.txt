@@ -31,7 +31,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 if (NOT BUILD_SHARED_LIBS)
     set(Boost_USE_STATIC_LIBS ON)
 endif()
-find_package(Boost COMPONENTS system filesystem serialization program_options REQUIRED)
+find_package(Boost COMPONENTS system filesystem serialization REQUIRED)
 find_package(FBX REQUIRED)
 
 set(gintonic_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL 
