@@ -24,6 +24,8 @@ endif()
 add_subdirectory(SDL-mirror)
 
 # Configure freetype
+# Cannot build shared libs for freetype on Windows; just use
+# -DBUILD_SHARED_LIBS=OFF on the command line.
 add_subdirectory(freetype2)
 
 # Configure pybind11

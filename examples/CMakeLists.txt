@@ -37,6 +37,13 @@ function(add_example example_name)
 		TARGET ${example_name} 
 		SOURCE_ASSET_DIRECTORY ${gintonic_ASSET_DIR} 
 		ASSETS ${add_example_ASSETS})
+    # if (APPLE)
+    # 	get_filename_component(dir $<TARGET_FILE:${example_name}> DIRECTORY)
+	   #  add_custom_command(
+	   #      TARGET ${example_name}
+	   #      POST_BUILD
+	   #      COMMAND ${CMAKE_COMMAND} -E create_symlink "${FBX_LIBRARY}" "${dir}")
+    # endif()
 endfunction()
 
 set(systemFont fonts/Inconsolata-Regular.ttf)
