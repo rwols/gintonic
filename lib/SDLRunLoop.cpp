@@ -17,7 +17,7 @@ void SDLRunLoop::runOneFrame()
             for (auto& w : windows)
             {
                 auto wind = static_cast<SDLWindow*>(w.get());
-                if (wind->getID() == event.window.windowID)
+                if (wind->getID() == static_cast<int>(event.window.windowID))
                 {
                     switch (event.window.event)
                     {
