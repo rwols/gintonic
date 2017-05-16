@@ -50,11 +50,11 @@ It's recommended to build with Ninja:
 On Windows, the freetype library cannot be built as a shared library, so use
 the following command line invocation for CMake:
 
-    $ cmake -DBUILD_SHARED_LIBS=OFF
+    $ cmake .. -DBUILD_SHARED_LIBS=OFF
 
 You can optionally build release versions (the default is Debug):
 
-    $ cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
+    $ cmake .. -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
 
 # Structure of This Project
 
