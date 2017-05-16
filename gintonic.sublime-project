@@ -510,20 +510,20 @@
 					"shell_cmd": "cmake --build . --target examples/test"
 				},
 				{
-					"name": "examples/rebuild_cache",
-					"shell_cmd": "cmake --build . --target examples/rebuild_cache"
-				},
-				{
-					"name": "examples/package_source",
-					"shell_cmd": "cmake --build . --target examples/package_source"
-				},
-				{
 					"name": "examples/install/strip",
 					"shell_cmd": "cmake --build . --target examples/install/strip"
 				},
 				{
 					"name": "examples/package",
 					"shell_cmd": "cmake --build . --target examples/package"
+				},
+				{
+					"name": "examples/rebuild_cache",
+					"shell_cmd": "cmake --build . --target examples/rebuild_cache"
+				},
+				{
+					"name": "examples/package_source",
+					"shell_cmd": "cmake --build . --target examples/package_source"
 				},
 				{
 					"name": "dist",

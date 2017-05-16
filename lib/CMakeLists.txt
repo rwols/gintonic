@@ -108,7 +108,6 @@ set(gintonic_source_files
     Entity.cpp
     EntityBase.cpp
     EntityVisitor.cpp
-    FbxImporter.cpp
     gintonic.cpp
     MeshRenderer.cpp
     OctreeComp.cpp

@@ -24,7 +24,6 @@ set(gintonic_SHADER_DIR
 	CACHE INTERNAL "The shader directory.")
 
 set(gintonic_header_files
-	${CMAKE_CURRENT_SOURCE_DIR}/FbxImporter.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ForwardDeclarations.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gintonic.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Graphics/SpotShadowBuffer.hpp

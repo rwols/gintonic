@@ -11,7 +11,6 @@
 #include "Camera.hpp"
 #include "Entity.hpp"
 #include "EntityVisitor.hpp"
-#include "FbxImporter.hpp"
 #include "Foundation/Octree.hpp"
 #include "Foundation/exception.hpp"
 #include "Graphics/AmbientLight.hpp"

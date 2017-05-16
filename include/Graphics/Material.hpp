@@ -236,17 +236,6 @@ class Material : public Object<Material, std::string>, public Asset
              std::shared_ptr<Texture2D> specularTexture,
              std::shared_ptr<Texture2D> normalTexture);
 
-    /**
-     * @brief Constructor.
-     *
-     * @details Converts an FBX surface material into our own material.
-     * The constructor will output various log information to the standard
-     * output stream.
-     *
-     * @param fbxmat The FBX material.
-     */
-    Material(const FBXSDK_NAMESPACE::FbxSurfaceMaterial* fbxmat);
-
   public:
     //@}
 

@@ -8,147 +8,113 @@
 
 #include "ForwardDeclarations.hpp"
 #include "Foundation/Object.hpp"
-#include "Math/vec2f.hpp"
 #include "Math/mat4f.hpp"
+#include "Math/vec2f.hpp"
 
-namespace gintonic {
+namespace gintonic
+{
 
 /**
  * @brief Camera component class.
  */
 class Camera : public Object<Camera, std::string>
 {
-public:
+  public:
+    template <class... Args> inline static SharedPtr create(Args&&... args)
+    {
+        return SharedPtr(new Camera(std::forward<Args>(args)...));
+    }
 
-	template <class ...Args>
-	inline static SharedPtr create(Args&&... args)
-	{
-		return SharedPtr(new Camera(std::forward<Args>(args)...));
-	}
+  private:
+    Camera() = default;
+    Camera(std::string name);
 
-private:
+  public:
+    virtual ~Camera() noexcept = default;
 
-	Camera() = default;
-	Camera(std::string name);
-	Camera(const FBXSDK_NAMESPACE::FbxCamera*);
+    /// Projection type. Either orthographic or perspective.
+    enum ProjectionType
+    {
+        kOrthographic,
+        kPerspective
+    };
 
-public:
+    void setWidth(const float width);
 
-	virtual ~Camera() noexcept = default;
+    void setHeight(const float height);
 
-	/// Projection type. Either orthographic or perspective.
-	enum ProjectionType
-	{
-		kOrthographic,
-		kPerspective
-	};
+    void setNearPlane(const float nearPlane);
 
+    void setFarPlane(const float farPlane);
 
-	void setWidth(const float width);
+    void setFieldOfView(const float fieldOfView);
 
-	void setHeight(const float height);
+    inline float width() const noexcept { return mWidth; }
 
-	void setNearPlane(const float nearPlane);
+    inline float height() const noexcept { return mHeight; }
 
-	void setFarPlane(const float farPlane);
+    inline float nearPlane() const noexcept { return mNearPlane; }
 
-	void setFieldOfView(const float fieldOfView);
+    inline float farPlane() const noexcept { return mFarPlane; }
 
-	inline float width() const noexcept
-	{
-		return mWidth;
-	}
+    inline float fieldOfView() const noexcept { return mFieldOfView; }
 
-	inline float height() const noexcept
-	{
-		return mHeight;
-	}
+    inline ProjectionType projectionType() const noexcept
+    {
+        return mProjection;
+    }
 
-	inline float nearPlane() const noexcept
-	{
-		return mNearPlane;
-	}
+    void setProjectionType(const ProjectionType type)
+    {
+        mProjection = type;
+        mProjectionMatrixIsDirty = true;
+    }
 
-	inline float farPlane() const noexcept
-	{
-		return mFarPlane;
-	}
+    /**
+     * @brief Add mouse angles.
+     * @param mouseAngles New mouse angles.
+     */
+    void addMouse(const vec2f& mouseAngles) noexcept;
 
-	inline float fieldOfView() const noexcept
-	{
-		return mFieldOfView;
-	}
+    const mat4f& projectionMatrix() const noexcept;
 
-	inline ProjectionType projectionType() const noexcept
-	{
-		return mProjection;
-	}
+    inline const vec2f& angles() const noexcept { return mAngles; }
 
-	void setProjectionType(const ProjectionType type)
-	{
-		mProjection = type;
-		mProjectionMatrixIsDirty = true;
-	}
+    /**
+     * @brief Set the angle explicitly.
+     * @param angles The angles.
+     */
+    inline void setAngles(const vec2f& angles) noexcept { mAngles = angles; }
 
-	/**
-	 * @brief Add mouse angles.
-	 * @param mouseAngles New mouse angles.
-	 */
-	void addMouse(const vec2f& mouseAngles) noexcept;
+    GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
-	const mat4f& projectionMatrix() const noexcept;
+  private:
+    mutable bool mProjectionMatrixIsDirty = true;
 
-	inline const vec2f& angles() const noexcept
-	{
-		return mAngles;
-	}
+    ProjectionType mProjection = kPerspective;
 
-	/**
-	 * @brief Set the angle explicitly.
-	 * @param angles The angles.
-	 */
-	inline void setAngles(const vec2f& angles) noexcept
-	{
-		mAngles = angles;
-	}
+    float mFieldOfView = 1.22173048f;
 
-	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+    float mWidth;
 
-private:
+    float mHeight;
 
-	mutable bool mProjectionMatrixIsDirty = true;
+    float mNearPlane;
 
-	ProjectionType mProjection = kPerspective;
+    float mFarPlane;
 
-	float mFieldOfView = 1.22173048f;
+    mutable mat4f mProjectionMatrix;
 
-	float mWidth;
+    vec2f mAngles;
 
-	float mHeight;
+    friend class boost::serialization::access;
 
-	float mNearPlane;
-
-	float mFarPlane;
-
-	mutable mat4f mProjectionMatrix;
-
-	vec2f mAngles;
-
-	friend class boost::serialization::access;
-
-	template <class Archive> 
-	void serialize(Archive& archive, const unsigned int /*version*/)
-	{
-		archive & mProjectionMatrixIsDirty 
-			& mProjection 
-			& mFieldOfView 
-			& mWidth 
-			& mHeight 
-			& mNearPlane 
-			& mProjectionMatrix 
-			& mAngles;
-	}
-
+    template <class Archive>
+    void serialize(Archive& archive, const unsigned int /*version*/)
+    {
+        archive& mProjectionMatrixIsDirty& mProjection& mFieldOfView& mWidth&
+            mHeight& mNearPlane& mProjectionMatrix& mAngles;
+    }
 };
 
 } // namespace gintonic

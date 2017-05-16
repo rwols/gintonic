@@ -67,10 +67,6 @@ add_example(DirectionalLight
 	SOURCES DirectionalLight.cpp 
 	ASSETS ${systemFont} ${ruralBrickWallTextures})
 
-add_example(FbxViewer
-	SOURCES FbxViewer.cpp
-	ASSETS ${systemFont})
-
 add_example(HelloWorldText 
 	SOURCES HelloWorldText.cpp 
 	ASSETS ${systemFont})

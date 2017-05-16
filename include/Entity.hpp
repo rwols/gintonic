@@ -219,12 +219,6 @@ class Entity : public Object<Entity, std::string>
     Entity(std::string name, const SQT& localTransform);
 
     /**
-     * @brief Build an Entity from an FbxNode.
-     * @param pFbxNode Pointer to an FbxNode.
-     */
-    Entity(const FBXSDK_NAMESPACE::FbxNode* pFbxNode);
-
-    /**
      * @brief Copy constructor.
      * The copy constructor does not copy the children
      * and the parent. Nor does it copy the ShadowBuffer.

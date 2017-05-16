@@ -61,13 +61,6 @@ Entity::Entity(std::string name, const SQT& localTransform)
     /* Empty on purpose. */
 }
 
-Entity::Entity(const FbxNode* pFbxNode)
-    : Super(pFbxNode), mLocalTransform(pFbxNode),
-      mGlobalTransform(mLocalTransform)
-{
-    /* Empty on purpose. */
-}
-
 Entity::Entity(const Entity& other)
     : Super(other), mLocalTransform(other.mLocalTransform),
       mGlobalTransform(other.mGlobalTransform)
