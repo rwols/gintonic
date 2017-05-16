@@ -3,6 +3,34 @@
 Welcome to gintonic! This is a personal render engine of me. The current render
 strategy is deferred rendering.
 
+# Before Building
+
+## OSX
+
+Install the latest version of Xcode and `brew`. Then install boost and CMake 
+with brew:
+```bash
+$ brew install boost
+$ brew install cmake
+```
+
+## Ubuntu (possibly also other Linux flavors)
+
+Make sure have a modern compiler (modern GCC or modern clang). Install boost,
+cmake and git with your package manager.
+
+## Windows
+
+Install the latest version of Visual Studio C++. Install the latest version
+of CMake. Install a fairly recent version of boost. Make sure you have a git
+client.
+
+# Cloning
+
+Clone this repository recursively in order to clone all the submodules too:
+
+    $ git clone --recursive https://github.com/rwols/gintonic.git
+
 # Building
 
 We use CMake in the most standard way possible, no surprises. That means that
@@ -19,21 +47,14 @@ It's recommended to build with Ninja:
 
     $ cmake .. -G "Ninja"
 
-# Dependencies
+On Windows, the freetype library cannot be built as a shared library, so use
+the following command line invocation for CMake:
 
-A recent version of Boost is required. All versions greater than or equal to
-1.60 should work. Other dependencies are brought in via git submodules, and so
-should be present in the source tree. If you're on Windows, you probably need to
-set the environment variable `BOOST_ROOT` to the directory where Boost lives.
-You can also specify this value in the cmake invocation, like so:
+    $ cmake -DBUILD_SHARED_LIBS=OFF
 
-    $ cmake .. -DBOOST_ROOT=C:\Boost_1_63_0\
+You can optionally build release versions (the default is Debug):
 
-If you haven't cloned the repository with the `--recursive` option of `git`, you
-can bring in the git submodules like so:
-
-    $ cd path/to/gintonic
-    $ git submodule update --init --recursive
+    $ cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
 
 # Structure of This Project
 
