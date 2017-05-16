@@ -9,8 +9,6 @@
 
 #include <iostream>
 
-#include <fbxsdk.h>
-
 namespace gintonic
 {
 

@@ -13,43 +13,6 @@
 #include <boost/serialization/export.hpp>
 #include <fstream>
 
-#include <fbxsdk.h>
-
-namespace
-{ // anonymous namespace
-
-std::size_t textureCount(const FbxSurfaceMaterial* mat, const char* property)
-{
-    const auto prop = mat->FindProperty(property);
-    return prop.GetSrcObjectCount<FbxFileTexture>();
-}
-
-FbxTexture* getFbxTexture(const FbxSurfaceMaterial* pFbxMaterial,
-                          const char* property, const std::size_t index)
-{
-    const auto prop = pFbxMaterial->FindProperty(property);
-    return FbxCast<FbxTexture>(
-        prop.GetSrcObject<FbxTexture>(static_cast<int>(index)));
-}
-
-float getTextureFactor(const FbxSurfaceMaterial* mat, const char* property)
-{
-    const auto prop = mat->FindProperty(property);
-    return static_cast<float>(prop.Get<FbxDouble>());
-}
-
-gintonic::vec3f getMaterialColor(const FbxSurfaceMaterial* mat,
-                                 const char* property)
-{
-    const auto prop = mat->FindProperty(property);
-    const auto fbx_color = prop.Get<FbxDouble3>();
-    return gintonic::vec3f(static_cast<float>(fbx_color[0]),
-                           static_cast<float>(fbx_color[1]),
-                           static_cast<float>(fbx_color[2]));
-}
-
-} // anonymous namespace
-
 namespace gintonic
 {
 

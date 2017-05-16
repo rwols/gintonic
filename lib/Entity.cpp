@@ -9,8 +9,6 @@
 #include "Math/mat4fstack.hpp"
 #include "Math/vec4f.hpp"
 
-#include <fbxsdk.h>
-
 namespace gintonic
 {
 

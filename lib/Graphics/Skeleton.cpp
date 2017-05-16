@@ -1,5 +1,4 @@
 #include "Graphics/Skeleton.hpp"
-#include <fbxsdk.h>
 #include <iostream>
 
 namespace gintonic

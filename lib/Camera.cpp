@@ -4,8 +4,6 @@
 
 #include "Entity.hpp"
 
-#include <fbxsdk.h>
-
 namespace gintonic
 {
 

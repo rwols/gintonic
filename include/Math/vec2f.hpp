@@ -13,10 +13,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
-#include <fbxsdk/fbxsdk_nsbegin.h>
-class FbxVector2; // Forward declaration.
-#include <fbxsdk/fbxsdk_nsend.h>
-
 namespace gintonic {
 
 #ifdef __clang__
@@ -114,9 +110,6 @@ public:
 		GT_PROFILE_FUNCTION;
 	}
 
-	/// Constructor that takes an FbxVector2.
-	vec2f(const FBXSDK_NAMESPACE::FbxVector2& v) noexcept;
-
 	/// Copy assignment operator.
 	inline vec2f& operator = (const vec2f& v) noexcept
 	{
@@ -137,9 +130,6 @@ public:
 
 	/// Initializer list assignment operator.
 	vec2f& operator=(std::initializer_list<float> init) noexcept;
-
-	/// Assignment operator that takes an FbxVector2.
-	vec2f& operator=(const FBXSDK_NAMESPACE::FbxVector2& v) noexcept;
 
 	/// Add-and-assign operator.
 	inline vec2f& operator += (const vec2f& v) noexcept
@@ -383,9 +373,6 @@ public:
 
 		return _mm_shuffle_ps(lhs.data, rhs.data, 0x44);
 	}
-
-	/// Convert a vec2f to an FbxVector2 with a static_cast.
-	operator FBXSDK_NAMESPACE::FbxVector2() const noexcept;
 
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 

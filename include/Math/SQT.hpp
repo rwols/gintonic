@@ -10,11 +10,6 @@
 #include "quatf.hpp"
 #include "mat4f.hpp"
 
-#include <fbxsdk/fbxsdk_nsbegin.h>
-class FbxNode;    // Forward declaration.
-class FbxAMatrix; // Forward declaration.
-#include <fbxsdk/fbxsdk_nsend.h>
-
 namespace gintonic {
 
 /**
@@ -75,26 +70,6 @@ struct alignas(__m128) SQT
 	 * @param affineTransformation The affine matrix.
 	 */
 	SQT(const mat4f& affineTransformation);
-
-	/**
-	 * @brief Construct an SQT with the given node's local transform.
-	 * @param pFbxNode Pointer to an FbxNode.
-	 */
-	SQT(const FBXSDK_NAMESPACE::FbxNode* pFbxNode);
-
-	/**
-	 * @brief Construct an SQT from an affine matrix.
-	 */
-	SQT(const FBXSDK_NAMESPACE::FbxAMatrix& affineMatrix);
-
-	/**
-	 * @brief      Set this SQT to the given affine matrix.
-	 *
-	 * @param[in]  affineMatrix  An affine matrix.
-	 *
-	 * @return     *this
-	 */
-	SQT& operator = (const FBXSDK_NAMESPACE::FbxAMatrix& affineMatrix);
 
 	/**
 	 * @brief Add two SQTs together.

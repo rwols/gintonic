@@ -5,8 +5,6 @@
 
 #include "Graphics/Skeleton.hpp"
 
-#include <fbxsdk.h>
-
 #include <set>
 
 namespace // anonymous namespace
@@ -120,109 +118,6 @@ struct NeighborPair
             throw std::logic_error("getOther failed");
     }
 };
-
-// std::ostream& operator << (std::ostream& os, const NeighborPair&
-// neighborPair)
-// {
-// 	os << '(';
-// 	if (neighborPair.first) os << *(neighborPair.first);
-// 	else os << "nullptr";
-// 	os << ", ";
-// 	if (neighborPair.second) os << *(neighborPair.second);
-// 	else os << "nullptr";
-// 	return os << ')';
-// }
-
-template <class LayerElement, class OutputIter>
-void copyLayerElement(const LayerElement* layer, OutputIter iter)
-{
-    if (!layer) return;
-    const auto& lElements = layer->GetDirectArray();
-    switch (layer->GetReferenceMode())
-    {
-    case FbxGeometryElement::eDirect:
-    {
-        for (int i = 0; i < lElements.GetCount(); ++i)
-        {
-            *iter = lElements[i];
-            ++iter;
-        }
-        break;
-    }
-    case FbxGeometryElement::eIndex: // fall through
-    case FbxGeometryElement::eIndexToDirect:
-    {
-        const auto& lIndices = layer->GetIndexArray();
-        for (int i = 0; i < lIndices.GetCount(); ++i)
-        {
-            *iter = lElements[lIndices[i]];
-            ++iter;
-        }
-        break;
-    }
-    }
-}
-
-template <class LayerElement, class VectorType>
-bool getLayerElement(const LayerElement* layerElement, const int lPolygonID,
-                     const int lVertexID, VectorType& r)
-{
-    if (!layerElement) return false;
-    switch (layerElement->GetMappingMode())
-    {
-    case FbxGeometryElement::eByControlPoint:
-    {
-        switch (layerElement->GetReferenceMode())
-        {
-        case FbxGeometryElement::eDirect:
-        {
-            r = layerElement->GetDirectArray().GetAt(lPolygonID);
-            break;
-        }
-        case FbxGeometryElement::eIndexToDirect:
-        {
-            const auto lIndex2Element =
-                layerElement->GetIndexArray().GetAt(lPolygonID);
-            r = layerElement->GetDirectArray().GetAt(lIndex2Element);
-            break;
-        }
-        default:
-        {
-            throw std::runtime_error("Reference mode not supported.");
-        }
-        }
-        break;
-    }
-    case FbxGeometryElement::eByPolygonVertex:
-    {
-        switch (layerElement->GetReferenceMode())
-        {
-        case FbxGeometryElement::eDirect:
-        {
-            r = layerElement->GetDirectArray().GetAt(lVertexID);
-            break;
-        }
-        case FbxGeometryElement::eIndexToDirect:
-        {
-            const auto lIndex2Element =
-                layerElement->GetIndexArray().GetAt(lVertexID);
-            r = layerElement->GetDirectArray().GetAt(lIndex2Element);
-            break;
-        }
-        default:
-        {
-            throw std::runtime_error("Reference mode not supported.");
-        }
-        }
-        break;
-    }
-    default:
-    {
-        throw std::runtime_error("Mapping mode not supported.");
-    }
-    }
-    return true;
-}
 
 } // anonymous namespace
 

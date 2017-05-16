@@ -33,19 +33,6 @@
 #define gintonic_SSE_VERSION ${gintonic_SSE_VERSION}
 
 /*****************************************************************************
-* FBX                                                                        *
-*                                                                            *
-* Purpose: Defines the fbx sdk namespace, to enable us to forward-declare    *
-* fbx types.                                                                 *
-*****************************************************************************/
-
-#ifdef BOOST_MSVC
-#define FBX fbxsdk
-#else
-#define FBX ${FBX_NAMESPACE}
-#endif
-
-/*****************************************************************************
 * GINTONIC_FUNC_SIGNATURE                                                    *
 *                                                                            *
 * Purpose: Expands in a cross-platform way to the function signature of the  *

@@ -270,12 +270,12 @@
 					"shell_cmd": "cmake --build . --target include/package"
 				},
 				{
-					"name": "lib/install/local",
-					"shell_cmd": "cmake --build . --target lib/install/local"
-				},
-				{
 					"name": "lib/list_install_components",
 					"shell_cmd": "cmake --build . --target lib/list_install_components"
+				},
+				{
+					"name": "lib/install/local",
+					"shell_cmd": "cmake --build . --target lib/install/local"
 				},
 				{
 					"name": "lib/test",
@@ -396,38 +396,6 @@
 				{
 					"name": "tools/DriverInfo/package_source",
 					"shell_cmd": "cmake --build . --target tools/DriverInfo/package_source"
-				},
-				{
-					"name": "tools/FbxConverter/install/strip",
-					"shell_cmd": "cmake --build . --target tools/FbxConverter/install/strip"
-				},
-				{
-					"name": "tools/FbxConverter/install",
-					"shell_cmd": "cmake --build . --target tools/FbxConverter/install"
-				},
-				{
-					"name": "tools/FbxConverter/list_install_components",
-					"shell_cmd": "cmake --build . --target tools/FbxConverter/list_install_components"
-				},
-				{
-					"name": "tools/FbxConverter/install/local",
-					"shell_cmd": "cmake --build . --target tools/FbxConverter/install/local"
-				},
-				{
-					"name": "tools/FbxConverter/test",
-					"shell_cmd": "cmake --build . --target tools/FbxConverter/test"
-				},
-				{
-					"name": "tools/FbxConverter/package",
-					"shell_cmd": "cmake --build . --target tools/FbxConverter/package"
-				},
-				{
-					"name": "tools/FbxConverter/rebuild_cache",
-					"shell_cmd": "cmake --build . --target tools/FbxConverter/rebuild_cache"
-				},
-				{
-					"name": "tools/FbxConverter/package_source",
-					"shell_cmd": "cmake --build . --target tools/FbxConverter/package_source"
 				},
 				{
 					"name": "tools/ShaderEditor/install/strip",

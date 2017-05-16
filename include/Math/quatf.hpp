@@ -12,11 +12,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
-#include <fbxsdk/fbxsdk_nsbegin.h>
-class FbxVector4;    // Forward declaration.
-class FbxQuaternion; // Forward declaration.
-#include <fbxsdk/fbxsdk_nsend.h>
-
 namespace gintonic
 {
 
@@ -68,18 +63,6 @@ union alignas(__m128) quatf {
 
     /// Constructor.
     quatf(const float realpart, const vec3f& imaginarypart);
-
-    /// Constructor.
-    quatf(const FBXSDK_NAMESPACE::FbxVector4&);
-
-    /// Constructor
-    quatf(const FBXSDK_NAMESPACE::FbxQuaternion&);
-
-    /// Assignment operator.
-    quatf& operator=(const FBXSDK_NAMESPACE::FbxVector4&);
-
-    /// Assignment operator.
-    quatf& operator=(const FBXSDK_NAMESPACE::FbxQuaternion&);
 
     /// \brief Addition operator.
     inline quatf operator+(const quatf& other) const noexcept
