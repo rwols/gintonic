@@ -952,264 +952,214 @@
 		{
 			"file_regex": "(.+[^:]):(\\d+):(\\d+): (?:fatal )?((?:error|warning): .+)$",
 			"name": "gintonic (Linux)",
-			"shell_cmd": "cmake --build .",
-			"syntax": "Packages/CMakeBuilder/Syntax/Ninja.sublime-syntax",
+			"shell_cmd": "make -j8",
+			"syntax": "Packages/CMakeBuilder/Syntax/Make.sublime-syntax",
 			"variants":
 			[
 				{
+					"name": "clean",
+					"shell_cmd": "make -j8 clean"
+				},
+				{
 					"name": "test",
-					"shell_cmd": "cmake --build . --target test"
+					"shell_cmd": "make -j8 test"
 				},
 				{
 					"name": "package",
-					"shell_cmd": "cmake --build . --target package"
+					"shell_cmd": "make -j8 package"
 				},
 				{
 					"name": "package_source",
-					"shell_cmd": "cmake --build . --target package_source"
+					"shell_cmd": "make -j8 package_source"
 				},
 				{
 					"name": "rebuild_cache",
-					"shell_cmd": "cmake --build . --target rebuild_cache"
+					"shell_cmd": "make -j8 rebuild_cache"
 				},
 				{
 					"name": "install/strip",
-					"shell_cmd": "cmake --build . --target install/strip"
+					"shell_cmd": "make -j8 install/strip"
 				},
 				{
 					"name": "install/local",
-					"shell_cmd": "cmake --build . --target install/local"
+					"shell_cmd": "make -j8 install/local"
 				},
 				{
 					"name": "list_install_components",
-					"shell_cmd": "cmake --build . --target list_install_components"
+					"shell_cmd": "make -j8 list_install_components"
 				},
 				{
 					"name": "install",
-					"shell_cmd": "cmake --build . --target install"
-				},
-				{
-					"name": "BasicShapes",
-					"shell_cmd": "cmake --build . --target BasicShapes"
-				},
-				{
-					"name": "Casting",
-					"shell_cmd": "cmake --build . --target Casting"
-				},
-				{
-					"name": "Clock",
-					"shell_cmd": "cmake --build . --target Clock"
-				},
-				{
-					"name": "DirectionalLight",
-					"shell_cmd": "cmake --build . --target DirectionalLight"
-				},
-				{
-					"name": "DriverInfo",
-					"shell_cmd": "cmake --build . --target DriverInfo"
-				},
-				{
-					"name": "Entity",
-					"shell_cmd": "cmake --build . --target Entity"
-				},
-				{
-					"name": "FbxConverter",
-					"shell_cmd": "cmake --build . --target FbxConverter"
-				},
-				{
-					"name": "FbxViewer",
-					"shell_cmd": "cmake --build . --target FbxViewer"
-				},
-				{
-					"name": "HelloWorldText",
-					"shell_cmd": "cmake --build . --target HelloWorldText"
-				},
-				{
-					"name": "Octree",
-					"shell_cmd": "cmake --build . --target Octree"
-				},
-				{
-					"name": "OctreeTest",
-					"shell_cmd": "cmake --build . --target OctreeTest"
-				},
-				{
-					"name": "OrthographicProjection",
-					"shell_cmd": "cmake --build . --target OrthographicProjection"
-				},
-				{
-					"name": "PointLights",
-					"shell_cmd": "cmake --build . --target PointLights"
-				},
-				{
-					"name": "Reflection",
-					"shell_cmd": "cmake --build . --target Reflection"
-				},
-				{
-					"name": "SDL2",
-					"shell_cmd": "cmake --build . --target SDL2"
-				},
-				{
-					"name": "SDL2-static",
-					"shell_cmd": "cmake --build . --target SDL2-static"
-				},
-				{
-					"name": "SDL2main",
-					"shell_cmd": "cmake --build . --target SDL2main"
-				},
-				{
-					"name": "SDLRenderContext",
-					"shell_cmd": "cmake --build . --target SDLRenderContext"
-				},
-				{
-					"name": "SQT",
-					"shell_cmd": "cmake --build . --target SQT"
-				},
-				{
-					"name": "SerializationOfLights",
-					"shell_cmd": "cmake --build . --target SerializationOfLights"
-				},
-				{
-					"name": "ShaderEditor",
-					"shell_cmd": "cmake --build . --target ShaderEditor"
-				},
-				{
-					"name": "Shadows",
-					"shell_cmd": "cmake --build . --target Shadows"
-				},
-				{
-					"name": "SimdTest",
-					"shell_cmd": "cmake --build . --target SimdTest"
-				},
-				{
-					"name": "SpotLights",
-					"shell_cmd": "cmake --build . --target SpotLights"
-				},
-				{
-					"name": "TextureEditor",
-					"shell_cmd": "cmake --build . --target TextureEditor"
-				},
-				{
-					"name": "TexturedCube",
-					"shell_cmd": "cmake --build . --target TexturedCube"
-				},
-				{
-					"name": "box2f",
-					"shell_cmd": "cmake --build . --target box2f"
-				},
-				{
-					"name": "box3f",
-					"shell_cmd": "cmake --build . --target box3f"
-				},
-				{
-					"name": "dist",
-					"shell_cmd": "cmake --build . --target dist"
-				},
-				{
-					"name": "freetype",
-					"shell_cmd": "cmake --build . --target freetype"
-				},
-				{
-					"name": "gintonic",
-					"shell_cmd": "cmake --build . --target gintonic"
+					"shell_cmd": "make -j8 install"
 				},
 				{
 					"name": "glad",
-					"shell_cmd": "cmake --build . --target glad"
+					"shell_cmd": "make -j8 glad"
 				},
 				{
-					"name": "libSDL2.a",
-					"shell_cmd": "cmake --build . --target libSDL2.a"
+					"name": "SDL2-static",
+					"shell_cmd": "make -j8 SDL2-static"
 				},
 				{
-					"name": "libSDL2main.a",
-					"shell_cmd": "cmake --build . --target libSDL2main.a"
-				},
-				{
-					"name": "libfreetyped.a",
-					"shell_cmd": "cmake --build . --target libfreetyped.a"
-				},
-				{
-					"name": "libgintonic.a",
-					"shell_cmd": "cmake --build . --target libgintonic.a"
-				},
-				{
-					"name": "libglad.a",
-					"shell_cmd": "cmake --build . --target libglad.a"
-				},
-				{
-					"name": "maintest",
-					"shell_cmd": "cmake --build . --target maintest"
-				},
-				{
-					"name": "mat2f",
-					"shell_cmd": "cmake --build . --target mat2f"
-				},
-				{
-					"name": "mat3f",
-					"shell_cmd": "cmake --build . --target mat3f"
-				},
-				{
-					"name": "mat4f",
-					"shell_cmd": "cmake --build . --target mat4f"
-				},
-				{
-					"name": "materials",
-					"shell_cmd": "cmake --build . --target materials"
-				},
-				{
-					"name": "quatf",
-					"shell_cmd": "cmake --build . --target quatf"
+					"name": "SDL2main",
+					"shell_cmd": "make -j8 SDL2main"
 				},
 				{
 					"name": "uninstall",
-					"shell_cmd": "cmake --build . --target uninstall"
+					"shell_cmd": "make -j8 uninstall"
 				},
 				{
-					"name": "vec2f",
-					"shell_cmd": "cmake --build . --target vec2f"
+					"name": "dist",
+					"shell_cmd": "make -j8 dist"
 				},
 				{
-					"name": "vec3f",
-					"shell_cmd": "cmake --build . --target vec3f"
+					"name": "freetype",
+					"shell_cmd": "make -j8 freetype"
+				},
+				{
+					"name": "maintest",
+					"shell_cmd": "make -j8 maintest"
+				},
+				{
+					"name": "gintonic",
+					"shell_cmd": "make -j8 gintonic"
+				},
+				{
+					"name": "SDLRenderContext",
+					"shell_cmd": "make -j8 SDLRenderContext"
+				},
+				{
+					"name": "Casting",
+					"shell_cmd": "make -j8 Casting"
+				},
+				{
+					"name": "SimdTest",
+					"shell_cmd": "make -j8 SimdTest"
+				},
+				{
+					"name": "SQT",
+					"shell_cmd": "make -j8 SQT"
+				},
+				{
+					"name": "Reflection",
+					"shell_cmd": "make -j8 Reflection"
+				},
+				{
+					"name": "box2f",
+					"shell_cmd": "make -j8 box2f"
+				},
+				{
+					"name": "materials",
+					"shell_cmd": "make -j8 materials"
+				},
+				{
+					"name": "SerializationOfLights",
+					"shell_cmd": "make -j8 SerializationOfLights"
+				},
+				{
+					"name": "OctreeTest",
+					"shell_cmd": "make -j8 OctreeTest"
+				},
+				{
+					"name": "mat2f",
+					"shell_cmd": "make -j8 mat2f"
+				},
+				{
+					"name": "Entity",
+					"shell_cmd": "make -j8 Entity"
+				},
+				{
+					"name": "box3f",
+					"shell_cmd": "make -j8 box3f"
+				},
+				{
+					"name": "mat3f",
+					"shell_cmd": "make -j8 mat3f"
+				},
+				{
+					"name": "mat4f",
+					"shell_cmd": "make -j8 mat4f"
+				},
+				{
+					"name": "quatf",
+					"shell_cmd": "make -j8 quatf"
 				},
 				{
 					"name": "vec4f",
-					"shell_cmd": "cmake --build . --target vec4f"
+					"shell_cmd": "make -j8 vec4f"
 				},
 				{
-					"name": "clean",
-					"shell_cmd": "cmake --build . --target clean"
+					"name": "Clock",
+					"shell_cmd": "make -j8 Clock"
+				},
+				{
+					"name": "vec2f",
+					"shell_cmd": "make -j8 vec2f"
+				},
+				{
+					"name": "vec3f",
+					"shell_cmd": "make -j8 vec3f"
+				},
+				{
+					"name": "FbxConverter",
+					"shell_cmd": "make -j8 FbxConverter"
+				},
+				{
+					"name": "TextureEditor",
+					"shell_cmd": "make -j8 TextureEditor"
+				},
+				{
+					"name": "DriverInfo",
+					"shell_cmd": "make -j8 DriverInfo"
+				},
+				{
+					"name": "ShaderEditor",
+					"shell_cmd": "make -j8 ShaderEditor"
+				},
+				{
+					"name": "HelloWorldText",
+					"shell_cmd": "make -j8 HelloWorldText"
+				},
+				{
+					"name": "FbxViewer",
+					"shell_cmd": "make -j8 FbxViewer"
+				},
+				{
+					"name": "Octree",
+					"shell_cmd": "make -j8 Octree"
+				},
+				{
+					"name": "DirectionalLight",
+					"shell_cmd": "make -j8 DirectionalLight"
+				},
+				{
+					"name": "BasicShapes",
+					"shell_cmd": "make -j8 BasicShapes"
+				},
+				{
+					"name": "OrthographicProjection",
+					"shell_cmd": "make -j8 OrthographicProjection"
+				},
+				{
+					"name": "PointLights",
+					"shell_cmd": "make -j8 PointLights"
+				},
+				{
+					"name": "Shadows",
+					"shell_cmd": "make -j8 Shadows"
+				},
+				{
+					"name": "SpotLights",
+					"shell_cmd": "make -j8 SpotLights"
+				},
+				{
+					"name": "TexturedCube",
+					"shell_cmd": "make -j8 TexturedCube"
 				}
 			],
 			"working_dir": "${project_path}/build"
 		}
 	],
-	"cmake":
-	{
-		"build_folder": "${project_path}/build",
-		"command_line_overrides":
-		{
-			"BUILD_SHARED_LIBS": false,
-			"CMAKE_BUILD_TYPE": "Debug"
-		},
-		"generator": "Ninja",
-		"toolchains": "${project_path}/toolchains/iOS.cmake",
-		"windows":
-		{
-			"command_line_overrides":
-			{
-				"BUILD_SHARED_LIBS": false,
-				"CMAKE_BUILD_TYPE": "Debug",
-				"CMAKE_COLOR_MAKEFILE": false
-			},
-			"generator": "Visual Studio",
-			"target_architecture": "amd64",
-			"visual_studio_version":
-			[
-				15
-			]
-		}
-	},
 	"folders":
 	[
 		{
@@ -1226,6 +1176,33 @@
 		{
 			"based_on_style": "File",
 			"format_on_save": true
+		},
+		"cmake":
+		{
+			"build_folder": "${project_path}/build",
+			"command_line_overrides":
+			{
+				"BUILD_SHARED_LIBS": false,
+				"CMAKE_BUILD_TYPE": "Debug",
+				"CMAKE_INSTALL_PREFIX": "${project_path}/build/install-test"
+			},
+			"generator": "Unix Makefiles",
+			"toolchains": "${project_path}/toolchains/iOS.cmake",
+			"windows":
+			{
+				"command_line_overrides":
+				{
+					"BUILD_SHARED_LIBS": false,
+					"CMAKE_BUILD_TYPE": "Debug",
+					"CMAKE_COLOR_MAKEFILE": false
+				},
+				"generator": "Visual Studio",
+				"target_architecture": "amd64",
+				"visual_studio_version":
+				[
+					15
+				]
+			}
 		},
 		"compile_commands": "${project_path}/build",
 		"flags_sources":
