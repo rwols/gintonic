@@ -7,7 +7,6 @@
 #include <boost/signals2.hpp>
 #include <chrono>
 #include <condition_variable>
-#include <fbxsdk.h>
 #include <fstream>
 #include <glad/glad.h>
 #include <imgui.h>

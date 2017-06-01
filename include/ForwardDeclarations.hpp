@@ -2,27 +2,8 @@
 
 #include <cstddef>
 
-/* FBX SDK classes */
-#include <fbxsdk/fbxsdk_nsbegin.h>
-class FbxVector2;
-class FbxVector4;
-class FbxObject;
-class FbxNode;
-class FbxImporter;
-class FbxScene;
-class FbxManager;
-class FbxMesh;
-class FbxNodeAttribute;
-class FbxSurfaceMaterial;
-class FbxLight;
-class FbxCamera;
-class FbxTexture;
-class FbxCluster;
-class FbxAnimStack;
-class FbxAnimLayer;
-#include <fbxsdk/fbxsdk_nsend.h>
-
-namespace gintonic {
+namespace gintonic
+{
 
 /* Foundation classes */
 template <class Derived, class NameType> class Object;
@@ -51,7 +32,10 @@ class mat4fstack;
 class SQTstack;
 
 /* Graphics classes */
-namespace GUI { class Base; }
+namespace GUI
+{
+class Base;
+}
 class AnimationClip;
 class DirectionalShadowBuffer;
 class Font;
@@ -80,7 +64,6 @@ class FlatTextShaderProgram;
 
 /* general classes */
 class Entity;
-class FbxImporter;
 class Camera;
 class Component;
 

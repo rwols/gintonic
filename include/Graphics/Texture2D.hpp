@@ -66,46 +66,7 @@ public:
 	};
 
 	static std::shared_ptr<Texture2D> fromImage(const ImageLoadOptions& options);
-	static std::shared_ptr<Texture2D> fromFbxTexture(
-		const FBXSDK_NAMESPACE::FbxTexture* texture);
-
-private:
-
-	// /**
-	//  * @brief Construct from an FbxTexture.
-	//  * @param pFbxTexture Pointer to an FbxTexture.
-	//  * @throws NoImageDataException if the image contains no data.
-	//  * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
-	//  */
-	// Texture2D(
-	// 	const FBXSDK_NAMESPACE::FbxTexture* pFbxTexture);
-
-	// /**
-	//  * @brief Construct from a filepath.
-	//  * @param pathToImageFile Path to an image.
-	//  * @throws NoImageDataException if the image contains no data.
-	//  * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
-	//  */
-	// Texture2D(const char* pathToImageFile);
-
-	// /**
-	//  * @brief Construct from a filepath.
-	//  * @param pathToImageFile Path to an image.
-	//  * @throws NoImageDataException if the image contains no data.
-	//  * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
-	//  */
-	// Texture2D(const std::string& pathToImageFile);
-
-	// /**
-	//  * @brief Construct from a filepath.
-	//  * @param pathToImageFile Path to an image.
-	//  * @throws NoImageDataException if the image contains no data.
-	//  * @throws UnknownImageFormatException if the format is not one of grey, grey+alpha, RGB or RGBA.
-	//  */
-	// Texture2D(boost::filesystem::path pathToImageFile);
-
-public:
-
+	
 	/// Defaulted destructor.
 	~Texture2D() noexcept override = default;
 

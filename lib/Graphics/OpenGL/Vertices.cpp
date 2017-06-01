@@ -1,6 +1,5 @@
 #include "Graphics/OpenGL/Vertices.hpp"
 #include "Graphics/OpenGL/utilities.hpp"
-#include <fbxsdk.h>
 
 namespace gintonic
 {
@@ -19,30 +18,12 @@ vertex_P::vertex_P(const vec3f& p)
     position[1] = p.y;
     position[2] = p.z;
 }
-vertex_P::vertex_P(FbxMesh const* const pMesh, const std::size_t i,
-                   const std::size_t layer)
-{
-    position[0] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[0]);
-    position[1] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[1]);
-    position[2] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[2]);
-}
 vertex_P::vertex_P(const vec3f& p, const vec4f& c, const vec2f& u,
                    const vec3f& n, const vec3f& t, const vec3f& b)
 {
     position[0] = static_cast<float>(p.x);
     position[1] = static_cast<float>(p.y);
     position[2] = static_cast<float>(p.z);
-}
-vertex_P::vertex_P(const FbxVector4& p, const FbxColor& c, const FbxVector2& u,
-                   const FbxVector4& n, const FbxVector4& t,
-                   const FbxVector4& b)
-{
-    position[0] = static_cast<float>(p[0]);
-    position[1] = static_cast<float>(p[1]);
-    position[2] = static_cast<float>(p[2]);
 }
 
 void vertex_P::enable_attributes() noexcept
@@ -84,25 +65,7 @@ vertex_PC::vertex_PC(const vec3f& p, const vec4f& c)
     color[2] = c.z;
     color[3] = c.w;
 }
-vertex_PC::vertex_PC(FbxMesh const* const pMesh, const std::size_t i,
-                     const std::size_t layer)
-{
-    position[0] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[0]);
-    position[1] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[1]);
-    position[2] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[2]);
-    auto fbx_color_layer =
-        pMesh->GetLayer(static_cast<int>(layer))->GetVertexColors();
-    auto fbx_color =
-        fbx_color_layer->GetDirectArray()
-            [fbx_color_layer->GetIndexArray()[static_cast<int>(i)]];
-    color[0] = static_cast<float>(fbx_color[0]);
-    color[1] = static_cast<float>(fbx_color[1]);
-    color[2] = static_cast<float>(fbx_color[2]);
-    color[3] = static_cast<float>(fbx_color[3]);
-}
+
 vertex_PC::vertex_PC(const vec3f& p, const vec4f& c, const vec2f& u,
                      const vec3f& n, const vec3f& t, const vec3f& b)
 {
@@ -113,18 +76,6 @@ vertex_PC::vertex_PC(const vec3f& p, const vec4f& c, const vec2f& u,
     color[1] = static_cast<float>(c.y);
     color[2] = static_cast<float>(c.z);
     color[3] = static_cast<float>(c.w);
-}
-vertex_PC::vertex_PC(const FbxVector4& p, const FbxColor& c,
-                     const FbxVector2& u, const FbxVector4& n,
-                     const FbxVector4& t, const FbxVector4& b)
-{
-    position[0] = static_cast<float>(p[0]);
-    position[1] = static_cast<float>(p[1]);
-    position[2] = static_cast<float>(p[2]);
-    color[0] = static_cast<float>(c[0]);
-    color[1] = static_cast<float>(c[1]);
-    color[2] = static_cast<float>(c[2]);
-    color[3] = static_cast<float>(c[3]);
 }
 
 void vertex_PC::enable_attributes() noexcept
@@ -161,20 +112,7 @@ vertex_PU::vertex_PU(const vec3f& p, const vec2f& u)
     uv[0] = u.x;
     uv[1] = u.y;
 }
-vertex_PU::vertex_PU(FbxMesh const* const pMesh, const std::size_t i,
-                     const std::size_t layer)
-{
-    position[0] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[0]);
-    position[1] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[1]);
-    position[2] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[2]);
-    uv[0] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][0]);
-    uv[1] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][1]);
-}
+
 vertex_PU::vertex_PU(const vec3f& p, const vec4f& c, const vec2f& u,
                      const vec3f& n, const vec3f& t, const vec3f& b)
 {
@@ -183,16 +121,6 @@ vertex_PU::vertex_PU(const vec3f& p, const vec4f& c, const vec2f& u,
     position[2] = static_cast<float>(p.z);
     uv[0] = static_cast<float>(u.x);
     uv[1] = static_cast<float>(u.y);
-}
-vertex_PU::vertex_PU(const FbxVector4& p, const FbxColor& c,
-                     const FbxVector2& u, const FbxVector4& n,
-                     const FbxVector4& t, const FbxVector4& b)
-{
-    position[0] = static_cast<float>(p[0]);
-    position[1] = static_cast<float>(p[1]);
-    position[2] = static_cast<float>(p[2]);
-    uv[0] = static_cast<float>(u[0]);
-    uv[1] = static_cast<float>(u[1]);
 }
 
 void vertex_PU::enable_attributes() noexcept
@@ -231,28 +159,7 @@ vertex_PN::vertex_PN(const vec3f& p, const vec3f& n)
     normal[1] = n.y;
     normal[2] = n.z;
 }
-vertex_PN::vertex_PN(FbxMesh const* const pMesh, const std::size_t i,
-                     const std::size_t layer)
-{
-    position[0] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[0]);
-    position[1] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[1]);
-    position[2] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[2]);
-    normal[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    normal[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    normal[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-}
+
 vertex_PN::vertex_PN(const vec3f& p, const vec4f& c, const vec2f& u,
                      const vec3f& n, const vec3f& t, const vec3f& b)
 {
@@ -263,17 +170,7 @@ vertex_PN::vertex_PN(const vec3f& p, const vec4f& c, const vec2f& u,
     normal[1] = static_cast<float>(n.y);
     normal[2] = static_cast<float>(n.z);
 }
-vertex_PN::vertex_PN(const FbxVector4& p, const FbxColor& c,
-                     const FbxVector2& u, const FbxVector4& n,
-                     const FbxVector4& t, const FbxVector4& b)
-{
-    position[0] = static_cast<float>(p[0]);
-    position[1] = static_cast<float>(p[1]);
-    position[2] = static_cast<float>(p[2]);
-    normal[0] = static_cast<float>(n[0]);
-    normal[1] = static_cast<float>(n[1]);
-    normal[2] = static_cast<float>(n[2]);
-}
+
 void vertex_PN::enable_attributes() noexcept
 {
     glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT,
@@ -317,36 +214,7 @@ vertex_PCU::vertex_PCU(const vec3f& p, const vec4f& c, const vec2f& u)
     uv[0] = u.x;
     uv[1] = u.y;
 }
-vertex_PCU::vertex_PCU(FbxMesh const* const pMesh, const std::size_t i,
-                       const std::size_t layer)
-{
-    position[0] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[0]);
-    position[1] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[1]);
-    position[2] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[2]);
-    color[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    color[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    color[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-    color[3] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][3]);
-    uv[0] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][0]);
-    uv[1] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][1]);
-}
+
 vertex_PCU::vertex_PCU(const vec3f& p, const vec4f& c, const vec2f& u,
                        const vec3f& n, const vec3f& t, const vec3f& b)
 {
@@ -359,20 +227,6 @@ vertex_PCU::vertex_PCU(const vec3f& p, const vec4f& c, const vec2f& u,
     color[3] = static_cast<float>(c.w);
     uv[0] = static_cast<float>(u.x);
     uv[1] = static_cast<float>(u.y);
-}
-vertex_PCU::vertex_PCU(const FbxVector4& p, const FbxColor& c,
-                       const FbxVector2& u, const FbxVector4& n,
-                       const FbxVector4& t, const FbxVector4& b)
-{
-    position[0] = static_cast<float>(p[0]);
-    position[1] = static_cast<float>(p[1]);
-    position[2] = static_cast<float>(p[2]);
-    color[0] = static_cast<float>(c[0]);
-    color[1] = static_cast<float>(c[1]);
-    color[2] = static_cast<float>(c[2]);
-    color[3] = static_cast<float>(c[3]);
-    uv[0] = static_cast<float>(u[0]);
-    uv[1] = static_cast<float>(u[1]);
 }
 
 void vertex_PCU::enable_attributes() noexcept
@@ -431,48 +285,7 @@ vertex_PCUN::vertex_PCUN(const vec3f& p, const vec4f& c, const vec2f& u,
     normal[1] = n.y;
     normal[2] = n.z;
 }
-vertex_PCUN::vertex_PCUN(FbxMesh const* const pMesh, const std::size_t i,
-                         const std::size_t layer)
-{
-    position[0] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[0]);
-    position[1] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[1]);
-    position[2] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[2]);
-    color[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    color[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    color[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-    color[3] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][3]);
-    uv[0] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][0]);
-    uv[1] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][1]);
-    normal[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    normal[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    normal[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-}
+
 vertex_PCUN::vertex_PCUN(const vec3f& p, const vec4f& c, const vec2f& u,
                          const vec3f& n, const vec3f& t, const vec3f& b)
 {
@@ -489,23 +302,7 @@ vertex_PCUN::vertex_PCUN(const vec3f& p, const vec4f& c, const vec2f& u,
     normal[1] = static_cast<float>(n.y);
     normal[2] = static_cast<float>(n.z);
 }
-vertex_PCUN::vertex_PCUN(const FbxVector4& p, const FbxColor& c,
-                         const FbxVector2& u, const FbxVector4& n,
-                         const FbxVector4& t, const FbxVector4& b)
-{
-    position[0] = static_cast<float>(p[0]);
-    position[1] = static_cast<float>(p[1]);
-    position[2] = static_cast<float>(p[2]);
-    color[0] = static_cast<float>(c[0]);
-    color[1] = static_cast<float>(c[1]);
-    color[2] = static_cast<float>(c[2]);
-    color[3] = static_cast<float>(c[3]);
-    uv[0] = static_cast<float>(u[0]);
-    uv[1] = static_cast<float>(u[1]);
-    normal[0] = static_cast<float>(n[0]);
-    normal[1] = static_cast<float>(n[1]);
-    normal[2] = static_cast<float>(n[2]);
-}
+
 void vertex_PCUN::enable_attributes() noexcept
 {
     glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT,
@@ -557,32 +354,7 @@ vertex_PUN::vertex_PUN(const vec3f& p, const vec2f& u, const vec3f& n)
     normal[1] = n.y;
     normal[2] = n.z;
 }
-vertex_PUN::vertex_PUN(FbxMesh const* const pMesh, const std::size_t i,
-                       const std::size_t layer)
-{
-    position[0] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[0]);
-    position[1] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[1]);
-    position[2] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[2]);
-    uv[0] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][0]);
-    uv[1] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][1]);
-    normal[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    normal[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    normal[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-}
+
 vertex_PUN::vertex_PUN(const vec3f& p, const vec4f& c, const vec2f& u,
                        const vec3f& n, const vec3f& t, const vec3f& b)
 {
@@ -595,19 +367,7 @@ vertex_PUN::vertex_PUN(const vec3f& p, const vec4f& c, const vec2f& u,
     normal[1] = static_cast<float>(n.y);
     normal[2] = static_cast<float>(n.z);
 }
-vertex_PUN::vertex_PUN(const FbxVector4& p, const FbxColor& c,
-                       const FbxVector2& u, const FbxVector4& n,
-                       const FbxVector4& t, const FbxVector4& b)
-{
-    position[0] = static_cast<float>(p[0]);
-    position[1] = static_cast<float>(p[1]);
-    position[2] = static_cast<float>(p[2]);
-    uv[0] = static_cast<float>(u[0]);
-    uv[1] = static_cast<float>(u[1]);
-    normal[0] = static_cast<float>(n[0]);
-    normal[1] = static_cast<float>(n[1]);
-    normal[2] = static_cast<float>(n[2]);
-}
+
 void vertex_PUN::enable_attributes() noexcept
 {
     glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT,
@@ -656,72 +416,7 @@ vertex_PCUNTB::vertex_PCUNTB(const float px, const float py, const float pz,
     bitangent[1] = by;
     tangent[2] = bz;
 }
-vertex_PCUNTB::vertex_PCUNTB(FbxMesh const* const pMesh, const std::size_t i,
-                             const std::size_t layer)
-{
-    position[0] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[0]);
-    position[1] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[1]);
-    position[2] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[2]);
-    color[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    color[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    color[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-    color[3] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetVertexColors()
-                               ->GetDirectArray()[static_cast<int>(i)][3]);
-    uv[0] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][0]);
-    uv[1] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][1]);
-    normal[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    normal[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    normal[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-    tangent[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetTangents()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    tangent[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetTangents()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    tangent[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetTangents()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-    bitangent[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetBinormals()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    bitangent[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetBinormals()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    bitangent[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetBinormals()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-}
+
 vertex_PCUNTB::vertex_PCUNTB(const vec3f& p, const vec4f& c, const vec2f& u,
                              const vec3f& n, const vec3f& t, const vec3f& b)
 {
@@ -744,29 +439,7 @@ vertex_PCUNTB::vertex_PCUNTB(const vec3f& p, const vec4f& c, const vec2f& u,
     bitangent[1] = static_cast<float>(b.y);
     bitangent[2] = static_cast<float>(b.z);
 }
-vertex_PCUNTB::vertex_PCUNTB(const FbxVector4& p, const FbxColor& c,
-                             const FbxVector2& u, const FbxVector4& n,
-                             const FbxVector4& t, const FbxVector4& b)
-{
-    position[0] = static_cast<float>(p[0]);
-    position[1] = static_cast<float>(p[1]);
-    position[2] = static_cast<float>(p[2]);
-    color[0] = static_cast<float>(c[0]);
-    color[1] = static_cast<float>(c[1]);
-    color[2] = static_cast<float>(c[2]);
-    color[3] = static_cast<float>(c[3]);
-    uv[0] = static_cast<float>(u[0]);
-    uv[1] = static_cast<float>(u[1]);
-    normal[0] = static_cast<float>(n[0]);
-    normal[1] = static_cast<float>(n[1]);
-    normal[2] = static_cast<float>(n[2]);
-    tangent[0] = static_cast<float>(t[0]);
-    tangent[1] = static_cast<float>(t[1]);
-    tangent[2] = static_cast<float>(t[2]);
-    bitangent[0] = static_cast<float>(b[0]);
-    bitangent[1] = static_cast<float>(b[1]);
-    bitangent[2] = static_cast<float>(b[2]);
-}
+
 void vertex_PCUNTB::enable_attributes() noexcept
 {
     glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT,
@@ -843,56 +516,7 @@ vertex_PUNTB::vertex_PUNTB(const vec3f& p, const vec2f& u, const vec3f& n,
     bitangent[1] = b.y;
     bitangent[2] = b.z;
 }
-vertex_PUNTB::vertex_PUNTB(FbxMesh const* const pMesh, const std::size_t i,
-                           const std::size_t layer)
-{
-    position[0] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[0]);
-    position[1] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[1]);
-    position[2] =
-        static_cast<float>(pMesh->GetControlPointAt(static_cast<int>(i))[2]);
-    uv[0] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][0]);
-    uv[1] = static_cast<float>(
-        pMesh->GetLayer(0)->GetUVs()->GetDirectArray()[static_cast<int>(i)][1]);
-    normal[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    normal[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    normal[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetNormals()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-    tangent[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetTangents()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    tangent[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetTangents()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    tangent[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetTangents()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-    bitangent[0] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetBinormals()
-                               ->GetDirectArray()[static_cast<int>(i)][0]);
-    bitangent[1] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetBinormals()
-                               ->GetDirectArray()[static_cast<int>(i)][1]);
-    bitangent[2] =
-        static_cast<float>(pMesh->GetLayer(0)
-                               ->GetBinormals()
-                               ->GetDirectArray()[static_cast<int>(i)][2]);
-}
+
 vertex_PUNTB::vertex_PUNTB(const vec3f& p, const vec4f& c, const vec2f& u,
                            const vec3f& n, const vec3f& t, const vec3f& b)
 {
@@ -911,25 +535,7 @@ vertex_PUNTB::vertex_PUNTB(const vec3f& p, const vec4f& c, const vec2f& u,
     bitangent[1] = static_cast<float>(b.y);
     bitangent[2] = static_cast<float>(b.z);
 }
-vertex_PUNTB::vertex_PUNTB(const FbxVector4& p, const FbxColor& c,
-                           const FbxVector2& u, const FbxVector4& n,
-                           const FbxVector4& t, const FbxVector4& b)
-{
-    position[0] = static_cast<float>(p[0]);
-    position[1] = static_cast<float>(p[1]);
-    position[2] = static_cast<float>(p[2]);
-    uv[0] = static_cast<float>(u[0]);
-    uv[1] = static_cast<float>(u[1]);
-    normal[0] = static_cast<float>(n[0]);
-    normal[1] = static_cast<float>(n[1]);
-    normal[2] = static_cast<float>(n[2]);
-    tangent[0] = static_cast<float>(t[0]);
-    tangent[1] = static_cast<float>(t[1]);
-    tangent[2] = static_cast<float>(t[2]);
-    bitangent[0] = static_cast<float>(b[0]);
-    bitangent[1] = static_cast<float>(b[1]);
-    bitangent[2] = static_cast<float>(b[2]);
-}
+
 void vertex_PUNTB::enable_attributes() noexcept
 {
     glVertexAttribPointer(GINTONIC_VERTEX_LAYOUT_POSITION, 3, GL_FLOAT,

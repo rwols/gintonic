@@ -9,8 +9,6 @@
 #include "Math/mat4fstack.hpp"
 #include "Math/vec4f.hpp"
 
-#include <fbxsdk.h>
-
 namespace gintonic
 {
 
@@ -56,13 +54,6 @@ void Entity::lateUpdate()
 
 Entity::Entity(std::string name, const SQT& localTransform)
     : Super(std::move(name)), mLocalTransform(localTransform),
-      mGlobalTransform(mLocalTransform)
-{
-    /* Empty on purpose. */
-}
-
-Entity::Entity(const FbxNode* pFbxNode)
-    : Super(pFbxNode), mLocalTransform(pFbxNode),
       mGlobalTransform(mLocalTransform)
 {
     /* Empty on purpose. */

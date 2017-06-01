@@ -11,11 +11,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
-#include <fbxsdk/fbxsdk_nsbegin.h>
-class FbxAMatrix; // Forward declaration.
-class FbxMatrix;  // Forward declaration.
-#include <fbxsdk/fbxsdk_nsend.h>
-
 namespace gintonic {
 
 union vec3f;  // Forward declaration.

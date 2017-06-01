@@ -12,10 +12,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
-#include <fbxsdk/fbxsdk_nsbegin.h>
-class FbxVector4; // Forward declaration.	
-#include <fbxsdk/fbxsdk_nsend.h>
-
 #include <cassert>
 
 namespace gintonic {
@@ -146,12 +142,6 @@ public:
 
 	/// Initializer list assignment operator.
 	vec3f& operator=(std::initializer_list<float> init) noexcept;
-
-	/// Constructor that takes an FbxVector4.
-	vec3f(const FBXSDK_NAMESPACE::FbxVector4& v) noexcept;
-
-	/// Assignment operator that takes an FbxVector4.
-	vec3f& operator=(const FBXSDK_NAMESPACE::FbxVector4& v) noexcept;
 
 	/// Add-and-assign operator.
 	inline vec3f& operator += (const vec3f& v) noexcept
@@ -479,9 +469,6 @@ public:
 
 		return _mm_mul_ps(radians.data, _mm_set1_ps(57.2957795f));
 	}
-
-	/// Convert a vec3f to an FbxVector4 with a static_cast.
-	operator FBXSDK_NAMESPACE::FbxVector4() const noexcept;
 
 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 

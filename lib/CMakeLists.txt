@@ -2,14 +2,13 @@
 # gintonic/lib
 #
 # The purpose of this cmake file is to create the "gintonic" library target. It
-# attempts to find the packages "OpenGL", "Boost" and "FBX". Every modern OS has
-# OpenGL, so that will probably pose no problems. However Boost and FBX require
+# attempts to find the packages "OpenGL" and "Boost". Every modern OS has
+# OpenGL, so that will probably pose no problems. However Boost requires
 # manual installation of the user. If you are on Linux, the Boost libraries are
 # probably in your package manager. For instance, on Ubuntu you can install
-# Boost with the command `apt get install libboost-dev`. For FBX, you will need
-# to go to the Autodesk website and install FBX manually from there.
-# Other dependencies include SDL, freetype, glad and pybind11, but all those are
-# included as git submodules, so nothing has to be done and they will
+# Boost with the command `apt get install libboost-dev`.
+# Other dependencies include SDL, freetype, glad, assimp and pybind11, but all
+# those are included as git submodules, so nothing has to be done and they will
 # "just work".
 #
 # Important variables that this cmake file defines are:
@@ -32,7 +31,6 @@ if (NOT BUILD_SHARED_LIBS)
     set(Boost_USE_STATIC_LIBS ON)
 endif()
 find_package(Boost COMPONENTS system filesystem serialization REQUIRED)
-find_package(FBX REQUIRED)
 
 set(gintonic_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL 
     "The directory containing implementation files.")
@@ -108,7 +106,6 @@ set(gintonic_source_files
     Entity.cpp
     EntityBase.cpp
     EntityVisitor.cpp
-    FbxImporter.cpp
     gintonic.cpp
     MeshRenderer.cpp
     OctreeComp.cpp
@@ -169,8 +166,8 @@ if (WIN32)
 else ()
     target_compile_options(gintonic PUBLIC -msse3)
     target_compile_options(gintonic PRIVATE -Wall)
-    # target_compile_options(gintonic PUBLIC -fvisibility=hidden)
-    # target_compile_options(gintonic PUBLIC -fvisibility-inlines-hidden)
+    target_compile_options(gintonic PUBLIC -fvisibility=hidden)
+    target_compile_options(gintonic PUBLIC -fvisibility-inlines-hidden)
     if (CMAKE_STRIP AND CMAKE_BUILD_TYPE STREQUAL Release)
         if (APPLE)
             add_custom_command(TARGET gintonic POST_BUILD COMMAND ${CMAKE_STRIP} -x $<TARGET_FILE:gintonic>)
@@ -205,7 +202,6 @@ target_include_directories(gintonic PUBLIC
     )
 
 target_link_libraries(gintonic PUBLIC
-    FBX
     ${Boost_LIBRARIES}
     ${SDL2_LIBRARY}
     freetype
@@ -236,7 +232,6 @@ function(target_precompiled_header target headerfile)
                 list(APPEND flags ${item})
             endforeach(item)
         endif (items)
-        list(APPEND flags -I"${FBX_INCLUDE_DIRS}")
         list(APPEND flags "-std=gnu++14")
         separate_arguments(flags)
         add_custom_command(

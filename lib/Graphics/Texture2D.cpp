@@ -2,7 +2,6 @@
 #include "Foundation/exception.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "Graphics/OpenGL/stb_image.h"
-#include <fbxsdk.h>
 
 namespace gintonic {
 
@@ -17,50 +16,6 @@ std::shared_ptr<Texture2D> Texture2D::fromImage(const ImageLoadOptions& options)
 	}
 	return tex;
 }
-
-std::shared_ptr<Texture2D> Texture2D::fromFbxTexture(const FbxTexture* pFbxTexture)
-{
-	using namespace boost::filesystem;
-	const auto pFbxFileTexture = FbxCast<FbxFileTexture>(pFbxTexture);
-	if (!pFbxFileTexture)
-	{
-		exception lException(pFbxTexture->GetName());
-		lException.append(" is not a file texture.");
-		throw lException;
-	}
-	path p(pFbxFileTexture->GetFileName());
-	auto tex = std::make_shared<Texture2D>(p.stem().string());
-	if (!tex) return nullptr;
-	try
-	{
-		tex->loadFromFile(p);
-	}
-	catch (const std::exception& /*lException*/)
-	{
-		// Failed! We try it one more time, but this time
-		// we take the parent path of the FbxScene's file, and
-		// then append the filename. If this doesn't work,
-		// we go home.
-
-		// Sometimes this actually works.
-		auto lFilename = boost::filesystem::path(
-			pFbxTexture->GetScene()->GetSceneInfo()->Url.Get().Buffer()).parent_path() 
-			/ pFbxFileTexture->GetFileName();
-
-		tex->setName(lFilename.stem().string());
-		tex->loadFromFile(std::move(lFilename));
-	}
-	return tex;
-}
-
-// Texture2D::Texture2D(const char* pathToImageFile) : Texture2D(boost::filesystem::path(pathToImageFile)) {}
-
-// Texture2D::Texture2D(const std::string& pathToImageFile) : Texture2D(boost::filesystem::path(pathToImageFile)) {}
-
-// Texture2D::Texture2D(boost::filesystem::path pathToImageFile)
-// {
-// 	loadFromFile(std::move(pathToImageFile));
-// }
 
 void Texture2D::bind(const GLint textureUnit) const noexcept
 {

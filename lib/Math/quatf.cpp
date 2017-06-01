@@ -2,9 +2,6 @@
 #include "Math/vec2f.hpp"
 #include "Math/vec3f.hpp"
 #include "Math/vec4f.hpp"
-#define FBXSDK_NEW_API
-#include <fbxsdk/core/math/fbxvector4.h>
-#include <fbxsdk/core/math/fbxquaternion.h>
 
 #include <cassert>
 
@@ -18,46 +15,6 @@ quatf::quatf(const float realpart, const vec3f& imaginarypart)
 	w = realpart;
 }
 
-quatf::quatf(const FBXSDK_NAMESPACE::FbxVector4& v)
-: x(static_cast<float>(v[0]))
-, y(static_cast<float>(v[1]))
-, z(static_cast<float>(v[2]))
-, w(static_cast<float>(v[3]))
-{
-	GT_PROFILE_FUNCTION;
-}
-
-quatf::quatf(const FBXSDK_NAMESPACE::FbxQuaternion& q)
-: x(static_cast<float>(q[0]))
-, y(static_cast<float>(q[1]))
-, z(static_cast<float>(q[2]))
-, w(static_cast<float>(q[3]))
-{
-	GT_PROFILE_FUNCTION;
-}
-
-quatf& quatf::operator = (const FBXSDK_NAMESPACE::FbxVector4& v)
-{
-	GT_PROFILE_FUNCTION;
-
-	x = static_cast<float>(v[0]);
-	y = static_cast<float>(v[1]);
-	z = static_cast<float>(v[2]);
-	w = static_cast<float>(v[3]);
-	return *this;
-}
-
-quatf& quatf::operator = (const FBXSDK_NAMESPACE::FbxQuaternion& q)
-{
-	GT_PROFILE_FUNCTION;
-
-	x = static_cast<float>(q[0]);
-	y = static_cast<float>(q[1]);
-	z = static_cast<float>(q[2]);
-	w = static_cast<float>(q[3]);
-	return *this;
-}
-
 vec3f quatf::apply_to(const vec3f& v) const noexcept
 {
 	GT_PROFILE_FUNCTION;
@@ -69,41 +26,6 @@ vec3f quatf::apply_to(const vec3f& v) const noexcept
 vec3f quatf::forward_direction() const noexcept
 {
 	GT_PROFILE_FUNCTION;
-
-	// Given: [ x: y: z: w]
-	// Want:  [-z:-y: x:-w]
-
-	// Solution:
-	// [-z:-y:x:-w] = [0:0:2*x:0] - [z:y:x:w]
-	//              = ([2x:2x:2x:2x] & [0:0:ff:0]) - [z:y:x:w]
-	//              = (([2:2:2:2] * [x:x:x:x]) & [0:0:ff:0]) - [z:y:x:w]
-
-	// auto a = _mm_mul_ps(_mm_set1_ps(2.0f), _mm_00x0_ps(data));
-	// auto b = _mm_shuffle(data, 1,2,3,0);
-	// return *this * quatf(_mm_sub_ps(a,b));
-
-	// auto a = _mm_mul_ps(_mm_set_ps1(2.0f), _mm_replicate_x_ps(data)); // [2:2:2:2] * [x:x:x:x]
-	// {
-	// 	quatf temp(a);
-	// 	std::cout << temp << '\n';
-	// 	assert(temp.x == 2.0f * this->x && temp.y == 2.0f * this->x && temp.z == 2.0f * this->x && temp.w == 2.0f * this->x);
-	// }
-	// // a = _mm_and_ps(_mm_set_ps(0x0, 0x0, 0xffffffff, 0x0), a); // [0:0:2x:0]
-	// // {
-	// // 	quatf temp(a);
-	// // 	std::cout << temp << '\n';
-	// // 	assert(temp.x == 0.0f && temp.z == 2.0f * this->x && temp.y == 0.0f && temp.w == 0.0f);
-	// // }
-	// a = _mm_0x00_ps(a);
-	// a = _mm_set_ps(1, 2, 3, 4);
-	// {
-	// 	quatf temp(a);
-	// 	std::cout << temp << '\n';
-	// 	assert(false);
-	// }
-	// auto b = _mm_shuffle_ps(data, data, 0x1B); // swap
-	// b = _mm_shuffle_ps(b, b, 0x93); // rotate left
-	// return *this * quatf(_mm_sub_ps(a, b));
 
 	return (*this) * quatf(-z, -y, x, -w);
 }
