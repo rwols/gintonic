@@ -30,3 +30,9 @@ add_subdirectory(freetype2)
 
 # Configure pybind11
 add_subdirectory(pybind11)
+
+# Configure assimp
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+add_subdirectory(assimp)

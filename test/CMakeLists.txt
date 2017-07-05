@@ -78,3 +78,6 @@ gintonic_add_test(quatf SOURCES quatf.cpp)
 gintonic_add_test(vec2f SOURCES vec2f.cpp)
 gintonic_add_test(vec3f SOURCES vec3f.cpp)
 gintonic_add_test(vec4f SOURCES vec4f.cpp)
+
+gintonic_add_test(AssetsTest SOURCES AssetsTest.cpp)
+gintonic_add_test(filesystem SOURCES filesystem.cpp)

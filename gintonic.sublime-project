@@ -206,6 +206,134 @@
 					"shell_cmd": "cmake --build . --target thirdparty/pybind11/package"
 				},
 				{
+					"name": "thirdparty/assimp/install/strip",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/install/strip"
+				},
+				{
+					"name": "thirdparty/assimp/install",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/install"
+				},
+				{
+					"name": "thirdparty/assimp/list_install_components",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/list_install_components"
+				},
+				{
+					"name": "thirdparty/assimp/install/local",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/install/local"
+				},
+				{
+					"name": "thirdparty/assimp/test",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/test"
+				},
+				{
+					"name": "thirdparty/assimp/package_source",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/package_source"
+				},
+				{
+					"name": "thirdparty/assimp/rebuild_cache",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/rebuild_cache"
+				},
+				{
+					"name": "thirdparty/assimp/package",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/package"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/install/strip",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/install/strip"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/install",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/install"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/list_install_components",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/list_install_components"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/install/local",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/install/local"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/test",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/test"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/package_source",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/package_source"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/rebuild_cache",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/rebuild_cache"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/package",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/package"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/irrXML/install/strip",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/irrXML/install/strip"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/irrXML/install",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/irrXML/install"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/irrXML/list_install_components",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/irrXML/list_install_components"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/irrXML/install/local",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/irrXML/install/local"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/irrXML/test",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/irrXML/test"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/irrXML/rebuild_cache",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/irrXML/rebuild_cache"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/irrXML/package_source",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/irrXML/package_source"
+				},
+				{
+					"name": "thirdparty/assimp/contrib/irrXML/package",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/contrib/irrXML/package"
+				},
+				{
+					"name": "thirdparty/assimp/code/install/strip",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/code/install/strip"
+				},
+				{
+					"name": "thirdparty/assimp/code/install",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/code/install"
+				},
+				{
+					"name": "thirdparty/assimp/code/install/local",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/code/install/local"
+				},
+				{
+					"name": "thirdparty/assimp/code/test",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/code/test"
+				},
+				{
+					"name": "thirdparty/assimp/code/package",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/code/package"
+				},
+				{
+					"name": "thirdparty/assimp/code/rebuild_cache",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/code/rebuild_cache"
+				},
+				{
+					"name": "thirdparty/assimp/code/package_source",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/code/package_source"
+				},
+				{
+					"name": "thirdparty/assimp/code/list_install_components",
+					"shell_cmd": "cmake --build . --target thirdparty/assimp/code/list_install_components"
+				},
+				{
 					"name": "assets/install/strip",
 					"shell_cmd": "cmake --build . --target assets/install/strip"
 				},
@@ -334,134 +462,6 @@
 					"shell_cmd": "cmake --build . --target test/install/strip"
 				},
 				{
-					"name": "tools/install/strip",
-					"shell_cmd": "cmake --build . --target tools/install/strip"
-				},
-				{
-					"name": "tools/install",
-					"shell_cmd": "cmake --build . --target tools/install"
-				},
-				{
-					"name": "tools/list_install_components",
-					"shell_cmd": "cmake --build . --target tools/list_install_components"
-				},
-				{
-					"name": "tools/install/local",
-					"shell_cmd": "cmake --build . --target tools/install/local"
-				},
-				{
-					"name": "tools/test",
-					"shell_cmd": "cmake --build . --target tools/test"
-				},
-				{
-					"name": "tools/package_source",
-					"shell_cmd": "cmake --build . --target tools/package_source"
-				},
-				{
-					"name": "tools/rebuild_cache",
-					"shell_cmd": "cmake --build . --target tools/rebuild_cache"
-				},
-				{
-					"name": "tools/package",
-					"shell_cmd": "cmake --build . --target tools/package"
-				},
-				{
-					"name": "tools/DriverInfo/install/strip",
-					"shell_cmd": "cmake --build . --target tools/DriverInfo/install/strip"
-				},
-				{
-					"name": "tools/DriverInfo/install",
-					"shell_cmd": "cmake --build . --target tools/DriverInfo/install"
-				},
-				{
-					"name": "tools/DriverInfo/list_install_components",
-					"shell_cmd": "cmake --build . --target tools/DriverInfo/list_install_components"
-				},
-				{
-					"name": "tools/DriverInfo/install/local",
-					"shell_cmd": "cmake --build . --target tools/DriverInfo/install/local"
-				},
-				{
-					"name": "tools/DriverInfo/test",
-					"shell_cmd": "cmake --build . --target tools/DriverInfo/test"
-				},
-				{
-					"name": "tools/DriverInfo/package",
-					"shell_cmd": "cmake --build . --target tools/DriverInfo/package"
-				},
-				{
-					"name": "tools/DriverInfo/rebuild_cache",
-					"shell_cmd": "cmake --build . --target tools/DriverInfo/rebuild_cache"
-				},
-				{
-					"name": "tools/DriverInfo/package_source",
-					"shell_cmd": "cmake --build . --target tools/DriverInfo/package_source"
-				},
-				{
-					"name": "tools/ShaderEditor/install/strip",
-					"shell_cmd": "cmake --build . --target tools/ShaderEditor/install/strip"
-				},
-				{
-					"name": "tools/ShaderEditor/install",
-					"shell_cmd": "cmake --build . --target tools/ShaderEditor/install"
-				},
-				{
-					"name": "tools/ShaderEditor/list_install_components",
-					"shell_cmd": "cmake --build . --target tools/ShaderEditor/list_install_components"
-				},
-				{
-					"name": "tools/ShaderEditor/install/local",
-					"shell_cmd": "cmake --build . --target tools/ShaderEditor/install/local"
-				},
-				{
-					"name": "tools/ShaderEditor/test",
-					"shell_cmd": "cmake --build . --target tools/ShaderEditor/test"
-				},
-				{
-					"name": "tools/ShaderEditor/rebuild_cache",
-					"shell_cmd": "cmake --build . --target tools/ShaderEditor/rebuild_cache"
-				},
-				{
-					"name": "tools/ShaderEditor/package_source",
-					"shell_cmd": "cmake --build . --target tools/ShaderEditor/package_source"
-				},
-				{
-					"name": "tools/ShaderEditor/package",
-					"shell_cmd": "cmake --build . --target tools/ShaderEditor/package"
-				},
-				{
-					"name": "tools/TextureEditor/install/strip",
-					"shell_cmd": "cmake --build . --target tools/TextureEditor/install/strip"
-				},
-				{
-					"name": "tools/TextureEditor/install",
-					"shell_cmd": "cmake --build . --target tools/TextureEditor/install"
-				},
-				{
-					"name": "tools/TextureEditor/list_install_components",
-					"shell_cmd": "cmake --build . --target tools/TextureEditor/list_install_components"
-				},
-				{
-					"name": "tools/TextureEditor/install/local",
-					"shell_cmd": "cmake --build . --target tools/TextureEditor/install/local"
-				},
-				{
-					"name": "tools/TextureEditor/test",
-					"shell_cmd": "cmake --build . --target tools/TextureEditor/test"
-				},
-				{
-					"name": "tools/TextureEditor/rebuild_cache",
-					"shell_cmd": "cmake --build . --target tools/TextureEditor/rebuild_cache"
-				},
-				{
-					"name": "tools/TextureEditor/package_source",
-					"shell_cmd": "cmake --build . --target tools/TextureEditor/package_source"
-				},
-				{
-					"name": "tools/TextureEditor/package",
-					"shell_cmd": "cmake --build . --target tools/TextureEditor/package"
-				},
-				{
 					"name": "examples/install/local",
 					"shell_cmd": "cmake --build . --target examples/install/local"
 				},
@@ -502,24 +502,32 @@
 					"shell_cmd": "cmake --build . --target gintonic-precompiled"
 				},
 				{
-					"name": "libSDL2.a",
-					"shell_cmd": "cmake --build . --target libSDL2.a"
+					"name": "libIrrXMLd.a",
+					"shell_cmd": "cmake --build . --target libIrrXMLd.a"
 				},
 				{
-					"name": "libSDL2main.a",
-					"shell_cmd": "cmake --build . --target libSDL2main.a"
+					"name": "libSDL2d.a",
+					"shell_cmd": "cmake --build . --target libSDL2d.a"
+				},
+				{
+					"name": "libSDL2maind.a",
+					"shell_cmd": "cmake --build . --target libSDL2maind.a"
+				},
+				{
+					"name": "libassimpd.a",
+					"shell_cmd": "cmake --build . --target libassimpd.a"
 				},
 				{
 					"name": "libfreetyped.a",
 					"shell_cmd": "cmake --build . --target libfreetyped.a"
 				},
 				{
-					"name": "libgintonic.a",
-					"shell_cmd": "cmake --build . --target libgintonic.a"
+					"name": "libgintonicd.a",
+					"shell_cmd": "cmake --build . --target libgintonicd.a"
 				},
 				{
-					"name": "libglad.a",
-					"shell_cmd": "cmake --build . --target libglad.a"
+					"name": "libgladd.a",
+					"shell_cmd": "cmake --build . --target libgladd.a"
 				},
 				{
 					"name": "uninstall",
@@ -1150,44 +1158,36 @@
 				}
 			],
 			"working_dir": "${project_path}/build"
+		},
+		{
+			"name": "CMake",
+			"target": "cmake_build"
 		}
 	],
-	"cmake":
-	{
-		"build_folder": "${project_path}/build",
-		"command_line_overrides":
-		{
-			"BUILD_SHARED_LIBS": false,
-			"CMAKE_BUILD_TYPE": "Debug"
-		},
-		"generator": "Ninja",
-		"toolchains": "${project_path}/toolchains/iOS.cmake",
-		"windows":
-		{
-			"command_line_overrides":
-			{
-				"BUILD_SHARED_LIBS": false,
-				"CMAKE_BUILD_TYPE": "Debug",
-				"CMAKE_COLOR_MAKEFILE": false
-			},
-			"generator": "Visual Studio",
-			"target_architecture": "amd64",
-			"visual_studio_version":
-			[
-				15
-			]
-		}
-	},
 	"folders":
 	[
 		{
-			"binary_file_patterns":
-			[
-				"build/*"
-			],
 			"path": "."
 		}
 	],
+	"include_autocomplete_settings":
+	{
+		"include_locations":
+		[
+			{
+				"path": "${project_path}/include"
+			},
+			{
+				"path": "${project_path}/thirdparty/SDL-mirror/include"
+			},
+			{
+				"path": "/usr/local/include"
+			},
+			{
+				"path": "${project_path}/pybind11/include"
+			}
+		]
+	},
 	"settings":
 	{
 		"ClangFormat":
@@ -1195,14 +1195,43 @@
 			"based_on_style": "File",
 			"format_on_save": true
 		},
+		"active_target": 31,
+		"cmake":
+		{
+			"build_folder": "${project_path}/build",
+			"command_line_overrides":
+			{
+				"BUILD_SHARED_LIBS": false,
+				"CMAKE_BUILD_TYPE": "Debug",
+				"CMAKE_EXPORT_COMPILE_COMMANDS": true
+			},
+			"generator": "Ninja",
+			"toolchains": "${project_path}/toolchains/iOS.cmake",
+			"windows":
+			{
+				"command_line_overrides":
+				{
+					"BUILD_SHARED_LIBS": false,
+					"CMAKE_BUILD_TYPE": "Debug",
+					"CMAKE_COLOR_MAKEFILE": false
+				},
+				"generator": "Visual Studio",
+				"target_architecture": "amd64",
+				"visual_studio_version":
+				[
+					15
+				]
+			}
+		},
 		"compile_commands": "${project_path}/build",
-		"flags_sources":
+		"ecc_flags_sources":
 		[
 			{
 				"file": "compile_commands.json",
-				"search_in": "$project_path/build"
+				"search_in": "${project_path}/build"
 			}
 		],
-		"tab_size": 4
+		"tab_size": 4,
+		"translate_tabs_to_spaces": true
 	}
 }

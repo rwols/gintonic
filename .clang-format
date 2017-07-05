@@ -1,14 +1,67 @@
+################################################################################
+#                                                                              #
+#                        Clang Format Configuration                            #
+#                                                                              #
+################################################################################
+
+---
+# Start out with LLVM's format
 BasedOnStyle: LLVM
-IndentWidth: 4
-BreakBeforeBraces: Allman
+
+IndentWidth: 4 # Indent with 4
+UseTab: Never  # spaces.
+
+# The endless debate about brace wrapping ends here. Basically, wrap everything
+# except namespaces and don't indent the braces themselves.
+BreakBeforeBraces: Custom
+BraceWrapping:
+
+  # Wrap class definitions.
+  AfterClass: true
+
+  # Wrap control statements (if/for/while/switch/..).
+  AfterControlStatement: true
+
+  # Wrap enum definitions.
+  AfterEnum: true
+
+  # Wrap function definitions.
+  AfterFunction: true
+
+  # Don't wrap namespace definitions.
+  AfterNamespace: false
+
+  # Wrap ObjC definitions (@autoreleasepool, interfaces, ..).
+  AfterObjCDeclaration: true
+
+  # Wrap struct definitions.
+  AfterStruct: true
+
+  # Wrap union definitions.
+  AfterUnion: true
+
+  # Wrap before catch.
+  BeforeCatch: true
+
+  # Wrap before else.
+  BeforeElse: true
+
+  # Don't indent the wrapped braces themselves.
+  IndentBraces: false
+
+# Allow more compact code.
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortFunctionsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: true
-Standard: Cpp11
-UseTab: Never
----
-Language: Cpp
-# Force pointers to the type for C++.
+
+# Pointers are part of the type, so align them to the type.
 DerivePointerAlignment: false
 PointerAlignment: Left
+
+# Alignment of consecutive decls and operands for readability.
+# Don't align consecutive assignments.
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: true
+AlignOperands: true
+...

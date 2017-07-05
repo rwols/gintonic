@@ -4,6 +4,16 @@
 
 using namespace gintonic;
 
+namespace gintonic {
+namespace experimental {
+
+static const std::string sAssetBaseDir = "assets";
+
+const std::string& assetBaseDir() { return sAssetBaseDir; }
+
+} // experimental
+} // gintonic
+
 std::string Asset::sAssetFolder = std::string();
 
 std::unordered_map<std::string, std::weak_ptr<Asset>> sAssetMap =

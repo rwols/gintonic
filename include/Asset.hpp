@@ -1,155 +1,156 @@
 #pragma once
 
 #include "Foundation/Profiler.hpp"
+#include "Foundation/filesystem.hpp"
 #include "Foundation/portable_iarchive.hpp"
 #include "Foundation/portable_oarchive.hpp"
+#include "IntrusivePtr.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <fstream>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-namespace gintonic
-{
+namespace gintonic {
 
-namespace experimental
-{
+namespace experimental {
+
+const std::string& assetBaseDir();
 
 template <class TDerived> class Asset
 {
   public:
-    Asset(const Asset&) = delete;
-    Asset(Asset&&) = delete;
-    Asset& operator=(const Asset&) = delete;
-    Asset& operator=(Asset&&) = delete;
+    Asset() = default;
+    template <class S> Asset(S&& name) : name(std::forward<S>(name)) {}
 
     std::string name;
 
-    static std::string baseFolder;
-
     template <class Archive, class S>
-    static std::shared_ptr<const TDerived> request(S&& name);
-
-    static std::size_t removeExpiredWeakPointers();
+    static IntrusivePtr<const TDerived> request(S&& name);
 
     template <class Archive> void saveToPersistentMedia() const;
 
     template <class Archive, class S>
-    static std::shared_ptr<const TDerived> loadFromPersistentMedia(S&& name);
+    static TDerived loadFromPersistentMedia(S&& name);
 
-    static const char* extension() noexcept;
+    static const char* extension() noexcept { return ".unknown"; }
 
-    static const char* prefixFolder() noexcept;
+    static const char* prefixFolder() noexcept { return "unknown-asset"; }
+
+    friend void intrusive_ptr_release(const TDerived* asset)
+    {
+        if (--asset->mRefCount == 0)
+        {
+            sCache.erase(*asset);
+        }
+    }
+
+    friend void intrusive_ptr_add_ref(const TDerived* asset)
+    {
+        ++asset->mRefCount;
+    }
 
   protected:
-    template <class S> Asset(S&& name);
+    std::string getFilePath() const;
 
   private:
-    std::string getFilePath();
+    struct Compare
+    {
+        using is_transparent = std::string;
+        inline bool operator()(const TDerived& lhs,
+                               const TDerived& rhs) noexcept
+        {
+            return lhs.name < rhs.name;
+        }
+        inline bool operator()(const std::string& lhs,
+                               const TDerived&    rhs) noexcept
+        {
+            return lhs < rhs.name;
+        }
+        inline bool operator()(const TDerived&    lhs,
+                               const std::string& rhs) noexcept
+        {
+            return lhs.name < rhs;
+        }
+    };
+    mutable unsigned int mRefCount = 0;
+
     template <class S> static std::string getFilePath(S&& name);
-    static std::unordered_map<std::string, std::weak_ptr<const TDerived>>
-        sCache;
+    static std::set<TDerived, Compare> sCache;
 
     friend class boost::serialization::access;
-    template <class Archive> void serialize(Archive&, const unsigned);
+    template <class Archive> void serialize(Archive&, const unsigned)
+    {
+        /* nothing */
+    }
 };
 
-template <class T>
-template <class S>
-Asset<T>::Asset(S&& name) : name(std::forward<S>(name))
+template <class T> std::string Asset<T>::getFilePath() const
 {
-}
-
-template <class T> std::string Asset<T>::getFilePath()
-{
-    return baseFolder + "/" + T::prefixFolder() + "/" + name + T::extension();
+    return getFilePath(name);
 }
 
 template <class T>
 template <class S>
 std::string Asset<T>::getFilePath(S&& name)
 {
-    return baseFolder + "/" + T::prefixFolder() + "/" + std::forward<S>(name) +
-           T::extension();
+    return assetBaseDir() + "/" + T::prefixFolder() + "/" +
+           std::forward<S>(name) + T::extension();
 }
 
 template <class T>
 template <class Archive, class S>
-std::shared_ptr<const T> Asset<T>::request(S&& name)
+IntrusivePtr<const T> Asset<T>::request(S&& name)
 {
     auto iter = sCache.find(name);
-    if (iter != sCache.end())
+    if (iter == sCache.end())
     {
-        if (auto ptr = iter->second.lock()) return ptr;
-        auto ptr = loadFromPersistentMedia<Archive>(std::forward<S>(name));
-        iter->second = ptr;
-        return ptr;
+        auto result = sCache.emplace(
+            loadFromPersistentMedia<Archive>(std::forward<S>(name)));
+        assert(result.second);
+        return IntrusivePtr<const T>(&(*result.first));
     }
-    auto ptr = loadFromPersistentMedia<Archive>(name);
-    sCache.emplace(std::forward<S>(name), ptr);
-    return ptr;
-}
-
-template <class T> std::size_t Asset<T>::removeExpiredWeakPointers()
-{
-    std::size_t count = 0;
-    auto iter = sCache.begin();
-    while (iter != sCache.end())
+    else
     {
-        if (iter->second.expired())
-        {
-            iter = sCache.erase(iter);
-            ++count;
-        }
-        else
-        {
-            ++iter;
-        }
+        return IntrusivePtr<const T>(&(*iter));
     }
-    return count;
 }
 
 template <class T>
 template <class Archive>
 void Asset<T>::saveToPersistentMedia() const
 {
+    boost::filesystem::create_directories(assetBaseDir() + "/" +
+                                          T::prefixFolder());
     std::ofstream output(getFilePath());
+    if (!output)
+    {
+        throw std::runtime_error("invalid output file");
+    }
     Archive oa(output);
-    oa << static_cast<const T&>(*this);
+    oa << boost::serialization::make_nvp("asset", static_cast<const T&>(*this));
 }
 
 template <class T>
 template <class Archive, class S>
-std::shared_ptr<const T> Asset<T>::loadFromPersistentMedia(S&& name)
+T Asset<T>::loadFromPersistentMedia(S&& name)
 {
     std::ifstream input(getFilePath(name));
+    if (!input)
+    {
+        throw std::runtime_error("invalid input file");
+    }
     Archive ia(input);
-    std::shared_ptr<T> ptr(new T(std::forward<S>(name)));
-    ia >> *ptr;
-    return ptr;
-}
-
-template <class T> const char* Asset<T>::extension() noexcept
-{
-    return ".unknown-asset";
-}
-
-template <class T> const char* Asset<T>::prefixFolder() noexcept
-{
-    return "unknown";
+    T       t(std::forward<S>(name));
+    ia >> boost::serialization::make_nvp("asset", t);
+    return t;
 }
 
 template <class T>
-std::unordered_map<std::string, std::weak_ptr<const T>> Asset<T>::sCache =
-    std::unordered_map<std::string, std::weak_ptr<const T>>();
-
-template <class T>
-template <class Archive>
-void Asset<T>::serialize(Archive& /*archive*/, const unsigned /*version*/)
-{
-    /* empty */
-}
+std::set<T, typename Asset<T>::Compare>
+    Asset<T>::sCache = std::set<T, typename Asset<T>::Compare>();
 
 } // experimental
 
@@ -250,13 +251,13 @@ class Asset
     Asset(const char* relativeFilename);
     Asset() = default;
 
-    std::string getFullPath() const;
+    std::string   getFullPath() const;
     std::ifstream openForReading() const;
     std::ofstream openForWriting() const;
 
   private:
     static std::unordered_map<std::string, std::weak_ptr<Asset>> sAssetMap;
-    std::string mName;
+    std::string        mName;
     static std::string sAssetFolder;
 
     template <class DerivedType, class StringType>
@@ -337,7 +338,7 @@ void Asset::serialize(Archive& ar, const unsigned /*version*/)
   public:                                                                      \
     static const char* extension() { return extension_string; }                \
     static const char* prefixFolder() { return prefix_folder_string; }         \
-    std::string absolutePath() const noexcept override                         \
+    std::string        absolutePath() const noexcept override                  \
     {                                                                          \
         return Asset::getAssetFolder() + "/" + std::string(prefixFolder()) +   \
                "/" + shortName() + extension();                                \

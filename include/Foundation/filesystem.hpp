@@ -14,34 +14,46 @@
 
 namespace gintonic {
 
+using Path = boost::filesystem::path;
+
 /**
  * @brief Get the filepath of the executable, cross-platform.
  * @return The filepath of the executable.
  */
-boost::filesystem::path get_executable_path();
+Path get_executable_path();
 
-// typedef boost::error_info<struct tag_filesystem_path_err,boost::filesystem::path> errinfo_path;
+/**
+ * @brief Call this function in main before doing something path or asset
+ *        related.
+ *
+ * @detail This function will change the current process's working directory
+ * to the path of the executable.
+ */
+void initExecutablePath();
+
+std::string normalize(Path path);
 
 } // namespace gintonic
 
 //!@cond
 
-BOOST_SERIALIZATION_SPLIT_FREE(boost::filesystem::path)
+BOOST_SERIALIZATION_SPLIT_FREE(gintonic::Path)
 
 namespace boost {
 namespace serialization {
 
-template<class Archive>
-void save(Archive& ar, const filesystem::path& p, unsigned int version) 
+template <class Archive>
+void save(Archive& ar, const gintonic::Path& path, unsigned int version)
 {
-	ar & p.string();
+    ar& gintonic::normalize(path);
 }
-template<class Archive>
-void load(Archive& ar, filesystem::path& lFilepath, unsigned int version) 
+
+template <class Archive>
+void load(Archive& ar, gintonic::Path& path, unsigned int version)
 {
-	std::string lFilepathAsString;
-	ar & lFilepathAsString;
-	lFilepath = lFilepathAsString;
+    std::string filePathAsString;
+    ar&         filePathAsString;
+    path = std::move(filePathAsString);
 }
 
 } // namespace serialization

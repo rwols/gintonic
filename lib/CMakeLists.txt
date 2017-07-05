@@ -107,6 +107,7 @@ set(gintonic_source_files
     EntityBase.cpp
     EntityVisitor.cpp
     gintonic.cpp
+    Image.cpp
     MeshRenderer.cpp
     OctreeComp.cpp
     Prefab.cpp
@@ -117,6 +118,7 @@ set(gintonic_source_files
     SDLRenderContext.cpp
     SDLRunLoop.cpp
     SDLWindow.cpp
+    Texture2D.cpp
     Transform.cpp
     Window.cpp
 
