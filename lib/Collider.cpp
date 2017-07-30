@@ -4,7 +4,8 @@
 
 using namespace gintonic;
 
-Collider::Collider(const Kind kind, EntityBase* owner) : Component(kind, owner)
+Collider::Collider(const Kind kind, experimental::Entity* owner)
+    : Component(kind, owner)
 {
-    mTransform = mEntityBase->add<Transform>();
+    mTransform = mOwner->template add<Transform>();
 }

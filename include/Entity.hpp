@@ -6,9 +6,9 @@
 
 #pragma once
 
+#include "Asset.hpp"
 #include "Casting.hpp"
 #include "Component.hpp"
-#include "EntityBase.hpp"
 #include "ForwardDeclarations.hpp"
 #include "Foundation/Object.hpp"
 #include "Math/SQT.hpp"
@@ -16,31 +16,26 @@
 #include "Math/mat4f.hpp"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/unique_ptr.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/signals2.hpp>
 #include <list>
 
-namespace gintonic
-{
+namespace gintonic {
 
-namespace experimental
-{
+namespace experimental {
 
-class Entity : public EntityBase
+class Entity : public experimental::Asset<Entity>
 {
   public:
-    std::string name;
+    Entity() = default;
+    Entity(std::string name);
 
-    Entity();
-    ~Entity() override final;
-
-    /// \brief Get the Prefab that spawned this Entity, if any.
-    std::shared_ptr<Prefab> getPrefabOriginal() noexcept
-    {
-        return mPrefabOriginal;
-    }
+    static const char* extension() noexcept { return ".entity"; }
+    static const char* prefixFolder() noexcept { return "entities"; }
 
     /// \brief Get the Prefab that spawned this Entity, if any.
-    std::shared_ptr<const Prefab> getPrefabOriginal() const noexcept
+    IntrusivePtr<const Entity> getPrefabOriginal() const noexcept
     {
         return mPrefabOriginal;
     }
@@ -49,21 +44,119 @@ class Entity : public EntityBase
 
     const Entity* getParent() const noexcept { return mParent; }
 
-    static bool classOf(const EntityBase* ent)
+    /**
+     * @brief  Get a component of a certain type.
+     * @tparam TComp The type of the component.
+     * @return A pointer to the component, or nullptr if no such component is
+     *         present.
+     */
+    template <class TComp> TComp* get() noexcept
     {
-        return ent->getKind() == Kind::Entity;
+        for (auto& comp : mComponents)
+        {
+            if (auto ptr = dynCast<TComp>(comp.get()))
+            {
+                return ptr;
+            }
+        }
+        return nullptr;
+    }
+
+    /**
+     * @brief  Get a component of a certain type.
+     * @tparam TComp The type of the component.
+     * @return A pointer to the component, or nullptr if no such component is
+     *         present.
+     */
+    template <class TComp> const TComp* get() const noexcept
+    {
+        for (const auto& comp : mComponents)
+        {
+            if (const auto ptr = dynCast<const TComp>(comp.get()))
+            {
+                return ptr;
+            }
+        }
+        return nullptr;
+    }
+
+    template <class TComp> TComp* add()
+    {
+        auto comp = new TComp(this);
+        mComponents.emplace_back(comp);
+        return comp;
+    }
+
+    template <class TComp> bool remove()
+    {
+        for (auto iter = mComponents.begin(); iter != mComponents.end(); ++iter)
+        {
+            if (dynCast<TComp>(iter->get()))
+            {
+                mComponents.erase(iter);
+                return true;
+            }
+        }
+        return false;
     }
 
     void update();
     void lateUpdate();
 
     /// \brief Create a new Prefab from the current state of this Entity.
-    std::shared_ptr<Prefab> makePrefab() const;
+    IntrusivePtr<Entity> makePrefab() const;
 
   private:
-    std::shared_ptr<Prefab> mPrefabOriginal;
-    std::vector<Entity> mChildren;
-    Entity* mParent = nullptr;
+    IntrusivePtr<const Entity>              mPrefabOriginal;
+    std::vector<Entity>                     mChildren;
+    std::vector<std::unique_ptr<Component>> mComponents;
+    Entity*                                 mParent = nullptr;
+
+    template <class Archive>
+    void save(Archive& archive, const unsigned /*version*/) const
+    {
+        using boost::serialization::make_nvp;
+        using boost::serialization::base_object;
+        archive << make_nvp("super",
+                            base_object<experimental::Asset<Entity>>(*this));
+        if (mPrefabOriginal)
+        {
+            archive << make_nvp("prefab_origin", mPrefabOriginal->name);
+        }
+        else
+        {
+            archive << make_nvp("prefab_origin", "");
+        }
+        archive << make_nvp("components", mComponents);
+        archive << make_nvp("children", mChildren);
+    }
+
+    template <class Archive>
+    void load(Archive& archive, const unsigned /*version*/)
+    {
+        using boost::serialization::make_nvp;
+        using boost::serialization::base_object;
+        archive >>
+            make_nvp("super", base_object<experimental::Asset<Entity>>(*this));
+        std::string tempName;
+        archive >> make_nvp("prefab_origin", tempName);
+        if (tempName.empty())
+        {
+            mPrefabOriginal = nullptr;
+        }
+        else
+        {
+            mPrefabOriginal =
+                experimental::Entity::request<Archive>(std::move(tempName));
+        }
+        archive >> make_nvp("components", mComponents);
+        for (auto& ptr : mComponents) ptr->mOwner = this;
+        archive >> make_nvp("children", mChildren);
+    }
+
+    friend class boost::serialization::access;
+
+    BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
 } // experimental
@@ -93,7 +186,7 @@ class Entity : public Object<Entity, std::string>
   private:
     std::vector<std::unique_ptr<Component>> mComponents;
 
-    SQT mLocalTransform;
+    SQT   mLocalTransform;
     mat4f mGlobalTransform;
 
     children_datastructure_type mChildren;
@@ -316,7 +409,7 @@ class Entity : public Object<Entity, std::string>
     std::vector<std::shared_ptr<AnimationClip>> animationClips;
 
     AnimationClip* activeAnimationClip = nullptr;
-    float activeAnimationStartTime = 0.0f;
+    float          activeAnimationStartTime = 0.0f;
 
     /**
      * @name Events

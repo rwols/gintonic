@@ -4,6 +4,11 @@
 #include "Entity.hpp"
 #include "Transform.hpp"
 
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+// #include <boost/serialization/export.hpp>
+// BOOST_CLASS_EXPORT(gintonic::Transform);
+
 using namespace gintonic;
 
 BOOST_AUTO_TEST_CASE(parents_and_children)
@@ -28,7 +33,24 @@ BOOST_AUTO_TEST_CASE(parents_and_children)
 
 BOOST_AUTO_TEST_CASE(exp_entity)
 {
-    experimental::Entity ent;
-    auto comp = ent.add<Transform>();
-    BOOST_CHECK(comp == ent.get<Transform>());
+    {
+        experimental::Entity ent("TestGuy");
+        // auto                 comp = ent.add<Transform>();
+        ent.saveToPersistentMedia<boost::archive::xml_oarchive>();
+        // BOOST_CHECK(comp == ent.get<Transform>());
+    }
+    {
+        try
+        {
+            auto ent =
+                experimental::Entity::request<boost::archive::xml_iarchive>(
+                    "TestGuy");
+            BOOST_CHECK(ent->name == "TestGuy");
+        }
+        catch (const boost::archive::archive_exception& e)
+        {
+            std::cerr << e.what() << '\n';
+            BOOST_CHECK(false);
+        }
+    }
 }

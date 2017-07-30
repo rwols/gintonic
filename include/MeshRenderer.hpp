@@ -2,8 +2,7 @@
 
 #include "Renderer.hpp"
 
-namespace gintonic
-{
+namespace gintonic {
 
 class Mesh;
 
@@ -17,7 +16,8 @@ class MeshRenderer : public RendererComp
     void lateUpdate() override;
 
   private:
-    std::unique_ptr<Component> clone(EntityBase* newOwner) const override;
+    std::unique_ptr<Component>
+    clone(experimental::Entity* newOwner) const override;
 
     template <class Archive>
     void serialize(Archive& archive, const unsigned /*version*/)

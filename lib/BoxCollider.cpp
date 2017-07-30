@@ -12,7 +12,8 @@ box3f BoxCollider::getGlobalBounds() const noexcept
 
 void BoxCollider::onEnable() { /* empty */}
 
-std::unique_ptr<Component> BoxCollider::clone(EntityBase* newOwner) const
+std::unique_ptr<Component>
+BoxCollider::clone(experimental::Entity* newOwner) const
 {
     auto boxcoll = std::make_unique<BoxCollider>(newOwner);
     boxcoll->localBounds = localBounds;

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Collider.hpp"
-namespace gintonic
-{
+namespace gintonic {
 
 class BoxCollider : public Collider
 {
@@ -29,7 +28,8 @@ class BoxCollider : public Collider
         archive& BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collider) &
             BOOST_SERIALIZATION_NVP(localBounds);
     }
-    std::unique_ptr<Component> clone(EntityBase* newOwner) const override;
+    std::unique_ptr<Component>
+    clone(experimental::Entity* newOwner) const override;
 };
 
 } // namespace gintonic

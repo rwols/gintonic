@@ -3,20 +3,20 @@
 #include "Component.hpp"
 #include "Math/box3f.hpp"
 
-namespace gintonic
-{
+namespace gintonic {
 
 class Transform;
 
 class Collider : public Component
 {
   protected:
-    Collider(const Kind kind, EntityBase* owner);
+    Collider(const Kind kind) : Component(kind) {}
+    Collider(const Kind kind, experimental::Entity* owner);
 
   public:
     ~Collider() noexcept override = default;
     virtual box3f getGlobalBounds() const noexcept = 0;
-    vec3f localOffset;
+    vec3f         localOffset;
 
     static bool classOf(const Component* comp)
     {

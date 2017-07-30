@@ -8,10 +8,11 @@
 
 using namespace gintonic;
 
-OctreeComp::OctreeComp(EntityBase* owner) : Component(Kind::OctreeComp, owner)
+OctreeComp::OctreeComp(experimental::Entity* owner)
+    : Component(Kind::OctreeComp, owner)
 {
-    mTransform = mEntityBase->add<Transform>();
-    mCollider = mEntityBase->get<Collider>();
+    mTransform = mOwner->add<Transform>();
+    mCollider = mOwner->get<Collider>();
     if (!mCollider) throw std::runtime_error("Missing component: Collider");
 }
 
@@ -37,7 +38,8 @@ box3f OctreeComp::getBounds() const noexcept
     return mCollider->getGlobalBounds();
 }
 
-std::unique_ptr<Component> OctreeComp::clone(EntityBase* newOwner) const
+std::unique_ptr<Component>
+OctreeComp::clone(experimental::Entity* newOwner) const
 {
     auto octree = std::make_unique<OctreeComp>(newOwner);
     octree->mNode = mNode;
@@ -188,7 +190,7 @@ bool OctreeComp::Node::hasNoOctreeComponents() const noexcept
 
 void OctreeComp::Node::subdivide()
 {
-    auto lMin = mBounds.minCorner;
+    auto       lMin = mBounds.minCorner;
     const auto lHalf = (mBounds.maxCorner - lMin) / 2.0f;
     if (lHalf.x <= GT_OCTREE_SUBDIV_THRESHOLD ||
         lHalf.y <= GT_OCTREE_SUBDIV_THRESHOLD ||

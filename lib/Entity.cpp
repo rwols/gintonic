@@ -9,20 +9,18 @@
 #include "Math/mat4fstack.hpp"
 #include "Math/vec4f.hpp"
 
-namespace gintonic
+namespace gintonic {
+
+namespace experimental {
+
+Entity::Entity(std::string name) : experimental::Asset<Entity>(std::move(name))
 {
+}
 
-namespace experimental
-{
+IntrusivePtr<Entity> Entity::makePrefab() const { return nullptr; }
 
-Entity::Entity() : gintonic::EntityBase(Kind::Entity) {}
-
-Entity::~Entity() {}
-
-std::shared_ptr<Prefab> Entity::makePrefab() const { return nullptr; }
-
-void Entity::update() { EntityBase::update(); }
-void Entity::lateUpdate() { EntityBase::lateUpdate(); }
+void Entity::update() {}
+void Entity::lateUpdate() {}
 
 } // experimental
 

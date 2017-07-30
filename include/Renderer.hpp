@@ -5,8 +5,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <vector>
 
-namespace gintonic
-{
+namespace gintonic {
 
 class Entity;
 class Material;
@@ -17,7 +16,8 @@ class RendererComp : public Component
     std::vector<std::shared_ptr<Material>> materials;
 
   protected:
-    inline RendererComp(const Kind kind, EntityBase* owner)
+    inline RendererComp(const Kind kind) : Component(kind) {}
+    inline RendererComp(const Kind kind, experimental::Entity* owner)
         : Component(kind, owner)
     {
     }

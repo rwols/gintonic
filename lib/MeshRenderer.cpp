@@ -4,7 +4,8 @@
 
 using namespace gintonic;
 
-std::unique_ptr<Component> MeshRenderer::clone(EntityBase* newOwner) const
+std::unique_ptr<Component>
+MeshRenderer::clone(experimental::Entity* newOwner) const
 {
     auto renderer = std::make_unique<MeshRenderer>(newOwner);
     renderer->mesh = mesh;

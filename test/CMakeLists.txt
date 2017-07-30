@@ -34,7 +34,7 @@ function(gintonic_add_test test_name)
 		"${multiValueArgs}"
 		${ARGN})
 	if (NOT gintonic_add_test_SOURCES)
-		message(FATAL_ERROR 
+		message(FATAL_ERROR
 			"SOURCES argument required for test case ${test_name}")
 	endif (NOT gintonic_add_test_SOURCES)
 	add_executable(${test_name} ${gintonic_add_test_SOURCES})
@@ -44,8 +44,8 @@ function(gintonic_add_test test_name)
 	target_link_libraries(${test_name} PUBLIC gintonic ${Boost_LIBRARIES})
 	if (gintonic_add_test_ASSETS)
 		gintonic_target_depends_on_assets(
-			TARGET ${test_name} 
-			SOURCE_ASSET_DIRECTORY ${gintonic_ASSET_DIR} 
+			TARGET ${test_name}
+			SOURCE_ASSET_DIRECTORY ${gintonic_ASSET_DIR}
 			ASSETS ${gintonic_add_test_ASSETS})
 	endif (gintonic_add_test_ASSETS)
 	add_test(NAME ${test_name} COMMAND ${test_name})
@@ -55,11 +55,12 @@ gintonic_add_test(SDLRenderContext SOURCES SDLRenderContext.cpp)
 gintonic_add_test(Casting SOURCES Casting.cpp)
 gintonic_add_test(Clock SOURCES Clock.cpp)
 gintonic_add_test(Entity SOURCES Entity.cpp)
+target_compile_options(Entity PRIVATE -ftemplate-backtrace-limit=0)
 gintonic_add_test(OctreeTest SOURCES OctreeTest.cpp)
 gintonic_add_test(Reflection SOURCES Reflection.cpp)
 gintonic_add_test(SQT SOURCES SQT.cpp)
 
-gintonic_add_test(SerializationOfLights 
+gintonic_add_test(SerializationOfLights
 	SOURCES SerializationOfLights.cpp)
 
 gintonic_add_test(SimdTest SOURCES SimdTest.cpp)
@@ -69,9 +70,9 @@ gintonic_add_test(mat2f SOURCES mat2f.cpp)
 gintonic_add_test(mat3f SOURCES mat3f.cpp)
 gintonic_add_test(mat4f SOURCES mat4f.cpp)
 
-gintonic_add_test(materials 
-	SOURCES materials.cpp 
-	ASSETS fonts/Inconsolata-Regular.ttf 
+gintonic_add_test(materials
+	SOURCES materials.cpp
+	ASSETS fonts/Inconsolata-Regular.ttf
 		images/bricks.jpg images/bricks_SPEC.png images/bricks_NRM.png)
 
 gintonic_add_test(quatf SOURCES quatf.cpp)

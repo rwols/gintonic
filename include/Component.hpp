@@ -11,23 +11,7 @@
  */
 #define GT_COMPONENT_SERIALIZATION_BOILERPLATE(compname)                       \
   private:                                                                     \
-    friend class boost::serialization::access;                                 \
-    template <class Archive>                                                   \
-    inline friend void load_construct_data(                                    \
-        Archive& archive, compname* component, const unsigned int version)     \
-    {                                                                          \
-        EntityBase* entity;                                                    \
-        archive >> BOOST_SERIALIZATION_NVP(entity);                            \
-        new (component) compname(entity);                                      \
-    }                                                                          \
-    template <class Archive>                                                   \
-    inline friend void save_construct_data(Archive& archive,                   \
-                                           const compname* component,          \
-                                           const unsigned int version)         \
-    {                                                                          \
-        const auto entity = component->mEntityBase;                            \
-        archive << BOOST_SERIALIZATION_NVP(entity);                            \
-    }
+    friend class boost::serialization::access;
 
 /**
  * @brief      Boilerplate macro for a new class derived from Component.
@@ -38,18 +22,17 @@
  */
 #define GT_COMPONENT_BOILERPLATE(derivedcomp, basecomp)                        \
   public:                                                                      \
-    derivedcomp(EntityBase* entity) : basecomp(Kind::derivedcomp, entity) {}   \
+    derivedcomp() : basecomp(Kind::derivedcomp) {}                             \
+    derivedcomp(experimental::Entity* entity)                                  \
+        : basecomp(Kind::derivedcomp, entity)                                  \
+    {                                                                          \
+    }                                                                          \
     ~derivedcomp() noexcept override = default;                                \
     GT_COMPONENT_SERIALIZATION_BOILERPLATE(derivedcomp);
 
-namespace gintonic
-{
+namespace gintonic {
 
-class EntityBase;
-class Prefab;
-
-namespace experimental
-{
+namespace experimental {
 class Entity;
 } // experimental
 
@@ -102,12 +85,6 @@ class Component
     /// \brief Get a reference to the Entity that owns this Component.
     const experimental::Entity& getEntity() const;
 
-    /// \brief Get a reference to the Prefab that owns this Component.
-    Prefab& getPrefab();
-
-    /// \brief Get a reference to the Prefab that owns this Component.
-    const Prefab& getPrefab() const;
-
     virtual ~Component() noexcept = default;
 
     /**
@@ -117,12 +94,13 @@ class Component
      */
     Kind getKind() const noexcept { return mKind; }
 
-    inline bool isEnabled() const noexcept { return mEnabled; }
+    inline bool  isEnabled() const noexcept { return mEnabled; }
     virtual void setEnabled(const bool b);
 
   protected:
-    Component(const Kind kind, EntityBase* owner);
-    EntityBase* mEntityBase;
+    Component(const Kind kind);
+    Component(const Kind kind, experimental::Entity* owner);
+    experimental::Entity* mOwner;
 
     virtual void update() { /* Empty. */}
     virtual void lateUpdate() { /* Empty. */}
@@ -133,16 +111,18 @@ class Component
   private:
     Kind mKind;
     bool mEnabled = false;
-    friend class EntityBase; // for the clone method.
-    friend class Entity;     // for the update methods.
+    friend class experimental::Entity; // for the clone method, setting the
+                                       // owner, and for the update methods.
+    friend class Entity;               // for the update methods.
     friend class boost::serialization::access;
     template <class Archive>
-    void serialize(Archive& archive, const unsigned int version) const
+    void serialize(Archive& archive, const unsigned int version)
     {
         archive& boost::serialization::make_nvp("enabled", mEnabled);
     }
 
-    virtual std::unique_ptr<Component> clone(EntityBase* newOwner) const = 0;
+    virtual std::unique_ptr<Component>
+    clone(experimental::Entity* newOwner) const = 0;
 };
 
 } // gintonic

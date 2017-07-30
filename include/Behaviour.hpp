@@ -2,8 +2,7 @@
 
 #include "Component.hpp"
 
-namespace gintonic
-{
+namespace gintonic {
 
 class Script;
 
@@ -20,7 +19,8 @@ class Behaviour : public Component
     void onParentChange() override;
 
   private:
-    std::unique_ptr<Component> clone(EntityBase* newOwner) const override;
+    std::unique_ptr<Component>
+    clone(experimental::Entity* newOwner) const override;
 
     template <class Archive>
     void serialize(Archive& archive, const unsigned /*version*/)

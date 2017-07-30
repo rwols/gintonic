@@ -4,8 +4,7 @@
 #include "Math/box3f.hpp"
 #include <vector>
 
-namespace gintonic
-{
+namespace gintonic {
 
 class Octree;
 class OctreeNode;
@@ -45,7 +44,7 @@ class OctreeComp : public Component
          */
         template <class F> void query(const box3f& volume, F f) const;
 
-        Node* getRoot() noexcept;
+        Node*       getRoot() noexcept;
         const Node* getRoot() const noexcept;
 
         const box3f& getBounds() const noexcept;
@@ -59,27 +58,37 @@ class OctreeComp : public Component
         bool hasNoOctreeComponents() const noexcept;
 
       private:
-        box3f mBounds;
-        void* mAllocPlace = nullptr;
-        Node* mParent = nullptr;
-        Node* mChildren[8] = {};
+        box3f                    mBounds;
+        void*                    mAllocPlace = nullptr;
+        Node*                    mParent = nullptr;
+        Node*                    mChildren[8] = {};
         std::vector<OctreeComp*> mComps;
+
         friend class OctreeComp;
+
         Node(Node* parent, const vec3f& min, const vec3f& max);
+
         void insert(OctreeComp*);
+
         OctreeComp::Node* remove(OctreeComp*) noexcept;
+
         void update(OctreeComp*);
+
         void insertRecursive(OctreeComp*);
+
         OctreeComp::Node* removeRecursive() noexcept;
+
         void subdivide();
+
         template <class F> void apply(F f);
+
         template <class F> void apply(F f) const;
     };
 
-    OctreeComp(EntityBase* owner);
+    OctreeComp(experimental::Entity* owner);
     ~OctreeComp() noexcept override;
 
-    Node& getRoot() noexcept;
+    Node&       getRoot() noexcept;
     const Node& getRoot() const noexcept;
 
     void setNode(Node& node);
@@ -94,11 +103,15 @@ class OctreeComp : public Component
 
   private:
     friend class Node;
+
     Node* mNode = nullptr;
+
     Transform* mTransform = nullptr;
+
     Collider* mCollider = nullptr;
 
-    std::unique_ptr<Component> clone(EntityBase* newOwner) const override;
+    std::unique_ptr<Component>
+    clone(experimental::Entity* newOwner) const override;
 
     box3f getBounds() const noexcept;
 

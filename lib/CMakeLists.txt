@@ -32,7 +32,7 @@ if (NOT BUILD_SHARED_LIBS)
 endif()
 find_package(Boost COMPONENTS system filesystem serialization REQUIRED)
 
-set(gintonic_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL 
+set(gintonic_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL
     "The directory containing implementation files.")
 
 set(gintonic_source_files
@@ -104,13 +104,12 @@ set(gintonic_source_files
     Component.cpp
     Component.cpp
     Entity.cpp
-    EntityBase.cpp
+    # EntityBase.cpp
     EntityVisitor.cpp
     gintonic.cpp
     Image.cpp
     MeshRenderer.cpp
     OctreeComp.cpp
-    Prefab.cpp
     Renderer.cpp
     RenderStrategy.cpp
     RunLoop.cpp
@@ -132,20 +131,20 @@ set(gintonic_SSE_VERSION 30 CACHE STRING "The SSE version.")
 option(gintonic_WITH_PROFILING "Profile various math functions." OFF)
 option(gintonic_WITH_MEMORY_PROFILING "Profile various memory allocations." OFF)
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
-    option(gintonic_ENABLE_DEBUG_TRACE 
+    option(gintonic_ENABLE_DEBUG_TRACE
         "Enable debug tracing via the renderer." ON)
 else ()
-    option(gintonic_ENABLE_DEBUG_TRACE 
+    option(gintonic_ENABLE_DEBUG_TRACE
         "Enable debug tracing via the renderer." OFF)
 endif ()
 option(gintonic_HIDE_CONSOLE "Hide the console on Windows." ON)
-option(gintonic_REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE 
-    "Redirect the standard output to the renderer's error stream." 
+option(gintonic_REDIRECT_OUTPUT_WHEN_HIDDEN_CONSOLE
+    "Redirect the standard output to the renderer's error stream."
     ${gintonic_ENABLE_DEBUG_TRACE})
 option(gintonic_USE_LIBCXX "Use libc++ instead of stdlib." OFF)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(gintonic_ENABLE_DEBUG_TRACE ON CACHE BOOL 
-        "Enable debug tracing via the renderer.")   
+    set(gintonic_ENABLE_DEBUG_TRACE ON CACHE BOOL
+        "Enable debug tracing via the renderer.")
 endif ()
 configure_file(cmake/config.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.hpp)
 
@@ -210,49 +209,49 @@ target_link_libraries(gintonic PUBLIC
     glad
     )
 
-function(target_precompiled_header target headerfile)
-    if (CMAKE_CXX_COMPILER_ID MATCHES Clang)
-        get_filename_component(name ${headerfile} NAME)
-        set(source "${CMAKE_CURRENT_SOURCE_DIR}/${headerfile}")
-        set(output "${CMAKE_CURRENT_BINARY_DIR}/${headerfile}.gch")
-        set(guardfile "${CMAKE_CURRENT_BINARY_DIR}/${headerfile}")
-        string(TOUPPER CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE} flags)
-        set(flags ${${flags}})
-        get_target_property(items ${target} INCLUDE_DIRECTORIES)
-        foreach(item ${items})
-            list(APPEND flags -I${item})
-        endforeach(item)
-        get_target_property(items ${target} COMPILE_DEFINITIONS)
-        if (items)
-            foreach(item ${items})
-                list(APPEND flags ${item})
-            endforeach(item)
-        endif (items)
-        get_target_property(items ${target} COMPILE_OPTIONS)
-        if (items)
-            foreach(item ${items})
-                list(APPEND flags ${item})
-            endforeach(item)
-        endif (items)
-        list(APPEND flags "-std=gnu++14")
-        separate_arguments(flags)
-        add_custom_command(
-            OUTPUT ${output}
-            COMMAND ${CMAKE_CXX_COMPILER}
-                    ${flags}
-                    -c -x c++-header ${source}
-                    -o ${output}
-            MAIN_DEPENDENCY ${source})
-        file(WRITE "${guardfile}" "#error Failed to include precompiled header!")
-        add_custom_target(${target}-precompiled DEPENDS ${output})
-        add_dependencies(${target} ${target}-precompiled)
-        target_compile_options(${target} BEFORE PUBLIC -include "${guardfile}")
-    else()
-        message(WARNING "Not generating a precompiled header for ${CMAKE_CXX_COMPILER_ID}.")
-    endif()
-endfunction(target_precompiled_header)
+# function(target_precompiled_header target headerfile)
+#     if (CMAKE_CXX_COMPILER_ID MATCHES Clang)
+#         get_filename_component(name ${headerfile} NAME)
+#         set(source "${CMAKE_CURRENT_SOURCE_DIR}/${headerfile}")
+#         set(output "${CMAKE_CURRENT_BINARY_DIR}/${headerfile}.gch")
+#         set(guardfile "${CMAKE_CURRENT_BINARY_DIR}/${headerfile}")
+#         string(TOUPPER CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE} flags)
+#         set(flags ${${flags}})
+#         get_target_property(items ${target} INCLUDE_DIRECTORIES)
+#         foreach(item ${items})
+#             list(APPEND flags -I${item})
+#         endforeach(item)
+#         get_target_property(items ${target} COMPILE_DEFINITIONS)
+#         if (items)
+#             foreach(item ${items})
+#                 list(APPEND flags ${item})
+#             endforeach(item)
+#         endif (items)
+#         get_target_property(items ${target} COMPILE_OPTIONS)
+#         if (items)
+#             foreach(item ${items})
+#                 list(APPEND flags ${item})
+#             endforeach(item)
+#         endif (items)
+#         list(APPEND flags "-std=gnu++14")
+#         separate_arguments(flags)
+#         add_custom_command(
+#             OUTPUT ${output}
+#             COMMAND ${CMAKE_CXX_COMPILER}
+#                     ${flags}
+#                     -c -x c++-header ${source}
+#                     -o ${output}
+#             MAIN_DEPENDENCY ${source})
+#         file(WRITE "${guardfile}" "#error Failed to include precompiled header!")
+#         add_custom_target(${target}-precompiled DEPENDS ${output})
+#         add_dependencies(${target} ${target}-precompiled)
+#         target_compile_options(${target} BEFORE PUBLIC -include "${guardfile}")
+#     else()
+#         message(WARNING "Not generating a precompiled header for ${CMAKE_CXX_COMPILER_ID}.")
+#     endif()
+# endfunction(target_precompiled_header)
 
-target_precompiled_header(gintonic Precompiled.hpp)
+# target_precompiled_header(gintonic Precompiled.hpp)
 
 install(TARGETS gintonic DESTINATION lib)
 if (WIN32)

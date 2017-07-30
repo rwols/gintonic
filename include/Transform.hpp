@@ -5,8 +5,7 @@
 #include "Math/mat4f.hpp"
 #include <boost/serialization/base_object.hpp>
 
-namespace gintonic
-{
+namespace gintonic {
 
 class Transform : public Component
 {
@@ -14,7 +13,7 @@ class Transform : public Component
 
   public:
     const SQT& local() const noexcept;
-    SQT& local() noexcept;
+    SQT&       local() noexcept;
 
     const mat4f& global() const noexcept;
 
@@ -37,13 +36,14 @@ class Transform : public Component
     GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
   private:
-    SQT mLocal;
-    mutable SQT mGlobal;
+    SQT           mLocal;
+    mutable SQT   mGlobal;
     mutable mat4f mGlobalMatrix;
-    mutable bool mIsUpdated = false;
-    void updateImpl() const noexcept;
+    mutable bool  mIsUpdated = false;
+    void          updateImpl() const noexcept;
 
-    std::unique_ptr<Component> clone(EntityBase* newOwner) const override;
+    std::unique_ptr<Component>
+    clone(experimental::Entity* newOwner) const override;
 
     template <class Archive>
     void serialize(Archive& archive, const unsigned /*version*/)

@@ -1,30 +1,18 @@
 #include "Component.hpp"
 #include "Entity.hpp"
-#include "Prefab.hpp"
 
 using namespace gintonic;
 
-Component::Component(const Kind kind, EntityBase* owner)
-    : mEntityBase(owner), mKind(kind)
+Component::Component(const Kind kind) : mKind(kind) {}
+
+Component::Component(const Kind kind, experimental::Entity* owner)
+    : mOwner(owner), mKind(kind)
 {
 }
 
-experimental::Entity& Component::getEntity()
-{
-    return *static_cast<experimental::Entity*>(mEntityBase);
-}
+experimental::Entity& Component::getEntity() { return *mOwner; }
 
-const experimental::Entity& Component::getEntity() const
-{
-    return *static_cast<const experimental::Entity*>(mEntityBase);
-}
-
-Prefab& Component::getPrefab() { return *static_cast<Prefab*>(mEntityBase); }
-
-const Prefab& Component::getPrefab() const
-{
-    return *static_cast<const Prefab*>(mEntityBase);
-}
+const experimental::Entity& Component::getEntity() const { return *mOwner; }
 
 void Component::setEnabled(const bool b)
 {

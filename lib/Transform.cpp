@@ -1,9 +1,14 @@
 #include "Transform.hpp"
 #include "Entity.hpp"
+// #include <boost/archive/xml_iarchive.hpp>
+// #include <boost/archive/xml_oarchive.hpp>
+// #include <boost/serialization/export.hpp>
+// BOOST_CLASS_EXPORT(gintonic::Transform);
 
-using namespace gintonic;
+namespace gintonic {
 
-std::unique_ptr<Component> Transform::clone(EntityBase* newOwner) const
+std::unique_ptr<Component>
+Transform::clone(experimental::Entity* newOwner) const
 {
     auto transform = std::make_unique<Transform>(newOwner);
     transform->local() = local();
@@ -94,3 +99,5 @@ void Transform::updateImpl() const noexcept
 }
 
 void Transform::update() { updateImpl(); }
+
+} // gintonic
