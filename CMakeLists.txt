@@ -32,6 +32,10 @@ endif()
 
 project(gintonic VERSION 0.1 LANGUAGES CXX)
 
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.9)
+	cmake_policy(SET CMP0063 NEW)
+endif()
+
 set(gintonic_WE_ARE_ROOT OFF CACHE INTERNAL "")
 
 # If the current source directory equals the root source directory, then we're

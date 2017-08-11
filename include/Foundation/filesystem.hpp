@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "gintonic_export.h"
 #include <boost/filesystem.hpp>
 #include <boost/serialization/split_free.hpp>
 
@@ -20,7 +21,7 @@ using Path = boost::filesystem::path;
  * @brief Get the filepath of the executable, cross-platform.
  * @return The filepath of the executable.
  */
-Path get_executable_path();
+Path GINTONIC_EXPORT get_executable_path();
 
 /**
  * @brief Call this function in main before doing something path or asset
@@ -29,9 +30,9 @@ Path get_executable_path();
  * @detail This function will change the current process's working directory
  * to the path of the executable.
  */
-void initExecutablePath();
+void GINTONIC_EXPORT initExecutablePath();
 
-std::string normalize(Path path);
+std::string GINTONIC_EXPORT normalize(Path path);
 
 } // namespace gintonic
 

@@ -2,12 +2,6 @@
 	path = thirdparty/glad
 	url = https://github.com/rwols/glad.git
 	branch = master
-[submodule "thirdparty/SDL-mirror"]
-	path = thirdparty/SDL-mirror
-	url = https://github.com/spurious/SDL-mirror.git
-[submodule "thirdparty/freetype2"]
-	path = thirdparty/freetype2
-	url = git://git.sv.nongnu.org/freetype/freetype2.git
 [submodule "thirdparty/pybind11"]
 	path = thirdparty/pybind11
 	url = https://github.com/pybind/pybind11.git

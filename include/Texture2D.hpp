@@ -2,12 +2,13 @@
 
 #include "Graphics/OpenGL/TextureObject.hpp"
 #include "Image.hpp"
+#include "gintonic_export.h"
 
 namespace gintonic {
 namespace experimental {
 
-class Texture2D : public experimental::Asset<Texture2D>,
-                  public OpenGL::TextureObject
+class GINTONIC_EXPORT Texture2D : public experimental::Asset<Texture2D>,
+                                  public OpenGL::TextureObject
 {
   public:
     Texture2D() = default;
@@ -19,7 +20,7 @@ class Texture2D : public experimental::Asset<Texture2D>,
     static const char* prefixFolder() noexcept { return "textures"; }
 
     IntrusivePtr<const Image> getImage() const noexcept { return mImage; }
-    void setImage(IntrusivePtr<const Image> image);
+    void                      setImage(IntrusivePtr<const Image> image);
 
     const GLint getMipMaps() const noexcept { return mMipMaps; }
 
@@ -32,8 +33,8 @@ class Texture2D : public experimental::Asset<Texture2D>,
     template <class Archive>
     void save(Archive& archive, const unsigned /*version*/) const
     {
-        using boost::serialization::make_nvp;
         using boost::serialization::base_object;
+        using boost::serialization::make_nvp;
         archive << make_nvp("super",
                             base_object<experimental::Asset<Texture2D>>(*this));
         archive << make_nvp("image", mImage->name);
@@ -43,8 +44,8 @@ class Texture2D : public experimental::Asset<Texture2D>,
     template <class Archive>
     void load(Archive& archive, const unsigned /*version*/)
     {
-        using boost::serialization::make_nvp;
         using boost::serialization::base_object;
+        using boost::serialization::make_nvp;
         std::string imageName;
         archive >> make_nvp("super",
                             base_object<experimental::Asset<Texture2D>>(*this));
@@ -59,5 +60,5 @@ class Texture2D : public experimental::Asset<Texture2D>,
     BOOST_SERIALIZATION_SPLIT_MEMBER();
 };
 
-} // experimental
-} // gintonic
+} // namespace experimental
+} // namespace gintonic

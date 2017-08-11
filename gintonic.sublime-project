@@ -23,30 +23,30 @@
 			[
 				{
 					"build_folder": "${project_path}/build/debug",
-					"name": "Debug",
 					"command_line_overrides":
 					{
-						"CMAKE_BUILD_TYPE": "Debug",
-						"BUILD_SHARED_LIBS": false
-					}
+						"BUILD_SHARED_LIBS": true,
+						"CMAKE_BUILD_TYPE": "Debug"
+					},
+					"name": "Debug"
 				},
 				{
 					"build_folder": "${project_path}/build/release",
-					"name": "Release",
 					"command_line_overrides":
 					{
-						"CMAKE_BUILD_TYPE": "Release",
-						"BUILD_SHARED_LIBS": false
-					}
+						"BUILD_SHARED_LIBS": false,
+						"CMAKE_BUILD_TYPE": "Release"
+					},
+					"name": "Release"
 				}
 			]
 		},
-		"compile_commands": "${project_path}/build/release",
+		"compile_commands": "${project_path}/build/debug",
 		"ecc_flags_sources":
 		[
 			{
 				"file": "compile_commands.json",
-				"search_in": "$project_base_path/build/release"
+				"search_in": "${project_path}/build/debug"
 			}
 		],
 		"tab_size": 4,
