@@ -1,5 +1,7 @@
 #include "SDLRunLoop.hpp"
+#include "ApplicationStateMachine.hpp"
 #include "QuitApplication.hpp"
+#include "RenderStrategy.hpp"
 #include "SDLWindow.hpp"
 #include <SDL.h>
 

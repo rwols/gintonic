@@ -12,41 +12,41 @@
 			"based_on_style": "File",
 			"format_on_save": true
 		},
-		"active_target": 59,
+		"binary_file_patterns":
+		[
+			"*build*"
+		],
 		"clara_debug": true,
 		"cmake":
 		{
-			"build_folder": "${project_path}/build",
-			"command_line_overrides":
-			{
-				"BUILD_SHARED_LIBS": false,
-				"CMAKE_BUILD_TYPE": "Debug",
-				"CMAKE_EXPORT_COMPILE_COMMANDS": true
-			},
-			"generator": "Ninja",
-			"toolchains": "${project_path}/toolchains/iOS.cmake",
-			"windows":
-			{
-				"command_line_overrides":
+			"schemes":
+			[
 				{
-					"BUILD_SHARED_LIBS": false,
-					"CMAKE_BUILD_TYPE": "Debug",
-					"CMAKE_COLOR_MAKEFILE": false
+					"build_folder": "${project_path}/build/debug",
+					"name": "Debug",
+					"command_line_overrides":
+					{
+						"CMAKE_BUILD_TYPE": "Debug",
+						"BUILD_SHARED_LIBS": false
+					}
 				},
-				"generator": "Visual Studio",
-				"target_architecture": "amd64",
-				"visual_studio_version":
-				[
-					15
-				]
-			}
+				{
+					"build_folder": "${project_path}/build/release",
+					"name": "Release",
+					"command_line_overrides":
+					{
+						"CMAKE_BUILD_TYPE": "Release",
+						"BUILD_SHARED_LIBS": false
+					}
+				}
+			]
 		},
-		"compile_commands": "${project_path}/build",
+		"compile_commands": "${project_path}/build/release",
 		"ecc_flags_sources":
 		[
 			{
 				"file": "compile_commands.json",
-				"search_in": "${project_path}/build"
+				"search_in": "$project_base_path/build/release"
 			}
 		],
 		"tab_size": 4,

@@ -1,6 +1,7 @@
 [submodule "thirdparty/glad"]
 	path = thirdparty/glad
-	url = https://github.com/Dav1dde/glad.git
+	url = https://github.com/rwols/glad.git
+	branch = master
 [submodule "thirdparty/SDL-mirror"]
 	path = thirdparty/SDL-mirror
 	url = https://github.com/spurious/SDL-mirror.git
@@ -13,6 +14,3 @@
 [submodule "thirdparty/imgui"]
 	path = thirdparty/imgui
 	url = https://github.com/ocornut/imgui.git
-[submodule "thirdparty/assimp"]
-	path = thirdparty/assimp
-	url = https://github.com/assimp/assimp.git

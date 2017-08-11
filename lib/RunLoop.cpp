@@ -8,8 +8,6 @@ using namespace gintonic;
 
 RunLoop::RunLoop() : mStartTime(std::chrono::high_resolution_clock::now()) {}
 
-RunLoop::~RunLoop() {}
-
 void RunLoop::run()
 {
     if (machine) machine->initiate();
@@ -24,9 +22,9 @@ void RunLoop::run()
 
 void RunLoop::updateTime() noexcept
 {
-    using std::chrono::high_resolution_clock;
-    using std::chrono::duration_cast;
     using std::chrono::duration;
+    using std::chrono::duration_cast;
+    using std::chrono::high_resolution_clock;
     using std::chrono::seconds;
     mPrevElapsedTime = mElapsedTime;
     const duration<float> d = high_resolution_clock::now() - mStartTime;

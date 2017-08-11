@@ -11,8 +11,8 @@ static const std::string sAssetBaseDir = "assets";
 
 const std::string& assetBaseDir() { return sAssetBaseDir; }
 
-} // experimental
-} // gintonic
+} // namespace experimental
+} // namespace gintonic
 
 std::string Asset::sAssetFolder = std::string();
 
@@ -50,8 +50,7 @@ std::string Asset::getFullPathFor(const std::string& relativeFilename)
 std::string Asset::getFullPathFor(std::string&& relativeFilename)
 {
     using boost::filesystem::path;
-    const auto fullPath =
-        path(getAssetFolder()) / path(std::move(relativeFilename));
+    const auto fullPath = path(getAssetFolder()) / path(relativeFilename);
     return fullPath.string();
 }
 

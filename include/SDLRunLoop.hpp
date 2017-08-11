@@ -2,19 +2,21 @@
 
 #include "RunLoop.hpp"
 
-namespace gintonic
-{
+namespace gintonic {
 
 class SDLWindow;
 
 class SDLRunLoop : public RunLoop
 {
   public:
-    ~SDLRunLoop() override = default;
+    SDLRunLoop() = default;
+
+    virtual ~SDLRunLoop() override = default;
 
   private:
     void runOneFrame() override final;
+
     SDLWindow* mWindowInFocus = nullptr;
 };
 
-} // gintonic
+} // namespace gintonic

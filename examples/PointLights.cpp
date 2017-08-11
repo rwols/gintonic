@@ -71,7 +71,7 @@ class PointLightsApplication : public gintonic::Application
 
         const float lNumLights = static_cast<float>(mNumLights);
         const float lPi = static_cast<float>(M_PI);
-        SQT lTransform;
+        SQT         lTransform;
         lTransform.scale = 0.1f;
         lTransform.rotation = quatf(1.0f, 0.0f, 0.0f, 0.0f);
         lTransform.translation = vec3f(0.0f, 0.0f, 0.0f);
@@ -85,7 +85,7 @@ class PointLightsApplication : public gintonic::Application
         {
             const auto lSpecularity = vec4f(0.2f, 0.2f, 0.2f, 4.0f);
             const auto lAttenuation = this->getRandomLightAttenuation(0.0f);
-            auto lIntensity = this->getRandomColor(4.0f);
+            auto       lIntensity = this->getRandomColor(4.0f);
             const auto lUp = vec3f(0.0f, 1.0f, 0.0f);
             const auto lAngle = 2.0f * static_cast<float>(i) * lPi / lNumLights;
 

@@ -104,7 +104,6 @@ set(gintonic_source_files
     Component.cpp
     Component.cpp
     Entity.cpp
-    # EntityBase.cpp
     EntityVisitor.cpp
     gintonic.cpp
     Image.cpp
@@ -149,6 +148,12 @@ endif ()
 configure_file(cmake/config.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.hpp)
 
 add_library(gintonic ${gintonic_source_files})
+
+set_target_properties(gintonic PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
 
 if (WIN32)
     target_compile_definitions(gintonic PUBLIC _SCL_SECURE_NO_WARNINGS)
@@ -198,7 +203,7 @@ target_include_directories(gintonic SYSTEM PUBLIC
     )
 
 target_include_directories(gintonic PUBLIC
-    ${Gintonic_SOURCE_DIR}/include
+    ../include
     ${CMAKE_CURRENT_BINARY_DIR} # For the config file
     )
 
@@ -259,7 +264,11 @@ if (WIN32)
 else()
     add_executable(maintest main.cpp)
     target_link_libraries(maintest PRIVATE gintonic)
-    set_target_properties(maintest PROPERTIES CXX_STANDARD 14)
+    set_target_properties(maintest PROPERTIES
+        CXX_STANDARD 14
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+    )
 endif()
 
 

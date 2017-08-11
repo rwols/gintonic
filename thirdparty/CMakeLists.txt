@@ -8,12 +8,12 @@ add_subdirectory(glad)
 # Configure SDL2
 if (BUILD_SHARED_LIBS)
     # Sigh... SDL should just respect BUILD_SHARED_LIBS
-    set(SDL_SHARED_ENABLED_BY_DEFAULT ON CACHE BOOL 
+    set(SDL_SHARED_ENABLED_BY_DEFAULT ON CACHE BOOL
         "Build a shared version of the library" FORCE)
     set(SDL_STATIC OFF CACHE BOOL "Build a static version of the library" FORCE)
     set(SDL2_LIBRARY SDL2 CACHE INTERNAL "")
 else()
-    set(SDL_SHARED_ENABLED_BY_DEFAULT OFF CACHE BOOL 
+    set(SDL_SHARED_ENABLED_BY_DEFAULT OFF CACHE BOOL
         "Build a shared version of the library" FORCE)
     set(SDL_STATIC ON CACHE BOOL "Build a static version of the library" FORCE)
     set(SDL2_LIBRARY SDL2-static CACHE INTERNAL "")
@@ -32,7 +32,7 @@ add_subdirectory(freetype2)
 add_subdirectory(pybind11)
 
 # Configure assimp
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-add_subdirectory(assimp)
+# set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+# set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+# set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+# add_subdirectory(assimp)

@@ -38,7 +38,10 @@ function(gintonic_add_test test_name)
 			"SOURCES argument required for test case ${test_name}")
 	endif (NOT gintonic_add_test_SOURCES)
 	add_executable(${test_name} ${gintonic_add_test_SOURCES})
-	set_target_properties(${test_name} PROPERTIES CXX_STANDARD 14)
+    set_target_properties(${test_name} PROPERTIES
+        CXX_STANDARD 14
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO)
 	target_compile_definitions(${test_name} PUBLIC BOOST_TEST_DYN_LINK)
 	target_include_directories(${test_name} PUBLIC ${Boost_INCLUDE_DIR})
 	target_link_libraries(${test_name} PUBLIC gintonic ${Boost_LIBRARIES})
