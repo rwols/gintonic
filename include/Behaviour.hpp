@@ -30,4 +30,4 @@ class Behaviour : public Component
     }
 };
 
-} // gintonic
+} // namespace gintonic

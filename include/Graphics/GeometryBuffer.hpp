@@ -9,13 +9,12 @@
 #include "OpenGL/Framebuffer.hpp"
 #include "OpenGL/TextureObject.hpp"
 
-namespace gintonic
-{
+namespace gintonic {
 
 /**
  * @brief Handles the various buffers during geometry collection.
  */
-class GeometryBuffer
+class GINTONIC_EXPORT GeometryBuffer
 {
   public:
     /**

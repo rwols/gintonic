@@ -6,55 +6,53 @@
 
 #pragma once
 
-// #include "OpenGL/textures.hpp"
+#include "gintonic_export.h"
 
 namespace gintonic {
 
 /**
  * @brief Encapsulates a skybox.
- * 
+ *
  * @see skybox_shader
  */
-class skybox
+class GINTONIC_EXPORT skybox
 {
-public:
+  public:
+    /// Default constructor.
+    skybox() = default;
 
-	/// Default constructor.
-	skybox() = default;
+    /**
+     * @brief Constructor.
+     *
+     */
+    // skybox(OpenGL::cube_texture diffuse_texture);
 
-	/**
-	 * @brief Constructor.
-	 * 
-	 */
-	// skybox(OpenGL::cube_texture diffuse_texture);
+    /// Copy constructor.
+    skybox(const skybox&) = default;
 
-	/// Copy constructor.
-	skybox(const skybox&) = default;
+    /// Copy assignment operator.
+    skybox& operator=(const skybox&) = default;
 
-	/// Copy assignment operator.
-	skybox& operator = (const skybox&) = default;
+    /// Move constructor.
+    skybox(skybox&&);
 
-	/// Move constructor.
-	skybox(skybox&&);
+    /// Move assignment operator.
+    skybox& operator=(skybox&&);
 
-	/// Move assignment operator.
-	skybox& operator = (skybox&&);
+    /// The diffuse cube texture for the skybox.
+    // OpenGL::cube_texture diffuse_texture;
 
-	/// The diffuse cube texture for the skybox.
-	// OpenGL::cube_texture diffuse_texture;
+    /**
+     * @brief Draw the skybox.
+     *
+     * @details This method will only bind the cube texture and draw an
+     * inverted unit cube. You still need to activate the correct shader.
+     *
+     * @see skybox_shader
+     */
+    void draw() const noexcept;
 
-	/**
-	 * @brief Draw the skybox.
-	 * 
-	 * @details This method will only bind the cube texture and draw an
-	 * inverted unit cube. You still need to activate the correct shader.
-	 * 
-	 * @see skybox_shader
-	 */
-	void draw() const noexcept;
-
-private:
-
+  private:
 };
 
 } // namespace gintonic

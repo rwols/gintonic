@@ -20,13 +20,12 @@
 #define GT_SKELETON_MAX_JOINTS (1 << 7)
 #define GT_JOINT_NONE ((GT_SKELETON_MAX_JOINTS)-1)
 
-namespace gintonic
-{
+namespace gintonic {
 
-class Skeleton
+class GINTONIC_EXPORT Skeleton
 {
   public:
-    class Joint
+    class GINTONIC_EXPORT Joint
     {
       public:
         std::string name;
@@ -99,8 +98,8 @@ class Skeleton
     using iterator = std::vector<Joint, allocator<Joint>>::iterator;
     using const_iterator = std::vector<Joint, allocator<Joint>>::const_iterator;
 
-    inline iterator begin() noexcept { return joints.begin(); }
-    inline iterator end() noexcept { return joints.end(); }
+    inline iterator       begin() noexcept { return joints.begin(); }
+    inline iterator       end() noexcept { return joints.end(); }
     inline const_iterator begin() const noexcept { return joints.begin(); }
     inline const_iterator end() const noexcept { return joints.end(); }
     inline const_iterator cbegin() const noexcept { return joints.cbegin(); }

@@ -16,59 +16,53 @@ namespace gintonic {
  * compared to the surface of the earth, a very good approximation of the
  * sun's rays is to assume they are in fact uniform in one direction.
  */
-class DirectionalLight : public AmbientLight
+class GINTONIC_EXPORT DirectionalLight : public AmbientLight
 {
-public:
+  public:
+    using Super = AmbientLight;
 
-	using Super = AmbientLight;
+    template <class... Args> inline static SharedPtr create(Args&&... args)
+    {
+        return SharedPtr(new DirectionalLight(std::forward<Args>(args)...));
+    }
 
-	template <class ...Args>
-	inline static SharedPtr create(Args&&... args)
-	{
-		return SharedPtr(new DirectionalLight(std::forward<Args>(args)...));
-	}
+  protected:
+    /// Default constructor.
+    DirectionalLight() = default;
 
-protected:
+    /**
+     * @brief Constructor.
+     *
+     * @param intensity The intensity value.
+     */
+    DirectionalLight(const vec4f& intensity);
 
-	/// Default constructor.
-	DirectionalLight() = default;
-	
-	/**
-	 * @brief Constructor.
-	 * 
-	 * @param intensity The intensity value.
-	 */
-	DirectionalLight(const vec4f& intensity);
+  public:
+    /// Destructor.
+    virtual ~DirectionalLight() noexcept = default;
 
-public:
+    virtual void shine(const Entity& lightEntity,
+                       const std::vector<std::shared_ptr<Entity>>&
+                           shadowCastingGeometryEntities) const noexcept;
 
-	/// Destructor.
-	virtual ~DirectionalLight() noexcept = default;
-	
-	virtual void shine(
-		const Entity& lightEntity, 
-		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) const noexcept;
+    virtual void initializeShadowBuffer(Entity& lightEntity) const;
 
-	virtual void initializeShadowBuffer(Entity& lightEntity) const;
+    /// Stream output support for a directional light.
+    friend std::ostream& operator<<(std::ostream&, const DirectionalLight&);
 
-	/// Stream output support for a directional light.
-	friend std::ostream& operator << (std::ostream&, const DirectionalLight&);
+    GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
-	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+  private:
+    // Reimplement this method to support output streams.
+    virtual std::ostream& prettyPrint(std::ostream&) const noexcept;
 
-private:
+    friend boost::serialization::access;
 
-	// Reimplement this method to support output streams.
-	virtual std::ostream& prettyPrint(std::ostream&) const 
-		noexcept;
-
-	friend boost::serialization::access;
-
-	template <class Archive>
-	void serialize(Archive& ar, const unsigned /*version*/)
-	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
-	}
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned /*version*/)
+    {
+        ar& BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
+    }
 };
 
 } // namespace gintonic

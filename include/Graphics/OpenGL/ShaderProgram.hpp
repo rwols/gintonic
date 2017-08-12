@@ -11,8 +11,7 @@
 #include "utilities.hpp"
 #include <array>
 
-namespace gintonic
-{
+namespace gintonic {
 
 union vec2f; // Forward declaration.
 union vec3f; // Forward declaration.
@@ -21,8 +20,7 @@ union mat2f; // Forward declaration.
 union mat3f; // Forward declaration.
 union mat4f; // Forward declaration.
 
-namespace OpenGL
-{
+namespace OpenGL {
 
 /**
  * @brief Encapsulates an
@@ -36,7 +34,7 @@ namespace OpenGL
  * protected section. You are encouraged to derive from ShaderProgram and
  * use all the protected functionality.
  */
-class ShaderProgram : public Asset
+class GINTONIC_EXPORT ShaderProgram : public Asset
 {
     GINTONIC_ASSET(ShaderProgram, "shaderprograms", ".shader")
 
@@ -153,7 +151,7 @@ class ShaderProgram : public Asset
   private:
     void initUniforms();
 
-    GLuint mHandle;
+    GLuint               mHandle;
     std::vector<Uniform> mUniforms;
 
   public:
@@ -894,7 +892,7 @@ class ShaderProgram : public Asset
      * @param location The location of the uniform.
      * @param values The values for the uniform.
      */
-    static void setUniform(const GLint location,
+    static void setUniform(const GLint                 location,
                            const std::vector<GLfloat>& values) noexcept;
 
     /**
@@ -904,7 +902,7 @@ class ShaderProgram : public Asset
      * @param location The location of the uniform.
      * @param values The values for the uniform.
      */
-    static void setUniform(const GLint location,
+    static void setUniform(const GLint               location,
                            const std::vector<GLint>& values) noexcept;
 
     /**
@@ -916,7 +914,7 @@ class ShaderProgram : public Asset
      * @param values The values for the uniform.
      */
     template <std::size_t Size>
-    static void setUniform(const GLint location,
+    static void setUniform(const GLint                      location,
                            const std::array<GLfloat, Size>& values) noexcept
     {
         glUniform1fv(location, Size, values.data());
@@ -931,7 +929,7 @@ class ShaderProgram : public Asset
      * @param values The values for the uniform.
      */
     template <std::size_t Size>
-    static void setUniform(const GLint location,
+    static void setUniform(const GLint                    location,
                            const std::array<GLint, Size>& values) noexcept
     {
         glUniform1iv(location, Size, values.data());

@@ -11,13 +11,12 @@
 
 #include <vector>
 
-namespace gintonic
-{
+namespace gintonic {
 
-class AnimationClip
+class GINTONIC_EXPORT AnimationClip
 {
   public:
-    class BakeLayersException : public std::exception
+    class GINTONIC_EXPORT BakeLayersException : public std::exception
     {
       public:
         BakeLayersException() = delete;

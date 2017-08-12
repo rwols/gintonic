@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gintonic_export.h"
 #include <boost/serialization/nvp.hpp>
 #include <memory>
 
@@ -34,12 +35,12 @@ namespace gintonic {
 
 namespace experimental {
 class Entity;
-} // experimental
+} // namespace experimental
 
 /**
  * @brief      Abstract base class for all component types.
  */
-class Component
+class GINTONIC_EXPORT Component
 {
   public:
     enum class Kind : unsigned
@@ -125,6 +126,6 @@ class Component
     clone(experimental::Entity* newOwner) const = 0;
 };
 
-} // gintonic
+} // namespace gintonic
 
 BOOST_CLASS_TRACKING(gintonic::Component, boost::serialization::track_always);

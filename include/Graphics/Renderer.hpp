@@ -19,8 +19,7 @@
 #include <boost/signals2.hpp>
 #include <chrono>
 
-namespace gintonic
-{
+namespace gintonic {
 
 /**
  * @brief The Renderer class. This is a singleton class.
@@ -49,7 +48,7 @@ namespace gintonic
  * fancy stuff that the Renderer also initializes, you can use the function
  * Renderer::init_dummy.
  */
-class Renderer
+class GINTONIC_EXPORT Renderer
 {
   public:
     /// The clock type to record the delta time and elapsed time.
@@ -207,10 +206,10 @@ class Renderer
      * @throws Font::InitException when the debug font is not present.
      */
     static void
-    initialize(const char* windowTitle,
+    initialize(const char*       windowTitle,
                Entity::SharedPtr cameraEntity = Entity::create("DefaultCamera"),
                const bool fullscreen = true, const int preferredWidth = 800,
-               const int preferredHeight = 640,
+               const int  preferredHeight = 640,
                const bool initializeGeometryBuffer = true,
                const bool initializeShaderPrograms = true,
                const bool initializeBasicMeshes = true);
@@ -863,23 +862,23 @@ class Renderer
 
     static void release();
 
-    static bool sShouldClose;
-    static bool sFullscreen;
-    static bool sRenderInWireframeMode;
-    static bool sViewGeometryBuffers;
-    static bool sViewCameraDepthBuffer;
-    static int sWidth;
-    static int sHeight;
+    static bool  sShouldClose;
+    static bool  sFullscreen;
+    static bool  sRenderInWireframeMode;
+    static bool  sViewGeometryBuffers;
+    static bool  sViewCameraDepthBuffer;
+    static int   sWidth;
+    static int   sHeight;
     static float sAspectRatio;
 
-    static time_point_type sStartTime;
-    static duration_type sDeltaTime;
-    static duration_type sPrevElapsedTime;
-    static duration_type sElapsedTime;
+    static time_point_type                       sStartTime;
+    static duration_type                         sDeltaTime;
+    static duration_type                         sPrevElapsedTime;
+    static duration_type                         sElapsedTime;
     static boost::circular_buffer<duration_type> s_circle_buffer;
-    static vec2f sMouseDelta;
-    static vec2f sMouseWheel;
-    static vec4f sFingerMotion;
+    static vec2f                                 sMouseDelta;
+    static vec2f                                 sMouseWheel;
+    static vec4f                                 sFingerMotion;
 
     static bool sMatrixPDirty;
     static bool sMatrixVMDirty;
@@ -901,8 +900,8 @@ class Renderer
 
     static std::shared_ptr<Entity> sCameraEntity;
     static std::shared_ptr<Entity> sDebugShadowBufferEntity;
-    static const Octree* sOctreeRoot;
-    static vec3f sCameraPosition;
+    static const Octree*           sOctreeRoot;
+    static vec3f                   sCameraPosition;
 
     static std::shared_ptr<Mesh> sUnitQuadPUN;
     static std::shared_ptr<Mesh> sUnitCubePUN;

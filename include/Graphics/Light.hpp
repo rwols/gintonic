@@ -9,13 +9,12 @@
 #include <iosfwd>
 #include <string>
 
-namespace gintonic
-{
+namespace gintonic {
 
 /**
  * @brief A light. This is an abstract class, meant for inheritance.
  */
-class Light : public Object<Light, std::string>
+class GINTONIC_EXPORT Light : public Object<Light, std::string>
 {
   public:
     using Super = Object<Light, std::string>;

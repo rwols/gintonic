@@ -56,8 +56,7 @@
 #define GT_VERTEX_LAYOUT_SLOT_14 14 // boneID.x boneID.y boneID.z boneID.w
 #define GT_VERTEX_LAYOUT_SLOT_15 15 // weight.x weight.y weight.z weight.w
 
-namespace gintonic
-{
+namespace gintonic {
 
 /**
  * @brief Mesh component.
@@ -66,7 +65,7 @@ namespace gintonic
  * the current modelview and modelviewprojection matrices. When rendering
  * the mesh instanced, you need to supply the matrices yourself.
  */
-class Mesh : public Object<Mesh, std::string>
+class GINTONIC_EXPORT Mesh : public Object<Mesh, std::string>
 {
   public:
     /**
@@ -270,36 +269,36 @@ class Mesh : public Object<Mesh, std::string>
     // {
     // public:
 
-    // 	using NameType      = std::string;
-    // 	using IndexType     = GLint;
-    // 	using TransformType = SQT;
+    //  using NameType      = std::string;
+    //  using IndexType     = GLint;
+    //  using TransformType = SQT;
 
-    // 	NameType      name;
-    // 	IndexType     parent;
-    // 	TransformType transform;
+    //  NameType      name;
+    //  IndexType     parent;
+    //  TransformType transform;
 
-    // 	Bone() = default;
+    //  Bone() = default;
 
-    // 	template <class A, class B, class C>
-    // 	Bone(A&& name, B&& parent, C&& localTransform)
-    // 	: name(std::forward<A>(name))
-    // 	, parent(std::forward<B>(parent))
-    // 	, transform(std::forward<C>(localTransform))
-    // 	{
-    // 		/* Empty on purpose. */
-    // 	}
+    //  template <class A, class B, class C>
+    //  Bone(A&& name, B&& parent, C&& localTransform)
+    //  : name(std::forward<A>(name))
+    //  , parent(std::forward<B>(parent))
+    //  , transform(std::forward<C>(localTransform))
+    //  {
+    //      /* Empty on purpose. */
+    //  }
 
-    // 	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+    //  GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
     // private:
 
-    // 	friend class boost::serialization::access;
+    //  friend class boost::serialization::access;
 
-    // 	template <class Archive>
-    // 	void serialize(Archive & ar, const unsigned int /*version*/)
-    // 	{
-    // 		ar & name & parent & transform;
-    // 	}
+    //  template <class Archive>
+    //  void serialize(Archive & ar, const unsigned int /*version*/)
+    //  {
+    //      ar & name & parent & transform;
+    //  }
     // };
 
     // std::vector<Bone, allocator<Bone>> skeleton;
@@ -338,7 +337,7 @@ class Mesh : public Object<Mesh, std::string>
      * the w coordinate is the y coordinate of the texture coordinate
      * information.
      */
-    Mesh(const std::vector<GLuint>& indices,
+    Mesh(const std::vector<GLuint>&      indices,
          const std::vector<Mesh::vec4f>& position_XYZ_uv_X,
          const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y);
 
@@ -368,7 +367,7 @@ class Mesh : public Object<Mesh, std::string>
      * where the x,y,z coordinates are the tangent vector information for a
      * vertex, and the w coordinate is the *handedness* of the bitangent vector.
      */
-    Mesh(const std::vector<GLuint>& indices,
+    Mesh(const std::vector<GLuint>&      indices,
          const std::vector<Mesh::vec4f>& position_XYZ_uv_X,
          const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y,
          const std::vector<Mesh::vec4f>& tangent_XYZ_handedness);
@@ -395,7 +394,7 @@ class Mesh : public Object<Mesh, std::string>
      * the w coordinate is the y coordinate of the texture coordinate
      * information.
      */
-    void set(const std::vector<GLuint>& indices,
+    void set(const std::vector<GLuint>&      indices,
              const std::vector<Mesh::vec4f>& position_XYZ_uv_X,
              const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y);
 
@@ -425,7 +424,7 @@ class Mesh : public Object<Mesh, std::string>
      * where the x,y,z coordinates are the tangent vector information for a
      * vertex, and the w coordinate is the *handedness* of the bitangent vector.
      */
-    void set(const std::vector<GLuint>& indices,
+    void set(const std::vector<GLuint>&      indices,
              const std::vector<Mesh::vec4f>& position_XYZ_uv_X,
              const std::vector<Mesh::vec4f>& normal_XYZ_uv_Y,
              const std::vector<Mesh::vec4f>& tangent_XYZ_handedness);
@@ -592,7 +591,7 @@ inline std::ostream& operator<<(std::ostream& os, const Mesh::vec4i& v)
 
 // inline std::ostream& operator << (std::ostream& os, const Mesh::Bone& bone)
 // {
-// 	return os << '{' << bone.name << ", " << bone.parent << ", " <<
+//  return os << '{' << bone.name << ", " << bone.parent << ", " <<
 // bone.transform << '}';
 // }
 

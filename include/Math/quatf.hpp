@@ -8,12 +8,11 @@
 
 #include "../Foundation/Profiler.hpp"
 #include "../Foundation/utilities.hpp"
-
+#include "gintonic_export.h"
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
-namespace gintonic
-{
+namespace gintonic {
 
 union vec2f; // Forward declaration.
 union vec3f; // Forward declaration.
@@ -30,7 +29,8 @@ union vec3f; // Forward declaration.
 /**
  * @brief Represents a quaternion.
  */
-union alignas(__m128) quatf {
+union GINTONIC_EXPORT alignas(__m128) quatf
+{
   private:
   public:
     /// The raw SSE type.
@@ -93,9 +93,9 @@ union alignas(__m128) quatf {
 
     // inline friend quatf operator * (const float a, const quatf& q) noexcept
     // {
-    // 	GT_PROFILE_FUNCTION;
+    //  GT_PROFILE_FUNCTION;
 
-    // 	return _mm_mul_ps(_mm_set1_ps(a), q.data);
+    //  return _mm_mul_ps(_mm_set1_ps(a), q.data);
     // }
 
     /// Multiply-and-assign operator.
@@ -288,7 +288,7 @@ union alignas(__m128) quatf {
      * @return A quaternion that encodes the rotation.
      */
     static quatf axis_angle(const vec3f& rotation_axis,
-                            const float rotation_angle);
+                            const float  rotation_angle);
 
     /**
      * @brief Construct a quaternion from a given yaw, pitch and roll.

@@ -13,81 +13,80 @@ namespace gintonic {
  * direction. Just as with a a point light, it also carries an attenuation
  * value.
  */
-class SpotLight : public PointLight
+class GINTONIC_EXPORT SpotLight : public PointLight
 {
-public:
+  public:
+    using Super = PointLight;
 
-	using Super = PointLight;
+    template <class... Args> inline static SharedPtr create(Args&&... args)
+    {
+        return SharedPtr(new SpotLight(std::forward<Args>(args)...));
+    }
 
-	template <class ...Args>
-	inline static SharedPtr create(Args&&... args)
-	{
-		return SharedPtr(new SpotLight(std::forward<Args>(args)...));
-	}
+  protected:
+    /// Default constructor.
+    SpotLight() = default;
 
-protected:
+    /**
+     * @brief Constructor.
+     *
+     * @param [in] intensity The intensity of the spot light.
+     */
+    SpotLight(const vec4f& intensity);
 
-	/// Default constructor.
-	SpotLight() = default;
+    /**
+     * @brief Constructor.
+     *
+     * @param [in] intensity The intensity of the spot light.
+     * @param [in] attenuation The attenuation of the spot light, just as for a
+     * point light.
+     */
+    SpotLight(const vec4f& intensity, const vec4f& attenuation);
 
-	/**
-	 * @brief Constructor.
-	 *
-	 * @param [in] intensity The intensity of the spot light.
-	 */
-	SpotLight(const vec4f& intensity);
-	
-	/**
-	 * @brief Constructor.
-	 *
-	 * @param [in] intensity The intensity of the spot light.
-	 * @param [in] attenuation The attenuation of the spot light, just as for a point light.
-	 */
-	SpotLight(const vec4f& intensity, const vec4f& attenuation);
+    /**
+     * @brief Constructor.
+     *
+     * @param [in] intensity The intensity of the spot light.
+     * @param [in] attenuation The attenuation of the spot light, just as for a
+     * point light.
+     * @param [in] cosineHalfAngle The cosine of the half angle for the spot
+     * light.
+     */
+    SpotLight(const vec4f& intensity, const vec4f& attenuation,
+              const float cosineHalfAngle);
 
-	/**
-	 * @brief Constructor.
-	 * 
-	 * @param [in] intensity The intensity of the spot light.
-	 * @param [in] attenuation The attenuation of the spot light, just as for a point light.
-	 * @param [in] cosineHalfAngle The cosine of the half angle for the spot light.
-	 */
-	SpotLight(const vec4f& intensity, const vec4f& attenuation, const float cosineHalfAngle);
+  public:
+    /// Destructor.
+    virtual ~SpotLight() noexcept = default;
 
-public:
+    virtual void setCosineHalfAngle(const float angle);
 
-	/// Destructor.
-	virtual ~SpotLight() noexcept = default;
+    virtual float getCosineHalfAngle() const noexcept;
 
-	virtual void setCosineHalfAngle(const float angle);
+    virtual void shine(const Entity& lightEntity,
+                       const std::vector<std::shared_ptr<Entity>>&
+                           shadowCastingGeometryEntities) const noexcept;
 
-	virtual float getCosineHalfAngle() const noexcept;
-	
-	virtual void shine(
-		const Entity& lightEntity, 
-		const std::vector<std::shared_ptr<Entity>>& shadowCastingGeometryEntities) const noexcept;
+    virtual void initializeShadowBuffer(Entity& lightEntity) const;
 
-	virtual void initializeShadowBuffer(Entity& lightEntity) const;
+    /// Stream output support for a spot light.
+    friend std::ostream& operator<<(std::ostream&, const SpotLight&);
 
-	/// Stream output support for a spot light.
-	friend std::ostream& operator << (std::ostream&, const SpotLight&);
+    GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
 
-	GINTONIC_DEFINE_SSE_OPERATOR_NEW_DELETE();
+  private:
+    float mCosineHalfAngle;
 
-private:
+    // Reimplement this method to support output streams.
+    virtual std::ostream& prettyPrint(std::ostream&) const noexcept;
 
-	float mCosineHalfAngle;
+    friend boost::serialization::access;
 
-	// Reimplement this method to support output streams.
-	virtual std::ostream& prettyPrint(std::ostream&) const noexcept;
-
-	friend boost::serialization::access;
-
-	template <class Archive>
-	void serialize(Archive& ar, const unsigned /*version*/)
-	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
-	}
+    template <class Archive>
+    void serialize(Archive& ar, const unsigned /*version*/)
+    {
+        ar& BOOST_SERIALIZATION_BASE_OBJECT_NVP(Super);
+    }
 };
 
 } // namespace gintonic

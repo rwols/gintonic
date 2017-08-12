@@ -19,11 +19,9 @@
 #include <list>
 #include <unordered_map>
 
-namespace gintonic
-{
+namespace gintonic {
 
-namespace OpenGL
-{
+namespace OpenGL {
 class ShaderProgram;
 }
 
@@ -42,7 +40,8 @@ class ShaderProgram;
  * a value of true. Otherwise the default value of false is used to signal
  * that we are not rendering an instanced mesh.
  */
-class Material : public Object<Material, std::string>, public Asset
+class GINTONIC_EXPORT Material : public Object<Material, std::string>,
+                                 public Asset
 {
     GINTONIC_ASSET(Material, "materials", ".mat")
 
@@ -160,7 +159,7 @@ class Material : public Object<Material, std::string>, public Asset
     std::unordered_map<std::string, float> mFloats;
     std::unordered_map<std::string,
                        std::pair<GLint, std::shared_ptr<Texture2D>>>
-        mTextures;
+                                           mTextures;
     std::unordered_map<std::string, vec2f> mVec2s;
     std::unordered_map<std::string, vec3f> mVec3s;
     std::unordered_map<std::string, vec4f> mVec4s;

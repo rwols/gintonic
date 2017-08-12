@@ -1,11 +1,11 @@
 #pragma once
 #include "Foundation/Profiler.hpp"
 #include "Graphics/Renderer.hpp"
+#include "gintonic_export.h"
 
-namespace gintonic
-{
+namespace gintonic {
 
-class Application
+class GINTONIC_EXPORT Application
 {
   public:
     Application(int argc, char** argv);
@@ -22,8 +22,8 @@ class Application
     inline void close() const noexcept { gintonic::Renderer::close(); }
 
   protected:
-    const int mArgCount;
-    const char** mArgVariable;
+    const int                         mArgCount;
+    const char**                      mArgVariable;
     std::shared_ptr<gintonic::Entity> mRootEntity =
         gintonic::Entity::create("Root");
 
@@ -55,7 +55,7 @@ class Application
     void processCameraInput();
 };
 
-} // gintonic
+} // namespace gintonic
 
 #define DEFINE_MAIN(DerivedApplicationName, programName, shortDescription)     \
     int main(int argc, char* argv[])                                           \
