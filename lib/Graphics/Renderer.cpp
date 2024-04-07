@@ -333,11 +333,7 @@ void Renderer::initialize(const char* windowTitle,
         throw NoContextAvailableException(3, 3);
     }
 
-    if (gladLoadGL() != 1)
-    {
-        release();
-        throw FunctionLoadException();
-    }
+    gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
 
     SDL_GetKeyboardState(&sKeyStateCount);
     sKeyPrevState = new Uint8[sKeyStateCount];
@@ -472,11 +468,7 @@ void Renderer::initDummy(const bool construct_shaders)
             throw NoContextAvailableException(3, 3);
         }
     }
-    if (gladLoadGL() != 1)
-    {
-        release();
-        throw FunctionLoadException();
-    }
+    gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
 
     if (construct_shaders) init_shaders();
 }

@@ -16,7 +16,7 @@
 #endif
 #include "../../Foundation/allocator.hpp"
 #include "../../ForwardDeclarations.hpp"
-#include "glad/glad.h"
+#include "glad/gl.h"
 #include <vector>
 #include <array>
 #include <boost/config.hpp>

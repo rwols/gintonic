@@ -1,8 +1,8 @@
 #include "Graphics/Material.hpp"
 
 #include "Foundation/exception.hpp"
-#include "Foundation/portable_iarchive.hpp"
-#include "Foundation/portable_oarchive.hpp"
+#include <eos/portable_iarchive.hpp>
+#include <eos/portable_oarchive.hpp>
 
 #include "Graphics/OpenGL/ShaderProgram.hpp"
 

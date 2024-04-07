@@ -1,9 +1,5 @@
 # Configure glad
-set(GLAD_PROFILE "core" CACHE STRING "OpenGL profile")
-if (CMAKE_BUILD_TYPE STREQUAL Debug)
-    set(GLAD_GENERATOR "c-debug" CACHE STRING "")
-endif ()
-add_subdirectory(glad)
+add_subdirectory(glad/cmake)
 
 # Configure SDL2
 if (BUILD_SHARED_LIBS)
@@ -21,7 +17,9 @@ endif()
 if(WIN32)
     set(LIBC ON CACHE BOOL "")
 endif()
-add_subdirectory(SDL-mirror)
+set(VIDEO_WAYLAND ON)
+set(WAYLAND_SHARED ON)
+add_subdirectory(SDL)
 
 # Configure freetype
 # Cannot build shared libs for freetype on Windows; just use

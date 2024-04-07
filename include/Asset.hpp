@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Foundation/Profiler.hpp"
-#include "Foundation/portable_iarchive.hpp"
-#include "Foundation/portable_oarchive.hpp"
+#include <eos/portable_iarchive.hpp>
+#include <eos/portable_oarchive.hpp>
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <fstream>

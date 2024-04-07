@@ -3,8 +3,8 @@
 
 #include "gintonic.hpp"
 
-#include "Foundation/portable_iarchive.hpp"
-#include "Foundation/portable_oarchive.hpp"
+#include <eos/portable_iarchive.hpp>
+#include <eos/portable_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <fstream>

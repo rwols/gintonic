@@ -1,7 +1,7 @@
 #include "SDLRenderContext.hpp"
 #include "Math/vec4f.hpp"
 #include "SDLWindow.hpp"
-#include "glad/glad.h"
+#include "glad/gl.h"
 #include <SDL.h>
 
 using namespace gintonic;
@@ -23,11 +23,7 @@ SDLRenderContext::SDLRenderContext(SDLWindow& owner, const int major,
         throw std::out_of_range(
             "no context with specified major.minor available");
     }
-    if (gladLoadGL() != 1)
-    {
-        SDL_GL_DeleteContext(mHandle);
-        throw std::bad_alloc();
-    }
+    gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
 
     // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     resize();

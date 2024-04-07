@@ -8,7 +8,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <fstream>
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <imgui.h>
 #include <iostream>
 #include <list>
@@ -40,9 +40,9 @@
 #include "Foundation/Profiler.hpp"
 #include "Foundation/exception.hpp"
 #include "Foundation/filesystem.hpp"
-#include "Foundation/portable_archive.hpp"
-#include "Foundation/portable_iarchive.hpp"
-#include "Foundation/portable_oarchive.hpp"
+#include <eos/portable_archive.hpp>
+#include <eos/portable_iarchive.hpp>
+#include <eos/portable_oarchive.hpp>
 #include "Foundation/utilities.hpp"
 
 #include "Graphics/Renderer.hpp"

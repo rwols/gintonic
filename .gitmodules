@@ -1,6 +1,7 @@
 [submodule "thirdparty/glad"]
 	path = thirdparty/glad
 	url = https://github.com/Dav1dde/glad.git
+	branch = v2.0.6
 [submodule "thirdparty/SDL-mirror"]
 	path = thirdparty/SDL-mirror
 	url = https://github.com/spurious/SDL-mirror.git
@@ -16,3 +17,9 @@
 [submodule "thirdparty/assimp"]
 	path = thirdparty/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "thirdparty/eos-portable-archive"]
+	path = thirdparty/eos-portable-archive
+	url = git@github.com:daldegam/eos-portable-archive.git
+[submodule "thirdparty/SDL"]
+	path = thirdparty/SDL
+	url = git@github.com:libsdl-org/SDL.git

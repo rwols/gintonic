@@ -13,7 +13,7 @@
 #include <SDL.h>
 #include <SDL_syswm.h>
 // #include <GL/gl3w.h>    // This example is using gl3w to access OpenGL functions (because it is small). You may use glew/glad/glLoadGen/etc. whatever already works for you.
-#include "glad/glad.h"
+#include "glad/gl.h"
 
 // Data
 static double       g_Time = 0.0f;
@@ -414,7 +414,7 @@ int main(int, char**)
     SDL_GetCurrentDisplayMode(0, &current);
     SDL_Window *window = SDL_CreateWindow("ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
     SDL_GLContext glcontext = SDL_GL_CreateContext(window);
-    gladLoadGL();
+    gladLoadGL((GLADloadfunc)SDL_GL_GetProcAddress);
 
     // Setup ImGui binding
     ImGui_ImplSdlGL3_Init(window);
